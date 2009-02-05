@@ -1,7 +1,7 @@
 \documentclass[11pt]{article}
 \usepackage{a4wide}
 \title{\begin{small}MSc Project Proposal (draft)\end{small}\\
-Title Goes Here}
+A Framework for Experimentation with Parity Games}
 \author{Maks Verver (0002712)\\\texttt{m.verver@student.utwente.nl}}
 \date{February 3rd, 2009}
 \oddsidemargin 0.0in
@@ -10,47 +10,44 @@ Title Goes Here}
 \headheight 0.0in
 \begin{document}
 \maketitle
-Foo bar
+
 \section{Description}
 Parity games are infinite games played by two players on a finite graph. They
-have a practical application in formal verification systems because parity games
-corresponding to formulae expressed in the modal $\mu$-calculus can be
-constructed efficiently \cite{wilke1993}.
+have a practical application in formal verification systems, for example to
+verify formulae expressed in the modal $\mu$-calculus \cite{wilke1993}.
 
-[motivation:] Further research on parity games is important for two reasons:
+Research on parity games is important for two reasons:
 \begin{enumerate}
 \item Currently, formal verification tools are severely limited in the size and
 complexity of models and formulae that can be verified. Better algorithms for
 solving parity games could make more extensive model checking feasible.
 
-\item The computational complexity of solving parity games is undetermined; it
+\item The computational complexity of solving parity games is undetermined. It
 is known to be in NP $\cap$ co-NP \cite{emerson2001mcmu}, but there is large gap
 between this theoretical bound and practical performance (which tends to be
-much better); the question whether there is a better (polynomial) time bound is
+much better). The question whether there is a better (polynomial) time bound is
 an interesting open question.
 \end{enumerate}
 
 The objectives of the project are twofold:
 \begin{enumerate}
-\item To assess and (if possible) improve the practical performance of parity
-game algorithms in the context of formal verification, in order to increase
-their usefulness as a model checking tool.
-
+\item To assess and improve the practical performance of parity game algorithms
+in the context of formal verification, in order to increase their usefulness as
+a model checking tool.
 \item To gain insight in the computation process for parity game algorithms in
-order to better understand the nature and complexity of solving parity games
-and the associated model verification problems. Detailed analysis of the
-available algorithms could lead to better understanding of the nature and
-complexity of solving parity games and the associated model verification
-problems.
+order to better understand the nature and computational complexity of parity
+game algorithms and the associated model verification problems.
 \end{enumerate}
 
-[approach] two promising direct algorithms using \emph{small progress measures}
-\cite{jurdzinski2000spm} and using \emph{strategy improvement} \cite{voge2000dsi}.
-implement in a common framework and 
-
-"The aim of this project is to enhance understanding of the algorithms by creating an environment which allows to compare different algorithms (known from the literature) with each other, find common traits, and determine which algorithms perform better on sub-classes of the problem space."
-
-
+To reach these objectives, it will be necessary to develop a unifying framework
+for parity game solvers that allows different state-of-the-art algorithms to be
+compared directly. The best known algorithms are based on
+\emph{small progress measures} \cite{jurdzinski2000spm} and
+\emph{strategy improvement} \cite{voge2000dsi} \cite{schewe2008osi}, which
+should be included in the implementation.
+This framework can then be used to assess the performance of the different algorithms
+in the context of different model verification scenarios, and evaluate the
+execution of these algorithms in detail.
 
 \section{Graduation committee}
 To be determined.
