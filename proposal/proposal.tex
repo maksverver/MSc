@@ -47,13 +47,35 @@ compared directly. The best known algorithms are based on
 should be included in the implementation.
 This framework can then be used to assess the performance of the different algorithms
 in the context of different model verification scenarios, and evaluate the
-execution of these algorithms in detail.
+execution of these algorithms in detail. It is expected that higher performance
+can be achieved with these algorithms by parallelizing their implementation,
+which will be a specific approach for the project.
+
+The concrete goals for this project are therefore:
+\begin{enumerate}
+\item To design and implement pluggable heuristics for the small progress measures
+      algorithm, analyze existing heuristics, and devise new heuristics that
+      work well in the context of model verification.
+\item To redesign the existing small progress measures implementation so it is
+      portable as well as parallelizable.
+\item To devise an implementation of a strategy improvement algorithm that is
+      competitive with the small progress measures algorithm.
+\item To design and implement a portable, parallel version of the strategy
+      improvement algorithm.
+\item To trace the execution of the algorithms in the framework and to analyze
+      the execution characteristics of the algorithms when applied to various
+      inputs.
+\end{enumerate}
 
 \section{Graduation committee}
-To be determined.
+\begin{itemize}
+\item First supervisor: Dr. Michael Weber (FMT)
+\item Second supervisor: Prof. Dr. Jaco van de Pol (FMT)
+\item External supervisor: \emph{TBD}
+\end{itemize}
 
-\section{Time schedule}
-To be determined.
+\section{Time period}
+February 2009 -- July 2009
 
 \bibliographystyle{alpha}
 \bibliography{references}
