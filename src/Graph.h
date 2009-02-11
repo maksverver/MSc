@@ -2,7 +2,8 @@
 #define GRAPH_H_INCLUDED
 
 #include <stdint.h>
-#include <iostream>
+#include <vector>
+#include <utility>
 
 typedef uint32_t verti;    /*!< type used to number vertices */
 typedef uint32_t edgei;    /*!< type used to number edges */
@@ -15,7 +16,10 @@ public:
     /*! Iterator used to iterate over predecessor/successor vertices. */
     typedef const verti *const_iterator;
 
-    /*! Used to describe which parts of the edges are stored.
+    /*! A list of edges */
+    typedef std::vector<std::pair<verti, verti> > edge_list;
+
+    /*! Specifies which parts of the edges are stored.
         When storing successors only, the functions succ_begin() and succ_end()
         can be used to iterate over the successors of a given vertex.
         Conversely, when storing predecessors, pred_begin() and pred_end()
@@ -38,6 +42,9 @@ public:
         \param out_deg  desired average out degree (at least 1)
         \param edge_dir which parts of edges to store */
     void make_random(verti V, unsigned out_deg, EdgeDirection edge_dir);
+
+    /*! Reset the graph based on the given edge structure. */
+    void assign(edge_list edges, EdgeDirection edge_dir);
 
     verti V() const { return V_; }  /*!< Return number of vertices in the graph */
     edgei E() const { return E_; }  /*!< Return number of edges in the graph */
@@ -87,6 +94,9 @@ private:
 
     /*! Direction of stored edges. */
     EdgeDirection edge_dir_;
+
+private:
+    friend class GraphBuilder;
 };
 
 #endif /* ndef GRAPH_H_INCLUDED */

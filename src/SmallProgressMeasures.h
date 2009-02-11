@@ -72,7 +72,7 @@ public:
     ~SmallProgressMeasures();
 
     bool solve();
-    ParityGame::Player winner(verti v);
+    ParityGame::Player winner(verti v) const;
 
     /*! For debugging: print current state to stdout */
     void debug_print();

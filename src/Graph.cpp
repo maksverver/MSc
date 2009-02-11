@@ -74,17 +74,38 @@ void StaticGraph::make_random(verti V, unsigned out_deg, EdgeDirection edge_dir)
     assert(RAND_MAX >= V);
 
     /* Create a random edge set, with at least one outgoing edge per node,
-       and an average out-degree `out_deg`. */
-    std::vector<std::pair<verti, verti> > edges;
+       and an average out-degree `out_deg`, without any duplicate edges (but
+       possibly with self-edges). */
+    edge_list edges;
+    std::vector<verti> neighbours(V);
+    for (verti i = 0; i < V; ++i) neighbours[i] = i;
     for (verti i = 0; i < V; ++i)
     {
         unsigned N = 1 + rand()%(2*out_deg - 1);
-        for (unsigned n = 0; n < N; ++n)
+
+        for (unsigned n = 0; n < N && n < V; ++n)
         {
-            verti j = rand()%V;
-            edges.push_back(std::make_pair(i, j));
+            std::swap(neighbours[n], neighbours[n + rand()%(V - n)]);
+            edges.push_back(std::make_pair(i, neighbours[n]));
         }
     }
+
+    /* Create graph from edge set */
+    assign(edges, edge_dir);
+
+}
+
+void StaticGraph::assign(edge_list edges, EdgeDirection edge_dir)
+{
+    // Find number of vertices
+    verti V = 0;
+    for (edge_list::iterator it = edges.begin(); it != edges.end(); ++it)
+    {
+        if (it->first  >= V) V = it->first  + 1;
+        if (it->second >= V) V = it->second + 1;
+    }
+
+    // Count number of vertices
     edgei E = (edgei)edges.size();
     assert(E == edges.size());  /* detect integer overflow */
 
@@ -127,5 +148,4 @@ void StaticGraph::make_random(verti V, unsigned out_deg, EdgeDirection edge_dir)
         /* Create predecessor list */
         for (edgei e = 0; e < E; ++e) predecessors_[e] = edges[e].first;
     }
-
 }

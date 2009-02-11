@@ -26,7 +26,7 @@ SmallProgressMeasures::SmallProgressMeasures( const ParityGame &game,
 {
     /* Initialize SPM vector bounds */
     M_ = new verti[len_];
-    for (int n = 0; n < len_; ++n) M_[n] = game_.cardinality(2*n + 1);
+    for (int n = 0; n < len_; ++n) M_[n] = game_.cardinality(2*n + 1) + 1;
 
     /* Initialize SPM vector data */
     size_t n = (size_t)len_*game.graph().V();
@@ -148,6 +148,13 @@ ParityGame::Player SmallProgressMeasures::winner(verti v)
 
 void SmallProgressMeasures::debug_print()
 {
+    printf("M =");
+    for (int p = 0; p < game_.d(); ++p)
+    {
+        printf(" %d", (p%2 == 0) ? 0 : M_[p/2]);
+    }
+    printf("\n");
+
     for (verti v = 0; v < game_.graph().V(); ++v)
     {
         printf ( "%6d %c p=%d:", (int)v,
@@ -186,7 +193,7 @@ bool SmallProgressMeasures::verify_solution()
                 if (vec(v)[p/2] >= M_[p/2])
                 {
                     printf( "%d-th component of SPM vector for vertex %d "
-                            "out of bounds!\n", p/2, (int)v );
+                            "out of bounds!\n", p, (int)v );
                     return false;
                 }
 
