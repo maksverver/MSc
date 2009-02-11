@@ -72,7 +72,7 @@ public:
     ~SmallProgressMeasures();
 
     bool solve();
-    ParityGame::Player winner(verti v);
+    ParityGame::Player winner(verti v) const;
 
     /*! For debugging: print current state to stdout */
     void debug_print();
@@ -88,22 +88,23 @@ protected:
         This array contains only the components with odd indices of the vertex
         (since the reset is fixed at zero). */
     verti *vec(verti v) { return &spm_[(size_t)len_*v]; }
+    const verti *vec(verti v) const { return &spm_[(size_t)len_*v]; }
 
     /*! Return the number of odd priorities less than or equal to the
         priority of v. This is the length of the SPM vector for `v`. */
-    int len(verti v) { return game_.priority(v)/2; }
+    int len(verti v) const { return (game_.priority(v) + 1)/2; }
 
     /*! Return whether the SPM vector for vertex `v` has top value. */
-    bool is_top(verti v) { return vec(v)[0] == (verti)-1; }
+    bool is_top(verti v) const { return vec(v)[0] == (verti)-1; }
 
     /*! Set the SPM vector for vertex `v` to top value. */
     void set_top(verti v) { vec(v)[0] = (verti)-1; }
 
  private:
-    /*! Compares the first len(`v`) elements of the SPM vectors for the given
+    /*! Compares the first `N` elements of the SPM vectors for the given
         vertices and returns -1, 0 or 1 to indicate that v is smaller, equal to,
         r larger than w (respectively). */
-    int vector_cmp(verti v, verti w);
+    int vector_cmp(verti v, verti w, int N);
 
     /*! Returns the minimum or maximum successor for vertex `v`,
         depending on whether take_max is false or true (respectively). */

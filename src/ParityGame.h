@@ -2,6 +2,8 @@
 #define PARITY_GAME_H_INCLUDED
 
 #include "Graph.h"
+#include <iostream>
+#include <vector>
 
 /*! Information stored for each vertex of a parity game:
     - the player to move (either PLAYER_EVEN or PLAYER_ODD)
@@ -21,7 +23,7 @@ class ParityGame
 {
 public:
     /*! The two players in a parity game (Even and Odd) */
-    enum Player { PLAYER_EVEN, PLAYER_ODD };
+    enum Player { PLAYER_EVEN = 0, PLAYER_ODD = 1};
 
     /*! Construct an empty parity game */
     ParityGame();
@@ -34,7 +36,10 @@ public:
         \sa StaticGraph::make_random()
     */
     void make_random( verti V, unsigned out_deg,
-                      StaticGraph::EdgeDirection edge_dir, int d);
+                      StaticGraph::EdgeDirection edge_dir, int d );
+
+    /*! Read a graph description in PGSolver format. */
+    void read_pgsolver(std::istream &is, StaticGraph::EdgeDirection edge_dir);
 
     /*! Return the priority limit */
     int d() const { return d_; }
@@ -53,7 +58,7 @@ public:
 protected:
     /*! Re-allocate memory to store information on V vertices with priorities
         between 0 and `d` (exclusive). */
-    void reset(int V, int d);
+    void reset(verti V, int d);
 
 private:
     int d_;                 /*!< priority limit */

@@ -26,7 +26,7 @@ SmallProgressMeasures::SmallProgressMeasures( const ParityGame &game,
 {
     /* Initialize SPM vector bounds */
     M_ = new verti[len_];
-    for (int n = 0; n < len_; ++n) M_[n] = game_.cardinality(2*n + 1);
+    for (int n = 0; n < len_; ++n) M_[n] = game_.cardinality(2*n + 1) + 1;
 
     /* Initialize SPM vector data */
     size_t n = (size_t)len_*game.graph().V();
@@ -40,12 +40,12 @@ SmallProgressMeasures::~SmallProgressMeasures()
     delete[] M_;
 }
 
-inline int SmallProgressMeasures::vector_cmp(verti v, verti w)
+inline int SmallProgressMeasures::vector_cmp(verti v, verti w, int N)
 {
     if (is_top(v)) return is_top(w) ? 0 : +1;   /* v is top */
     if (is_top(w)) return -1;                   /* w is top, but v isn't */
 
-    for (int n = 0; n < len(v); ++n)
+    for (int n = 0; n < N; ++n)
     {
         if (vec(v)[n] < vec(w)[n]) return -1;
         if (vec(v)[n] > vec(w)[n]) return +1;
@@ -61,10 +61,11 @@ inline verti SmallProgressMeasures::get_ext_succ(verti v, bool take_max)
 
     assert(it != end);  /* assume we have at least one successor */
 
+    int N = len(v);
     verti res = *it++;
     for ( ; it != end; ++it)
     {
-        int d = vector_cmp(*it, res);
+        int d = vector_cmp(*it, res, N);
         if (take_max ? d > 0 : d < 0) res = *it;
     }
     return res;
@@ -98,7 +99,7 @@ bool SmallProgressMeasures::lift(verti v)
     }
 
     /* See if lifting is required */
-    int d = vector_cmp(v, w);
+    int d = vector_cmp(v, w, len(v));
 
     bool carry;
     if (priority_even)
@@ -138,7 +139,7 @@ bool SmallProgressMeasures::solve()
     return true;
 }
 
-ParityGame::Player SmallProgressMeasures::winner(verti v)
+ParityGame::Player SmallProgressMeasures::winner(verti v) const
 {
     return is_top(v) ? ParityGame::PLAYER_ODD : ParityGame::PLAYER_EVEN;
 }
@@ -148,6 +149,13 @@ ParityGame::Player SmallProgressMeasures::winner(verti v)
 
 void SmallProgressMeasures::debug_print()
 {
+    printf("M =");
+    for (int p = 0; p < game_.d(); ++p)
+    {
+        printf(" %d", (p%2 == 0) ? 0 : M_[p/2]);
+    }
+    printf("\n");
+
     for (verti v = 0; v < game_.graph().V(); ++v)
     {
         printf ( "%6d %c p=%d:", (int)v,
@@ -186,7 +194,7 @@ bool SmallProgressMeasures::verify_solution()
                 if (vec(v)[p/2] >= M_[p/2])
                 {
                     printf( "%d-th component of SPM vector for vertex %d "
-                            "out of bounds!\n", p/2, (int)v );
+                            "out of bounds!\n", p, (int)v );
                     return false;
                 }
 
@@ -206,7 +214,7 @@ bool SmallProgressMeasures::verify_solution()
         for ( StaticGraph::const_iterator it = graph.succ_begin(v);
               it != graph.succ_end(v); ++it )
         {
-            int d = vector_cmp(v, *it);
+            int d = vector_cmp(v, *it, len(v));
             bool ok = priority_even ? d >= 0 : (d > 0 || is_top(v));
             one_ok = one_ok || ok;
             all_ok = all_ok && ok;

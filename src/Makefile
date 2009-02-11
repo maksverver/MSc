@@ -1,6 +1,7 @@
 OBJS=Graph.o ParityGame.o SmallProgressMeasures.o LinearLiftingStrategy.o \
-     PredecessorLiftingStrategy.o main.o
-CXXFLAGS=-Wall -Wextra -O2 -g
+     PredecessorLiftingStrategy.o timing.o logging.o main.o
+CFLAGS=-Wall -Wextra -O2 -g
+CXXFLAGS:=$(CFLAGS)
 # For debugging:
 #CXXFLAGS=-Wall -Wextra -O0 -g -fmudflap -lmudflap
 
