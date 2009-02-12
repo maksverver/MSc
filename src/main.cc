@@ -243,11 +243,12 @@ int main(int argc, char *argv[])
     spm.solve();
 
     info("Verifying solution...");
-    /* spm.debug_print(); */
     if (!spm.verify_solution()) error("Verification failed!");
 
     info("Total lift attempts:     %12lld", stats.lifts_attempted());
     info("Succesful lift attempts: %12lld", stats.lifts_succeeded());
+
+    /* spm.debug_print(); */
 
     if (!arg_pgsolver_file.empty())
     {
