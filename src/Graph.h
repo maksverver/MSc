@@ -96,7 +96,9 @@ private:
     EdgeDirection edge_dir_;
 
 private:
-    friend class GraphBuilder;
+    /* This is a bit of a hack to allow the small progress measures code to
+       do a preprocessing pass for nodes with self-loops. */
+    friend class SmallProgressMeasures;
 };
 
 #endif /* ndef GRAPH_H_INCLUDED */

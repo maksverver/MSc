@@ -1,4 +1,5 @@
 #include "SmallProgressMeasures.h"
+#include "logging.h"
 #include <algorithm>
 #include <assert.h>
 #include <string.h>
@@ -229,4 +230,73 @@ bool SmallProgressMeasures::verify_solution()
         }
     }
     return true;
+}
+
+void SmallProgressMeasures::preprocess_graph()
+{
+    /* Preprocess the graph for more efficient processing of nodes with self-
+       edges. This can speed up things considerably.
+
+       Note that we currently only remove successor edges, not predecessor
+       edges!
+    */
+
+    const ParityGame &game = this->game();
+    StaticGraph &graph = const_cast<StaticGraph&>(game.graph());
+
+    edgei pos = 0;
+    for (verti v = 0; v < graph.V_; ++v)
+    {
+        verti *begin = &graph.successors_[graph.successor_index_[v]],
+              *end   = &graph.successors_[graph.successor_index_[v + 1]];
+
+        graph.successor_index_[v] = pos;
+
+        bool remove_self_edge   = false,
+             remove_other_edges = false;
+
+        // Search for a self-edge
+        for (verti *it = begin; it != end; ++it)
+        {
+            if (*it == v)
+            {
+                // Determine if we can fix the value for this node
+                if ( game.priority(v)%2 == 1 &&
+                     ( game.player(v) == ParityGame::PLAYER_ODD ||
+                       end - begin == 1 ) )
+                {
+                    // Taking self-edge is bad for Even, and he cannot avoid it
+                    set_top(v);
+                }
+
+                // Decide what to do with the edges
+                if (game.priority(v)%2 == (int)game.player(v))
+                {
+                    // Self-edge is beneficial
+                    remove_other_edges = true;
+                }
+                else
+                if (end - begin > 1)
+                {
+                    // Self-edge is detrimental; remove it
+                    remove_self_edge = true;
+                }
+            }
+        }
+
+        // Copy subset of edges
+        for (verti *it = begin; it != end; ++it)
+        {
+            if ( (*it == v && !remove_self_edge) ||
+                 (*it != v && !remove_other_edges) )
+            {
+                graph.successors_[pos++] = *it;
+            }
+        }
+    }
+
+    // Set end of successor edges
+    graph.successor_index_[graph.V_] = pos;
+
+    info("SPM preprocessing removed %d of %d edges", graph.E_ - pos, graph.E_);
 }

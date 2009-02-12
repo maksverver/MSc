@@ -80,6 +80,9 @@ public:
     /*! For debugging: verify that the current state describes a valid SPM */
     bool verify_solution();
 
+    /*! Preprocess the graph to speed up processing of some specific parts. */
+    void preprocess_graph();
+
 protected:
     /*! Attempt to lift a vertex (and return whether this succeeded). */
     bool lift(verti v);

@@ -237,11 +237,14 @@ int main(int argc, char *argv[])
     PredecessorLiftingStrategy strategy(game);
     LiftingStatistics stats(game);
     SmallProgressMeasures spm(game, strategy, &stats);
+    info("Preprocessing graph...");
+    spm.preprocess_graph();
     info("Starting solve...");
     spm.solve();
 
     info("Verifying solution...");
-    assert(spm.verify_solution());
+    /* spm.debug_print(); */
+    if (!spm.verify_solution()) error("Verification failed!");
 
     info("Total lift attempts:     %12lld", stats.lifts_attempted());
     info("Succesful lift attempts: %12lld", stats.lifts_succeeded());

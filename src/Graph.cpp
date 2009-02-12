@@ -92,7 +92,6 @@ void StaticGraph::make_random(verti V, unsigned out_deg, EdgeDirection edge_dir)
 
     /* Create graph from edge set */
     assign(edges, edge_dir);
-
 }
 
 void StaticGraph::assign(edge_list edges, EdgeDirection edge_dir)
