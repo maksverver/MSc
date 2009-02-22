@@ -38,8 +38,12 @@ public:
     void make_random( verti V, unsigned out_deg,
                       StaticGraph::EdgeDirection edge_dir, int d );
 
-    /*! Read a graph description in PGSolver format. */
+    /*! Read a game description in PGSolver format. */
     void read_pgsolver(std::istream &is, StaticGraph::EdgeDirection edge_dir);
+
+    /*! Read a game description from an mCRL2 PBES. */
+    void read_pbes( const std::string &file_path,
+                    StaticGraph::EdgeDirection edge_dir);
 
     /*! Return the priority limit */
     int d() const { return d_; }

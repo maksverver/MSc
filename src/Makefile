@@ -1,6 +1,10 @@
 OBJS=Graph.o ParityGame.o SmallProgressMeasures.o LinearLiftingStrategy.o \
      PredecessorLiftingStrategy.o timing.o logging.o main.o
-CFLAGS=-Wall -Wextra -O2 -g
+CFLAGS=-Wall -O2 -g \
+	-I../../mcrl2/include \
+	-I../../mcrl2/include/mcrl2/aterm \
+	-I../../mcrl2/include/mcrl2/atermpp
+LDLIBS=-L../../mcrl2/lib/mcrl2 -lmcrl2
 CXXFLAGS:=$(CFLAGS)
 # For debugging:
 #CXXFLAGS=-Wall -Wextra -O0 -g -fmudflap -lmudflap
@@ -11,7 +15,7 @@ docs:
 	doxygen
 
 main: $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $@ $^
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 clean:
 	rm -f *.o

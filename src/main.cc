@@ -2,6 +2,9 @@
 #include "ParityGame.h"
 #include "LinearLiftingStrategy.h"
 #include "PredecessorLiftingStrategy.h"
+
+#include <aterm_init.h>
+
 #include "assert.h"
 #include <getopt.h>
 #include <string.h>
@@ -10,12 +13,11 @@
 #include <iostream>
 #include <string>
 
+enum InputFormat {
+    INPUT_NONE = 0, INPUT_RANDOM, INPUT_PGSOLVER, INPUT_PBES
+};
 
-#define INPUT_NONE      0
-#define INPUT_RANDOM    1
-#define INPUT_PGSOLVER  2
-
-static int          arg_input_format        = INPUT_NONE;
+static InputFormat  arg_input_format        = INPUT_NONE;
 static std::string  arg_pgsolver_file       = "";
 static std::string  arg_dot_file            = "";
 static std::string  arg_winners_file        = "";
@@ -29,7 +31,7 @@ static void print_usage()
     printf(
 "Options:\n"
 "  --help/-h              show help\n"
-"  --input/-i <format>    input format: random or pgsolver\n"
+"  --input/-i <format>    input format: random, PGSolver or PBES\n"
 "  --size <int>           size of randomly generated graph\n"
 "  --outdegree <int>      average out-degree in randomly generated graph\n"
 "  --priorities <int>     number of priorities in randomly generated game\n"
@@ -70,14 +72,19 @@ static void parse_args(int argc, char *argv[])
 
         case 'i':   /* input format */
             {
-                if (strcmp(optarg, "random") == 0)
+                if (strcasecmp(optarg, "random") == 0)
                 {
                     arg_input_format = INPUT_RANDOM;
                 }
                 else
-                if (strcmp(optarg, "pgsolver") == 0)
+                if (strcasecmp(optarg, "pgsolver") == 0)
                 {
                     arg_input_format = INPUT_PGSOLVER;
+                }
+                else
+                if (strcasecmp(optarg, "pbes") == 0)
+                {
+                    arg_input_format = INPUT_PBES;
                 }
                 else
                 {
@@ -204,6 +211,8 @@ int main(int argc, char *argv[])
 {
     time_initialize();
 
+    MCRL2_ATERMPP_INIT(argc, argv);
+
     parse_args(argc, argv);
     ParityGame game;
 
@@ -226,6 +235,13 @@ int main(int argc, char *argv[])
         {
             info("Reading PGSolver input...");
             game.read_pgsolver(std::cin, StaticGraph::EDGE_BIDIRECTIONAL);
+        }
+        break;
+
+    case INPUT_PBES:
+        {
+            info("Generating parity game from PBES input....");
+            game.read_pbes("", StaticGraph::EDGE_BIDIRECTIONAL);
         }
         break;
 
