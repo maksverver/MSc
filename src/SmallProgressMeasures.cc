@@ -300,3 +300,8 @@ void SmallProgressMeasures::preprocess_graph()
 
     info("SPM preprocessing removed %d of %d edges", graph.E_ - pos, graph.E_);
 }
+
+size_t SmallProgressMeasures::memory_use()
+{
+    return sizeof(verti)*len_*(game_.graph().V() + 1);
+}

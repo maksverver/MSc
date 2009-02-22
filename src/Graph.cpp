@@ -94,6 +94,18 @@ void StaticGraph::make_random(verti V, unsigned out_deg, EdgeDirection edge_dir)
     assign(edges, edge_dir);
 }
 
+template<class It, class Cmp> bool is_sorted(It i, It j, Cmp &cmp)
+{
+    if (i == j) return true;
+    for (;;)
+    {
+        It k = i;
+        if (++k == j) return true;
+        if (cmp(*k, *i)) return false; // *(i+1) > *i
+        i = k;
+    }
+}
+
 void StaticGraph::assign(edge_list edges, EdgeDirection edge_dir)
 {
     // Find number of vertices
@@ -111,11 +123,13 @@ void StaticGraph::assign(edge_list edges, EdgeDirection edge_dir)
     /* Reallocate memory */
     reset(V, E, edge_dir);
 
-    /* Edges are already sorted by predecessor */
     if (edge_dir_ & EDGE_SUCCESSOR)
     {
         /* Sort edges by predecessor first, successor second */
-        sort(edges.begin(), edges.end(), edge_cmp_forward);
+        if (!is_sorted(edges.begin(), edges.end(), edge_cmp_forward))
+        {
+            std::sort(edges.begin(), edges.end(), edge_cmp_forward);
+        }
 
         /* Create successor index */
         edgei pos = 0;
@@ -133,7 +147,7 @@ void StaticGraph::assign(edge_list edges, EdgeDirection edge_dir)
     if (edge_dir_ & EDGE_PREDECESSOR)
     {
         /* Sort edges by successor first, predecessor second */
-        sort(edges.begin(), edges.end(), edge_cmp_backward);
+        std::sort(edges.begin(), edges.end(), edge_cmp_backward);
 
         /* Create predecessor index */
         edgei pos = 0;
@@ -147,4 +161,11 @@ void StaticGraph::assign(edge_list edges, EdgeDirection edge_dir)
         /* Create predecessor list */
         for (edgei e = 0; e < E; ++e) predecessors_[e] = edges[e].first;
     }
+}
+
+size_t StaticGraph::memory_use() const
+{
+    size_t res = sizeof(edgei)*(V_ + 1) + sizeof(verti)*E_;
+    if (edge_dir_ == EDGE_BIDIRECTIONAL) res *= 2;
+    return res;
 }

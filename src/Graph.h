@@ -46,6 +46,9 @@ public:
     /*! Reset the graph based on the given edge structure. */
     void assign(edge_list edges, EdgeDirection edge_dir);
 
+    /*! Returns the memory used to store the graph data. */
+    size_t memory_use() const;
+
     verti V() const { return V_; }  /*!< Return number of vertices in the graph */
     edgei E() const { return E_; }  /*!< Return number of edges in the graph */
 

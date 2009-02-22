@@ -1,4 +1,5 @@
 #include "logging.h"
+#include "timing.h"
 #include "ParityGame.h"
 #include "LinearLiftingStrategy.h"
 #include "PredecessorLiftingStrategy.h"
@@ -25,6 +26,24 @@ static int          arg_random_size         = 1000000;
 static int          arg_random_seed         =       1;
 static int          arg_random_out_degree   =      10;
 static int          arg_random_priorities   =      20;
+
+struct MStat {
+    int size, resident, share, text, lib, data, dt;
+};
+
+static bool read_mstat(MStat &stat)
+{
+    std::ifstream ifs("/proc/self/statm");
+    return ifs >> stat.size >> stat.resident >> stat.share >> stat.text
+               >> stat.lib >> stat.data >> stat.dt;
+}
+
+static double get_vmsize()
+{
+    MStat mstat;
+    if (!read_mstat(mstat)) return -1;
+    return (double)mstat.size*getpagesize()/1048576;
+}
 
 static void print_usage()
 {
@@ -256,13 +275,24 @@ int main(int argc, char *argv[])
     info("Preprocessing graph...");
     spm.preprocess_graph();
     info("Starting solve...");
+    double solve_time = time_used();
     spm.solve();
+    solve_time = time_used() - solve_time;
 
     info("Verifying solution...");
     if (!spm.verify_solution()) error("Verification failed!");
 
-    info("Total lift attempts:     %12lld", stats.lifts_attempted());
-    info("Succesful lift attempts: %12lld", stats.lifts_succeeded());
+    // Print some statistics
+    size_t total_memory_use = game.memory_use() + spm.memory_use();
+    info("Time used to solve:        %11.3fs", solve_time);
+    info("Memory used (measured):    %10.3fMB", get_vmsize());
+    info("Memory used (calculated):  %10.3fMB", total_memory_use/1048576.0);
+    info("    used by parity game:   %10.3fMB", game.memory_use()/1048576.0);
+    info("        used by graph:     %10.3fMB", game.graph().memory_use()/1048576.0);
+    info("    used by solver:        %10.3fMB", spm.memory_use()/1048576.0);
+    info("Total lift attempts:       %12lld", stats.lifts_attempted());
+    info("Succesful lift attempts:   %12lld", stats.lifts_succeeded());
+    info("Minimum lifts required:    %12lld", 0LL);  // TODO
 
     /* spm.debug_print(); */
 

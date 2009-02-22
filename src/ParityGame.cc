@@ -164,3 +164,11 @@ void ParityGame::read_pbes( const std::string &file_path,
     // Assign graph
     graph_.assign(edges, edge_dir);
 }
+
+size_t ParityGame::memory_use() const
+{
+    size_t res = graph_.memory_use();
+    res += sizeof(ParityGameVertex)*graph_.V();     // vertex info
+    res += sizeof(verti)*d_;                        // priority frequencies
+    return res;
+}

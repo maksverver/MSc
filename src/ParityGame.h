@@ -45,6 +45,10 @@ public:
     void read_pbes( const std::string &file_path,
                     StaticGraph::EdgeDirection edge_dir);
 
+    /*! Returns the memory used to store the parity game.
+        This includes memory used by the graph! */
+    size_t memory_use() const;
+
     /*! Return the priority limit */
     int d() const { return d_; }
 
