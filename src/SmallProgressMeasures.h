@@ -80,13 +80,14 @@ public:
     /*! For debugging: verify that the current state describes a valid SPM */
     bool verify_solution();
 
-    /*! Preprocess the graph to speed up processing of some specific parts. */
-    void preprocess_graph();
-
     /*! Returns the peak memory used to solve. */
     size_t memory_use();
 
 protected:
+
+    /*! Preprocess the graph to speed up processing of some specific parts. */
+    void preprocess_graph();
+
     /*! Attempt to lift a vertex (and return whether this succeeded). */
     bool lift(verti v);
 
@@ -123,6 +124,7 @@ protected:
     verti get_max_succ(verti v);
 
 protected:
+    bool preprocessed_;         /*!< set if the graph has been preprocessed */
     LiftingStrategy &strategy_; /*!< the lifting strategy to use */
     int len_;                   /*!< length of SPM vectors */
     verti *M_;                  /*!< bounds on the SPM vector components */

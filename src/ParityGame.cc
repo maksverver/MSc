@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <stdlib.h>
 #include <assert.h>
+#include <assert.h>
 
 // Required for ParityGame::read_pbes()
 #include <mcrl2/pbes/pbes.h>
@@ -26,20 +27,82 @@ void ParityGame::reset(verti V, int d)
     d_ = d;
     vertex_ = new ParityGameVertex[V];
     cardinality_ = new verti[d_];
- }
+}
+
+void ParityGame::recalculate_cardinalities(verti num_vertices)
+{
+    std::fill(cardinality_, cardinality_ + d_, 0);
+    for (verti v = 0; v < num_vertices; ++v)
+    {
+        cardinality_[vertex_[v].priority] += 1;
+    }
+}
 
 void ParityGame::make_random( verti V, unsigned out_deg,
                               StaticGraph::EdgeDirection edge_dir, int d )
 {
     graph_.make_random(V, out_deg, edge_dir);
     reset(V, d);
-    std::fill(cardinality_, cardinality_ + d, 0);
     for (verti v = 0; v < V; ++v)
     {
         vertex_[v].player   = (rand()%2 == 0) ? PLAYER_EVEN : PLAYER_ODD;
         vertex_[v].priority = rand()%d;
-        cardinality_[vertex_[v].priority] += 1;
     }
+    recalculate_cardinalities(V);
+}
+
+void ParityGame::make_subgame( const ParityGame &game,
+                               const verti *vertices, verti num_vertices,
+                               const Player *winners )
+{
+    const StaticGraph &graph = game.graph();
+    reset(num_vertices + 2, game.d());
+
+    // Create dummy vertex won by even
+    const verti v_even = num_vertices + 0;
+    vertex_[v_even].player   = PLAYER_EVEN;
+    vertex_[v_even].priority = 0;
+
+    // Create dummy vertex won by odd
+    const verti v_odd  = num_vertices + 1;
+    vertex_[v_odd].player   = PLAYER_ODD;
+    vertex_[v_odd].priority = 1;
+
+    // Create a map of old->new vertex indices
+    // TODO: replace this with a hash map for better performance?
+    std::map<verti, verti> vertex_map;
+    for (verti n = 0; n < num_vertices; ++n)
+    {
+        vertex_[n] = game.vertex_[vertices[n]];
+        vertex_map[vertices[n]] = n;
+    }
+
+    // Create new edge list
+    StaticGraph::edge_list edges;
+    for (verti v = 0; v < num_vertices; ++v)
+    {
+        for ( StaticGraph::const_iterator it = graph.succ_begin(vertices[v]);
+              it != graph.succ_end(vertices[v]); ++it )
+        {
+            verti w;
+            std::map<verti, verti>::const_iterator map_it = vertex_map.find(*it);
+            if (map_it != vertex_map.end())
+            {
+                w = map_it->second;
+            }
+            else
+            {
+                Player winner = winners[*it];
+                assert(winner == PLAYER_EVEN || winner == PLAYER_ODD);
+                w = (winner == PLAYER_EVEN) ? v_even : v_odd;
+            }
+            edges.push_back(std::make_pair(v, w));
+        }
+    }
+    edges.push_back(std::make_pair(v_even, v_even));
+    edges.push_back(std::make_pair(v_odd,  v_odd));
+    graph_.assign(edges, graph.edge_dir());
+    recalculate_cardinalities(num_vertices + 2);
 }
 
 void ParityGame::read_pgsolver( std::istream &is,
@@ -101,13 +164,9 @@ void ParityGame::read_pgsolver( std::istream &is,
     // Assign vertex info and recount cardinalities
     vertex_ = new ParityGameVertex();
     reset((verti)vertices.size(), max_prio + 1);
-    std::fill(cardinality_, cardinality_ + d_, 0);
-    for (size_t n = 0; n < vertices.size(); ++n)
-    {
-        vertex_[n] = vertices[n];
-        cardinality_[vertices[n].priority] += 1;
-    }
+    for (size_t n = 0; n < vertices.size(); ++n) vertex_[n] = vertices[n];
     vertices.clear();
+    recalculate_cardinalities(vertices.size());
 
     // Assign graph
     graph_.assign(edges, edge_dir);
@@ -149,17 +208,15 @@ void ParityGame::read_pbes( const std::string &file_path,
     }
 
     // Assign vertex info and recount cardinalities
-    vertex_ = new ParityGameVertex();
     reset(num_vertices, max_prio + 1);
-    std::fill(cardinality_, cardinality_ + d_, 0);
     for (verti v = 0; v < num_vertices; ++v)
     {
         bool and_op = pgg.get_operation(v) ==
                       mcrl2::pbes_system::parity_game_generator::PGAME_AND;
         vertex_[v].player = and_op ? PLAYER_ODD : PLAYER_EVEN;
         vertex_[v].priority = pgg.get_priority(v);
-        cardinality_[vertex_[v].priority] += 1;
     }
+    recalculate_cardinalities(num_vertices);
 
     // Assign graph
     graph_.assign(edges, edge_dir);
@@ -172,3 +229,4 @@ size_t ParityGame::memory_use() const
     res += sizeof(verti)*d_;                        // priority frequencies
     return res;
 }
+

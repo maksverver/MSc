@@ -22,7 +22,10 @@ class ParityGame
 {
 public:
     /*! The two players in a parity game (Even and Odd) */
-    enum Player { PLAYER_NONE = -1, PLAYER_EVEN = 0, PLAYER_ODD = 1 };
+    enum Player { PLAYER_NONE = -1,
+                  PLAYER_EVEN =  0,
+                  PLAYER_ODD  =  1
+                } __attribute__((__packed__));
 
     /*! Construct an empty parity game */
     ParityGame();
@@ -36,6 +39,16 @@ public:
     */
     void make_random( verti V, unsigned out_deg,
                       StaticGraph::EdgeDirection edge_dir, int d );
+
+    /*! Create a subgame containing only the given vertices from the original
+        game. Vertices are renumbered to be in range [0..num_vertices) and
+        two dummy nodes are added, won by the even or odd player respectively.
+        Edges going out of the vertex subset specified by `vertices' are mapped
+        to these dummy nodes instead, depending on whether the winner of the
+        outgoing node is even or odd (specified by `winners'). */
+    void make_subgame( const ParityGame &game,
+                       const verti *vertices, verti num_vertices,
+                       const Player *winners );
 
     /*! Read a game description in PGSolver format. */
     void read_pgsolver(std::istream &is, StaticGraph::EdgeDirection edge_dir);
@@ -68,6 +81,10 @@ protected:
     /*! Re-allocate memory to store information on V vertices with priorities
         between 0 and `d` (exclusive). */
     void reset(verti V, int d);
+
+    /*! Recalculate cardinalities (priority frequencies) from the first
+        `num_vertices` elements of `vertex_`. */
+    void recalculate_cardinalities(verti num_vertices);
 
 private:
     explicit ParityGame(const ParityGame &game);

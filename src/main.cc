@@ -23,10 +23,16 @@ static InputFormat  arg_input_format        = INPUT_NONE;
 static std::string  arg_pgsolver_file       = "";
 static std::string  arg_dot_file            = "";
 static std::string  arg_winners_file        = "";
+static bool         arg_scc_decomposition   = false;
 static int          arg_random_size         = 1000000;
 static int          arg_random_seed         =       1;
 static int          arg_random_out_degree   =      10;
 static int          arg_random_priorities   =      20;
+
+/* TODO: eliminate these global variables; wrap them in a solver class
+         with a SCC callback method instead. */
+static ParityGame                       game;
+static std::vector<ParityGame::Player>  winners;
 
 struct MStat {
     int size, resident, share, text, lib, data, dt;
@@ -59,6 +65,7 @@ static void print_usage()
 "  --dot/-d <file>        write parity game in GraphViz dot format to <file>\n"
 "  --pgsolver/-p <file>   write parity game in PGSolver format to <file>\n"
 "  --winners/-w <file>    write compact winners specification to <file>\n"
+"  --scc                  solve strongly connected components individually\n"
         );
 }
 
@@ -74,6 +81,7 @@ static void parse_args(int argc, char *argv[])
         { "dot",        true,  NULL, 'd' },
         { "pgsolver",   true,  NULL, 'p' },
         { "winners",    true,  NULL, 'w' },
+        { "scc",        false, NULL,  5  },
         { NULL,         false, NULL,  0  } };
 
     static const char *short_options = "hi:d:p:w:";
@@ -128,6 +136,10 @@ static void parse_args(int argc, char *argv[])
 
         case 4:     /* random seed */
             arg_random_seed = atoi(optarg);
+            break;
+
+        case 5:     /* decompose into strongly connected components */
+            arg_scc_decomposition = true;
             break;
 
         case 'd':   /* dot output file */
@@ -211,18 +223,20 @@ static void write_pgsolver(const ParityGame &game, std::ostream &os)
 
 /*! Write summary of winners. For each node, a single character is printed:
     'E' or 'O', depending on whether player Even or Odd wins the parity game
-    starting from this node. */    
-static void write_winners(const ParityGameSolver &solver, std::ostream &os)
+    starting from this node. */
+static void write_winners( std::ostream &os,
+                           const std::vector<ParityGame::Player> winners )
 {
-    verti V = solver.game().graph().V(), next_newline = 80;
-    for (verti i = 0; i < V; ++i)
+    size_t next_newline = 80;
+    for (size_t n = 0; n < winners.size(); ++n)
     {
-        if (i == next_newline)
+        if (n == next_newline)
         {
             os << '\n';
             next_newline += 80;
         }
-        os << (solver.winner(i) == ParityGame::PLAYER_EVEN ? 'E' : 'O');
+        os << ( (winners[n] == ParityGame::PLAYER_EVEN) ? 'E' :
+                (winners[n] == ParityGame::PLAYER_ODD)  ? 'O' : '?' );
     }
     os << '\n';
 }
@@ -235,79 +249,42 @@ int callback(const verti *vertices, size_t num_vertices)
     return 0;
 }
 
-int main(int argc, char *argv[])
+bool read_input(ParityGame &game)
 {
-    time_initialize();
-
-    MCRL2_ATERMPP_INIT(argc, argv);
-
-    parse_args(argc, argv);
-    ParityGame game;
-
     switch (arg_input_format)
     {
     case INPUT_RANDOM:
-        {
-            info( "Generating random parity game with %d vertices, "
-                  "out-degree %d, and %d priorities...", arg_random_size,
-                  arg_random_out_degree, arg_random_priorities );
-            srand(arg_random_seed);
+        info( "Generating random parity game with %d vertices, "
+                "out-degree %d, and %d priorities...", arg_random_size,
+                arg_random_out_degree, arg_random_priorities );
+        srand(arg_random_seed);
 
-            game.make_random(
-                arg_random_size, arg_random_out_degree,
-                StaticGraph::EDGE_BIDIRECTIONAL, arg_random_priorities );
-        }
-        break;
+        game.make_random(
+            arg_random_size, arg_random_out_degree,
+            StaticGraph::EDGE_BIDIRECTIONAL, arg_random_priorities );
+
+        return true;
 
     case INPUT_PGSOLVER:
-        {
-            info("Reading PGSolver input...");
-            game.read_pgsolver(std::cin, StaticGraph::EDGE_BIDIRECTIONAL);
-        }
-        break;
+        info("Reading PGSolver input...");
+        game.read_pgsolver(std::cin, StaticGraph::EDGE_BIDIRECTIONAL);
+        return true;
 
     case INPUT_PBES:
-        {
-            info("Generating parity game from PBES input....");
-            game.read_pbes("", StaticGraph::EDGE_BIDIRECTIONAL);
-        }
-        break;
+        info("Generating parity game from PBES input....");
+        game.read_pbes("", StaticGraph::EDGE_BIDIRECTIONAL);
+        return true;
 
-    default:
-        assert(0);
+    case INPUT_NONE:
+        return false;
     }
 
-    std::cout << decompose_graph(game.graph(), callback) << '\n';
+    return false;
+}
 
-    info("Initializing data structures...");
-    PredecessorLiftingStrategy strategy(game);
-    LiftingStatistics stats(game);
-    SmallProgressMeasures spm(game, strategy, &stats);
-
-    double solve_time = time_used();
-    info("Preprocessing graph...");
-    spm.preprocess_graph();
-    info("Starting solve...");
-    spm.solve();
-    solve_time = time_used() - solve_time;
-
-    info("Verifying solution...");
-    if (!spm.verify_solution()) error("Verification failed!");
-
-    // Print some statistics
-    size_t total_memory_use = game.memory_use() + spm.memory_use();
-    info("Time used to solve:        %11.3fs", solve_time);
-    info("Memory used (measured):    %10.3fMB", get_vmsize());
-    info("Memory used (calculated):  %10.3fMB", total_memory_use/1048576.0);
-    info("    used by parity game:   %10.3fMB", game.memory_use()/1048576.0);
-    info("        used by graph:     %10.3fMB", game.graph().memory_use()/1048576.0);
-    info("    used by solver:        %10.3fMB", spm.memory_use()/1048576.0);
-    info("Total lift attempts:       %12lld", stats.lifts_attempted());
-    info("Succesful lift attempts:   %12lld", stats.lifts_succeeded());
-    info("Minimum lifts required:    %12lld", 0LL);  // TODO
-
-    /* spm.debug_print(); */
-
+void write_output( const ParityGame &game,
+                   const std::vector<ParityGame::Player> winners )
+{
     if (!arg_pgsolver_file.empty())
     {
         if (arg_pgsolver_file == "-")
@@ -329,6 +306,7 @@ int main(int argc, char *argv[])
         if (arg_dot_file == "-")
         {
             write_dot(game, std::cout);
+            if (!std::cout) error("Writing failed!");
         }
         else
         {
@@ -345,16 +323,95 @@ int main(int argc, char *argv[])
     {
         if (arg_winners_file == "-")
         {
-            write_winners(spm, std::cout);
+            write_winners(std::cout, winners);
+            if (!std::cout) error("Writing failed!");
         }
         else
         {
             info("Writing winners to file %s...", arg_winners_file.c_str());
             std::ofstream ofs(arg_winners_file.c_str());
-            write_winners(spm, ofs);
+            write_winners(ofs, winners);
             if (!ofs) error("Writing failed!");
         }
     }
+}
+
+int scc_callback(const verti *vertices, size_t num_vertices)
+{
+    info("Constructing subgame with %d vertices...", (int)num_vertices);
+
+    // Construct a subgame
+    ParityGame subgame;
+    subgame.make_subgame(game, vertices, num_vertices, &winners[0]);
+
+    // Solve the subgame
+    info("Solving subgame...", (int)num_vertices);
+    PredecessorLiftingStrategy strategy(subgame);
+    SmallProgressMeasures spm(subgame, strategy, NULL);
+    if (!spm.solve()) fatal("Solving failed!\n");
+
+    // Copy winners from subgame
+    for (size_t n = 0; n < num_vertices; ++n)
+    {
+        winners[vertices[n]] = spm.winner(n);
+    }
+
+    return 0;
+}
+
+int main(int argc, char *argv[])
+{
+    time_initialize();
+
+    MCRL2_ATERMPP_INIT(argc, argv);
+
+    parse_args(argc, argv);
+
+    if (!read_input(game))
+    {
+        fatal("Couldn't parse parity game from input!\n");
+    }
+
+    // Prepare winners vector
+    winners.clear();
+    winners.insert(winners.end(), game.graph().V(), ParityGame::PLAYER_NONE);
+
+    // Solve game by decomposing into SCC's
+    double solve_time = time_used();
+    info("Starting solve...");
+    if (arg_scc_decomposition)
+    {
+        /* Decompose graph into SCC; the SCC callback creates subgames from
+           components and solves these. */
+        decompose_graph(game.graph(), scc_callback);
+    }
+    else
+    {
+        PredecessorLiftingStrategy strategy(game);
+        SmallProgressMeasures spm(game, strategy, NULL);
+        if (!spm.solve()) fatal("Solving failed!\n");
+        for (size_t n = 0; n < winners.size(); ++n)
+        {
+            winners[n] = spm.winner(n);
+        }
+    }
+    solve_time = time_used() - solve_time;
+
+    // Print some statistics
+    //size_t total_memory_use = game.memory_use() + spm.memory_use();
+    info("Time used to solve:        %11.3fs", solve_time);
+    //info("Memory used (measured):    %10.3fMB", get_vmsize());
+    //info("Memory used (calculated):  %10.3fMB", total_memory_use/1048576.0);
+    //info("    used by parity game:   %10.3fMB", game.memory_use()/1048576.0);
+    //info("        used by graph:     %10.3fMB", game.graph().memory_use()/1048576.0);
+    //info("    used by solver:        %10.3fMB", spm.memory_use()/1048576.0);
+    //info("Total lift attempts:       %12lld", stats.lifts_attempted());
+    //info("Succesful lift attempts:   %12lld", stats.lifts_succeeded());
+    //info("Minimum lifts required:    %12lld", 0LL);  // TODO
+
+    /* spm.debug_print(); */
+
+    write_output(game, winners);
 
     info("Exiting.");
 }

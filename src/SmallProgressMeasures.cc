@@ -22,7 +22,7 @@ void LiftingStatistics::record_lift(verti v, bool success)
 
 SmallProgressMeasures::SmallProgressMeasures( const ParityGame &game,
     LiftingStrategy &strategy, LiftingStatistics *stats )
-    : ParityGameSolver(game), strategy_(strategy),
+    : ParityGameSolver(game), preprocessed_(false), strategy_(strategy),
       len_(game.d()/2), stats_(stats)
 {
     /* Initialize SPM vector bounds */
@@ -128,6 +128,13 @@ bool SmallProgressMeasures::lift(verti v)
 
 bool SmallProgressMeasures::solve()
 {
+    // Preprocess the graph to speed up some corner cases.
+    if (!preprocessed_)
+    {
+        preprocess_graph();
+        preprocessed_ = true;
+    }
+
     verti vertex = NO_VERTEX;
     bool lifted = false;
 
@@ -232,6 +239,11 @@ bool SmallProgressMeasures::verify_solution()
     return true;
 }
 
+size_t SmallProgressMeasures::memory_use()
+{
+    return sizeof(verti)*len_*(game_.graph().V() + 1);
+}
+
 void SmallProgressMeasures::preprocess_graph()
 {
     /* Preprocess the graph for more efficient processing of nodes with self-
@@ -299,9 +311,4 @@ void SmallProgressMeasures::preprocess_graph()
     graph.successor_index_[graph.V_] = pos;
 
     info("SPM preprocessing removed %d of %d edges", graph.E_ - pos, graph.E_);
-}
-
-size_t SmallProgressMeasures::memory_use()
-{
-    return sizeof(verti)*len_*(game_.graph().V() + 1);
 }
