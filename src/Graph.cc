@@ -61,6 +61,7 @@ static bool edge_cmp_forward ( const std::pair<verti, verti> &a,
 {
     return a.first < b.first || (a.first == b.first && a.second < b.second);
 }
+
 static bool edge_cmp_backward( const std::pair<verti, verti> &a,
                                const std::pair<verti, verti> &b )
 {

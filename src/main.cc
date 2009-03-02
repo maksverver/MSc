@@ -1,5 +1,6 @@
 #include "logging.h"
 #include "timing.h"
+#include "SCC.h" // for testing
 #include "ParityGame.h"
 #include "LinearLiftingStrategy.h"
 #include "PredecessorLiftingStrategy.h"
@@ -226,6 +227,14 @@ static void write_winners(const ParityGameSolver &solver, std::ostream &os)
     os << '\n';
 }
 
+int callback(const verti *vertices, size_t num_vertices)
+{
+    std::cout << "Component found:";
+    for (size_t n = 0; n < num_vertices; ++n) std::cout << ' ' << vertices[n];
+    std::cout << std::endl;
+    return 0;
+}
+
 int main(int argc, char *argv[])
 {
     time_initialize();
@@ -267,6 +276,8 @@ int main(int argc, char *argv[])
     default:
         assert(0);
     }
+
+    std::cout << decompose_graph(game.graph(), callback) << '\n';
 
     info("Initializing data structures...");
     PredecessorLiftingStrategy strategy(game);
