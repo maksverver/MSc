@@ -165,7 +165,9 @@ void StaticGraph::assign(edge_list edges, EdgeDirection edge_dir)
 
 size_t StaticGraph::memory_use() const
 {
-    size_t res = sizeof(edgei)*(V_ + 1) + sizeof(verti)*E_;
+    size_t res = 0;
+    res += sizeof(edgei)*(V_ + 1);
+    res += sizeof(verti)*E_;
     if (edge_dir_ == EDGE_BIDIRECTIONAL) res *= 2;
     return res;
 }

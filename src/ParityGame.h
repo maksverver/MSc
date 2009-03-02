@@ -12,8 +12,7 @@
 */
 struct ParityGameVertex
 {
-    unsigned char player;
-    unsigned char priority;
+    unsigned char player, priority;
 };
 
 /*! A parity game extends a directed graph by assigning a player
@@ -23,7 +22,7 @@ class ParityGame
 {
 public:
     /*! The two players in a parity game (Even and Odd) */
-    enum Player { PLAYER_EVEN = 0, PLAYER_ODD = 1};
+    enum Player { PLAYER_NONE = -1, PLAYER_EVEN = 0, PLAYER_ODD = 1 };
 
     /*! Construct an empty parity game */
     ParityGame();
@@ -43,7 +42,7 @@ public:
 
     /*! Read a game description from an mCRL2 PBES. */
     void read_pbes( const std::string &file_path,
-                    StaticGraph::EdgeDirection edge_dir);
+                    StaticGraph::EdgeDirection edge_dir );
 
     /*! Returns the memory used to store the parity game.
         This includes memory used by the graph! */
@@ -57,6 +56,8 @@ public:
 
     /*! Return the priority associated with vertex v */
     int priority(verti v) const { return vertex_[v].priority; }
+
+    /*! Return the player associated with vertex v */
     Player player(verti v) const { return (Player)vertex_[v].player; }
 
     /*! Return the number of vertices with priority `p`.
@@ -67,6 +68,10 @@ protected:
     /*! Re-allocate memory to store information on V vertices with priorities
         between 0 and `d` (exclusive). */
     void reset(verti V, int d);
+
+private:
+    explicit ParityGame(const ParityGame &game);
+    ParityGame &operator=(const ParityGame &game);
 
 private:
     int d_;                 /*!< priority limit */

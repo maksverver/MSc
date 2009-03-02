@@ -272,10 +272,11 @@ int main(int argc, char *argv[])
     PredecessorLiftingStrategy strategy(game);
     LiftingStatistics stats(game);
     SmallProgressMeasures spm(game, strategy, &stats);
+
+    double solve_time = time_used();
     info("Preprocessing graph...");
     spm.preprocess_graph();
     info("Starting solve...");
-    double solve_time = time_used();
     spm.solve();
     solve_time = time_used() - solve_time;
 

@@ -81,6 +81,10 @@ protected:
     void reset(verti V, edgei E, EdgeDirection edge_dir);
 
 private:
+    explicit StaticGraph(const StaticGraph &graph);
+    StaticGraph &operator=(const StaticGraph &graph);
+
+private:
     verti V_;  /*!< number of vertices */
     edgei E_;  /*!< number of edges */
 
