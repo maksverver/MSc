@@ -344,6 +344,12 @@ int scc_callback(const verti *vertices, size_t num_vertices)
     ParityGame subgame;
     subgame.make_subgame(game, vertices, num_vertices, &winners[0]);
 
+    // Compress vertex priorities
+    int old_d = subgame.d();
+    subgame.compress_priorities();
+    info( "Priority compression removed %d of %d priorities.",
+          old_d - subgame.d(), old_d );
+
     // Solve the subgame
     info("Solving subgame...", (int)num_vertices);
     PredecessorLiftingStrategy strategy(subgame);

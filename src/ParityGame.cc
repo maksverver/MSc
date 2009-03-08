@@ -105,6 +105,45 @@ void ParityGame::make_subgame( const ParityGame &game,
     recalculate_cardinalities(num_vertices + 2);
 }
 
+void ParityGame::compress_priorities()
+{
+    // Quickly check if we have anything to compress first:
+    if (std::find(cardinality_ + 1, cardinality_ + d_, 0) == cardinality_ + d_)
+    {
+        return;
+    }
+
+    // Find out how to map old priorities to new priorities
+    std::vector<int> prio_map(d_, -1);
+    int last_prio = 0;
+    prio_map[0] = last_prio;
+    for (int p = 1; p < d_; ++p)
+    {
+        if (cardinality_[p] == 0) continue;  // remove priority p
+        if (last_prio%2 != p%2) ++last_prio;
+        prio_map[p] = last_prio;
+    }
+
+    // Remap priorities of all vertices
+    for (verti v = 0; v < graph_.V(); ++v)
+    {
+        assert(prio_map[vertex_[v].priority] >= 0);
+        vertex_[v].priority = prio_map[vertex_[v].priority];
+    }
+
+    // Update priority limit and cardinality counts
+    int new_d = last_prio + 1;
+    assert(new_d < d_);
+    verti *new_cardinality = new verti[new_d];
+    for (int p = 0; p < d_; ++p)
+    {
+        new_cardinality[prio_map[p]] += cardinality_[p];
+    }
+    delete[] cardinality_;
+    cardinality_ = new_cardinality;
+    d_ = new_d;
+}
+
 void ParityGame::read_pgsolver( std::istream &is,
                                 StaticGraph::EdgeDirection edge_dir )
 {
@@ -126,7 +165,7 @@ void ParityGame::read_pgsolver( std::istream &is,
     std::vector<ParityGameVertex> vertices;
     StaticGraph::edge_list edges;
 
-    // Read node specs
+    // Read vertex specs
     while (is)
     {
         verti id;
@@ -144,8 +183,8 @@ void ParityGame::read_pgsolver( std::istream &is,
         vertices[id].priority = prio;
 
         /* FIXME: the PGSolver file format description requires that we remove
-                  existing successor edges (in case a node is defined more than
-                  once). */
+                  existing successor edges (in case a vertex is defined more
+                  than once). */
 
         // Read successors
         do {

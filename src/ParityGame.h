@@ -50,6 +50,11 @@ public:
                        const verti *vertices, verti num_vertices,
                        const Player *winners );
 
+    /*! Compresses range of priorities such that after compression,
+        cardinality(p) &gt; 0, for 0 &lt; p &lt; d (note that cardinality(0)
+        may still be zero!). */
+    void compress_priorities();
+
     /*! Read a game description in PGSolver format. */
     void read_pgsolver(std::istream &is, StaticGraph::EdgeDirection edge_dir);
 
