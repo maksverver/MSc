@@ -1,5 +1,7 @@
-OBJS=Graph.o ParityGame.o SmallProgressMeasures.o LinearLiftingStrategy.o \
-     PredecessorLiftingStrategy.o timing.o logging.o main.o
+OBJS=Graph.o ParityGame.o SmallProgressMeasures.o LiftingStrategy.o \
+     LinearLiftingStrategy.o PredecessorLiftingStrategy.o \
+     FocusListLiftingStrategy.o timing.o logging.o main.o
+
 CFLAGS=-Wall -O2 -g \
 	-I../../mcrl2/include \
 	-I../../mcrl2/include/mcrl2/aterm \

@@ -5,12 +5,14 @@
 
 /*! A simple lifting strategy that attempts to lift vertices in order (moving
     either forward or backward) and stops when no more vertices can be lifted.
+
+    (The Multi-Core Solver for Parity Games paper calls this "Swiping")
 */
 
 class LinearLiftingStrategy : public LiftingStrategy
 {
 public:
-    LinearLiftingStrategy(const ParityGame &game, bool backward = false);
+    LinearLiftingStrategy(const ParityGame &game, bool backward);
     verti next(verti prev_vertex, bool prev_lifted);
 
 private:

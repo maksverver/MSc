@@ -2,40 +2,11 @@
 #define SMALL_PROGRESS_MEASURES_H_INCLUDED
 
 #include "ParityGameSolver.h"
+#include "LiftingStrategy.h"
 #include <vector>
 #include <utility>
 
 #define NO_VERTEX ((verti)-1)
-
-/*! Instances of this class encapsulate vertex lifting strategies to be used
-    with the small progress measures parity game solver. */
-class LiftingStrategy
-{
-public:
-    /*! Construct a strategy for the given parity game. */
-    LiftingStrategy(const ParityGame &game)
-        : graph_(game.graph()), game_(game) { };
-
-    /*! Destroy the strategy */
-    virtual ~LiftingStrategy() { };
-
-    /*! Select the next vertex to lift.
-
-        This method is called repeatedly by the SPM solver; the return value
-        indicates which vertex to attempt to lift next. If lifting succeeds,
-        the vertex will have a greater progress measure vector assigned to it.
-        When no more vertices can be lifted, NO_VERTEX should be returned.
-
-        \param prev_vertex Index of the vertex returned by the previous call
-                           (or NO_VERTEX for the first call).
-        \param prev_lifted Indicates wheter the vertex could be lifted.
-    */
-    virtual verti next(verti prev_vertex, bool prev_lifted) = 0;
-
-protected:
-    const StaticGraph &graph_;  /*!< the game graph to work on */
-    const ParityGame &game_;    /*!< the parity game to work on */
-};
 
 /*! Used to collect statistics when solving using the SPM algorithm */
 class LiftingStatistics

@@ -4,7 +4,7 @@
 /* TODO: reimplement queue manually (it doesn't need to be dynamic!) */
 
 PredecessorLiftingStrategy::PredecessorLiftingStrategy(
-    const ParityGame &game, bool stack, bool backward )
+    const ParityGame &game, bool backward, bool stack )
     : LiftingStrategy(game), stack_(stack)
 {
     assert(game.graph().edge_dir() & StaticGraph::EDGE_PREDECESSOR);

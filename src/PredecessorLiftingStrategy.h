@@ -14,6 +14,9 @@
     The queue can operate as a true queue or as a stack; the latter may result
     in better locality of reference and/or fewer unsuccesful lifting attempts.
     (This has not been tested.)
+
+    (The Multi-Core Solver for Parity Games paper contains a description of
+     a "work list approach" that is similar.)
 */
 
 class PredecessorLiftingStrategy : public LiftingStrategy
@@ -29,8 +32,7 @@ public:
         in forward order instead of in reverse).
     */
     PredecessorLiftingStrategy( const ParityGame &game,
-                                bool stack = false,
-                                bool backward = false );
+                                bool backward, bool stack );
     verti next(verti prev_vertex, bool prev_lifted);
 
 private:

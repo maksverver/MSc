@@ -14,21 +14,23 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <memory>
 
 enum InputFormat {
     INPUT_NONE = 0, INPUT_RAW, INPUT_RANDOM, INPUT_PGSOLVER, INPUT_PBES
 };
 
-static InputFormat  arg_input_format        = INPUT_NONE;
-static std::string  arg_dot_file            = "";
-static std::string  arg_pgsolver_file       = "";
-static std::string  arg_raw_file            = "";
-static std::string  arg_winners_file        = "";
-static bool         arg_scc_decomposition   = false;
-static int          arg_random_size         = 1000000;
-static int          arg_random_seed         =       1;
-static int          arg_random_out_degree   =      10;
-static int          arg_random_priorities   =      20;
+static InputFormat  arg_input_format          = INPUT_NONE;
+static std::string  arg_dot_file              = "";
+static std::string  arg_pgsolver_file         = "";
+static std::string  arg_raw_file              = "";
+static std::string  arg_winners_file          = "";
+static std::string  arg_spm_lifting_strategy  = "linear";
+static bool         arg_scc_decomposition     = false;
+static int          arg_random_size           = 1000000;
+static int          arg_random_seed           =       1;
+static int          arg_random_out_degree     =      10;
+static int          arg_random_priorities     =      20;
 
 static const double MB = 1048576.0;  // one megabyte
 
@@ -60,6 +62,7 @@ static void print_usage()
 "  --outdegree <int>      average out-degree in randomly generated graph\n"
 "  --priorities <int>     number of priorities in randomly generated game\n"
 "  --seed <int>           random seed\n"
+"  --strategy/-l <desc>   Small Progress Measures lifting strategy\n"
 "  --dot/-d <file>        write parity game in GraphViz dot format to <file>\n"
 "  --pgsolver/-p <file>   write parity game in PGSolver format to <file>\n"
 "  --raw/-r <file>        write parity game in raw format to <file>\n"
@@ -77,6 +80,7 @@ static void parse_args(int argc, char *argv[])
         { "outdegree",  true,  NULL,  2  },
         { "priorities", true,  NULL,  3  },
         { "seed",       true,  NULL,  4  },
+        { "strategy",   true,  NULL, 'l' },
         { "dot",        true,  NULL, 'd' },
         { "pgsolver",   true,  NULL, 'p' },
         { "raw",        true,  NULL, 'r' },
@@ -84,7 +88,7 @@ static void parse_args(int argc, char *argv[])
         { "scc",        false, NULL,  5  },
         { NULL,         false, NULL,  0  } };
 
-    static const char *short_options = "hi:d:p:r:w:";
+    static const char *short_options = "hi:l:d:p:r:w:";
 
     for (;;)
     {
@@ -143,8 +147,8 @@ static void parse_args(int argc, char *argv[])
             arg_random_seed = atoi(optarg);
             break;
 
-        case 5:     /* decompose into strongly connected components */
-            arg_scc_decomposition = true;
+        case 'l':   /* Small Progress Measures lifting strategy */
+            arg_spm_lifting_strategy = optarg;
             break;
 
         case 'd':   /* dot output file */
@@ -161,6 +165,10 @@ static void parse_args(int argc, char *argv[])
 
         case 'w':   /* winners output file */
             arg_winners_file = optarg;
+            break;
+
+        case 5:     /* decompose into strongly connected components */
+            arg_scc_decomposition = true;
             break;
 
         case '?':
@@ -211,7 +219,6 @@ static void write_dot(const ParityGame &game, std::ostream &os)
     }
     os << "}\n";
 }
-
 
 /*! Write a the game description in PGSolver format. */
 static void write_pgsolver(const ParityGame &game, std::ostream &os)
@@ -360,8 +367,8 @@ void write_output(const ParityGame &game, const ParityGameSolver &solver)
     }
 }
 
-/* A solver that breaks down the game graph into strongly connected components,
-   and uses the SPM algorithm to solve independent subgames. */
+/*! A solver that breaks down the game graph into strongly connected components,
+    and uses the SPM algorithm to solve independent subgames. */
 class ComponentSolver : public ParityGameSolver
 {
 public:
@@ -417,8 +424,10 @@ int ComponentSolver::operator()(const verti *vertices, size_t num_vertices)
 
     // Solve the subgame
     info("Solving subgame...", (int)num_vertices);
-    PredecessorLiftingStrategy strategy(subgame);
-    SmallProgressMeasures spm(subgame, strategy, stats_);
+    std::auto_ptr<LiftingStrategy> spm_strategy(
+        LiftingStrategy::create(subgame, arg_spm_lifting_strategy) );
+    assert(spm_strategy.get() != NULL);
+    SmallProgressMeasures spm(subgame, *spm_strategy, stats_);
     if (!spm.solve())
     {
         error("Solving failed!\n");
@@ -455,23 +464,28 @@ int main(int argc, char *argv[])
     info("Number of edges:           %12lld", (long long)game.graph().E());
     info("Number of priorities:      %12d", game.d());
     LiftingStatistics stats(game);
+    info("SPM lifting strategy:      %12s", arg_spm_lifting_strategy.c_str());
 
     double solve_time = time_used();
     info("Starting solve...");
 
     // Allocate data structures
     ParityGameSolver *solver = NULL;
-    ComponentSolver *comp_solver = NULL;
-    LiftingStrategy *spm_strategy = NULL;
-    SmallProgressMeasures *spm = NULL;
+    std::auto_ptr<ComponentSolver> comp_solver;
+    std::auto_ptr<LiftingStrategy> spm_strategy;
+    std::auto_ptr<SmallProgressMeasures> spm;
     if (arg_scc_decomposition)
     {
-        solver = comp_solver = new ComponentSolver(game, &stats);
+        comp_solver.reset(new ComponentSolver(game, &stats));
+        solver = comp_solver.get();
     }
     else
     {
-        spm_strategy = new PredecessorLiftingStrategy(game);
-        solver = spm = new SmallProgressMeasures(game, *spm_strategy, &stats);
+        spm_strategy.reset(
+            LiftingStrategy::create(game, arg_spm_lifting_strategy) );
+        assert(spm_strategy.get() != NULL);
+        spm.reset(new SmallProgressMeasures(game, *spm_strategy, &stats));
+        solver = spm.get();
     }
 
     // Solve game
@@ -494,13 +508,6 @@ int main(int argc, char *argv[])
     /* spm.debug_print(); */
 
     write_output(game, *solver);
-
-    // Free data structures
-    delete spm_strategy;
-    delete comp_solver;
-    solver = NULL;
-    spm_strategy = NULL;
-    comp_solver = NULL;
 
     info("Exiting.");
 }
