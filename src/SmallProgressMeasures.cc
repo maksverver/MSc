@@ -239,8 +239,9 @@ bool SmallProgressMeasures::verify_solution()
     return true;
 }
 
-size_t SmallProgressMeasures::memory_use()
+size_t SmallProgressMeasures::memory_use() const
 {
+    // TODO: should take memory used by lifting strategy into account as well!
     return sizeof(verti)*len_*(game_.graph().V() + 1);
 }
 

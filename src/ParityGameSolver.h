@@ -16,6 +16,9 @@ public:
         the parity game when starting from vertex i. */
     virtual ParityGame::Player winner(verti v) const = 0;
 
+    /*! Returns an estimation of the peak memory use for this solver. */
+    virtual size_t memory_use() const = 0;
+
     /*! Returns the parity game for this solver instance. */
     const ParityGame &game() const { return game_; }
 

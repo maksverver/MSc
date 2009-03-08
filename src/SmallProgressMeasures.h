@@ -81,7 +81,7 @@ public:
     bool verify_solution();
 
     /*! Returns the peak memory used to solve. */
-    size_t memory_use();
+    size_t memory_use() const;
 
 protected:
 
