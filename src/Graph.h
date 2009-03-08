@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <vector>
 #include <utility>
+#include <iostream>
 
 typedef uint32_t verti;    /*!< type used to number vertices */
 typedef uint32_t edgei;    /*!< type used to number edges */
@@ -45,6 +46,12 @@ public:
 
     /*! Reset the graph based on the given edge structure. */
     void assign(edge_list edges, EdgeDirection edge_dir);
+
+    /*! Write raw graph data to output stream */
+    void write_raw(std::ostream &os) const;
+
+    /*! Read raw graph data from input stream */
+    void read_raw(std::istream &is);
 
     /*! Returns the memory used to store the graph data. */
     size_t memory_use() const;

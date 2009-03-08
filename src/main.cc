@@ -16,12 +16,13 @@
 #include <string>
 
 enum InputFormat {
-    INPUT_NONE = 0, INPUT_RANDOM, INPUT_PGSOLVER, INPUT_PBES
+    INPUT_NONE = 0, INPUT_RAW, INPUT_RANDOM, INPUT_PGSOLVER, INPUT_PBES
 };
 
 static InputFormat  arg_input_format        = INPUT_NONE;
-static std::string  arg_pgsolver_file       = "";
 static std::string  arg_dot_file            = "";
+static std::string  arg_pgsolver_file       = "";
+static std::string  arg_raw_file            = "";
 static std::string  arg_winners_file        = "";
 static bool         arg_scc_decomposition   = false;
 static int          arg_random_size         = 1000000;
@@ -54,13 +55,14 @@ static void print_usage()
     printf(
 "Options:\n"
 "  --help/-h              show help\n"
-"  --input/-i <format>    input format: random, PGSolver or PBES\n"
+"  --input/-i <format>    input format: random, raw, PGSolver or PBES\n"
 "  --size <int>           size of randomly generated graph\n"
 "  --outdegree <int>      average out-degree in randomly generated graph\n"
 "  --priorities <int>     number of priorities in randomly generated game\n"
 "  --seed <int>           random seed\n"
 "  --dot/-d <file>        write parity game in GraphViz dot format to <file>\n"
 "  --pgsolver/-p <file>   write parity game in PGSolver format to <file>\n"
+"  --raw/-r <file>        write parity game in raw format to <file>\n"
 "  --winners/-w <file>    write compact winners specification to <file>\n"
 "  --scc                  solve strongly connected components individually\n"
         );
@@ -77,11 +79,12 @@ static void parse_args(int argc, char *argv[])
         { "seed",       true,  NULL,  4  },
         { "dot",        true,  NULL, 'd' },
         { "pgsolver",   true,  NULL, 'p' },
+        { "raw",        true,  NULL, 'r' },
         { "winners",    true,  NULL, 'w' },
         { "scc",        false, NULL,  5  },
         { NULL,         false, NULL,  0  } };
 
-    static const char *short_options = "hi:d:p:w:";
+    static const char *short_options = "hi:d:p:r:w:";
 
     for (;;)
     {
@@ -100,6 +103,11 @@ static void parse_args(int argc, char *argv[])
                 if (strcasecmp(optarg, "random") == 0)
                 {
                     arg_input_format = INPUT_RANDOM;
+                }
+                else
+                if (strcasecmp(optarg, "raw") == 0)
+                {
+                    arg_input_format = INPUT_RAW;
                 }
                 else
                 if (strcasecmp(optarg, "pgsolver") == 0)
@@ -145,6 +153,10 @@ static void parse_args(int argc, char *argv[])
 
         case 'p':   /* PGSolver output file */
             arg_pgsolver_file = optarg;
+            break;
+
+        case 'r':   /* raw output file */
+            arg_raw_file = optarg;
             break;
 
         case 'w':   /* winners output file */
@@ -254,6 +266,11 @@ bool read_input(ParityGame &game)
 
         return true;
 
+    case INPUT_RAW:
+        info("Reading raw input...");
+        game.read_raw(std::cin);
+        return true;
+
     case INPUT_PGSOLVER:
         info("Reading PGSolver input...");
         game.read_pgsolver(std::cin, StaticGraph::EDGE_BIDIRECTIONAL);
@@ -273,22 +290,7 @@ bool read_input(ParityGame &game)
 
 void write_output(const ParityGame &game, const ParityGameSolver &solver)
 {
-    if (!arg_pgsolver_file.empty())
-    {
-        if (arg_pgsolver_file == "-")
-        {
-            write_pgsolver(game, std::cout);
-        }
-        else
-        {
-            info( "Writing PGSolver game description to file %s...",
-                  arg_pgsolver_file.c_str() );
-            std::ofstream ofs(arg_pgsolver_file.c_str());
-            write_pgsolver(game, ofs);
-            if (!ofs) error("Writing failed!");
-        }
-    }
-
+    /* Write dot file */
     if (!arg_dot_file.empty())
     {
         if (arg_dot_file == "-")
@@ -306,7 +308,41 @@ void write_output(const ParityGame &game, const ParityGameSolver &solver)
         }
     }
 
-    /* Print output */
+    /* Write PGSolver file */
+    if (!arg_pgsolver_file.empty())
+    {
+        if (arg_pgsolver_file == "-")
+        {
+            write_pgsolver(game, std::cout);
+        }
+        else
+        {
+            info( "Writing PGSolver game description to file %s...",
+                  arg_pgsolver_file.c_str() );
+            std::ofstream ofs(arg_pgsolver_file.c_str());
+            write_pgsolver(game, ofs);
+            if (!ofs) error("Writing failed!");
+        }
+    }
+
+    /* Write raw parity game file */
+    if (!arg_raw_file.empty())
+    {
+        if (arg_raw_file == "-")
+        {
+            game.write_raw(std::cout);
+        }
+        else
+        {
+            info( "Writing raw game description to file %s...",
+                  arg_raw_file.c_str() );
+            std::ofstream ofs(arg_raw_file.c_str());
+            game.write_raw(ofs);
+            if (!ofs) error("Writing failed!");
+        }
+    }
+
+    /* Write winners file */
     if (!arg_winners_file.empty())
     {
         if (arg_winners_file == "-")

@@ -261,6 +261,26 @@ void ParityGame::read_pbes( const std::string &file_path,
     graph_.assign(edges, edge_dir);
 }
 
+void ParityGame::write_raw(std::ostream &os) const
+{
+    graph_.write_raw(os);
+    assert(os.good());
+    os.write((const char*)&d_, sizeof(d_));
+    os.write((const char*)vertex_, sizeof(ParityGameVertex)*graph_.V());
+    os.write((const char*)cardinality_, sizeof(verti)*d_);
+}
+
+void ParityGame::read_raw(std::istream &is)
+{
+    graph_.read_raw(is);
+    assert(is.good());
+    int d;
+    is.read((char*)&d, sizeof(d));
+    reset(graph_.V(), d);
+    is.read((char*)vertex_, sizeof(ParityGameVertex)*graph_.V());
+    is.read((char*)cardinality_, sizeof(verti)*d);
+}
+
 size_t ParityGame::memory_use() const
 {
     size_t res = graph_.memory_use();
@@ -268,4 +288,3 @@ size_t ParityGame::memory_use() const
     res += sizeof(verti)*d_;                        // priority frequencies
     return res;
 }
-

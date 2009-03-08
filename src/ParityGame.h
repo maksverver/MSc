@@ -62,6 +62,12 @@ public:
     void read_pbes( const std::string &file_path,
                     StaticGraph::EdgeDirection edge_dir );
 
+    /*! Write raw parity game data to output stream */
+    void write_raw(std::ostream &os) const;
+
+    /*! Read raw parity game data from input stream */
+    void read_raw(std::istream &is);
+
     /*! Returns the memory used to store the parity game.
         This includes memory used by the graph! */
     size_t memory_use() const;

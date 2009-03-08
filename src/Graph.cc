@@ -164,6 +164,48 @@ void StaticGraph::assign(edge_list edges, EdgeDirection edge_dir)
     }
 }
 
+
+void StaticGraph::write_raw(std::ostream &os) const
+{
+    os.write((const char*)&V_, sizeof(V_));
+    os.write((const char*)&E_, sizeof(E_));
+    os.write((const char*)&edge_dir_, sizeof(edge_dir_));
+    if (edge_dir_ & EDGE_SUCCESSOR)
+    {
+        os.write((const char*)successors_, sizeof(verti)*E_);
+        os.write((const char*)successor_index_, sizeof(edgei)*(V_ + 1));
+    }
+    if (edge_dir_ & EDGE_PREDECESSOR)
+    {
+        os.write((const char*)predecessors_, sizeof(verti)*E_);
+        os.write((const char*)predecessor_index_, sizeof(edgei)*(V_ + 1));
+    }
+}
+
+void StaticGraph::read_raw(std::istream &is)
+{
+    verti V;
+    edgei E;
+    EdgeDirection edge_dir;
+
+    is.read((char*)&V, sizeof(V));
+    is.read((char*)&E, sizeof(E));
+    is.read((char*)&edge_dir, sizeof(edge_dir));
+
+    reset(V, E, edge_dir);
+
+    if (edge_dir & EDGE_SUCCESSOR)
+    {
+        is.read((char*)successors_, sizeof(verti)*E_);
+        is.read((char*)successor_index_, sizeof(edgei)*(V_ + 1));
+    }
+    if (edge_dir & EDGE_PREDECESSOR)
+    {
+        is.read((char*)predecessors_, sizeof(verti)*E_);
+        is.read((char*)predecessor_index_, sizeof(edgei)*(V_ + 1));
+    }
+}
+
 size_t StaticGraph::memory_use() const
 {
     size_t res = 0;
