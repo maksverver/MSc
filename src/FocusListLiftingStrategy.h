@@ -21,6 +21,7 @@ class FocusListLiftingStrategy : public LiftingStrategy
 public:
     FocusListLiftingStrategy(const ParityGame &game, bool backward);
     verti next(verti prev_vertex, bool prev_lifted);
+    size_t memory_use() const;
 
 protected:
     verti pass1(verti prev_vertex, bool prev_lifted);
@@ -29,11 +30,12 @@ protected:
 private:
     typedef std::list<std::pair<verti, unsigned> > focus_list;
 
-    const bool backward_;               /*!< indicates the direction to move */
-    int pass_;                          /*!< current pass */
-    verti last_vertex_;                 /*!< last vertex lifted linearly */
-    focus_list focus_list_;             /*!< nodes on the focus list */
-    focus_list::iterator focus_pos_;    /*!< current position in the focus list */
+    const bool backward_;               //!< indicates the direction to move
+    int pass_;                          //!< current pass
+    verti last_vertex_;                 //!< last vertex lifted linearly
+    focus_list focus_list_;             //!< nodes on the focus list
+    focus_list::iterator focus_pos_;    //!< current position in the focus list
+    size_t focus_list_max_size_;  //!< peak number of entries in the focus list
 };
 
 #endif /* ndef FOCUS_LIST_LIFTING_STRATEGY_H_INCLUDED */

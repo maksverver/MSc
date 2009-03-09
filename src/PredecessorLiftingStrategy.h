@@ -33,12 +33,15 @@ public:
     */
     PredecessorLiftingStrategy( const ParityGame &game,
                                 bool backward, bool stack );
+    ~PredecessorLiftingStrategy();
     verti next(verti prev_vertex, bool prev_lifted);
+    size_t memory_use() const;
 
 private:
     const bool stack_;
-    std::vector<char> queued_;
-    std::deque<verti> queue_;
+    bool *queued_;
+    verti *queue_;
+    size_t queue_size_, queue_capacity_, queue_begin_, queue_end_;
 };
 
 #endif /* ndef PREDECESSOR_LIFTING_STRATEGY_H_INCLUDED */
