@@ -58,15 +58,21 @@ public:
     /*! Read a game description in PGSolver format. */
     void read_pgsolver(std::istream &is, StaticGraph::EdgeDirection edge_dir);
 
+    /*! Write a game description in PGSolver format. */
+    void write_pgsolver(std::ostream &os) const;
+
     /*! Read a game description from an mCRL2 PBES. */
     void read_pbes( const std::string &file_path,
                     StaticGraph::EdgeDirection edge_dir );
 
+    /*! Read raw parity game data from input stream */
+    void read_raw(std::istream &is);
+
     /*! Write raw parity game data to output stream */
     void write_raw(std::ostream &os) const;
 
-    /*! Read raw parity game data from input stream */
-    void read_raw(std::istream &is);
+    /*! Write a game description in Graphviz DOT format */
+    void write_dot(std::ostream &os) const;
 
     /*! Returns the memory used to store the parity game.
         This includes memory used by the graph! */

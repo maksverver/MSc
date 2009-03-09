@@ -1,6 +1,6 @@
 #include "logging.h"
 #include "timing.h"
-#include "SCC.h" // for testing
+#include "SCC.h"
 #include "ParityGame.h"
 #include "LinearLiftingStrategy.h"
 #include "PredecessorLiftingStrategy.h"
@@ -188,55 +188,6 @@ static void parse_args(int argc, char *argv[])
     }
 }
 
-/*! Write a game description in Graphviz DOT format */
-static void write_dot(const ParityGame &game, std::ostream &os)
-{
-    const StaticGraph &graph = game.graph();
-    os << "digraph {\n";
-    for (verti v = 0; v < graph.V(); ++v)
-    {
-        bool even = game.player(v) == ParityGame::PLAYER_EVEN;
-        os << v << " ["
-           << "shape=" << (even ? "diamond" : "box") << ", "
-           << "label=\"" << game.priority(v) << " (" << v << ")\"]\n";
-
-        if (graph.edge_dir() & StaticGraph::EDGE_SUCCESSOR)
-        {
-            for ( StaticGraph::const_iterator it = graph.succ_begin(v);
-                  it != graph.succ_end(v); ++it )
-            {
-                os << v << " -> " << *it << ";\n";
-            }
-        }
-        else
-        {
-            for ( StaticGraph::const_iterator it = graph.pred_begin(v);
-                  it != graph.pred_end(v); ++it )
-            {
-                os << *it << " -> " << v << ";\n";
-            }
-        }
-    }
-    os << "}\n";
-}
-
-/*! Write a the game description in PGSolver format. */
-static void write_pgsolver(const ParityGame &game, std::ostream &os)
-{
-    const StaticGraph &graph = game.graph();
-    os << "parity " << graph.V() - 1 << ";\n";
-    for (verti v = 0; v < graph.V(); ++v)
-    {
-        os << v << ' ' << game.priority(v) << ' ' << game.player(v);
-        StaticGraph::const_iterator it  = graph.succ_begin(v),
-                                    end = graph.succ_end(v);
-        assert(it != end);
-        os << ' ' << *it++;
-        while (it != end) os << ',' << *it++;
-        os << ";\n";
-    }
-}
-
 /*! Write summary of winners. For each node, a single character is printed:
     'E' or 'O', depending on whether player Even or Odd wins the parity game
     starting from this node. */
@@ -302,7 +253,7 @@ void write_output(const ParityGame &game, const ParityGameSolver &solver)
     {
         if (arg_dot_file == "-")
         {
-            write_dot(game, std::cout);
+            game.write_dot(std::cout);
             if (!std::cout) error("Writing failed!");
         }
         else
@@ -310,7 +261,7 @@ void write_output(const ParityGame &game, const ParityGameSolver &solver)
             info("Writing GraphViz dot game description to file %s...",
                 arg_dot_file.c_str());
             std::ofstream ofs(arg_dot_file.c_str());
-            write_dot(game, ofs);
+            game.write_dot(ofs);
             if (!ofs) error("Writing failed!");
         }
     }
@@ -320,14 +271,14 @@ void write_output(const ParityGame &game, const ParityGameSolver &solver)
     {
         if (arg_pgsolver_file == "-")
         {
-            write_pgsolver(game, std::cout);
+            game.write_pgsolver(std::cout);
         }
         else
         {
             info( "Writing PGSolver game description to file %s...",
                   arg_pgsolver_file.c_str() );
             std::ofstream ofs(arg_pgsolver_file.c_str());
-            write_pgsolver(game, ofs);
+            game.write_pgsolver(ofs);
             if (!ofs) error("Writing failed!");
         }
     }
