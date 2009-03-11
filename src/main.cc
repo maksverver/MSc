@@ -398,6 +398,19 @@ int ComponentSolver::operator()(const verti *vertices, size_t num_vertices)
     return 0;
 }
 
+edgei count_forward_edges(const StaticGraph &g)
+{
+    edgei res = 0;
+    for (verti v = 0; v < g.V(); ++v)
+    {
+        for ( StaticGraph::const_iterator it = g.succ_begin(v);
+              it != g.succ_end(v); ++it )
+        {
+            if (*it > v) ++res;
+        }
+    }
+    return res;
+}
 
 int main(int argc, char *argv[])
 {
@@ -413,6 +426,8 @@ int main(int argc, char *argv[])
     }
     info("Number of vertices:        %12lld", (long long)game.graph().V());
     info("Number of edges:           %12lld", (long long)game.graph().E());
+    info("Forward edge ratio:        %.10f",
+          (double)count_forward_edges(game.graph())/game.graph().E() );
     info("Number of priorities:      %12d", game.d());
     LiftingStatistics stats(game);
     info("SPM lifting strategy:      %12s", arg_spm_lifting_strategy.c_str());
