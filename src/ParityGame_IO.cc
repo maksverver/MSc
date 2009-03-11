@@ -116,8 +116,7 @@ void ParityGame::read_pbes( const std::string &file_path,
     int max_prio = 0;
     for (verti v = 0; v < num_vertices; ++v)
     {
-        int prio = pgg.get_priority(v);
-        if (prio > max_prio) max_prio = v;
+        max_prio = std::max(max_prio, (int)pgg.get_priority(v));
     }
 
     // Assign vertex info and recount cardinalities
