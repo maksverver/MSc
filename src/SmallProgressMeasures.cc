@@ -313,4 +313,6 @@ void SmallProgressMeasures::preprocess_graph()
     graph.successor_index_[graph.V_] = pos;
 
     info("SPM preprocessing removed %d of %d edges", graph.E_ - pos, graph.E_);
+
+    graph.E_ = pos;  // hack! avoids unreachable edges being counted
 }

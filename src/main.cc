@@ -25,7 +25,7 @@ static std::string  arg_dot_file              = "";
 static std::string  arg_pgsolver_file         = "";
 static std::string  arg_raw_file              = "";
 static std::string  arg_winners_file          = "";
-static std::string  arg_spm_lifting_strategy  = "linear";
+static std::string  arg_spm_lifting_strategy  = "";
 static bool         arg_scc_decomposition     = false;
 static int          arg_random_size           = 1000000;
 static int          arg_random_seed           =       1;
@@ -246,7 +246,7 @@ bool read_input(ParityGame &game)
     return false;
 }
 
-void write_output(const ParityGame &game, const ParityGameSolver &solver)
+void write_output(const ParityGame &game, const ParityGameSolver *solver)
 {
     /* Write dot file */
     if (!arg_dot_file.empty())
@@ -301,18 +301,18 @@ void write_output(const ParityGame &game, const ParityGameSolver &solver)
     }
 
     /* Write winners file */
-    if (!arg_winners_file.empty())
+    if (!arg_winners_file.empty() && solver != NULL)
     {
         if (arg_winners_file == "-")
         {
-            write_winners(std::cout, solver);
+            write_winners(std::cout, *solver);
             if (!std::cout) error("Writing failed!");
         }
         else
         {
             info("Writing winners to file %s...", arg_winners_file.c_str());
             std::ofstream ofs(arg_winners_file.c_str());
-            write_winners(ofs, solver);
+            write_winners(ofs, *solver);
             if (!ofs) error("Writing failed!");
         }
     }
@@ -424,56 +424,71 @@ int main(int argc, char *argv[])
     {
         fatal("Couldn't parse parity game from input!\n");
     }
+
+    /* Do priority compression at the start too. */
+    int old_d = game.d();
+    game.compress_priorities();
+
+    /* Print some game info: */
     info("Number of vertices:        %12lld", (long long)game.graph().V());
     info("Number of edges:           %12lld", (long long)game.graph().E());
     info("Forward edge ratio:        %.10f",
           (double)count_forward_edges(game.graph())/game.graph().E() );
-    info("Number of priorities:      %12d", game.d());
-    LiftingStatistics stats(game);
-    info("SPM lifting strategy:      %12s", arg_spm_lifting_strategy.c_str());
+    info("Number of priorities:      %12d (reduced from %d)", game.d(), old_d);
+    for (int p = 0; p < game.d(); ++p)
+        info("  %d occurs %d times", p, game.cardinality(p));
 
-    double solve_time = time_used();
-    info("Starting solve...");
-
-    // Allocate data structures
-    ParityGameSolver *solver = NULL;
-    std::auto_ptr<ComponentSolver> comp_solver;
-    std::auto_ptr<LiftingStrategy> spm_strategy;
-    std::auto_ptr<SmallProgressMeasures> spm;
-    if (arg_scc_decomposition)
+    if (!arg_spm_lifting_strategy.empty())
     {
-        comp_solver.reset(new ComponentSolver(game, &stats));
-        solver = comp_solver.get();
+        LiftingStatistics stats(game);
+        info( "SPM lifting strategy:      %12s",
+              arg_spm_lifting_strategy.c_str() );
+
+        double solve_time = time_used();
+        info("Starting solve...");
+
+        // Allocate data structures
+        ParityGameSolver *solver = NULL;
+        std::auto_ptr<ComponentSolver> comp_solver;
+        std::auto_ptr<LiftingStrategy> spm_strategy;
+        std::auto_ptr<SmallProgressMeasures> spm;
+        if (arg_scc_decomposition)
+        {
+            comp_solver.reset(new ComponentSolver(game, &stats));
+            solver = comp_solver.get();
+        }
+        else
+        {
+            spm_strategy.reset(
+                LiftingStrategy::create(game, arg_spm_lifting_strategy) );
+            assert(spm_strategy.get() != NULL);
+            spm.reset(new SmallProgressMeasures(game, *spm_strategy, &stats));
+            solver = spm.get();
+        }
+
+        // Solve game
+        solver->solve();
+
+        solve_time = time_used() - solve_time;
+
+        // Print some statistics
+        info("Time used to solve:          %10.3f s", solve_time);
+        // info("Peak memory usage:           %10.3f MB", get_vmsize()); // TODO
+        size_t total_memory_use = game.memory_use() + solver->memory_use();
+        info("Memory required to solve:    %10.3f MB", total_memory_use /MB);
+        info(" .. used by parity game:     %10.3f MB", game.memory_use()/MB);
+        info("     .. used by graph:       %10.3f MB", game.graph().memory_use()/MB);
+        info(" .. used by solver:          %10.3f MB", solver->memory_use()/MB);
+        info("Total lift attempts:       %12lld", stats.lifts_attempted());
+        info("Succesful lift attempts:   %12lld", stats.lifts_succeeded());
+        info("Minimum lifts required:    %12lld", 0LL);  // TODO
+
+        write_output(game, solver);
     }
     else
     {
-        spm_strategy.reset(
-            LiftingStrategy::create(game, arg_spm_lifting_strategy) );
-        assert(spm_strategy.get() != NULL);
-        spm.reset(new SmallProgressMeasures(game, *spm_strategy, &stats));
-        solver = spm.get();
+        write_output(game, NULL);
     }
-
-    // Solve game
-    solver->solve();
-
-    solve_time = time_used() - solve_time;
-
-    // Print some statistics
-    info("Time used to solve:          %10.3f s", solve_time);
-    // info("Peak memory usage:           %10.3f MB", get_vmsize()); // TODO
-    size_t total_memory_use = game.memory_use() + solver->memory_use();
-    info("Memory required to solve:    %10.3f MB", total_memory_use /MB);
-    info(" .. used by parity game:     %10.3f MB", game.memory_use()/MB);
-    info("     .. used by graph:       %10.3f MB", game.graph().memory_use()/MB);
-    info(" .. used by solver:          %10.3f MB", solver->memory_use()/MB);
-    info("Total lift attempts:       %12lld", stats.lifts_attempted());
-    info("Succesful lift attempts:   %12lld", stats.lifts_succeeded());
-    info("Minimum lifts required:    %12lld", 0LL);  // TODO
-
-    /* spm.debug_print(); */
-
-    write_output(game, *solver);
 
     info("Exiting.");
 }
