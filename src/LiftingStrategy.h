@@ -31,7 +31,7 @@ public:
                 max_size specificies the maximum size of the focus list, either
                 as an absolute size greater than 1, or as a ratio between zero
                 and 1, relative to the total number of vertices in the graph.
-                Default: focuslist:0:0.5
+                Default: focuslist:0:0.1
     */
     static LiftingStrategy *create( const ParityGame &game,
                                     const std::string description );

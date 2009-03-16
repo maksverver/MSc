@@ -39,7 +39,7 @@ LiftingStrategy *LiftingStrategy::create( const ParityGame &game,
         int backward = (parts.size() > 1 ? atoi(parts[1].c_str()) : 0);
         double ratio = (parts.size() > 2 ? atof(parts[2].c_str()) : 0);
         size_t V = game.graph().V();
-        if (ratio <= 0) ratio = 0.5;
+        if (ratio <= 0) ratio = 0.1;
         size_t max_size = (size_t)(ratio > 1 ? ratio : ratio*V);
         if (max_size == 0) max_size = 1;
         if (max_size >  V) max_size = V;

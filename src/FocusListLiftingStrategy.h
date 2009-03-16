@@ -2,6 +2,7 @@
 #define FOCUS_LIST_LIFTING_STRATEGY_H_INCLUDED
 
 #include "SmallProgressMeasures.h"
+#include "LinearLiftingStrategy.h"
 #include <list>
 #include <utility>
 
@@ -32,7 +33,7 @@ public:
                               bool backward, size_t max_size );
     verti next(verti prev_vertex, bool prev_lifted);
     size_t memory_use() const;
-    bool backward() const { return backward_; }
+    bool backward() const { return lls_.backward(); }
     bool max_size() const { return max_size_; }
 
 protected:
@@ -42,10 +43,16 @@ protected:
 private:
     typedef std::list<std::pair<verti, unsigned> > focus_list;
 
-    const bool backward_;               //!< indicates the direction to move
     const size_t max_size_;             //!< maximum allowed focus list size
     int pass_;                          //!< current pass
-    verti last_vertex_;                 //!< last vertex lifted linearly
+
+    // For pass 1:
+    LinearLiftingStrategy lls_;         //!< strategy for pass 1
+    verti last_vertex_;                 //!< last vertex selected in pass 1
+    bool last_lifted_;                  //!< was last vertex lifted?
+    verti num_lift_attempts_;           //!< number of consecutive lift attempts
+
+    // For pass 2:
     focus_list focus_list_;             //!< nodes on the focus list
     focus_list::iterator focus_pos_;    //!< current position in the focus list
 };

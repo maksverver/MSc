@@ -10,9 +10,9 @@ static const unsigned credit_increase = 2;
 
 FocusListLiftingStrategy::FocusListLiftingStrategy(
     const ParityGame &game, bool backward, size_t max_size )
-    : LiftingStrategy(game), backward_(backward), max_size_(max_size),
-      pass_(1), last_vertex_(NO_VERTEX),
-      focus_list_(), focus_pos_(focus_list_.end())
+    : LiftingStrategy(game), max_size_(max_size), pass_(1),
+      lls_(game, backward), last_vertex_(NO_VERTEX), last_lifted_(false),
+      num_lift_attempts_(0), focus_list_(), focus_pos_(focus_list_.end())
 {
 }
 
@@ -22,11 +22,11 @@ verti FocusListLiftingStrategy::next(verti prev_vertex, bool prev_lifted)
     switch (pass_)
     {
     case 1:
-        res = pass1(prev_vertex,prev_lifted);
+        res = pass1(prev_vertex, prev_lifted);
         break;
 
     case 2:
-        res = pass2(prev_vertex,prev_lifted);
+        res = pass2(prev_vertex, prev_lifted);
         break;
 
     default:
@@ -39,49 +39,27 @@ verti FocusListLiftingStrategy::next(verti prev_vertex, bool prev_lifted)
 
 verti FocusListLiftingStrategy::pass1(verti prev_vertex, bool prev_lifted)
 {
-    /* Linear lifting */
-    if (prev_vertex == NO_VERTEX)
-    {
-        // Select first vertex for pass 1
-        assert(focus_list_.empty());
-        return last_vertex_ = (backward_ ? graph_.V() - 1 : 0);
-    }
-    else
-    {
-        if (prev_lifted)
-        {
-            // Put succesfully lifted vertex on the focus list
-            focus_list_.push_back(std::make_pair(prev_vertex, initial_credit));
+    last_vertex_ = prev_vertex;
+    last_lifted_ = prev_lifted;
 
-            if (focus_list_.size() == max_size_)
-            {
-                // Focus list is full; switch to pass 2
-                pass_ = 2;
-                return pass2(NO_VERTEX, false);
-            }
-        }
-
-        if (last_vertex_ == (backward_ ? 0 : graph_.V() - 1))
-        {
-            // End of pass 1 reached.
-            if (focus_list_.empty())
-            {
-                // No nodes were lifted; we're done.
-                return NO_VERTEX;
-            }
-            else
-            {
-                // Switch to pass 2
-                pass_ = 2;
-                return pass2(NO_VERTEX, false);
-            }
-        }
-        else
-        {
-            // Return next vertex for pass 1
-            return last_vertex_ = last_vertex_ + (backward_ ? -1 : +1);
-        }
+    /* Check if last vertex was succesfully lifted */
+    if (prev_lifted)
+    {
+        // Put succesfully lifted vertex on the focus list
+        assert(prev_vertex != NO_VERTEX);
+        focus_list_.push_back(std::make_pair(prev_vertex, initial_credit));
     }
+
+    if ( focus_list_.size() == max_size_ ||
+         num_lift_attempts_ == game_.graph().V() )
+    {
+        // Switch to pass 2
+        pass_ = 2;
+        return pass2(NO_VERTEX, false);
+    }
+
+    num_lift_attempts_ += 1;
+    return lls_.next(last_vertex_, last_lifted_);
 }
 
 verti FocusListLiftingStrategy::pass2(verti prev_vertex, bool prev_lifted)
@@ -96,6 +74,7 @@ verti FocusListLiftingStrategy::pass2(verti prev_vertex, bool prev_lifted)
     {
         // Adjust previous vertex credit and move to next position
         focus_list::iterator old_pos = focus_pos_++;
+        assert(old_pos->first == prev_vertex);
         if (prev_lifted)
         {
             old_pos->second += credit_increase;
@@ -117,7 +96,8 @@ verti FocusListLiftingStrategy::pass2(verti prev_vertex, bool prev_lifted)
         {
             // Focus list exhausted; move back to pass 1
             pass_ = 1;
-            return pass1(NO_VERTEX, false);
+            num_lift_attempts_ = 0;
+            return pass1(last_vertex_, last_lifted_);
         }
         else
         {
