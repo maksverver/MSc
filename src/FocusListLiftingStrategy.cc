@@ -9,10 +9,10 @@ static const unsigned credit_increase = 2;
 
 
 FocusListLiftingStrategy::FocusListLiftingStrategy(
-    const ParityGame &game, bool backward )
-    : LiftingStrategy(game), backward_(backward), pass_(1),
-      last_vertex_(NO_VERTEX), focus_list_(), focus_pos_(focus_list_.end()),
-      focus_list_max_size_(0)
+    const ParityGame &game, bool backward, size_t max_size )
+    : LiftingStrategy(game), backward_(backward), max_size_(max_size),
+      pass_(1), last_vertex_(NO_VERTEX),
+      focus_list_(), focus_pos_(focus_list_.end())
 {
 }
 
@@ -52,6 +52,13 @@ verti FocusListLiftingStrategy::pass1(verti prev_vertex, bool prev_lifted)
         {
             // Put succesfully lifted vertex on the focus list
             focus_list_.push_back(std::make_pair(prev_vertex, initial_credit));
+
+            if (focus_list_.size() == max_size_)
+            {
+                // Focus list is full; switch to pass 2
+                pass_ = 2;
+                return pass2(NO_VERTEX, false);
+            }
         }
 
         if (last_vertex_ == (backward_ ? 0 : graph_.V() - 1))
@@ -64,10 +71,6 @@ verti FocusListLiftingStrategy::pass1(verti prev_vertex, bool prev_lifted)
             }
             else
             {
-                // End of pass 1 -- focus list size is now at a local maximum
-                focus_list_max_size_ = std::max( focus_list_max_size_,
-                                                 focus_list_.size() );
-
                 // Switch to pass 2
                 pass_ = 2;
                 return pass2(NO_VERTEX, false);
@@ -129,6 +132,5 @@ verti FocusListLiftingStrategy::pass2(verti prev_vertex, bool prev_lifted)
 
 size_t FocusListLiftingStrategy::memory_use() const
 {
-    assert(focus_list_.size() <= focus_list_max_size_);
-    return focus_list_max_size_*sizeof(focus_list::value_type);
+    return max_size_*sizeof(focus_list::value_type);
 }

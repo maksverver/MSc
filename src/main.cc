@@ -436,7 +436,7 @@ int main(int argc, char *argv[])
           (double)count_forward_edges(game.graph())/game.graph().E() );
     info("Number of priorities:      %12d (reduced from %d)", game.d(), old_d);
     for (int p = 0; p < game.d(); ++p)
-        info("  %d occurs %d times", p, game.cardinality(p));
+        info("  %2d occurs %d times", p, game.cardinality(p));
 
     if (!arg_spm_lifting_strategy.empty())
     {

@@ -37,7 +37,11 @@ public:
     verti next(verti prev_vertex, bool prev_lifted);
     size_t memory_use() const;
 
+    bool backward() const { return backward_; }
+    bool stack() const { return stack_; }
+
 private:
+    const bool backward_;
     const bool stack_;
     bool *queued_;
     verti *queue_;

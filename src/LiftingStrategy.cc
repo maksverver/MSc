@@ -25,7 +25,8 @@ LiftingStrategy *LiftingStrategy::create( const ParityGame &game,
         return new LinearLiftingStrategy(game, backward);
     }
     else
-    if (strcasecmp(parts[0].c_str(), "predecessor") == 0)
+    if ( strcasecmp(parts[0].c_str(), "predecessor") == 0 ||
+         strcasecmp(parts[0].c_str(), "pred") == 0 )
     {
         int backward = (parts.size() > 1 ? atoi(parts[1].c_str()) : 0);
         int stack    = (parts.size() > 2 ? atoi(parts[2].c_str()) : 0);
@@ -36,7 +37,13 @@ LiftingStrategy *LiftingStrategy::create( const ParityGame &game,
          strcasecmp(parts[0].c_str(), "focus") == 0 )
     {
         int backward = (parts.size() > 1 ? atoi(parts[1].c_str()) : 0);
-        return new FocusListLiftingStrategy(game, backward);
+        double ratio = (parts.size() > 2 ? atof(parts[2].c_str()) : 0);
+        size_t V = game.graph().V();
+        if (ratio <= 0) ratio = 0.5;
+        size_t max_size = (size_t)(ratio > 1 ? ratio : ratio*V);
+        if (max_size == 0) max_size = 1;
+        if (max_size >  V) max_size = V;
+        return new FocusListLiftingStrategy(game, backward, max_size);
     }
     else
     {

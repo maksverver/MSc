@@ -3,7 +3,7 @@
 
 PredecessorLiftingStrategy::PredecessorLiftingStrategy(
     const ParityGame &game, bool backward, bool stack )
-    : LiftingStrategy(game), stack_(stack)
+    : LiftingStrategy(game), backward_(backward),stack_(stack)
 {
     assert(game.graph().edge_dir() & StaticGraph::EDGE_PREDECESSOR);
 

@@ -15,6 +15,8 @@ public:
     LinearLiftingStrategy(const ParityGame &game, bool backward);
     verti next(verti prev_vertex, bool prev_lifted);
 
+    bool backward() const { return backward_; }
+
 private:
     const bool backward_;       /*!< indicates the direction to move */
     verti failed_lifts_;        /*!< number of consecutive failed lift attempts */

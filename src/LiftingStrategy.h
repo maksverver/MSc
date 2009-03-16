@@ -10,7 +10,29 @@ class LiftingStrategy
 {
 public:
     /*! Create a lifting strategy for the given game from a string description.
-        Returns NULL if the  description could not be interpreted. */
+        Returns NULL if the  description could not be interpreted.
+
+        String descriptions are as follows:
+
+            linear:backward
+                Use a linear lifting strategy (swiping).
+                If backward is non-zero, scan vertices backward.
+                Default: linear:0
+
+            predecessor:backward:stack
+                Use a predecessor lifting strategy (worklist).
+                If backward is non-zero, scan vertices backward.
+                If stack is non-zero, use a stack instead of a queue.
+                Default: predecessor:0:0
+
+            focuslist:backward:max_size
+                Use a lifting strategy with a focus list.
+                If backward is non-zero, scan vertices backward.
+                max_size specificies the maximum size of the focus list, either
+                as an absolute size greater than 1, or as a ratio between zero
+                and 1, relative to the total number of vertices in the graph.
+                Default: focuslist:0:0.5
+    */
     static LiftingStrategy *create( const ParityGame &game,
                                     const std::string description );
 

@@ -14,14 +14,26 @@
     the focus list are attempted to be lifted; if lifting succeeds, the credit
     for this node is increased linearly, and if lifting fails it is decreased
     exponentially. This pass is repeated until the focus list is empty.
+
+    The focus list has a fixed maximum size. When this size is reached, the
+    algorithm switches to pass 2.
+
+    TODO: improve performance by using a fixed size list instead of a std::list
+
+    TODO: instead of restarting pass 1 at the beginning, it may make sense to
+          restart at the end, although this makes it slightly more tricky to
+          determine when we are done.
 */
 
 class FocusListLiftingStrategy : public LiftingStrategy
 {
 public:
-    FocusListLiftingStrategy(const ParityGame &game, bool backward);
+    FocusListLiftingStrategy( const ParityGame &game,
+                              bool backward, size_t max_size );
     verti next(verti prev_vertex, bool prev_lifted);
     size_t memory_use() const;
+    bool backward() const { return backward_; }
+    bool max_size() const { return max_size_; }
 
 protected:
     verti pass1(verti prev_vertex, bool prev_lifted);
@@ -31,11 +43,11 @@ private:
     typedef std::list<std::pair<verti, unsigned> > focus_list;
 
     const bool backward_;               //!< indicates the direction to move
+    const size_t max_size_;             //!< maximum allowed focus list size
     int pass_;                          //!< current pass
     verti last_vertex_;                 //!< last vertex lifted linearly
     focus_list focus_list_;             //!< nodes on the focus list
     focus_list::iterator focus_pos_;    //!< current position in the focus list
-    size_t focus_list_max_size_;  //!< peak number of entries in the focus list
 };
 
 #endif /* ndef FOCUS_LIST_LIFTING_STRATEGY_H_INCLUDED */
