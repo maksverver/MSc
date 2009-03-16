@@ -6,13 +6,13 @@
 #include <vector>
 
 /*! A simple lifting strategy that puts all nodes in a queue, then takes them
-    out one at a time; whenever a node is succesfully lifted, its predecessors
+    out one at a time; whenever a node is successfully lifted, its predecessors
     are put back in the queue as they may need to be lifted too.
 
     This strategy requires predecessor edges to be stored in the game graph.
 
     The queue can operate as a true queue or as a stack; the latter may result
-    in better locality of reference and/or fewer unsuccesful lifting attempts.
+    in better locality of reference and/or fewer unsuccessful lifting attempts.
     (This has not been tested.)
 
     (The Multi-Core Solver for Parity Games paper contains a description of

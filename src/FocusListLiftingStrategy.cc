@@ -4,7 +4,7 @@
 /*! Credit for a vertex when it is put on the focus list. */
 static const unsigned initial_credit  = 2;
 
-/*! Credit increase when a vertex on the focus list is succesfully lifted. */
+/*! Credit increase when a vertex on the focus list is successfully lifted. */
 static const unsigned credit_increase = 2;
 
 
@@ -42,10 +42,10 @@ verti FocusListLiftingStrategy::pass1(verti prev_vertex, bool prev_lifted)
     last_vertex_ = prev_vertex;
     last_lifted_ = prev_lifted;
 
-    /* Check if last vertex was succesfully lifted */
+    /* Check if last vertex was successfully lifted */
     if (prev_lifted)
     {
-        // Put succesfully lifted vertex on the focus list
+        // Put successfully lifted vertex on the focus list
         assert(prev_vertex != NO_VERTEX);
         focus_list_.push_back(std::make_pair(prev_vertex, initial_credit));
     }

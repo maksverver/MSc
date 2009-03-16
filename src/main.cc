@@ -485,6 +485,10 @@ int main(int argc, char *argv[])
 
         solve_time = time_used() - solve_time;
 
+        long long lifts_total       = stats.lifts_attempted();
+        long long lifts_successful  = stats.lifts_succeeded();
+        long long lifts_failed      = lifts_total - lifts_successful;
+
         // Print some statistics
         info("Time used to solve:          %10.3f s", solve_time);
         // info("Peak memory usage:           %10.3f MB", get_vmsize()); // TODO
@@ -493,9 +497,10 @@ int main(int argc, char *argv[])
         info(" .. used by parity game:     %10.3f MB", game.memory_use()/MB);
         info("     .. used by graph:       %10.3f MB", game.graph().memory_use()/MB);
         info(" .. used by solver:          %10.3f MB", solver->memory_use()/MB);
-        info("Total lift attempts:       %12lld", stats.lifts_attempted());
-        info("Succesful lift attempts:   %12lld", stats.lifts_succeeded());
-        info("Minimum lifts required:    %12lld", 0LL);  // TODO
+        info("Lifting attempts failed:      %12lld", lifts_failed);
+        info("Lifting attempts succeeded:   %12lld", lifts_successful);
+        info("Total lifting attempts:       %12lld", lifts_total);
+        // info("Minimum lifts required:    %12lld", 0LL);  // TODO
 
         write_output(game, solver);
     }
