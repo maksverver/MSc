@@ -27,6 +27,7 @@ static std::string  arg_raw_file              = "";
 static std::string  arg_winners_file          = "";
 static std::string  arg_spm_lifting_strategy  = "";
 static bool         arg_scc_decomposition     = false;
+static bool         arg_solve_dual            = false;
 static int          arg_random_size           = 1000000;
 static int          arg_random_seed           =       1;
 static int          arg_random_out_degree     =      10;
@@ -68,6 +69,7 @@ static void print_usage()
 "  --raw/-r <file>        write parity game in raw format to <file>\n"
 "  --winners/-w <file>    write compact winners specification to <file>\n"
 "  --scc                  solve strongly connected components individually\n"
+"  --dual                 solve the dual game\n"
         );
 }
 
@@ -86,6 +88,7 @@ static void parse_args(int argc, char *argv[])
         { "raw",        true,  NULL, 'r' },
         { "winners",    true,  NULL, 'w' },
         { "scc",        false, NULL,  5  },
+        { "dual",       false, NULL,  6  },
         { NULL,         false, NULL,  0  } };
 
     static const char *short_options = "hi:l:d:p:r:w:";
@@ -171,6 +174,10 @@ static void parse_args(int argc, char *argv[])
             arg_scc_decomposition = true;
             break;
 
+        case 6:     /* solve dual game */
+            arg_solve_dual = true;
+            break;
+
         case '?':
             {
                 printf("Unrecognized option!\n");
@@ -202,8 +209,9 @@ static void write_winners(std::ostream &os, const ParityGameSolver &solver)
             next_newline += 80;
         }
         ParityGame::Player winner = solver.winner(v);
-        os << ( (winner == ParityGame::PLAYER_EVEN) ? 'E' :
-                (winner == ParityGame::PLAYER_ODD)  ? 'O' : '?' );
+        os << ( (winner == ParityGame::PLAYER_EVEN) ^ arg_solve_dual ? 'E' :
+                (winner == ParityGame::PLAYER_ODD)  ^ arg_solve_dual ? 'O' :
+                                                                       '?' );
     }
     os << '\n';
 }
@@ -422,19 +430,25 @@ int main(int argc, char *argv[])
     ParityGame game;
     if (!read_input(game))
     {
-        fatal("Couldn't parse parity game from input!\n");
+        fatal("Couldn't parse parity game from input!");
     }
 
     /* Do priority compression at the start too. */
     int old_d = game.d();
     game.compress_priorities();
 
+    if (arg_solve_dual)
+    {
+        info("Switching to dual game...");
+        game.make_dual();
+    }
+
     /* Print some game info: */
     info("Number of vertices:        %12lld", (long long)game.graph().V());
     info("Number of edges:           %12lld", (long long)game.graph().E());
     info("Forward edge ratio:        %.10f",
           (double)count_forward_edges(game.graph())/game.graph().E() );
-    info("Number of priorities:      %12d (reduced from %d)", game.d(), old_d);
+    info("Number of priorities:      %12d (was %d)", game.d(), old_d);
     for (int p = 0; p < game.d(); ++p)
         info("  %2d occurs %d times", p, game.cardinality(p));
 

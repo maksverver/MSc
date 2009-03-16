@@ -50,6 +50,13 @@ public:
                        const verti *vertices, verti num_vertices,
                        const Player *winners );
 
+    /*! Replaces the current game by its dual game, which uses the same game
+        graph, but swaps players and changes priorities, such that the solution
+        to the game is the same except with winners reversed. (A node won by
+        even in the old game, is won by odd in the dual game, and vice versa.)
+    */
+    void make_dual();
+
     /*! Compresses range of priorities such that after compression,
         cardinality(p) &gt; 0, for 0 &lt; p &lt; d (note that cardinality(0)
         may still be zero!). */

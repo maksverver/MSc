@@ -102,6 +102,28 @@ void ParityGame::make_subgame( const ParityGame &game,
     recalculate_cardinalities(num_vertices + 2);
 }
 
+
+void ParityGame::make_dual()
+{
+    // For each vertex, invert player and increase priority by one
+    for (verti v = 0; v < graph_.V(); ++v)
+    {
+        vertex_[v].player   = (Player)vertex_[v].player ^ 1;
+        vertex_[v].priority = vertex_[v].priority + 1;
+    }
+
+    // Update priority counts (move each on space to the right)
+    verti *new_cardinality = new verti[d_ + 1];
+    new_cardinality[0] = 0;
+    std::copy(cardinality_, cardinality_ + d_, new_cardinality + 1);
+    delete[] cardinality_;
+    cardinality_ = new_cardinality;
+    d_ = d_ + 1;
+
+    // Try to compress priorities
+    compress_priorities();
+}
+
 void ParityGame::compress_priorities()
 {
     // Quickly check if we have anything to compress first:
