@@ -446,13 +446,15 @@ void reorder(ParityGame &game, bool bfs)
     const StaticGraph &graph = game.graph();
 
     std::vector<verti> perm;
-    perm.reserve(graph.V());
+    perm.resize(graph.V(), (verti)-1);
     std::vector<char> visited(graph.V(), 0);
     std::deque<verti> queue;
+    verti new_v = 0;
     for (verti root = 0; root < graph.V(); ++root)
     {
         if (visited[root]) continue;
-        perm.push_back(root);
+        assert(perm[root] == (verti)-1);
+        perm[root] = new_v++;
         visited[root] = true;
         queue.push_back(root);
         while (!queue.empty())
@@ -464,7 +466,8 @@ void reorder(ParityGame &game, bool bfs)
             {
                 verti w = *it;
                 if (visited[w]) continue;
-                perm.push_back(w);
+                assert(perm[w] == (verti)-1);
+                perm[w] = new_v++;
                 visited[w] = true;
                 if (bfs)
                 {
@@ -477,8 +480,7 @@ void reorder(ParityGame &game, bool bfs)
             }
         }
     }
-
-    assert(perm.size() == graph.V());
+    assert(new_v == graph.V());
     game.shuffle(perm);
 }
 
