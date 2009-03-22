@@ -57,6 +57,10 @@ public:
     */
     void make_dual();
 
+    /*! Shuffles the nodes in the game. Node n becomes node perm[n], for all n.
+        Requires that perm contains a permuation of 0 through graph().V()-1. */
+    void shuffle(const std::vector<verti> &perm);
+
     /*! Compresses range of priorities such that after compression,
         cardinality(p) &gt; 0, for 0 &lt; p &lt; d (note that cardinality(0)
         may still be zero!). */

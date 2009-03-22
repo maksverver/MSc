@@ -124,6 +124,33 @@ void ParityGame::make_dual()
     compress_priorities();
 }
 
+void ParityGame::shuffle(const std::vector<verti> &perm)
+{
+    // N.B. maximum priority and priorities cardinalities remain unchanged.
+
+    /* NOTE: shuffling could probably be done more efficiently (in-place?)
+             if performance becomes an issue. */
+
+    // Create new edge list
+    StaticGraph::edge_list edges;
+    for (verti v = 0; v < graph_.V(); ++v)
+    {
+        for ( StaticGraph::const_iterator it = graph_.succ_begin(v);
+              it != graph_.succ_end(v); ++it )
+        {
+            verti w = *it;
+            edges.push_back(std::make_pair(perm[v], perm[w]));
+        }
+    }
+    graph_.assign(edges, graph_.edge_dir());
+
+    // Create new vertex info
+    ParityGameVertex *new_vertex = new ParityGameVertex[graph_.V()];
+    for (verti v = 0; v < graph_.V(); ++v) new_vertex[perm[v]] = vertex_[v];
+    delete vertex_;
+    vertex_ = new_vertex;
+}
+
 void ParityGame::compress_priorities()
 {
     // Quickly check if we have anything to compress first:

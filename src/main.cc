@@ -14,11 +14,15 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <vector>
+#include <queue>
 #include <memory>
 
 enum InputFormat {
     INPUT_NONE = 0, INPUT_RAW, INPUT_RANDOM, INPUT_PGSOLVER, INPUT_PBES
 };
+
+enum Reordering { REORDER_NONE = 0, REORDER_BFS, REORDER_DFS };
 
 static InputFormat  arg_input_format          = INPUT_NONE;
 static std::string  arg_dot_file              = "";
@@ -28,6 +32,7 @@ static std::string  arg_winners_file          = "";
 static std::string  arg_spm_lifting_strategy  = "";
 static bool         arg_scc_decomposition     = false;
 static bool         arg_solve_dual            = false;
+static Reordering   arg_reordering            = REORDER_NONE;
 static int          arg_random_size           = 1000000;
 static int          arg_random_seed           =       1;
 static int          arg_random_out_degree     =      10;
@@ -70,7 +75,7 @@ static void print_usage()
 "  --winners/-w <file>    write compact winners specification to <file>\n"
 "  --scc                  solve strongly connected components individually\n"
 "  --dual                 solve the dual game\n"
-        );
+"  --reorder/-e (bfs|dfs) reorder vertices\n");
 }
 
 static void parse_args(int argc, char *argv[])
@@ -89,9 +94,10 @@ static void parse_args(int argc, char *argv[])
         { "winners",    true,  NULL, 'w' },
         { "scc",        false, NULL,  5  },
         { "dual",       false, NULL,  6  },
+        { "reorder",    true,  NULL, 'e' },
         { NULL,         false, NULL,  0  } };
 
-    static const char *short_options = "hi:l:d:p:r:w:";
+    static const char *short_options = "hi:l:d:p:r:w:e:";
 
     for (;;)
     {
@@ -106,31 +112,29 @@ static void parse_args(int argc, char *argv[])
             break;
 
         case 'i':   /* input format */
+            if (strcasecmp(optarg, "random") == 0)
             {
-                if (strcasecmp(optarg, "random") == 0)
-                {
-                    arg_input_format = INPUT_RANDOM;
-                }
-                else
-                if (strcasecmp(optarg, "raw") == 0)
-                {
-                    arg_input_format = INPUT_RAW;
-                }
-                else
-                if (strcasecmp(optarg, "pgsolver") == 0)
-                {
-                    arg_input_format = INPUT_PGSOLVER;
-                }
-                else
-                if (strcasecmp(optarg, "pbes") == 0)
-                {
-                    arg_input_format = INPUT_PBES;
-                }
-                else
-                {
-                    printf("Invalid input format: %s\n", optarg);
-                    exit(1);
-                }
+                arg_input_format = INPUT_RANDOM;
+            }
+            else
+            if (strcasecmp(optarg, "raw") == 0)
+            {
+                arg_input_format = INPUT_RAW;
+            }
+            else
+            if (strcasecmp(optarg, "pgsolver") == 0)
+            {
+                arg_input_format = INPUT_PGSOLVER;
+            }
+            else
+            if (strcasecmp(optarg, "pbes") == 0)
+            {
+                arg_input_format = INPUT_PBES;
+            }
+            else
+            {
+                printf("Invalid input format: %s\n", optarg);
+                exit(1);
             }
             break;
 
@@ -176,6 +180,23 @@ static void parse_args(int argc, char *argv[])
 
         case 6:     /* solve dual game */
             arg_solve_dual = true;
+            break;
+
+        case 'e':
+            if (strcasecmp(optarg, "bfs") == 0)
+            {
+                arg_reordering = REORDER_BFS;
+            }
+            else
+            if (strcasecmp(optarg, "dfs") == 0)
+            {
+                arg_reordering = REORDER_DFS;
+            }
+            else
+            {
+                printf("Invalid reordering: %s\n", optarg);
+                exit(1);
+            }
             break;
 
         case '?':
@@ -420,6 +441,47 @@ edgei count_forward_edges(const StaticGraph &g)
     return res;
 }
 
+void reorder(ParityGame &game, bool bfs)
+{
+    const StaticGraph &graph = game.graph();
+
+    std::vector<verti> perm;
+    perm.reserve(graph.V());
+    std::vector<char> visited(graph.V(), 0);
+    std::deque<verti> queue;
+    for (verti root = 0; root < graph.V(); ++root)
+    {
+        if (visited[root]) continue;
+        perm.push_back(root);
+        visited[root] = true;
+        queue.push_back(root);
+        while (!queue.empty())
+        {
+            verti v = queue.back();
+            queue.pop_back();
+            for ( StaticGraph::const_iterator it = graph.succ_begin(v);
+                  it != graph.succ_end(v); ++it )
+            {
+                verti w = *it;
+                if (visited[w]) continue;
+                perm.push_back(w);
+                visited[w] = true;
+                if (bfs)
+                {
+                    queue.push_front(w);
+                }
+                else
+                {
+                    queue.push_back(w);
+                }
+            }
+        }
+    }
+
+    assert(perm.size() == graph.V());
+    game.shuffle(perm);
+}
+
 int main(int argc, char *argv[])
 {
     time_initialize();
@@ -441,6 +503,15 @@ int main(int argc, char *argv[])
     {
         info("Switching to dual game...");
         game.make_dual();
+    }
+
+    if (arg_reordering != REORDER_NONE)
+    {
+        bool bfs = arg_reordering == REORDER_BFS;
+        assert(bfs || arg_reordering == REORDER_DFS);
+        info( "Reordering vertices in %s-first search preordering.",
+              bfs ? "breadth" : "depth" );
+        reorder(game, bfs);
     }
 
     /* Print some game info: */
