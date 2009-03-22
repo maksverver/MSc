@@ -131,7 +131,7 @@ void ParityGame::read_pbes( const std::string &file_path,
         vertex_[v - 2].player = and_op ? PLAYER_ODD : PLAYER_EVEN;
         vertex_[v - 2].priority = pgg.get_priority(v);
     }
-    recalculate_cardinalities(num_vertices);
+    recalculate_cardinalities(num_vertices - 2);
 
     // Assign graph
     graph_.assign(edges, edge_dir);
