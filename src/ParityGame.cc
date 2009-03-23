@@ -183,7 +183,10 @@ void ParityGame::compress_priorities()
     verti *new_cardinality = new verti[new_d];
     for (int p = 0; p < d_; ++p)
     {
-        new_cardinality[prio_map[p]] += cardinality_[p];
+        if (prio_map[p] >= 0)
+        {
+            new_cardinality[prio_map[p]] += cardinality_[p];
+        }
     }
     delete[] cardinality_;
     cardinality_ = new_cardinality;

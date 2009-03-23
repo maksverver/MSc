@@ -129,7 +129,12 @@ static void parse_args(int argc, char *argv[])
             else
             if (strcasecmp(optarg, "pbes") == 0)
             {
+#ifdef WITH_MCRL2
                 arg_input_format = INPUT_PBES;
+#else
+                printf("PBES input requires linking to mCRL2\n");
+                exit(1);
+#endif
             }
             else
             {
@@ -407,6 +412,10 @@ int ComponentSolver::operator()(const verti *vertices, size_t num_vertices)
     std::auto_ptr<LiftingStrategy> spm_strategy(
         LiftingStrategy::create(subgame, arg_spm_lifting_strategy) );
     assert(spm_strategy.get() != NULL);
+
+    /* FIXME:  we mess up the vertex statistics here (since vertex indices are
+               reordered); instead, we should use a new statistics object and
+               then map the results back into the main statistics. */
     SmallProgressMeasures spm(subgame, *spm_strategy, stats_);
     if (!spm.solve())
     {
@@ -487,7 +496,10 @@ void reorder(ParityGame &game, bool bfs)
 int main(int argc, char *argv[])
 {
     time_initialize();
+
+#ifdef WITH_MCRL2
     MCRL2_ATERMPP_INIT(argc, argv);
+#endif
 
     parse_args(argc, argv);
 

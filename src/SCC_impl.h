@@ -37,7 +37,7 @@ public:
                      std::make_pair((verti)-1, (verti)-1) );
         stack.clear();
 
-        // Process all verices
+        // Process all vertices
         for (verti v = 0; v < graph_.V();++v)
         {
             if (info[v].first == (verti)-1)

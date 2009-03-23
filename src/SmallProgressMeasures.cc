@@ -5,8 +5,11 @@
 #include <string.h>
 
 LiftingStatistics::LiftingStatistics(const ParityGame &game)
-    : lifts_attempted_(0), lifts_succeeded_(0), vertex_stats_(game.graph().V())
+    : lifts_attempted_(0), lifts_succeeded_(0)
 {
+    /* HACK: the +2 is to allow subgames to use te same statistics object
+             even though they may add two extra vertices. */
+    vertex_stats_.resize(game.graph().V() + 2);
 }
 
 void LiftingStatistics::record_lift(verti v, bool success)
