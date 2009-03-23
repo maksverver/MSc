@@ -94,7 +94,9 @@ protected:
     /*! Returns the maximum successor for vertex `v`. */
     verti get_max_succ(verti v);
 
+    // Allow lifting strategy to access the SPM  internals:
     friend class LiftingStrategy;
+    friend class MaxMeasureLiftingStrategy;
 
 protected:
     bool preprocessed_;         /*!< set if the graph has been preprocessed */

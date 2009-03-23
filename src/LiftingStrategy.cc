@@ -2,6 +2,7 @@
 #include "LinearLiftingStrategy.h"
 #include "PredecessorLiftingStrategy.h"
 #include "FocusListLiftingStrategy.h"
+#include "MaxMeasureLiftingStrategy.h"
 #include <stdlib.h>
 #include <strings.h>
 
@@ -44,6 +45,11 @@ LiftingStrategy *LiftingStrategy::create( const ParityGame &game,
         if (max_size == 0) max_size = 1;
         if (max_size >  V) max_size = V;
         return new FocusListLiftingStrategy(game, backward, max_size);
+    }
+    else
+    if (strcasecmp(parts[0].c_str(), "maxmeasure") == 0)
+    {
+        return new MaxMeasureLiftingStrategy(game);
     }
     else
     {
