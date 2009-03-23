@@ -15,6 +15,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <stack>
 #include <queue>
 #include <memory>
 
@@ -450,47 +451,73 @@ edgei count_forward_edges(const StaticGraph &g)
     return res;
 }
 
-void reorder(ParityGame &game, bool bfs)
+/*! Traverses the graph in breadth-first search order, and returns the result
+    in `perm', such that perm[v] = i if v is the i-th visited vertex. */
+void get_bfs_order(const StaticGraph &graph, std::vector<verti> &perm)
 {
-    const StaticGraph &graph = game.graph();
-
-    std::vector<verti> perm;
+    assert(perm.empty());
     perm.resize(graph.V(), (verti)-1);
-    std::vector<char> visited(graph.V(), 0);
-    std::deque<verti> queue;
+
+    std::queue<verti> queue;
     verti new_v = 0;
     for (verti root = 0; root < graph.V(); ++root)
     {
-        if (visited[root]) continue;
-        assert(perm[root] == (verti)-1);
+        if (perm[root] != (verti)-1) continue;
         perm[root] = new_v++;
-        visited[root] = true;
-        queue.push_back(root);
+        queue.push(root);
         while (!queue.empty())
         {
-            verti v = queue.back();
-            queue.pop_back();
-            for ( StaticGraph::const_iterator it = graph.succ_begin(v);
-                  it != graph.succ_end(v); ++it )
+            verti v = queue.front();
+            queue.pop();
+            StaticGraph::const_iterator it = graph.succ_begin(v);
+            while (it != graph.succ_end(v))
             {
-                verti w = *it;
-                if (visited[w]) continue;
-                assert(perm[w] == (verti)-1);
-                perm[w] = new_v++;
-                visited[w] = true;
-                if (bfs)
+                verti w = *it++;
+                if (perm[w] == (verti)-1)
                 {
-                    queue.push_front(w);
-                }
-                else
-                {
-                    queue.push_back(w);
+                    perm[w] = new_v++;
+                    queue.push(w);
                 }
             }
         }
     }
     assert(new_v == graph.V());
-    game.shuffle(perm);
+}
+
+/*! Traverses the graph in depth-first search order, and returns the result
+    in `perm', such that perm[v] = i if v is the i-th visited vertex. */
+void get_dfs_order(const StaticGraph &graph, std::vector<verti> &perm)
+{
+    assert(perm.empty());
+    perm.resize(graph.V(), (verti)-1);
+
+    std::stack<std::pair<verti, StaticGraph::const_iterator> > stack;
+    verti new_v = 0;
+    for (verti root = 0; root < graph.V(); ++root)
+    {
+        if (perm[root] != (verti)-1) continue;
+        perm[root] = new_v++;
+        stack.push(std::make_pair(root, graph.succ_begin(root)));
+        while (!stack.empty())
+        {
+            verti v = stack.top().first;
+            StaticGraph::const_iterator &it = stack.top().second;
+            if (it == graph.succ_end(v))
+            {
+                stack.pop();
+            }
+            else
+            {
+                verti w = *it++;
+                if (perm[w] == (verti)-1)
+                {
+                    perm[w] = new_v++;
+                    stack.push(std::make_pair(w, graph.succ_begin(w)));
+                }
+            }
+        }
+    }
+    assert(new_v == graph.V());
 }
 
 int main(int argc, char *argv[])
@@ -519,13 +546,20 @@ int main(int argc, char *argv[])
         game.make_dual();
     }
 
-    if (arg_reordering != REORDER_NONE)
+    if (arg_reordering == REORDER_BFS)
     {
-        bool bfs = arg_reordering == REORDER_BFS;
-        assert(bfs || arg_reordering == REORDER_DFS);
-        info( "Reordering vertices in %s-first search preordering.",
-              bfs ? "breadth" : "depth" );
-        reorder(game, bfs);
+        info("Reordering vertices in bread-first search preordering.");
+        std::vector<verti> perm;
+        get_bfs_order(game.graph(), perm);
+        game.shuffle(perm);
+    }
+
+    if (arg_reordering == REORDER_DFS)
+    {
+        info("Reordering vertices in depth-first search preordering.");
+        std::vector<verti> perm;
+        get_dfs_order(game.graph(), perm);
+        game.shuffle(perm);
     }
 
     /* Print some game info: */
