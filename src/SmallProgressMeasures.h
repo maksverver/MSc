@@ -94,6 +94,8 @@ protected:
     /*! Returns the maximum successor for vertex `v`. */
     verti get_max_succ(verti v);
 
+    friend class LiftingStrategy;
+
 protected:
     bool preprocessed_;         /*!< set if the graph has been preprocessed */
     LiftingStrategy &strategy_; /*!< the lifting strategy to use */

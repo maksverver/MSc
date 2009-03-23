@@ -4,6 +4,8 @@
 #include "ParityGame.h"
 #include <string>
 
+class SmallProgressMeasures;
+
 /*! Instances of this class encapsulate vertex lifting strategies to be used
     with the small progress measures parity game solver. */
 class LiftingStrategy
@@ -38,7 +40,7 @@ public:
 
     /*! Construct a strategy for the given parity game. */
     LiftingStrategy(const ParityGame &game)
-        : graph_(game.graph()), game_(game) { };
+        : graph_(game.graph()), game_(game), spm_(NULL) { };
 
     /*! Destroy the strategy */
     virtual ~LiftingStrategy() { };
@@ -59,9 +61,16 @@ public:
     /*! Returns an estimation of the peak memory use for this strategy. */
     virtual size_t memory_use() const { return 0; }
 
+    /*! Sets the SPM instance that uses this strategy */
+    void spm(SmallProgressMeasures *spm) { spm_ = spm; }
+
+    /*! Returns the SPM instance that uses this strategy */
+    SmallProgressMeasures *spm() { return spm_; }
+
 protected:
-    const StaticGraph &graph_;  /*!< the game graph to work on */
-    const ParityGame &game_;    /*!< the parity game to work on */
+    const StaticGraph &graph_;      //!< the game graph to work on
+    const ParityGame &game_;        //!< the parity game to work on
+    SmallProgressMeasures *spm_;    //!< the SPM instance using this strategy
 };
 
 #endif /* ndef LIFTING_STRATEGY_H_INCLUDED */

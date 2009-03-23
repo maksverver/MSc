@@ -28,6 +28,10 @@ SmallProgressMeasures::SmallProgressMeasures( const ParityGame &game,
     : ParityGameSolver(game), preprocessed_(false), strategy_(strategy),
       len_(game.d()/2), stats_(stats)
 {
+    /* Claim strategy */
+    assert(strategy_.spm() == NULL);
+    strategy_.spm(this);
+
     /* Initialize SPM vector bounds */
     M_ = new verti[len_];
     for (int n = 0; n < len_; ++n) M_[n] = game_.cardinality(2*n + 1) + 1;
@@ -40,6 +44,9 @@ SmallProgressMeasures::SmallProgressMeasures( const ParityGame &game,
 
 SmallProgressMeasures::~SmallProgressMeasures()
 {
+    assert(strategy_.spm() == this);
+    strategy_.spm(NULL);
+
     delete[] spm_;
     delete[] M_;
 }
