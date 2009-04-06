@@ -2,11 +2,12 @@
 
 runs='
 linear linear_B
-predecessor predecessor_B predecessor_S predecessor_BS 
+predecessor predecessor_B predecessor_S predecessor_BS
+maxmeasure
 focus focus_B
-linear_D linear_BD 
-predecessor_D predecessor_BD predecessor_SD predecessor_BSD
-focus_D focus_BD
+linear_R linear_BR 
+predecessor_R predecessor_BR predecessor_SR predecessor_BSR
+maxmeasure_R
 '
 
 #format=pbes
@@ -34,9 +35,9 @@ do
 	fi
 
 	args=""
-	if [ -n "`echo $run | grep D`" ]
+	if [ -n "`echo $run | grep R`" ]
 	then
-		args="$args --scc"
+		args="$args --reorder dfs"
 	fi
 
 	$solver --input "$format" --strategy $strat $args < "$input" 2> "$tmp"
@@ -44,8 +45,9 @@ do
 	lift_success=`grep 'Lifting attempts succeeded:' "$tmp" | cut -c40-`
 	lift_failed=`grep  'Lifting attempts failed:' "$tmp" | cut -c40-`
 	time_used=`grep 'Time used to solve' "$tmp" | cut -c35-`
-	printf "%-15s  %'14d  %'14d  %'14d  %9s\n" \
-		"`echo $run | tr _ \ `" $lift_failed $lift_success $lift_total "$time_used"
+	time_per_lift=`perl -e '($l,$t)=@ARGV;$l=~s/,//g;printf "%.3fe-9 s", 1e9*$t/$l;' "$lift_total" "$time_used"`
+	printf "%-15s  %'14d  %'14d  %'14d  %9s %15s\n" \
+		"`echo $run | tr _ \ `" $lift_failed $lift_success $lift_total "$time_used" "$time_per_lift"
 done
 
 rm -f "$tmp"
