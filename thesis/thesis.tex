@@ -5,8 +5,146 @@
 \begin{document}
 \maketitle
 
+
+\documentclass[11pt]{book}
+\usepackage{a4wide}
+\title{Title goes here}
+\author{Maks Verver\\\texttt{m.verver@student.utwente.nl}}
+\begin{document}
+\maketitle
+
+
+\section{Abstract}
+Blablabla.
+
 \section{Introduction}
-Text goes here.
+Intro goes here. Summarize parity games as a model checking tool, summarize
+my contributions: improving practical performance of existing algortihms through
+heuristics & parallelization.
+
+The following sections give background info; none of this is new.
+
+\section{Parity Games}
+Explanation of what a parity game is; probably copying/duplication a lot of
+existing definitions. Establish terminology.
+
+\subsection{Theorethical classification}
+Summarize what is known about the complexity class of solving parity games.
+This gives some motivation why theoretical research on the subject is relevant.
+
+\subsection{Application to model checking}
+Explain how parity games relate to binary equation systems, mu-calculus.
+This basically motivates why research into parity games is of practical
+interest. Explain that improving practical performance is of interest even if
+computational complexity doesn't improve. (This is critical for motivating
+research into lifting heuristics and parallel algorithms.)
+
+\subsection{Relation to other model checking approaches?}
+Why would do model checking by solving parity games? What are the alternatives
+and what's wrong with them?
+
+\section{Solving Parity Games}
+This details the state-of-the-art of solving parity games.
+\subsection{Small Progress Measures}
+- Explanation of how it works
+- Importance of strategies
+- Note worst-case complexity (not dependent on strategy)
+\subsubsection{Lifting Strategies}
+- Previously developed strategies are discussed here (linear scanning,
+  predecessor lifting, focus list for parallel implementation)
+\subsection{Strategy Improvement}
+- Explanation of how it works
+- Note worst-case complexity
+\subsection{Zielonka's algorithm?}
+- Not really a parity game algorithm
+- Complexity (??)
+\subsection{Reduction to SAT}
+- Not really a parity game algorithm
+- NP complete, but relatively efficient solvers available
+\subsubsection{Parallelized solvers}
+- Note existing non-portable SPM code
+- Note parallel SAT solvers
+- Note that a portable, parralel, direct solver would be novel.
+
+Now we have covered motivation, background info, state of the art.
+Nothing new yet. The rest is about my own work is hopefully new:
+
+\section{Research Question}
+This section needs a different name.
+
+Describe globally what I'm going to do to improve the state of the art.
+Mainly two parts:
+(0. efficient implementation of existing algorithms
+   => not really interesting on an academic level)
+1. find better heuristics for small progress measures
+   (detailed evaluation of SPM would be novel?)
+2. find good way to parallelize small progress measures
+   (this would be somewhat novel, although a lockfree implementation exists)
+
+TBD: what am I going to do with the other algorithms?
+I can't ignore them completely; at the very least I need some data for
+comparison (e.g. counting of fundamental steps for the serial algorithm,
+comparison with parallel SAT solver for the parallel algorithm.)
+
+\section{Research Approach}
+The purpose of this section is to describe what I did to achieve the results
+in the next section, in sufficient detail so the results are reproducible (in
+theory). Leave out work I did that's irrelevant to the work. Include details
+only if they really matter.
+
+\section{Theory}
+This should have a different name and maybe go above Research Approach.
+
+Write up any definitions/theorems/whatever I come up with.
+
+\subsection{Lifting Strategies}
+Any formal characterisation of lifting strategies and their properties...
+Proofs e.g. of algorithm to determine minimal lifting attempts required.
+
+\subsection{Parallelization}
+Design of a parallel algorithm. Discuss different options. Motivate choices
+such as (for example) chosing message passing over shared memory if such
+choices are made.
+
+\section{Framework implementation}
+Explain how the framework is implemented on a high level, with details on data
+structures and memory layout, insofar these may affect results. (Again, relevant
+to ensure results are reproducable.)
+
+\subsection{Serial Algorithms}
+Summarize which serial algorithms were implemented (this includes a lot of stuff
+others came up with for comparison).
+
+\subsection{Lifting Strategies}
+Describe which lifting strategies are actually implemented, and how to the
+extend it matters.
+
+\section{Test Data}
+Describe how the test data is constructed. Include motivation.
+
+\section{Results}
+We're probably benchmarking time and memory use. Report the results.
+Probably split these out into serial results and parallel results, although they
+will have to be compared in the end too.
+
+\section{Analysis}
+Discuss results.
+
+\section{Conclusions}
+Quickly summarize results and explain how they relate to the research question;
+describe how my research improved the state of the art (which was the research
+goal). Hopefully, we can get some useful conclusion like "I've found a lifting
+strategy that works well" and "I found an efficient way to solve a parity game
+concurrently" (this can be quantified pretty well since we have a serial
+algorithm to compare with).
+
+\subsection{Future work}
+Describe any untested hypotheses (things I thought about but don't have any
+results on).
+Describe possible ways to extend/improve the research.
+
+\section{Acknowledgements}
+blablabla
 
 \bibliographystyle{alpha}
 \bibliography{references}
