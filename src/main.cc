@@ -9,14 +9,15 @@
 
 #include "logging.h"
 #include "timing.h"
-#include "SCC.h"
 #include "ParityGame.h"
 #include "LinearLiftingStrategy.h"
 #include "PredecessorLiftingStrategy.h"
+#include "ComponentSolver.h"
+#include "GraphOrdering.h"
 
 #include <aterm_init.h>
 
-#include "assert.h"
+#include <assert.h>
 #include <getopt.h>
 #include <string.h>
 #include <stdlib.h>
@@ -27,6 +28,9 @@
 #include <stack>
 #include <queue>
 #include <memory>
+
+#define strcasecmp compat_strcasecmp
+
 
 enum InputFormat {
     INPUT_NONE = 0, INPUT_RAW, INPUT_RANDOM, INPUT_PGSOLVER, INPUT_PBES
@@ -362,173 +366,6 @@ void write_output(const ParityGame &game, const ParityGameSolver *solver)
     }
 }
 
-/*! A solver that breaks down the game graph into strongly connected components,
-    and uses the SPM algorithm to solve independent subgames. */
-class ComponentSolver : public ParityGameSolver
-{
-public:
-    ComponentSolver(const ParityGame &game, LiftingStatistics *stats);
-    ~ComponentSolver();
-
-    bool solve();
-    ParityGame::Player winner(verti v) const { return winners_[v]; }
-    const ParityGame &game() const { return game_; }
-    size_t memory_use() const { return memory_used_; }
-
-private:
-    // SCC callback
-    int operator()(const verti *vertices, size_t num_vertices);
-    friend class SCC<ComponentSolver>;
-
-protected:
-    std::vector<ParityGame::Player> winners_;
-    LiftingStatistics *stats_;
-    size_t memory_used_;
-};
-
-ComponentSolver::ComponentSolver( const ParityGame &game,
-                                  LiftingStatistics *stats )
-    : ParityGameSolver(game),
-      winners_(game.graph().V(), ParityGame::PLAYER_NONE),
-      stats_(stats), memory_used_(0)
-{
-}
-
-ComponentSolver::~ComponentSolver()
-{
-}
-
-bool ComponentSolver::solve()
-{
-    return decompose_graph(game_.graph(), *this) == 0;
-}
-
-int ComponentSolver::operator()(const verti *vertices, size_t num_vertices)
-{
-    info("Constructing subgame with %d vertices...", (int)num_vertices);
-
-    // Construct a subgame
-    ParityGame subgame;
-    subgame.make_subgame(game_, vertices, num_vertices, &winners_[0]);
-
-    // Compress vertex priorities
-    int old_d = subgame.d();
-    subgame.compress_priorities();
-    info( "Priority compression removed %d of %d priorities.",
-          old_d - subgame.d(), old_d );
-
-    // Solve the subgame
-    info("Solving subgame...", (int)num_vertices);
-    std::auto_ptr<LiftingStrategy> spm_strategy(
-        LiftingStrategy::create(subgame, arg_spm_lifting_strategy) );
-    assert(spm_strategy.get() != NULL);
-
-    /* FIXME:  we mess up the vertex statistics here (since vertex indices are
-               reordered); instead, we should use a new statistics object and
-               then map the results back into the main statistics. */
-    SmallProgressMeasures spm(subgame, *spm_strategy, stats_);
-    if (!spm.solve())
-    {
-        error("Solving failed!\n");
-        return 1;
-    }
-
-    // Copy winners from subgame
-    for (size_t n = 0; n < num_vertices; ++n)
-    {
-        winners_[vertices[n]] = spm.winner(n);
-    }
-
-    // Update (peak) memory use
-    size_t mem = subgame.memory_use() + spm.memory_use();
-    if (mem > memory_used_) memory_used_ = mem;
-
-    return 0;
-}
-
-edgei count_forward_edges(const StaticGraph &g)
-{
-    edgei res = 0;
-    for (verti v = 0; v < g.V(); ++v)
-    {
-        for ( StaticGraph::const_iterator it = g.succ_begin(v);
-              it != g.succ_end(v); ++it )
-        {
-            if (*it > v) ++res;
-        }
-    }
-    return res;
-}
-
-/*! Traverses the graph in breadth-first search order, and returns the result
-    in `perm', such that perm[v] = i if v is the i-th visited vertex. */
-void get_bfs_order(const StaticGraph &graph, std::vector<verti> &perm)
-{
-    assert(perm.empty());
-    perm.resize(graph.V(), (verti)-1);
-
-    std::queue<verti> queue;
-    verti new_v = 0;
-    for (verti root = 0; root < graph.V(); ++root)
-    {
-        if (perm[root] != (verti)-1) continue;
-        perm[root] = new_v++;
-        queue.push(root);
-        while (!queue.empty())
-        {
-            verti v = queue.front();
-            queue.pop();
-            StaticGraph::const_iterator it = graph.succ_begin(v);
-            while (it != graph.succ_end(v))
-            {
-                verti w = *it++;
-                if (perm[w] == (verti)-1)
-                {
-                    perm[w] = new_v++;
-                    queue.push(w);
-                }
-            }
-        }
-    }
-    assert(new_v == graph.V());
-}
-
-/*! Traverses the graph in depth-first search order, and returns the result
-    in `perm', such that perm[v] = i if v is the i-th visited vertex. */
-void get_dfs_order(const StaticGraph &graph, std::vector<verti> &perm)
-{
-    assert(perm.empty());
-    perm.resize(graph.V(), (verti)-1);
-
-    std::stack<std::pair<verti, StaticGraph::const_iterator> > stack;
-    verti new_v = 0;
-    for (verti root = 0; root < graph.V(); ++root)
-    {
-        if (perm[root] != (verti)-1) continue;
-        perm[root] = new_v++;
-        stack.push(std::make_pair(root, graph.succ_begin(root)));
-        while (!stack.empty())
-        {
-            verti v = stack.top().first;
-            StaticGraph::const_iterator &it = stack.top().second;
-            if (it == graph.succ_end(v))
-            {
-                stack.pop();
-            }
-            else
-            {
-                verti w = *it++;
-                if (perm[w] == (verti)-1)
-                {
-                    perm[w] = new_v++;
-                    stack.push(std::make_pair(w, graph.succ_begin(w)));
-                }
-            }
-        }
-    }
-    assert(new_v == graph.V());
-}
-
 int main(int argc, char *argv[])
 {
     time_initialize();
@@ -596,7 +433,8 @@ int main(int argc, char *argv[])
         std::auto_ptr<SmallProgressMeasures> spm;
         if (arg_scc_decomposition)
         {
-            comp_solver.reset(new ComponentSolver(game, &stats));
+            comp_solver.reset(
+                new ComponentSolver(game, arg_spm_lifting_strategy, &stats) );
             solver = comp_solver.get();
         }
         else

@@ -1,7 +1,19 @@
-OBJS=Graph.o ParityGame.o ParityGame_IO.o SmallProgressMeasures.o \
-     LiftingStrategy.o LinearLiftingStrategy.o PredecessorLiftingStrategy.o \
-     FocusListLiftingStrategy.o MaxMeasureLiftingStrategy.o \
-     timing.o logging.o main.o
+OBJS= \
+	Compatibility.o \
+	ComponentSolver.o \
+	FocusListLiftingStrategy.o \
+	Graph.o \
+	GraphOrdering.o \
+	LiftingStrategy.o \
+	LinearLiftingStrategy.o \
+	MaxMeasureLiftingStrategy.o \
+	ParityGame.o \
+	ParityGame_IO.o \
+	PredecessorLiftingStrategy.o \
+	SmallProgressMeasures.o \
+	logging.o \
+	main.o \
+	timing.o
 
 CFLAGS=-Wall -O2 -g -DWITH_MCRL2 \
 	-I../../mcrl2/include \

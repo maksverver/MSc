@@ -151,3 +151,7 @@ private:
                       in its successor list. */
     std::vector< std::pair< verti, verti > > stack;
 };
+
+#ifdef assert
+#undef assert
+#endif

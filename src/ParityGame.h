@@ -14,6 +14,12 @@
 #include <iostream>
 #include <vector>
 
+#if __GNUC__ >= 3
+#   define ATTR_PACKED  __attribute__((__packed__))
+#else
+#   define ATTR_PACKED
+#endif
+
 /*! Information stored for each vertex of a parity game:
     - the player to move (either PLAYER_EVEN or PLAYER_ODD)
     - the priority of the vertex  between 0 and `d` (exclusive).
@@ -34,7 +40,7 @@ public:
     enum Player { PLAYER_NONE = -1,
                   PLAYER_EVEN =  0,
                   PLAYER_ODD  =  1
-                } __attribute__((__packed__));
+                } ATTR_PACKED;
 
     /*! Construct an empty parity game */
     ParityGame();

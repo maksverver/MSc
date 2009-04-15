@@ -10,10 +10,11 @@
 #ifndef GRAPH_H_INCLUDED
 #define GRAPH_H_INCLUDED
 
-#include <stdint.h>
 #include <vector>
 #include <utility>
 #include <iostream>
+
+#include "Compatibility.h"
 
 typedef uint32_t verti;    /*!< type used to number vertices */
 typedef uint32_t edgei;    /*!< type used to number edges */

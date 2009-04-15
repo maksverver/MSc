@@ -19,7 +19,10 @@ extern "C" {
 void info(const char *fmt, ...);
 void warn(const char *fmt, ...);
 void error(const char *fmt, ...);
-__attribute__((noreturn)) void fatal(const char *fmt, ...);
+#if __GNUC__ >= 3
+__attribute__((noreturn))
+#endif
+void fatal(const char *fmt, ...);
 
 #ifdef __cplusplus
 }

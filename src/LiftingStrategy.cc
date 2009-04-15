@@ -12,8 +12,11 @@
 #include "PredecessorLiftingStrategy.h"
 #include "FocusListLiftingStrategy.h"
 #include "MaxMeasureLiftingStrategy.h"
+
 #include <stdlib.h>
-#include <strings.h>
+
+#include "Compatibility.h"
+#define strcasecmp compat_strcasecmp
 
 LiftingStrategy *LiftingStrategy::create( const ParityGame &game,
                                           const std::string description )
