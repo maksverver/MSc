@@ -105,6 +105,7 @@ protected:
     // Allow lifting strategy to access the SPM  internals:
     friend class LiftingStrategy;
     friend class MaxMeasureLiftingStrategy;
+    friend class OldMaxMeasureLiftingStrategy;
 
 protected:
     bool preprocessed_;         /*!< set if the graph has been preprocessed */

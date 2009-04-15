@@ -7,6 +7,7 @@ OBJS= \
 	LiftingStrategy.o \
 	LinearLiftingStrategy.o \
 	MaxMeasureLiftingStrategy.o \
+	OldMaxMeasureLiftingStrategy.o \
 	ParityGame.o \
 	ParityGame_IO.o \
 	PredecessorLiftingStrategy.o \
