@@ -15,7 +15,7 @@
 class ParityGameSolver
 {
 public:
-    ParityGameSolver(const ParityGame &game) : game_(game) { };
+    ParityGameSolver(const ParityGame &game) : game_(game), aborted_(false) { };
     virtual ~ParityGameSolver() { };
 
     /*! Solve the game. */
@@ -31,8 +31,15 @@ public:
     /*! Returns the parity game for this solver instance. */
     const ParityGame &game() const { return game_; }
 
+    /*! Abort the solver. */
+    const void abort() { aborted_ = true; }
+
+    /*! Has the solver been aborted? */
+    const bool aborted() { return aborted_; }
+
 protected:
     const ParityGame &game_;
+    volatile bool aborted_;
 };
 
 #endif /* ndef PARITY_GAME_SOLVER */

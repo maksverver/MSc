@@ -7,6 +7,10 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#if defined(__unix__) || defined(__linux__)
+#define POSIX
+#endif
+
 #include "logging.h"
 #include "timing.h"
 #include "ParityGame.h"
@@ -28,6 +32,11 @@
 #include <stack>
 #include <queue>
 #include <memory>
+
+#ifdef POSIX
+#include <unistd.h>
+#include <signal.h>
+#endif
 
 #define strcasecmp compat_strcasecmp
 
@@ -51,8 +60,13 @@ static int          arg_random_size           = 1000000;
 static int          arg_random_seed           =       1;
 static int          arg_random_out_degree     =      10;
 static int          arg_random_priorities     =      20;
+static int          arg_timeout               =       0;
 
 static const double MB = 1048576.0;  // one megabyte
+
+static volatile ParityGameSolver *g_solver = NULL;
+static volatile bool g_timed_out = false;
+
 
 struct MStat {
     int size, resident, share, text, lib, data, dt;
@@ -89,7 +103,8 @@ static void print_usage()
 "  --winners/-w <file>    write compact winners specification to <file>\n"
 "  --scc                  solve strongly connected components individually\n"
 "  --dual                 solve the dual game\n"
-"  --reorder/-e (bfs|dfs) reorder vertices\n");
+"  --reorder/-e (bfs|dfs) reorder vertices\n"
+"  --timeout/-t <t>       abort solving after <t> seconds\n");
 }
 
 static void parse_args(int argc, char *argv[])
@@ -109,9 +124,10 @@ static void parse_args(int argc, char *argv[])
         { "scc",        false, NULL,  5  },
         { "dual",       false, NULL,  6  },
         { "reorder",    true,  NULL, 'e' },
+        { "timeout",    true,  NULL, 't' },
         { NULL,         false, NULL,  0  } };
 
-    static const char *short_options = "hi:l:d:p:r:w:e:";
+    static const char *short_options = "hi:l:d:p:r:w:e:t:";
 
     for (;;)
     {
@@ -122,7 +138,7 @@ static void parse_args(int argc, char *argv[])
         {
         case 'h':   /* help */
             print_usage();
-            exit(0);
+            exit(EXIT_SUCCESS);
             break;
 
         case 'i':   /* input format */
@@ -147,13 +163,13 @@ static void parse_args(int argc, char *argv[])
                 arg_input_format = INPUT_PBES;
 #else
                 printf("PBES input requires linking to mCRL2\n");
-                exit(1);
+                exit(EXIT_FAILURE);
 #endif
             }
             else
             {
                 printf("Invalid input format: %s\n", optarg);
-                exit(1);
+                exit(EXIT_FAILURE);
             }
             break;
 
@@ -201,7 +217,7 @@ static void parse_args(int argc, char *argv[])
             arg_solve_dual = true;
             break;
 
-        case 'e':
+        case 'e':   /* reorder vertices */
             if (strcasecmp(optarg, "bfs") == 0)
             {
                 arg_reordering = REORDER_BFS;
@@ -214,14 +230,18 @@ static void parse_args(int argc, char *argv[])
             else
             {
                 printf("Invalid reordering: %s\n", optarg);
-                exit(1);
+                exit(EXIT_FAILURE);
             }
+            break;
+
+        case 't':   /* time limit (in seconds) */
+            arg_timeout = atoi(optarg);
             break;
 
         case '?':
             {
                 printf("Unrecognized option!\n");
-                exit(1);
+                exit(EXIT_FAILURE);
             }
             break;
         }
@@ -231,7 +251,7 @@ static void parse_args(int argc, char *argv[])
     {
         printf("No input format specified!\n");
         print_usage();
-        exit(0);
+        exit(EXIT_FAILURE);
     }
 }
 
@@ -366,6 +386,45 @@ void write_output(const ParityGame &game, const ParityGameSolver *solver)
     }
 }
 
+#ifdef POSIX
+static void alarm_handler(int sig)
+{
+    if (sig == SIGALRM && !g_timed_out)
+    {
+        g_timed_out = true;
+        if (g_solver != NULL) ((ParityGameSolver*)g_solver)->abort();
+    }
+}
+
+static void set_timeout(int t)
+{
+    g_timed_out = false;
+
+    /* Set handler for alarm signal */
+    struct sigaction act;
+    act.sa_handler = &alarm_handler;
+    sigemptyset(&act.sa_mask);
+    act.sa_flags = 0;
+
+    /* Schedule alarm signal */
+    int res = sigaction(SIGALRM, &act, NULL);
+    if (res != 0)
+    {
+        warn("Couldn't install signal handler.");
+    }
+    else
+    {
+        alarm(arg_timeout);
+    }
+}
+#else
+static void set_timeout(int t)
+{
+    g_timed_out = false;
+    warn("Time-out not available.");
+}
+#endif
+
 int main(int argc, char *argv[])
 {
     time_initialize();
@@ -375,6 +434,7 @@ int main(int argc, char *argv[])
 #endif
 
     parse_args(argc, argv);
+
 
     ParityGame game;
     if (!read_input(game))
@@ -417,17 +477,27 @@ int main(int argc, char *argv[])
     for (int p = 0; p < game.d(); ++p)
         info("  %2d occurs %d times", p, game.cardinality(p));
 
-    if (!arg_spm_lifting_strategy.empty())
+    bool failed = true;
+
+    if (arg_spm_lifting_strategy.empty())
+    {
+        /* Don't solve; just convert data. */
+        write_output(game, NULL);
+        failed = false;
+    }
+    else
     {
         LiftingStatistics stats(game);
         info( "SPM lifting strategy:      %12s",
               arg_spm_lifting_strategy.c_str() );
 
+        if (arg_timeout > 0) set_timeout(0);
+
         double solve_time = time_used();
         info("Starting solve...");
 
         // Allocate data structures
-        ParityGameSolver *solver = NULL;
+        ParityGameSolver *solver;
         std::auto_ptr<ComponentSolver> comp_solver;
         std::auto_ptr<LiftingStrategy> spm_strategy;
         std::auto_ptr<SmallProgressMeasures> spm;
@@ -447,7 +517,25 @@ int main(int argc, char *argv[])
         }
 
         // Solve game
-        solver->solve();
+        g_solver = solver;
+        if (!g_timed_out)
+        {
+            failed = !solver->solve();
+        }
+        g_solver = NULL;
+
+        if (failed)
+        {
+            if (solver->aborted())
+            {
+                error("time limit exceeded!");
+            }
+            else
+            {
+                error("solving failed!");
+            }
+        }
+
 
         solve_time = time_used() - solve_time;
 
@@ -469,11 +557,10 @@ int main(int argc, char *argv[])
         // info("Minimum lifts required:    %12lld", 0LL);  // TODO
 
         write_output(game, solver);
-    }
-    else
-    {
-        write_output(game, NULL);
+        solver = NULL;
     }
 
     info("Exiting.");
+
+    exit(failed ? EXIT_FAILURE : EXIT_SUCCESS);
 }

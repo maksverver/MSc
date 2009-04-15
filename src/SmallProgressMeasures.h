@@ -34,7 +34,6 @@ private:
 private:
     long long lifts_attempted_, lifts_succeeded_;
     std::vector<std::pair<long long, long long> > vertex_stats_;
-
 };
 
 /*! A parity game solver based on Marcin Jurdzinski's small progress measures

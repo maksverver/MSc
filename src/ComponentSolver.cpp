@@ -71,5 +71,5 @@ int ComponentSolver::operator()(const verti *vertices, size_t num_vertices)
     size_t mem = subgame.memory_use() + spm.memory_use();
     if (mem > memory_used_) memory_used_ = mem;
 
-    return 0;
+    return aborted() ? -1 : 0;
 }

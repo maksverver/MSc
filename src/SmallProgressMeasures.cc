@@ -147,6 +147,7 @@ bool SmallProgressMeasures::solve()
     {
         lifted = lift(vertex);
         if (stats_ != NULL) stats_->record_lift(vertex, lifted);
+        if (aborted()) return false;
     }
 
     return true;
