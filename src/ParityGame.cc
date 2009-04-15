@@ -190,6 +190,7 @@ void ParityGame::compress_priorities()
     int new_d = last_prio + 1;
     assert(new_d < d_);
     verti *new_cardinality = new verti[new_d];
+    std::fill(new_cardinality, new_cardinality + new_d, 0);
     for (int p = 0; p < d_; ++p)
     {
         if (prio_map[p] >= 0)

@@ -30,6 +30,16 @@ struct ParityGameVertex
     unsigned char player, priority;
 };
 
+inline bool operator== (const ParityGameVertex &a, const ParityGameVertex &b)
+{
+    return a.player == b.player && a.priority == b.priority;
+}
+
+inline bool operator!= (const ParityGameVertex &a, const ParityGameVertex &b)
+{
+    return a.player != b.player || a.priority != b.priority;
+}
+
 /*! A parity game extends a directed graph by assigning a player
     (Even or Odd) and an integer priority to every vertex.
     Priorities are between 0 and `d` (exclusive). */
