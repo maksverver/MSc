@@ -71,11 +71,10 @@ void ParityGame::read_pgsolver( std::istream &is,
     }
 
     // Assign vertex info and recount cardinalities
-    vertex_ = new ParityGameVertex();
     reset((verti)vertices.size(), max_prio + 1);
     for (size_t n = 0; n < vertices.size(); ++n) vertex_[n] = vertices[n];
-    vertices.clear();
     recalculate_cardinalities(vertices.size());
+    vertices.clear();
 
     // Assign graph
     graph_.assign(edges, edge_dir);
