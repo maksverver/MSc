@@ -22,6 +22,12 @@ then
 	exit 1
 fi
 
+if [ -z "`which mcrl22lps`" ]
+then
+	echo 'mcrl2 is not in path?'
+	exit 1
+fi
+
 mkdir -p "$OUTDIR"
 
 solver=`pwd`/main
@@ -61,7 +67,7 @@ do
 
 			cat >"$job_file" <<EOF
 #PBS -N $job_name
-#PBS -l nodes=1:E5320
+#PBS -l nodes=1:E5335
 #PBS -W x=NACCESSPOLICY:SINGLEJOB
 
 export PATH='$PATH'
