@@ -1,0 +1,567 @@
+#LyX 1.6.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
+\begin_document
+\begin_header
+\textclass book
+\use_default_options true
+\language english
+\inputencoding auto
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize a4paper
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Title goes here
+\end_layout
+
+\begin_layout Section
+Parity Games
+\end_layout
+
+\begin_layout Standard
+A 
+\emph on
+parity game
+\emph default
+ is a game played by two players, called Even and Odd on a directed graph.
+ Each vertex in the graph is associated with (or belongs to) one of the
+ two players.
+ Furthermore, to each vertex a 
+\emph on
+priority
+\emph default
+ is assigned, which is an integer between 0 and 
+\emph on
+d
+\emph default
+, where 
+\emph on
+d
+\emph default
+ is the maximum priority occuring in the graph.
+\end_layout
+
+\begin_layout Standard
+A parity game can therefore be described by a four-tuple 
+\begin_inset Formula $\Gamma=(V_{◻},V_{\text{◇}},E,\phi)$
+\end_inset
+
+, where 
+\begin_inset Formula $V_{\text{◻}}$
+\end_inset
+
+and 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+
+\begin_inset Formula $V_{\text{◇}}$
+\end_inset
+
+partition the set of graph vertices 
+\begin_inset Formula $V=V_{\text{◻}}\cup V_{\text{◇}}$
+\end_inset
+
+ in the graph into vertices belonging to 
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
+Even and Odd respectively.
+\begin_inset Formula $E$
+\end_inset
+
+ is the set of edges in the game graph.
+ 
+\begin_inset Formula $\phi:V\rightarrow\mathbb{N}_{0}$
+\end_inset
+
+ is the vertex priority function and consequently 
+\begin_inset Formula $d=\max\left\{ \phi(v):v\in V\right\} $
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+The edge set is such that each vertex has at least one outgoing edge; i.e.
+ 
+\begin_inset Formula $\forall v\in V\;\exists w\in V\; vw\in E$
+\end_inset
+
+; note that the edge set may include loops but no duplicates (it is not
+ a multiset).
+ The vertex and edge sets can be either finite or infinite; we wil assume
+ they are finite unless noted otherwise.
+ The maximum priority is always finite.
+\end_layout
+
+\begin_layout Standard
+We will abbreviate players Even and Odd as ◻ and ◇ respectively.
+ In some cases, we will use ▽ to refer to either one of the players and
+ △ to refer to his opponent.
+\end_layout
+
+\begin_layout Subsection
+Game Play and Winning Conditions
+\end_layout
+
+\begin_layout Standard
+A parity game is played by placing a token on some initial vertex.
+ The player to whom the vertex belongs makes a move by moving the token
+ to an adjacent vertex, which may belong to either player, who then makes
+ the next move.
+ Since every vertex has at least one outgoing edge, the game continues indefinit
+ely.
+ The moves may be described by the vertices that the token visits; such
+ a sequence is called a 
+\emph on
+play
+\emph default
+.
+ Formally,
+\begin_inset Formula $\pi=v_{1}v_{2}\ldots$
+\end_inset
+
+ is a play if 
+\begin_inset Formula $\forall i\in\mathbb{N}\; v_{i}v_{i+1}\in E$
+\end_inset
+
+.
+ A subsequence of a play is called a 
+\emph on
+partial play
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+The 
+\emph on
+dominant priority
+\emph default
+ for a play 
+\begin_inset Formula $\pi=v_{1}v_{2}\ldots$
+\end_inset
+
+ denoted 
+\begin_inset Formula $P(\pi)$
+\end_inset
+
+ is the smallest value that occurs infinitely often in the sequence 
+\begin_inset Formula $\phi(v)_{1}\phi(v_{2})\ldots$
+\end_inset
+
+ or formally: 
+\begin_inset Formula $P(\pi)=\min\left\{ p\in\mathbb{N}_{0}:\left|\left\{ i\in\mathbb{N}:\phi(v_{i})=p\right\} \right|=\aleph_{0}\right\} $
+\end_inset
+
+.
+ Since the set of priorities is bounded by 
+\begin_inset Formula $d$
+\end_inset
+
+, the dominant priority is always defined.
+\end_layout
+
+\begin_layout Standard
+A play is won by player Even if the dominant priority for the play even,
+ and won by Odd otherwise (hence their names).
+\end_layout
+
+\begin_layout Subsection
+Strategies and Solutions
+\end_layout
+
+\begin_layout Standard
+Let's take △ to be either player Even or player Odd.
+ A strategy for △ assigns a move to each position in which △ is to move.
+ Formally, this strategy is a function 
+\begin_inset Formula $\dot{\sigma}_{△}:V^{*}\times V_{△}\rightarrow V$
+\end_inset
+
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+ such that if 
+\begin_inset Formula $\dot{\sigma}_{△}(v_{1}\ldots v_{n})=v_{n+1}$
+\end_inset
+
+ then 
+\begin_inset Formula $v_{1}\ldots v_{n+1}$
+\end_inset
+
+ is a partial play.
+ A strategy for 
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
+△
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+ is called consistent with a play 
+\begin_inset Formula $\pi=v_{1}v_{2}\ldots$
+\end_inset
+
+ if 
+\begin_inset Formula $\dot{\sigma}_{\text{△}}(v_{1}\ldots v_{i})=v_{i+1}$
+\end_inset
+
+ for all 
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
+
+\begin_inset Formula $v_{i}\in V_{△}$
+\end_inset
+
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+.
+\end_layout
+
+\begin_layout Standard
+A strategy 
+\begin_inset Formula $\dot{\sigma}_{△}$
+\end_inset
+
+ is called winning for △ at starting vertex 
+\begin_inset Formula $v_{1}$
+\end_inset
+
+ if all plays 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+
+\begin_inset Formula $v_{1}v_{2}\ldots$
+\end_inset
+
+
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
+ consistent with 
+\begin_inset Formula $\dot{\sigma}_{△}$
+\end_inset
+
+ are won by △.
+ An important property of parity games, is that for every starting vertex,
+ either player Even or player Odd has a winning strategy [TODO: reference
+ proof; Borel determinancy].
+ This allows us to partition the vertex set 
+\begin_inset Formula $V$
+\end_inset
+
+ of the game graph into two sets of vertices
+\begin_inset Formula $W_{◻}$
+\end_inset
+
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+ and 
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
+
+\begin_inset Formula $W_{◇}$
+\end_inset
+
+ which can be won by player Even and Odd respectively.
+ Determining this partition into winning sets is called 
+\emph on
+solving the game
+\emph default
+ and is the main goal of most parity game algorithms.
+\end_layout
+
+\begin_layout Subsection
+Optimal Strategies and Memory
+\end_layout
+
+\begin_layout Standard
+A strategy 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+
+\begin_inset Formula $\dot{\sigma}_{△}$
+\end_inset
+
+ is called an 
+\family default
+\series default
+\shape default
+\size default
+\emph on
+\bar default
+\noun default
+\color inherit
+optimal strategy
+\emph default
+ when it is winning for △ starting from any vertex 
+\begin_inset Formula $v_{1}\in W_{△}$
+\end_inset
+
+.
+ Functions as described above are called 
+\emph on
+infinite memory strategies
+\emph default
+, because they use the entire move history to determine the next move.
+ In contrast, 
+\emph on
+memoryless strategies
+\emph default
+ are strategies which only depend on the last vertex visited by the token,
+ i.e.
+ 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+
+\begin_inset Formula $\dot{\sigma}_{△}(v_{1}\ldots v_{n})=\dot{\sigma}_{\text{△}}(w_{1}\ldots w_{n})$
+\end_inset
+
+ if
+\begin_inset Formula $v{}_{n}=w_{n}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+We will define memoryless functions 
+\begin_inset Formula $\sigma_{△}:V_{△}\rightarrow V$
+\end_inset
+
+ such that if
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+ 
+\begin_inset Formula $\sigma_{△}(v)=w$
+\end_inset
+
+ then 
+\begin_inset Formula $vw\in E$
+\end_inset
+
+.
+ A memoryless strategy 
+\begin_inset Formula $\sigma_{△}$
+\end_inset
+
+is then consistent with a play 
+\begin_inset Formula $v_{1}v_{2}\ldots$
+\end_inset
+
+ if 
+\begin_inset Formula $\sigma_{\text{△}}(v_{i})=v_{i+1}$
+\end_inset
+
+ for all 
+\begin_inset Formula $v_{i}\in V_{△}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+It turns out that for all games optimal memoryless strategies exist.
+ Zielonka
+\begin_inset CommandInset citation
+LatexCommand cite
+key "zielonka1998igf"
+
+\end_inset
+
+ gives two proofs of this property that apply to infinite graphs as well
+ as finite graphs.
+\end_layout
+
+\begin_layout Standard
+Since winning sets complement each other, it suffices for a parity game
+ algorithm to determine the winning set for a single player.
+\end_layout
+
+\begin_layout Standard
+Jurdziński 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "jurdzinski2000spm"
+
+\end_inset
+
+ notes that if the vertex set is finite and both players follow a memoryless
+ strategy, then any play must be eventually periodic.
+ In other words, for every play 
+\begin_inset Formula $v_{1}v_{2}\ldots$
+\end_inset
+
+ there is some starting point 
+\begin_inset Formula $k$
+\end_inset
+
+ and a period 
+\begin_inset Formula $n$
+\end_inset
+
+ such that 
+\begin_inset Formula $v_{i}=v_{i+n}$
+\end_inset
+
+ for all 
+\begin_inset Formula $i\geq k$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Section
+Related Work
+\end_layout
+
+\begin_layout Standard
+Zielonka describes strategies for a more general class of games played on
+ infinite (or finite) graphs, using colouring of vertices using colours
+ from a finite set instead of simple integers, and with a more complex winning
+ condition.
+ The class of games he describes cannot generally be solved by memoryless
+ strategies, but many of the concepts he mentions are applicable to parity
+ games.
+\end_layout
+
+\begin_layout Standard
+[Borel determinacy; proof of winning strategies for either players]
+\end_layout
+
+\begin_layout Section
+Application To Model Checking
+\end_layout
+
+\begin_layout Standard
+Parity games 
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset bibtex
+LatexCommand bibtex
+bibfiles "references"
+options "bibtotoc,plain"
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document
