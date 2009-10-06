@@ -36,10 +36,21 @@ do
 	testcase_file="testcases-cache/$testcase.raw"
 	if [ ! -f "$testcase_file" ]
 	then
-		echo "Test case file $testcase_file does not exist!"
-		exit 1
+		if [ `echo "$testcase" | cut -f1 -d-` =  random ]
+		then
+			# Random case given
+			random_size=`echo "$testcase" | cut -f2 -d- | sed s/k/000/`
+			random_prio=`echo "$testcase" | cut -f3 -d- | sed s/^lo$/5/ | sed s/^hi$/25/`
+			random_seed=`echo "$testcase" | cut -f4 -d-`
+			testcase_args="--input random --size $random_size --priorities $random_prio --seed $random_seed"
+		else
+			echo "Test case file $testcase_file does not exist!"
+			exit 1
+		fi
+	else
+		# Cached file found
+		testcase_args="--input raw < `pwd`/$testcase_file"
 	fi
-	testcase_args="--input raw < `pwd`/$testcase_file"
 	
 	for transform in `cat $TRANSFORMS`
 	do
