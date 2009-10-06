@@ -118,7 +118,7 @@ public:
         This includes memory used by the graph! */
     size_t memory_use() const;
 
-    /*! Return the priority limit */
+    /*! Return the priority limit d; all priorities must be in range [0:d) */
     int d() const { return d_; }
 
     /*! Return the game graph */

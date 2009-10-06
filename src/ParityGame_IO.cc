@@ -14,6 +14,11 @@
 #include <mcrl2/pbes/parity_game_generator.h>
 #endif
 
+/* N.B. The PGSolver I/O functions reverse the priorities when reading/writing
+   the game description. This is done to preserve solutions, since PGSolver
+   considers higher values to dominate lower values, while I assume the opposite
+   (i.e. 0 is the `highest' priority) throughout the rest of the code. */
+
 void ParityGame::read_pgsolver( std::istream &is,
                                 StaticGraph::EdgeDirection edge_dir )
 {
@@ -74,12 +79,16 @@ void ParityGame::read_pgsolver( std::istream &is,
         } while (ch == ',');
     }
 
+    // Ensure max_prio is even, so max_prio - p preserves parity:
+    if (max_prio%2 == 1) ++max_prio;
+
     // Assign vertex info and recount cardinalities
     reset((verti)vertices.size(), max_prio + 1);
     for (size_t n = 0; n < vertices.size(); ++n)
     {
         assert(vertices[n] != invalid);
-        vertex_[n] = vertices[n];
+        vertex_[n].player   = vertices[n].player;
+        vertex_[n].priority = max_prio - vertices[n].priority;
     }
     recalculate_cardinalities(vertices.size());
     vertices.clear();
@@ -90,10 +99,15 @@ void ParityGame::read_pgsolver( std::istream &is,
 
 void ParityGame::write_pgsolver(std::ostream &os) const
 {
+    // Get max priority and make it even so max_prio - p preserves parity:
+    int max_prio = d();
+    if (max_prio%2 == 1) ++max_prio;
+
+    // Write out graph
     os << "parity " << graph_.V() - 1 << ";\n";
     for (verti v = 0; v < graph_.V(); ++v)
     {
-        os << v << ' ' << priority(v) << ' ' << player(v);
+        os << v << ' ' << (max_prio - priority(v)) << ' ' << player(v);
         StaticGraph::const_iterator it  = graph_.succ_begin(v),
                                     end = graph_.succ_end(v);
         assert(it != end);
