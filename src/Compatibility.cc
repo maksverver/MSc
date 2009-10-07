@@ -18,14 +18,21 @@ static struct CompatibilityChecks {
 
 int compat_strcasecmp(const char *s1, const char *s2)
 {
-    int d = 0;
-    while (*s1 && (d = tolower(*s1++) - tolower(*s2++)) == 0);
-    return d;
+    for (;;)
+    {
+        int d = tolower(*s1) - tolower(*s2);
+        if (d || !*s1) return d;
+        ++s1, ++s2;
+    }
 }
 
 int compat_strncasecmp(const char *s1, const char *s2, size_t n)
 {
-    int d = 0;
-    while (n-- > 0 && *s1 && (d = tolower(*s1++) - tolower(*s2++)) == 0);
-    return d;
+    for (; n > 0; --n)
+    {
+        int d = tolower(*s1) - tolower(*s2);
+        if (d || !*s1) return d;
+        ++s1, ++s2;
+    }
+    return 0;
 }
