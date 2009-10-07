@@ -1,8 +1,17 @@
 #!/usr/bin/env python
 
 # Generates a Jurdzinsky game in PGSolver format with l levels and b blocks.
+# The resulting game has (2b + 1) + (3b + 1)(l - 1) vertices and 2l priorities.
 
-# Structure:
+# Usage:
+#   generate-jurdzinski-game.py <levels> [<blocks>]
+# If <blocks> is omitted, it defaults to levels - 1.
+
+# Expected result is that player odd wins only on the odd level (vertices
+# numbered from 0 to 2b, inclusive) and lifting each of these vertices to top
+# requires (b + 1)**l lifts.
+
+# Game structure:
 #
 #                          0        1          2         3         2b-1      2b
 # One odd level:          <0>  <=>  [1]  <=>  [0]  <=>  [1] <=..=> [1] <=>  <0>
@@ -17,38 +26,58 @@
 # (Note: since this is in PGSolver format, high numbers are used for high
 #  priorities, which is the opposite of the convention used in Jurdzinski's
 #  paper.)
-#
-# Expected results: odd player wins from the odd level (first 2*B + 1 vertices)
-# and even player wins from the even levels (the rest of the vertices). Lifting
-# the vertices with priority 1 to top should take (b + 1)**l lifts.
 
 import sys
 
 try:
-    (l, b) = map(int, sys.argv[1:])
+    try:
+      l, b = map(int, sys.argv[1:])
+    except:
+      l, = map(int, sys.argv[1:])
+      b = l - 1
     assert l > 0
     assert b > 0
 except:
-    print('Usage: ' + sys.argv[0] + ' <l> <b>')
+    print('Usage: ' + sys.argv[0] + ' <levels> [<blocks>]')
     sys.exit(1)
 
 N = (2*b + 1) + (3*b + 1)*(l - 1)   # number of vertices
 V = [None]*N                        # per vertex: priority, player, edges
 
-# Generate odd level `0'
-for i in range(2*b + 1):    V[i] = (i%2, i%2, [])
-for i in range(2*b):        V[i+1][2].append(i+0)
-for i in range(2*b):        V[i+0][2].append(i+1)
+def uni_edge(i, j):  # add a unidirectional edge
+    assert i != j and j not in V[i][2]
+    V[i][2].append(j)
 
+def bi_edge(i, j):  # add a bidirectional edge
+    uni_edge(i, j)
+    uni_edge(j, i)
+
+# Generate odd level `0'
+for i in range(2*b + 1): V[i] = (i%2, i%2, [])
+for i in range(2*b):     bi_edge(i, i+1)
+
+# Generate even levels
+begin, end = 0, 2*b + 1
 for k in range(1, l):
+
     # Generate even level `k'
-    j = (2*b + 1) + (3*b + 1)*(k - 1)
-    for i in range(b + 1): V[j + 3*i + 0] = (2*k,     1, [])
-    for i in range(b):     V[j + 3*i + 1] = (2*k + 1, 0, [])
-    for i in range(b):     V[j + 3*i + 2] = (2*k,     0, [])
-    for i in range(b):
-        for (v,w) in [(0,1),(1,2),(0,2),(2,0),(2,3),(3,2)]:
-            V[j + 3*i + v][2].append(j + 3*i + w)
+    begin, end = end, end + (3*b + 1)
+
+    for i in range(begin + 0, end, 3): V[i] = (2*k + 0, 1, [])
+    for i in range(begin + 1, end, 3): V[i] = (2*k + 1, 0, [])
+    for i in range(begin + 2, end, 3): V[i] = (2*k + 0, 0, [])
+
+    for i in range(begin, end - 1, 3):
+        uni_edge(i + 0, i + 1)
+        uni_edge(i + 1, i + 2)
+        bi_edge (i + 0, i + 2)
+        bi_edge (i + 2, i + 3)
+
+    # Connect level `k' to level `0'
+    for j in range(b):
+        bi_edge(begin + 3*j + 2, 2*j + 1)
+
+assert N == end
 
 print('parity ' + str(N - 1) + ';')
 for (i, (priority, player, edges)) in enumerate(V):
