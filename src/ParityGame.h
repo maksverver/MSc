@@ -40,6 +40,7 @@ inline bool operator!= (const ParityGameVertex &a, const ParityGameVertex &b)
     return a.player != b.player || a.priority != b.priority;
 }
 
+
 /*! A parity game extends a directed graph by assigning a player
     (Even or Odd) and an integer priority to every vertex.
     Priorities are between 0 and `d` (exclusive). */
@@ -52,6 +53,16 @@ public:
                   PLAYER_ODD  =  1
                 } ATTR_PACKED;
 
+    /*! A strategy determines the partitioning of the game's vertices into
+        winning sets for both players and provides a deterministic strategy for
+        the vertices controlled by a player in its winning set.
+
+        For each vertex v owned by player p:
+        - strategy[v] == NO_VERTEX if vertex v is not in p's winning set
+        - strategy[v] == w if vertex v is in p's winning set, (v,w) is an edge
+          in the game graph, and (v,w) is a winning move for player p. */
+    typedef std::vector<verti> Strategy;
+
     /*! Construct an empty parity game */
     ParityGame();
 
@@ -60,7 +71,7 @@ public:
 
     /*! Generate a random parity game, with vertices assigned uniformly at
         random to players, and priority assigned uniformly between 0 and d-1.
-        \sa StaticGraph::make_random()
+        \sa void StaticGraph::make_random()
     */
     void make_random( verti V, unsigned out_deg,
                       StaticGraph::EdgeDirection edge_dir, int d );
@@ -70,10 +81,26 @@ public:
         two dummy nodes are added, won by the even or odd player respectively.
         Edges going out of the vertex subset specified by `vertices' are mapped
         to these dummy nodes instead, depending on whether the winner of the
-        outgoing node is even or odd (specified by `winners'). */
+        outgoing node is even or odd (specified by `strategy').
+
+        \sa make_subgame(const ParityGame &, const verti *, verti)
+
+    */
     void make_subgame( const ParityGame &game,
                        const verti *vertices, verti num_vertices,
-                       const Player *winners );
+                       const Strategy &strategy );
+
+    /*! Create a subgame containing only the given vertices from the original
+        game. Vertices are renumbered to be in range [0..num_vertices) and
+        two dummy nodes are added, won by the even or odd player respectively.
+        Edges going out of the vertex subset specified by `vertices' are
+        removed, so every vertex must have at least one outgoing edge that stays
+        within the vertex subset, or the result is not a valid parity game.
+
+        \sa make_subgame(const ParityGame &, const verti *, verti, const Strategy &)
+    */
+    void make_subgame( const ParityGame &game,
+                       const verti *vertices, verti num_vertices );
 
     /*! Replaces the current game by its dual game, which uses the same game
         graph, but swaps players and changes priorities, such that the solution
@@ -134,6 +161,13 @@ public:
         `p` must be between 0 and `d` (exclusive). */
     verti cardinality(int p) const { return cardinality_[p]; }
 
+    /*! Return the winner for vertex v according to strategy s. */
+    Player winner(const Strategy &s, verti v) const;
+
+    /*! Returns whether the given strategy is valid (and thereby optimal) for
+        both players. */
+    bool verify(const Strategy &s) const;
+
 protected:
     /*! Re-allocate memory to store information on V vertices with priorities
         between 0 and `d` (exclusive). */
@@ -148,7 +182,7 @@ private:
     ParityGame &operator=(const ParityGame &game);
 
 private:
-    int d_;                 /*!< priority limit */
+    int d_;                 /*!< priority limit (max. priority + 1) */
     StaticGraph graph_;     /*!< game graph */
 
     /*! Assignment of players and priorities to vertices (size graph_.V()) */

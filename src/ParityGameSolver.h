@@ -11,6 +11,7 @@
 #define PARITY_GAME_SOLVER
 
 #include "ParityGame.h"
+#include <vector>
 
 class ParityGameSolver
 {
@@ -18,12 +19,8 @@ public:
     ParityGameSolver(const ParityGame &game) : game_(game), aborted_(false) { };
     virtual ~ParityGameSolver() { };
 
-    /*! Solve the game. */
-    virtual bool solve() = 0;
-
-    /*! After the game has been solved, this function returns the winner of
-        the parity game when starting from vertex i. */
-    virtual ParityGame::Player winner(verti v) const = 0;
+    /*! Solve the game and return the strategies for both players. */
+    virtual ParityGame::Strategy solve() = 0;
 
     /*! Returns an estimation of the peak memory use for this solver. */
     virtual size_t memory_use() const = 0;

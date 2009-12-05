@@ -8,6 +8,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #include "ParityGame.h"
+#include "SCC.h"
 #include <map>
 #include <algorithm>
 #include <stdlib.h>
@@ -59,7 +60,7 @@ void ParityGame::make_random( verti V, unsigned out_deg,
 
 void ParityGame::make_subgame( const ParityGame &game,
                                const verti *vertices, verti num_vertices,
-                               const Player *winners )
+                               const Strategy &strategy )
 {
     const StaticGraph &graph = game.graph();
     reset(num_vertices + 2, game.d());
@@ -98,9 +99,7 @@ void ParityGame::make_subgame( const ParityGame &game,
             }
             else
             {
-                Player winner = winners[*it];
-                assert(winner == PLAYER_EVEN || winner == PLAYER_ODD);
-                w = (winner == PLAYER_EVEN) ? v_even : v_odd;
+                w = (winner(strategy, *it) == PLAYER_EVEN) ? v_even : v_odd;
             }
             edges.push_back(std::make_pair(v, w));
         }
@@ -111,6 +110,38 @@ void ParityGame::make_subgame( const ParityGame &game,
     recalculate_cardinalities(num_vertices + 2);
 }
 
+void ParityGame::make_subgame( const ParityGame &game,
+                               const verti *vertices, verti num_vertices )
+{
+    const StaticGraph &graph = game.graph();
+    reset(num_vertices, game.d());
+
+    // Create a map of old->new vertex indices
+    // TODO: replace this with a hash map for better performance?
+    std::map<verti, verti> vertex_map;
+    for (verti n = 0; n < num_vertices; ++n)
+    {
+        vertex_[n] = game.vertex_[vertices[n]];
+        vertex_map[vertices[n]] = n;
+    }
+
+    // Create new edge list
+    StaticGraph::edge_list edges;
+    for (verti v = 0; v < num_vertices; ++v)
+    {
+        for ( StaticGraph::const_iterator it = graph.succ_begin(vertices[v]);
+              it != graph.succ_end(vertices[v]); ++it )
+        {
+            std::map<verti, verti>::const_iterator map_it = vertex_map.find(*it);
+            if (map_it != vertex_map.end())
+            {
+                edges.push_back(std::make_pair(v, map_it->second));
+            }
+        }
+    }
+    graph_.assign(edges, graph.edge_dir());
+    recalculate_cardinalities(num_vertices);
+}
 
 void ParityGame::make_dual()
 {
@@ -209,4 +240,115 @@ size_t ParityGame::memory_use() const
     res += sizeof(ParityGameVertex)*graph_.V();     // vertex info
     res += sizeof(verti)*d_;                        // priority frequencies
     return res;
+}
+
+ParityGame::Player ParityGame::winner(const Strategy &s, verti v) const
+{
+    /* A vertex is won by its player iff the player has a strategy for it: */
+    return (s[v] != NO_VERTEX) ? player(v) : ParityGame::Player(1 - player(v));
+}
+
+struct VerifySCC  // used by ParityGame::verify
+{
+    const ParityGame    &_game;
+    const StaticGraph   &_graph;
+    const int           _prio;
+
+    int operator() (const verti *scc, size_t scc_size)
+    {
+        // Search vertices in this SCC for a vertex with priority `prio':
+        for (size_t i = 0; i < scc_size; ++i)
+        {
+            verti v = scc[i];
+            if (_game.priority(v) == _prio)
+            {
+                // Cycle detected if |SCC| > 1 or v has a self-edge:
+                if (scc_size > 1 || _graph.has_succ(v, v)) return 1;
+            }
+        }
+        return 0;
+    }
+};
+
+bool ParityGame::verify(const Strategy &s) const
+{
+    assert(s.size() != graph_.V());
+
+    /* Make sure winning sets are consistently defined; i.e. only existent
+       edges are used, and there are no transitions that cross winning sets. */
+    for (verti v = 0; v < graph_.V(); ++v)
+    {
+        Player pl = winner(s, v);
+
+        if (pl == player(v))  /* vertex won by owner */
+        {
+            // Verify owner has a strategy: (always true)
+            if (s[v] == NO_VERTEX) return false;
+
+            // Verify strategy uses existent edges:
+            if (!graph_.has_succ(v, s[v])) return false;
+
+            // Verify strategy stays within winning set:
+            if (winner(s, s[v]) != pl) return false;
+        }
+        else  /* vertex lost by owner */
+        {
+            // Verify owner has no strategy: (always true)
+            if (s[v] != NO_VERTEX) return false;
+
+            // Verify owner cannot move outside this winning set:
+            for (StaticGraph::const_iterator it = graph_.succ_begin(v);
+                 it != graph_.succ_end(v); ++it)
+            {
+                if (winner(s, *it) != pl) return false;
+            }
+        }
+    }
+
+    // Verify absence of cycles owned by opponent in winning sets
+    for (int prio = 0; prio < d_; ++prio)
+    {
+        /* Create set of edges incident with vertices in the winning set of
+           player (1 - prio%2) consistent with strategy s and incident with
+           vertices of priorities >= prio only. */
+        StaticGraph::edge_list edges;
+        for (verti v = 0; v < graph_.V(); ++v)
+        {
+            if (priority(v) >= prio && (int)winner(s, v) == (1 - prio%2))
+            {
+                if (s[v] != NO_VERTEX)
+                {
+                    if (priority(s[v]) >= prio)
+                    {
+                        edges.push_back(std::make_pair(v, s[v]));
+                    }
+                }
+                else
+                {
+                    for (StaticGraph::const_iterator it = graph_.succ_begin(v);
+                         it != graph_.succ_end(v); ++it)
+                    {
+                        if (priority(*it) >= prio)
+                        {
+                            edges.push_back(std::make_pair(v, *it));
+                        }
+                    }
+                }
+            }
+        }
+
+        /* NOTE: we should NOT compact vertices here, because then we cannot
+           use their indices to determine the priority of vertices in
+           VerifySCC::operator(). */
+
+        // Create a subgraph storing successors only:
+        StaticGraph subgraph;
+        subgraph.assign(edges, StaticGraph::EDGE_SUCCESSOR);
+
+        // Find a vertex with priority prio on a cycle:
+        VerifySCC verifier = { *this, subgraph, prio };
+        if (decompose_graph(subgraph, verifier) != 0) return false;
+    }
+
+    return false;
 }

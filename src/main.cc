@@ -19,7 +19,9 @@
 #include "ComponentSolver.h"
 #include "GraphOrdering.h"
 
+#ifdef WITH_MCLR2
 #include <aterm_init.h>
+#endif
 
 #include <assert.h>
 #include <getopt.h>
@@ -258,17 +260,18 @@ static void parse_args(int argc, char *argv[])
 /*! Write summary of winners. For each node, a single character is printed:
     'E' or 'O', depending on whether player Even or Odd wins the parity game
     starting from this node. */
-static void write_winners(std::ostream &os, const ParityGameSolver &solver)
+static void write_winners( std::ostream &os, const ParityGame &game,
+                           const ParityGame::Strategy &strategy )
 {
     verti next_newline = 80;
-    for (verti v = 0; v < solver.game().graph().V(); ++v)
+    for (verti v = 0; v < game.graph().V(); ++v)
     {
         if (v == next_newline)
         {
             os << '\n';
             next_newline += 80;
         }
-        ParityGame::Player winner = solver.winner(v);
+        ParityGame::Player winner = game.winner(strategy, v);
         os << ( (winner == ParityGame::PLAYER_EVEN) ^ arg_solve_dual ? 'E' :
                 (winner == ParityGame::PLAYER_ODD)  ^ arg_solve_dual ? 'O' :
                                                                        '?' );
@@ -314,7 +317,8 @@ bool read_input(ParityGame &game)
     return false;
 }
 
-void write_output(const ParityGame &game, const ParityGameSolver *solver)
+void write_output( const ParityGame &game,
+    const ParityGame::Strategy &strategy = ParityGame::Strategy() )
 {
     /* Write dot file */
     if (!arg_dot_file.empty())
@@ -369,18 +373,18 @@ void write_output(const ParityGame &game, const ParityGameSolver *solver)
     }
 
     /* Write winners file */
-    if (!arg_winners_file.empty() && solver != NULL)
+    if (!arg_winners_file.empty() && !strategy.empty())
     {
         if (arg_winners_file == "-")
         {
-            write_winners(std::cout, *solver);
+            write_winners(std::cout, game, strategy);
             if (!std::cout) error("Writing failed!");
         }
         else
         {
             info("Writing winners to file %s...", arg_winners_file.c_str());
             std::ofstream ofs(arg_winners_file.c_str());
-            write_winners(ofs, *solver);
+            write_winners(ofs, game, strategy);
             if (!ofs) error("Writing failed!");
         }
     }
@@ -482,7 +486,7 @@ int main(int argc, char *argv[])
     if (arg_spm_lifting_strategy.empty())
     {
         /* Don't solve; just convert data. */
-        write_output(game, NULL);
+        write_output(game);
         failed = false;
     }
     else
@@ -518,11 +522,10 @@ int main(int argc, char *argv[])
 
         // Solve game
         g_solver = solver;
-        if (!g_timed_out)
-        {
-            failed = !solver->solve();
-        }
+        ParityGame::Strategy strategy = solver->solve();
         g_solver = NULL;
+
+        failed = strategy.empty();
 
         if (failed)
         {
@@ -535,7 +538,6 @@ int main(int argc, char *argv[])
                 error("solving failed!");
             }
         }
-
 
         solve_time = time_used() - solve_time;
 
@@ -556,8 +558,7 @@ int main(int argc, char *argv[])
         info("Total lifting attempts:       %12lld", lifts_total);
         // info("Minimum lifts required:    %12lld", 0LL);  // TODO
 
-        write_output(game, solver);
-        solver = NULL;
+        write_output(game, strategy);
     }
 
     info("Exiting.");

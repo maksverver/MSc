@@ -14,10 +14,9 @@
 #include <memory>
 
 ComponentSolver::ComponentSolver( const ParityGame &game,
-                                  const std::string &strategy,
+                                  const std::string &lift_strat,
                                   LiftingStatistics *stats )
-    : ParityGameSolver(game), strategy_(strategy),
-      winners_(game.graph().V(), ParityGame::PLAYER_NONE),
+    : ParityGameSolver(game), lift_strat_(lift_strat),
       stats_(stats), memory_used_(0)
 {
 }
@@ -26,9 +25,17 @@ ComponentSolver::~ComponentSolver()
 {
 }
 
-bool ComponentSolver::solve()
+ParityGame::Strategy ComponentSolver::solve()
 {
-    return decompose_graph(game_.graph(), *this) == 0;
+    strategy_ = ParityGame::Strategy(game_.graph().V(), NO_VERTEX);
+
+    if (decompose_graph(game_.graph(), *this) != 0)
+    {
+        error("Component solving failed!");
+        strategy_.clear();
+    }
+
+    return strategy_;
 }
 
 int ComponentSolver::operator()(const verti *vertices, size_t num_vertices)
@@ -37,7 +44,8 @@ int ComponentSolver::operator()(const verti *vertices, size_t num_vertices)
 
     // Construct a subgame
     ParityGame subgame;
-    subgame.make_subgame(game_, vertices, num_vertices, &winners_[0]);
+    subgame.make_subgame(game_, vertices, num_vertices, strategy_);
+    size_t mem = subgame.memory_use();
 
     // Compress vertex priorities
     int old_d = subgame.d();
@@ -47,28 +55,50 @@ int ComponentSolver::operator()(const verti *vertices, size_t num_vertices)
 
     // Solve the subgame
     info("Solving subgame...", (int)num_vertices);
-    std::auto_ptr<LiftingStrategy> spm_strategy(
-        LiftingStrategy::create(subgame, strategy_.c_str()) );
-    assert(spm_strategy.get() != NULL);
+    std::auto_ptr<LiftingStrategy> spm_lift_strat(
+        LiftingStrategy::create(subgame, lift_strat_.c_str()) );
+    assert(spm_lift_strat.get() != NULL);
 
-    /* FIXME:  we mess up the vertex statistics here (since vertex indices are
-               reordered); instead, we should use a new statistics object and
-               then map the results back into the main statistics. */
-    SmallProgressMeasures spm(subgame, *spm_strategy, stats_);
-    if (!spm.solve())
+    // Solve subgame, merging statistics back into our statistics object:
+    // FIXME: now the subgame can't be aborted :/
+    // FIXME: can't reuse old lifting strategy because it hasn't been
+    //        initialized for this game;need to rethink how lifting
+    //        strategies work.
+    // (see also SmallProgressMeasures for similar problems)
+    ParityGame::Strategy substrat;
+    if (stats_ == NULL)
+    {
+        // Solve subgame without collecting statistics:
+        SmallProgressMeasures subsolver(subgame, *spm_lift_strat, NULL);
+        ParityGame::Strategy res = subsolver.solve();
+        substrat.swap(res);
+        mem += subsolver.memory_use();
+    }
+    else
+    {
+        // Solve subgame and merge statistics back into our statistics object:
+        LiftingStatistics substats(subgame);
+        SmallProgressMeasures subsolver(subgame, *spm_lift_strat, &substats);
+        ParityGame::Strategy res = subsolver.solve();
+        substrat.swap(res);
+        stats_->merge(substats, vertices);
+        mem += subsolver.memory_use();
+    }
+
+    if (substrat.empty())
     {
         error("Solving failed!\n");
         return 1;
     }
 
-    // Copy winners from subgame
+    // Copy strategy from subgame
+    assert(substrat.size() == num_vertices + 2);  /* + 2 for 2 dummy vertices */
     for (size_t n = 0; n < num_vertices; ++n)
     {
-        winners_[vertices[n]] = spm.winner(n);
+        strategy_[vertices[n]] = substrat[n];
     }
 
     // Update (peak) memory use
-    size_t mem = subgame.memory_use() + spm.memory_use();
     if (mem > memory_used_) memory_used_ = mem;
 
     return aborted() ? -1 : 0;

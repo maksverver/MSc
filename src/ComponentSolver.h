@@ -25,9 +25,7 @@ public:
                      LiftingStatistics *stats );
     ~ComponentSolver();
 
-    bool solve();
-    ParityGame::Player winner(verti v) const { return winners_[v]; }
-    const ParityGame &game() const { return game_; }
+    ParityGame::Strategy solve();
     size_t memory_use() const { return memory_used_; }
 
 private:
@@ -36,10 +34,10 @@ private:
     friend class SCC<ComponentSolver>;
 
 protected:
-    std::string                         strategy_;
-    std::vector<ParityGame::Player>     winners_;
-    LiftingStatistics                   *stats_;
-    size_t                              memory_used_;
+    std::string             lift_strat_;    /*!< SPM lifting strategy to use */
+    LiftingStatistics       *stats_;        /*!< Record lifting statistics */
+    size_t                  memory_used_;   /*!< Maximum memory used */
+    ParityGame::Strategy    strategy_;      /*!< The resulting strategy */
 };
 
 #endif /* ndef COMPONENT_SOLVER_H_INCLUDED */

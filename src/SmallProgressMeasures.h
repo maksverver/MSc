@@ -17,11 +17,18 @@
 
 #define NO_VERTEX ((verti)-1)
 
-/*! Used to collect statistics when solving using the SPM algorithm */
+/*! Object used to collect statistics when solving using the SPM algorithm */
 class LiftingStatistics
 {
 public:
+    /*! Construct a statistics object for the given game. */
     LiftingStatistics(const ParityGame &game);
+
+    /*! Merge statistics from a given object into this object, using the given
+        vertex mapping to map vertex indices (vertex v in `other' has index
+        mapping[v] in this object). */
+    void merge(const LiftingStatistics &other, const verti *mapping = NULL);
+
     long long lifts_attempted() const { return lifts_attempted_; }
     long long lifts_succeeded() const { return lifts_succeeded_; }
     long long lifts_attempted(verti v) const { return vertex_stats_[v].first; }
@@ -35,6 +42,7 @@ private:
     long long lifts_attempted_, lifts_succeeded_;
     std::vector<std::pair<long long, long long> > vertex_stats_;
 };
+
 
 /*! A parity game solver based on Marcin Jurdzinski's small progress measures
     algorithm, with pluggable lifting heuristics.
@@ -50,8 +58,7 @@ public:
                            LiftingStatistics *stats );
     ~SmallProgressMeasures();
 
-    bool solve();
-    ParityGame::Player winner(verti v) const;
+    ParityGame::Strategy solve();
 
     /*! For debugging: print current state to stdout */
     void debug_print();
@@ -108,7 +115,6 @@ protected:
     friend class OldMaxMeasureLiftingStrategy;
 
 protected:
-    bool preprocessed_;         /*!< set if the graph has been preprocessed */
     LiftingStrategy &strategy_; /*!< the lifting strategy to use */
     int len_;                   /*!< length of SPM vectors */
     verti *M_;                  /*!< bounds on the SPM vector components */

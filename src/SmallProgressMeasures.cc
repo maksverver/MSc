@@ -13,12 +13,12 @@
 #include <assert.h>
 #include <string.h>
 
+#include "PredecessorLiftingStrategy.h"  // TEMP!!!
+
 LiftingStatistics::LiftingStatistics(const ParityGame &game)
     : lifts_attempted_(0), lifts_succeeded_(0)
 {
-    /* HACK: the +2 is to allow subgames to use the same statistics object
-             even though they may add two extra vertices. */
-    vertex_stats_.resize(game.graph().V() + 2);
+    vertex_stats_.resize(game.graph().V());
 }
 
 void LiftingStatistics::record_lift(verti v, bool success)
@@ -32,9 +32,22 @@ void LiftingStatistics::record_lift(verti v, bool success)
     }
 }
 
+void LiftingStatistics::merge( const LiftingStatistics &other,
+                               const verti *mapping )
+{
+    for (size_t v = 0; v < other.vertex_stats_.size(); ++v)
+    {
+        size_t w = mapping ? mapping[v] : v;
+        vertex_stats_[w].first  += other.vertex_stats_[v].first;
+        vertex_stats_[w].second += other.vertex_stats_[v].second;
+    }
+    lifts_attempted_ += other.lifts_attempted_;
+    lifts_succeeded_ += other.lifts_succeeded_;
+}
+
 SmallProgressMeasures::SmallProgressMeasures( const ParityGame &game,
     LiftingStrategy &strategy, LiftingStatistics *stats )
-    : ParityGameSolver(game), preprocessed_(false), strategy_(strategy),
+    : ParityGameSolver(game), strategy_(strategy),
       len_(game.d()/2), stats_(stats)
 {
     /* Claim strategy */
@@ -79,7 +92,7 @@ inline verti SmallProgressMeasures::get_ext_succ(verti v, bool take_max)
 
 verti SmallProgressMeasures::get_min_succ(verti v)
 {
-    return get_ext_succ(v, false); 
+    return get_ext_succ(v, false);
 }
 
 verti SmallProgressMeasures::get_max_succ(verti v)
@@ -131,14 +144,10 @@ bool SmallProgressMeasures::lift(verti v)
     return true;
 }
 
-bool SmallProgressMeasures::solve()
+ParityGame::Strategy SmallProgressMeasures::solve()
 {
     // Preprocess the graph to speed up some corner cases.
-    if (!preprocessed_)
-    {
-        preprocess_graph();
-        preprocessed_ = true;
-    }
+    preprocess_graph();
 
     verti vertex = NO_VERTEX;
     bool lifted = false;
@@ -147,16 +156,66 @@ bool SmallProgressMeasures::solve()
     {
         lifted = lift(vertex);
         if (stats_ != NULL) stats_->record_lift(vertex, lifted);
-        if (aborted()) return false;
+        if (aborted()) return ParityGame::Strategy();
     }
 
-    return true;
+    // Construct strategy for player even:
+    ParityGame::Strategy strategy(game_.graph().V(), NO_VERTEX);
+    std::vector<verti> won_by_odd;
+    for (verti v = 0; v < game_.graph().V(); ++v)
+    {
+        if (is_top(v))
+            won_by_odd.push_back(v);
+        else
+        if (game_.player(v) == ParityGame::PLAYER_EVEN)
+            strategy[v] = get_min_succ(v);
+    }
+
+    if (!won_by_odd.empty())
+    {
+        // Make a dual subgame of the vertices won by player Odd
+        ParityGame subgame;
+        subgame.make_subgame(game_, &won_by_odd[0], (verti)won_by_odd.size());
+        subgame.make_dual();
+
+        // Solve the subgame with SPM:
+        // FIXME: now the subgame can't be aborted :/
+        // FIXME: can't reuse old lifting strategy because it hasn't been
+        //        initialized for this game;need to rethink how lifting
+        //        strategies work.
+        // (see also ComponentSolver for similar problems)
+        ParityGame::Strategy substrat;
+        PredecessorLiftingStrategy pls(subgame, false, false);
+        if (stats_ == NULL)
+        {
+            SmallProgressMeasures subsolver(subgame, pls, NULL);
+            ParityGame::Strategy res = subsolver.solve();
+            substrat.swap(res);
+        }
+        else
+        {
+            LiftingStatistics substats(subgame);
+            SmallProgressMeasures subsolver(subgame, pls, &substats);
+            ParityGame::Strategy res = subsolver.solve();
+            substrat.swap(res);
+            stats_->merge(substats, &won_by_odd[0]);
+        }
+        if (substrat.empty()) return ParityGame::Strategy();
+        assert(substrat.size() == won_by_odd.size());
+
+        // Add substrategy for Odd to result:
+        for (size_t n = 0; n < won_by_odd.size(); ++n)
+        {
+            if (substrat[n] != NO_VERTEX)
+            {
+                strategy[won_by_odd[n]] = won_by_odd[substrat[n]];
+            }
+        }
+    }
+
+    return strategy;
 }
 
-ParityGame::Player SmallProgressMeasures::winner(verti v) const
-{
-    return is_top(v) ? ParityGame::PLAYER_ODD : ParityGame::PLAYER_EVEN;
-}
 
 
 #include <stdio.h>  /* debug */
@@ -247,6 +306,7 @@ bool SmallProgressMeasures::verify_solution()
 
 size_t SmallProgressMeasures::memory_use() const
 {
+    // FIXME: this doesn't account for the size of the subgame being solved
     return sizeof(verti)*len_*(game_.graph().V() + 1) +
            sizeof(game_.d())*sizeof(verti) +
            strategy_.memory_use();
