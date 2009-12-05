@@ -1,4 +1,4 @@
-#LyX 1.6.3 created this file. For more info see http://www.lyx.org/
+#LyX 1.6.4 created this file. For more info see http://www.lyx.org/
 \lyxformat 345
 \begin_document
 \begin_header
@@ -56,8 +56,15 @@ A
 parity game
 \emph default
  is a game played by two players, called Even and Odd on a directed graph.
- Each vertex in the graph is associated with (or belongs to) one of the
- two players.
+ Each vertex in the graph is associated with (
+\emph on
+owned
+\emph default
+ or 
+\emph on
+controlled
+\emph default
+ by) one of the two players.
  Furthermore, to each vertex a 
 \emph on
 priority
@@ -109,6 +116,7 @@ partition the set of graph vertices
 \noun default
 \color inherit
 Even and Odd respectively.
+ 
 \begin_inset Formula $E$
 \end_inset
 
@@ -215,10 +223,10 @@ Strategies and Solutions
 \end_layout
 
 \begin_layout Standard
-Let's take △ to be either player Even or player Odd.
- A strategy for △ assigns a move to each position in which △ is to move.
+Let's take ▽ to be either player Even or player Odd.
+ A strategy for ▽ assigns a move to each position in which ▽ is to move.
  Formally, this strategy is a function 
-\begin_inset Formula $\dot{\sigma}_{△}:V^{*}\times V_{△}\rightarrow V$
+\begin_inset Formula $\dot{\sigma}_{▽}:V^{*}\times V_{▽}\rightarrow V$
 \end_inset
 
 
@@ -231,7 +239,7 @@ Let's take △ to be either player Even or player Odd.
 \noun off
 \color none
  such that if 
-\begin_inset Formula $\dot{\sigma}_{△}(v_{1}\ldots v_{n})=v_{n+1}$
+\begin_inset Formula $\dot{\sigma}_{▽}(v_{1}\ldots v_{n})=v_{n+1}$
 \end_inset
 
  then 
@@ -239,7 +247,11 @@ Let's take △ to be either player Even or player Odd.
 \end_inset
 
  is a partial play.
- A strategy for 
+ A play 
+\begin_inset Formula $\pi=v_{1}v_{2}\ldots$
+\end_inset
+
+ is called consistent with a strategy 
 \family default
 \series default
 \shape default
@@ -248,7 +260,11 @@ Let's take △ to be either player Even or player Odd.
 \bar default
 \noun default
 \color inherit
-△
+
+\begin_inset Formula $\dot{\sigma}_{▽}$
+\end_inset
+
+ 
 \family roman
 \series medium
 \shape up
@@ -257,12 +273,26 @@ Let's take △ to be either player Even or player Odd.
 \bar no
 \noun off
 \color none
- is called consistent with a play 
-\begin_inset Formula $\pi=v_{1}v_{2}\ldots$
-\end_inset
-
+for 
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
+▽
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
  if 
-\begin_inset Formula $\dot{\sigma}_{\text{△}}(v_{1}\ldots v_{i})=v_{i+1}$
+\begin_inset Formula $\dot{\sigma}_{\text{▽}}(v_{1}\ldots v_{i})=v_{i+1}$
 \end_inset
 
  for all 
@@ -275,7 +305,7 @@ Let's take △ to be either player Even or player Odd.
 \noun default
 \color inherit
 
-\begin_inset Formula $v_{i}\in V_{△}$
+\begin_inset Formula $v_{i}\in V_{▽}$
 \end_inset
 
 
@@ -292,10 +322,10 @@ Let's take △ to be either player Even or player Odd.
 
 \begin_layout Standard
 A strategy 
-\begin_inset Formula $\dot{\sigma}_{△}$
+\begin_inset Formula $\dot{\sigma}_{▽}$
 \end_inset
 
- is called winning for △ at starting vertex 
+ is called winning for ▽ at starting vertex 
 \begin_inset Formula $v_{1}$
 \end_inset
 
@@ -322,18 +352,18 @@ A strategy
 \noun default
 \color inherit
  consistent with 
-\begin_inset Formula $\dot{\sigma}_{△}$
+\begin_inset Formula $\dot{\sigma}_{▽}$
 \end_inset
 
- are won by △.
- An important property of parity games, is that for every starting vertex,
+ are won by ▽.
+ An important property of parity games is that for every starting vertex,
  either player Even or player Odd has a winning strategy [TODO: reference
  proof; Borel determinancy].
  This allows us to partition the vertex set 
 \begin_inset Formula $V$
 \end_inset
 
- of the game graph into two sets of vertices
+ of the game graph into two sets of vertices 
 \begin_inset Formula $W_{◻}$
 \end_inset
 
@@ -360,11 +390,6 @@ A strategy
 \end_inset
 
  which can be won by player Even and Odd respectively.
- Determining this partition into winning sets is called 
-\emph on
-solving the game
-\emph default
- and is the main goal of most parity game algorithms.
 \end_layout
 
 \begin_layout Subsection
@@ -382,7 +407,7 @@ A strategy
 \noun off
 \color none
 
-\begin_inset Formula $\dot{\sigma}_{△}$
+\begin_inset Formula $\dot{\sigma}_{▽}$
 \end_inset
 
  is called an 
@@ -396,14 +421,14 @@ A strategy
 \color inherit
 optimal strategy
 \emph default
- when it is winning for △ starting from any vertex 
-\begin_inset Formula $v_{1}\in W_{△}$
+ when it is winning for ▽ starting from any vertex 
+\begin_inset Formula $v\in W_{▽}$
 \end_inset
 
 .
  Functions as described above are called 
 \emph on
-infinite memory strategies
+infinite-memory strategies
 \emph default
 , because they use the entire move history to determine the next move.
  In contrast, 
@@ -422,10 +447,10 @@ memoryless strategies
 \noun off
 \color none
 
-\begin_inset Formula $\dot{\sigma}_{△}(v_{1}\ldots v_{n})=\dot{\sigma}_{\text{△}}(w_{1}\ldots w_{n})$
+\begin_inset Formula $\dot{\sigma}_{▽}(v_{1}\ldots v_{n})=\dot{\sigma}_{\text{▽}}(w_{1}\ldots w_{n})$
 \end_inset
 
- if
+ whenever 
 \begin_inset Formula $v{}_{n}=w_{n}$
 \end_inset
 
@@ -433,8 +458,8 @@ memoryless strategies
 \end_layout
 
 \begin_layout Standard
-We will define memoryless functions 
-\begin_inset Formula $\sigma_{△}:V_{△}\rightarrow V$
+We will define memoryless strategies as functions 
+\begin_inset Formula $\sigma_{▽}:V_{▽}\rightarrow V$
 \end_inset
 
  such that if
@@ -447,7 +472,7 @@ We will define memoryless functions
 \noun off
 \color none
  
-\begin_inset Formula $\sigma_{△}(v)=w$
+\begin_inset Formula $\sigma_{▽}(v)=w$
 \end_inset
 
  then 
@@ -456,7 +481,7 @@ We will define memoryless functions
 
 .
  A memoryless strategy 
-\begin_inset Formula $\sigma_{△}$
+\begin_inset Formula $\sigma_{▽}$
 \end_inset
 
 is then consistent with a play 
@@ -464,15 +489,55 @@ is then consistent with a play
 \end_inset
 
  if 
-\begin_inset Formula $\sigma_{\text{△}}(v_{i})=v_{i+1}$
+\begin_inset Formula $\sigma_{\text{▽}}(v_{i})=v_{i+1}$
 \end_inset
 
  for all 
-\begin_inset Formula $v_{i}\in V_{△}$
+\begin_inset Formula $v_{i}\in V_{▽}$
 \end_inset
 
 .
- 
+ Without loss of generality, we can restrict the domain of 
+\begin_inset Formula $\sigma_{\text{▽}}$
+\end_inset
+
+ to 
+\begin_inset Formula $V_{\text{▽}}\cap W_{\text{▽}}$
+\end_inset
+
+ since for vertices in 
+\begin_inset Formula $V_{\text{▽}}$
+\end_inset
+
+but not in 
+\begin_inset Formula $W_{\text{▽}}$
+\end_inset
+
+, player 
+\begin_inset Formula $\text{▽}$
+\end_inset
+
+ has no winning move, and therefore any adjacent vertex can be selected
+ without consequences for the rest of the strategy.
+ Even if we leave out these vertices for which the controlling player has
+ no winning move, optimal strategies are not (necessarily) uniquely defined,
+ unlike winning sets.
+\end_layout
+
+\begin_layout Standard
+Sometimes we want to refer to the combined strategies of both players, 
+\begin_inset Formula $\sigma$
+\end_inset
+
+, defined as:
+\begin_inset Formula \[
+\sigma(v)=\begin{cases}
+\sigma_{\text{◻}}(v) & \mbox{if }v\in W_{\text{◻}}\\
+\sigma_{\text{◇}}(v) & \mbox{if }v\in W_{\text{◇}}\end{cases}\]
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -489,12 +554,7 @@ key "zielonka1998igf"
 \end_layout
 
 \begin_layout Standard
-Since winning sets complement each other, it suffices for a parity game
- algorithm to determine the winning set for a single player.
-\end_layout
-
-\begin_layout Standard
-Jurdziński 
+(Jurdziński 
 \begin_inset CommandInset citation
 LatexCommand cite
 key "jurdzinski2000spm"
@@ -523,7 +583,404 @@ key "jurdzinski2000spm"
 \begin_inset Formula $i\geq k$
 \end_inset
 
+.)
+\end_layout
+
+\begin_layout Standard
+From here on, we will use the term 
+\emph on
+strategy
+\emph default
+ without further qualification to mean 
+\emph on
+optimal memoryless strategy
+\emph default
 .
+\end_layout
+
+\begin_layout Subsection
+Solutions
+\end_layout
+
+\begin_layout Standard
+Now we have defined winning sets and strategies, we should discuss the purpose
+ of parity game algoritms, which aim to solve parity games.
+ At the very least, solving a game should yield a partition of the vertex
+ sets into winning sets for both players.
+ Since the two winning sets complement each other, it suffices to compute
+ just one and the vertices outside the one winning set must be part of the
+ other.
+\end_layout
+
+\begin_layout Standard
+In many practical applications, determination of winning sets is enough
+ to constitute a solution.
+ For example, when using parity games as a vehicle for model checking, the
+ question whether a formal property holds corresponds with the question
+ wether a particular vertex in the game graph is won by player Even or Odd.
+ In this case, partitioning the vertices into winning sets is sufficient
+ to determine whether the property holds.
+ In fact, in this case it would suffice to determine which player wins from
+ this particular vertex (without fully determining winning sets).
+\end_layout
+
+\begin_layout Standard
+The problem with determining winning sets without associated strategies
+ is that even if we assume the output to be correct, it does not provide
+ any insight in 
+\emph on
+why
+\emph default
+ a particular vertex is won by a player.
+ Strategies can be useful to understand the outcome of the games.
+ In the application of model checking, strategies may be used to generate
+ counter-examples to a desired property when it turns out it doesn't hold.
+ Moreover, if we have not just a winning set, but also associated strategies,
+ we can readily verify their correctness (as will be described in detail
+ below).
+\end_layout
+
+\begin_layout Standard
+Therefore, 
+\emph on
+solving a game
+\emph default
+ in the most general sense means to determine the partition of the game
+ vertices into winning sets as well as optimal strategies for both players.
+ A solution therefore is a triple 
+\begin_inset Formula $W,W,\sigma$
+\end_inset
+
+.
+ We require that 
+\begin_inset Formula $\sigma$
+\end_inset
+
+ is defined at least for all vertices 
+\begin_inset Formula $(V_{\text{◻}}\cap W_{◻})\cup(V_{\text{◇}}\cap W_{◇})$
+\end_inset
+
+.
+ Note that unlike winning sets, strategies do not complement each other,
+ so given an optimal strategy for one player, we cannot (easily) deduce
+ the strategy for his opponent.
+ 
+\end_layout
+
+\begin_layout Subsection
+Degenerate cases
+\end_layout
+
+\begin_layout Standard
+[Note that degenerate cases are usually not provided as input, but may occur
+ in the process of applying solving techniques.]
+\end_layout
+
+\begin_layout Subsubsection
+Disconnected games
+\end_layout
+
+\begin_layout Standard
+[TODO: define this]
+\end_layout
+
+\begin_layout Subsubsection
+Single-player games
+\end_layout
+
+\begin_layout Standard
+A single-player game is a parity game in which all vertices controlled by
+ one of the two players have outdegree equal to 1.
+ This player has no choice in where to move the token next (since every
+ vertex he controls has only one successor).
+ His opponent is called the controlling player of the game, because this
+ player makes all the choices in the game.
+\end_layout
+
+\begin_layout Standard
+In such a game, all vertices that are part of a cycle with minimum priority
+ of parity equal to that of the controlling player are won by the controlling
+ player, as well as any vertices from which such cycles can be reached.
+ All other vertices are necessarily won by the opponent.
+\end_layout
+
+\begin_layout Standard
+When the game graph is a cycle graph (or a collection of unconnected cycle
+ graphs) neither player has any choice.
+ In these games, optimal strategies are obvious and the winner of vertices
+ in a cycle are determined by the the minimum priority occuring in the cycle.
+\end_layout
+
+\begin_layout Subsubsection
+Single-priority games
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Single-priority-games"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+If all vertices in the game are associated with the same priority, then
+ any strategy is optimal for either player, and all vertices are trivally
+ won by player corresponding to the parity of the single occuring priority.
+\end_layout
+
+\begin_layout Subsection
+TODO
+\end_layout
+
+\begin_layout Standard
+TODO: something about attractor sets, traps.
+ Cite Zielonka as reference.
+\end_layout
+
+\begin_layout Subsection
+Verification of Strategies
+\end_layout
+
+\begin_layout Standard
+Altough it is hard to compute the optimal strategies for the players in
+ a parity game, it is much easier to verify that a pair of a winning sets
+ and associated strategies are sound.
+ To verify winning sets, it would suffice to solve a parity game with a
+ known-good algorithm and then compare if the result is equal.
+ This isn't possible for strategies, which are generally not unique, so
+ even if we obtain an optimal strategy, this does not imply that different
+ strategies are invalid.
+ Therefore, we need a separate algorithm to verify strategies.
+\end_layout
+
+\begin_layout Standard
+As we noted before, we are only interested in the strategy for vertices
+ that are in the winning set of the player that controls them.
+ Without loss of generality, let's assume we are verifying the set 
+\begin_inset Formula $W_{◻}$
+\end_inset
+
+ with optimal strategy 
+\begin_inset Formula $\sigma_{◻}$
+\end_inset
+
+ for player Even (we can do the same for player Odd).
+ Define a graph with vertices limited to 
+\begin_inset Formula $W_{◻}$
+\end_inset
+
+ and the set of edges 
+\begin_inset Formula $E|\sigma_{◻}$
+\end_inset
+
+ as follows:
+\begin_inset Formula \[
+E|\sigma_{◻}=\left\{ vw\in E:v\in\left(W_{◻}\cap V_{◻}\right)\wedge\sigma_{\text{◻}}(v)=w\right\} \cup\left\{ vw\in E:v\in\left(W_{\text{◻}}\cap V_{\text{◇}}\right)\right\} \]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Less formally, the edge set includes the edges that are consistent with
+ Even's strategy, as well as all edges originating at vertices controlled
+ by the Odd.
+ We must first verify two trivial properties:
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $E|\sigma_{\text{▽}}\subseteq E$
+\end_inset
+
+ (otherwise the strategy 
+\begin_inset Formula $\sigma_{\text{▽}}$
+\end_inset
+
+ prescribes a transition that is not available in the original game graph)
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $E|\sigma_{\text{▽}}\subseteq W_{\text{▽}}\times W_{\text{▽}}$
+\end_inset
+
+ (otherwise either the player or his opponent can move the token outside
+ the winning set)
+\end_layout
+
+\begin_layout Standard
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+Assuming these hold, then 
+\begin_inset Formula $\Gamma|\sigma_{\text{◻}}=(W_{\text{◻}}\cap V_{\text{◻}},W_{\text{◻}}\cap V_{\text{◇}},E|\sigma_{◻},\phi)$
+\end_inset
+
+ is a valid parity game, and precisely those plays in the original game
+ consistent with strategy 
+\begin_inset Formula $\sigma_{\text{◻}}$
+\end_inset
+
+ are possible in the game 
+\begin_inset Formula $\Gamma|\sigma_{\text{◻}}$
+\end_inset
+
+ as well, except that all choice for player Even has been removed: every
+ vertex controlled by Even has only one successor, because Even is bound
+ to play by his strategy.
+ This makes the game 
+\begin_inset Formula $\Gamma|\sigma_{\text{◻}}$
+\end_inset
+
+ a single-player game controlled by Odd.
+\end_layout
+
+\begin_layout Standard
+To verify that 
+\begin_inset Formula $W_{◻}$
+\end_inset
+
+ is a winning set for player Even when playing according to strategy 
+\begin_inset Formula $\sigma_{◻}$
+\end_inset
+
+, we must verify that the winning set for player Odd in 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+
+\begin_inset Formula $\Gamma|\sigma_{\text{◻}}$
+\end_inset
+
+
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
+ is empty.
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+ As noted earlier, when discussing single-player games, player Odd can win
+ from at least some vertices if (and only if) the graph contains a cycle
+ with odd minimum priority (for brevity, let's call this an 
+\family default
+\series default
+\shape default
+\size default
+\emph on
+\bar default
+\noun default
+\color inherit
+odd cycle
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+).
+ Thus, the final step in the verification process is to prove that no odd
+ cycles exists.
+\end_layout
+
+\begin_layout Standard
+If we call a cycle with minimum priority 
+\emph on
+i
+\emph default
+ an 
+\emph on
+i
+\emph default
+-cycle, then a directed graph contains a i-cycle if and only if it contains
+ any vertices with priority 
+\emph on
+i
+\emph default
+ lying on a cycle after removal of all edges incident with vertices of priority
+ less than i, because an 
+\emph on
+i
+\emph default
+-cycle can only include edges with vertices of priority 
+\emph on
+i
+\emph default
+ or higher.
+ To find an 
+\emph on
+i
+\emph default
+-cycle in a graph with edges of priorities 
+\emph on
+i
+\emph default
+ or higher, we can use the connection between strongly connected components
+ of the graph and a cycle in a graph: every cycle must occur in a single
+ strongly connected component (since all vertices in a cycle are by the
+ definition part of the same strongly connected component) and if the edge
+ set of a strongly-connected component is non-empty, then all vertices in
+ the strongly-connected component must lie on a cycle.
+\end_layout
+
+\begin_layout Standard
+For each odd priority, we can construct a subgraph with only edges incident
+ to vertices of priority 
+\emph on
+i
+\emph default
+ or higher, decompose it into strongly connected components, and search
+ for an edge incident to at least one vertex of priority 
+\emph on
+i
+\emph default
+ inside a single connected component.
+ If found, we know that an i-cycle can be constructed in this component
+ (although we do not need to actually construct any for the purpose of verificat
+ion).
+\end_layout
+
+\begin_layout Standard
+Verifying the first two properties takes time linear in the number of edges.
+ Strongly connected components can be found in linear time as well using
+ Tarjan's algorithm
+\begin_inset CommandInset citation
+LatexCommand cite
+key "tarjan1971depth"
+
+\end_inset
+
+.
+ Because this must be done at most once for each distinct priority (to verify
+ winning sets and strategies for both players) this yields an 
+\begin_inset Formula $O(d\left|E\right|)$
+\end_inset
+
+ verication algorithm.
 \end_layout
 
 \begin_layout Section
@@ -550,6 +1007,14 @@ Application To Model Checking
 
 \begin_layout Standard
 Parity games 
+\end_layout
+
+\begin_layout Chapter
+TODO
+\end_layout
+
+\begin_layout Standard
+- replace Even/Odd symbols with 0 and 1, remove all the weird symbols.
 \end_layout
 
 \begin_layout Standard
