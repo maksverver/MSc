@@ -272,7 +272,7 @@ struct VerifySCC  // used by ParityGame::verify
 
 bool ParityGame::verify(const Strategy &s) const
 {
-    assert(s.size() != graph_.V());
+    assert(s.size() == graph_.V());
 
     /* Make sure winning sets are consistently defined; i.e. only existent
        edges are used, and there are no transitions that cross winning sets. */
@@ -350,5 +350,5 @@ bool ParityGame::verify(const Strategy &s) const
         if (decompose_graph(subgraph, verifier) != 0) return false;
     }
 
-    return false;
+    return true;
 }

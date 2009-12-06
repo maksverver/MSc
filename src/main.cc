@@ -54,6 +54,7 @@ static std::string  arg_dot_file              = "";
 static std::string  arg_pgsolver_file         = "";
 static std::string  arg_raw_file              = "";
 static std::string  arg_winners_file          = "";
+static std::string  arg_strategy_file         = "";
 static std::string  arg_spm_lifting_strategy  = "";
 static bool         arg_scc_decomposition     = false;
 static bool         arg_solve_dual            = false;
@@ -63,6 +64,7 @@ static int          arg_random_seed           =       1;
 static int          arg_random_out_degree     =      10;
 static int          arg_random_priorities     =      20;
 static int          arg_timeout               =       0;
+static bool         arg_verify                = false;
 
 static const double MB = 1048576.0;  // one megabyte
 
@@ -98,7 +100,7 @@ static void print_usage()
 "  --outdegree <int>      average out-degree in randomly generated graph\n"
 "  --priorities <int>     number of priorities in randomly generated game\n"
 "  --seed <int>           random seed\n"
-"  --strategy/-l <desc>   Small Progress Measures lifting strategy\n"
+"  --lifting/-l <desc>    Small Progress Measures lifting strategy\n"
 "  --dot/-d <file>        write parity game in GraphViz dot format to <file>\n"
 "  --pgsolver/-p <file>   write parity game in PGSolver format to <file>\n"
 "  --raw/-r <file>        write parity game in raw format to <file>\n"
@@ -106,30 +108,33 @@ static void print_usage()
 "  --scc                  solve strongly connected components individually\n"
 "  --dual                 solve the dual game\n"
 "  --reorder/-e (bfs|dfs) reorder vertices\n"
-"  --timeout/-t <t>       abort solving after <t> seconds\n");
+"  --timeout/-t <t>       abort solving after <t> seconds\n"
+"  --verify/-V            verify solution after solving\n");
 }
 
 static void parse_args(int argc, char *argv[])
 {
     static struct option long_options[] = {
-        { "help",       false, NULL, 'h' },
-        { "input",      true,  NULL, 'i' },
-        { "size",       true,  NULL,  1  },
-        { "outdegree",  true,  NULL,  2  },
-        { "priorities", true,  NULL,  3  },
-        { "seed",       true,  NULL,  4  },
-        { "strategy",   true,  NULL, 'l' },
-        { "dot",        true,  NULL, 'd' },
-        { "pgsolver",   true,  NULL, 'p' },
-        { "raw",        true,  NULL, 'r' },
-        { "winners",    true,  NULL, 'w' },
-        { "scc",        false, NULL,  5  },
-        { "dual",       false, NULL,  6  },
-        { "reorder",    true,  NULL, 'e' },
-        { "timeout",    true,  NULL, 't' },
+        { "help",       0, NULL, 'h' },
+        { "input",      1, NULL, 'i' },
+        { "size",       1, NULL,  1  },
+        { "outdegree",  1, NULL,  2  },
+        { "priorities", 1, NULL,  3  },
+        { "seed",       1, NULL,  4  },
+        { "lifting",    1, NULL, 'l' },
+        { "dot",        1, NULL, 'd' },
+        { "pgsolver",   1, NULL, 'p' },
+        { "raw",        1, NULL, 'r' },
+        { "winners",    1, NULL, 'w' },
+        { "strategy",   1, NULL, 's' },
+        { "scc",        0, NULL,  5  },
+        { "dual",       0, NULL,  6  },
+        { "reorder",    1, NULL, 'e' },
+        { "timeout",    1, NULL, 't' },
+        { "verify",     0, NULL, 'V' },
         { NULL,         false, NULL,  0  } };
 
-    static const char *short_options = "hi:l:d:p:r:w:e:t:";
+    static const char *short_options = "hi:l:d:p:r:w:s:e:t:V";
 
     for (;;)
     {
@@ -211,6 +216,10 @@ static void parse_args(int argc, char *argv[])
             arg_winners_file = optarg;
             break;
 
+        case 's':   /* strategy output file */
+            arg_strategy_file = optarg;
+            break;
+
         case 5:     /* decompose into strongly connected components */
             arg_scc_decomposition = true;
             break;
@@ -238,6 +247,10 @@ static void parse_args(int argc, char *argv[])
 
         case 't':   /* time limit (in seconds) */
             arg_timeout = atoi(optarg);
+            break;
+
+        case 'V':   /* verify solution */
+            arg_verify = true;
             break;
 
         case '?':
@@ -277,6 +290,17 @@ static void write_winners( std::ostream &os, const ParityGame &game,
                                                                        '?' );
     }
     os << '\n';
+}
+
+/*! Write strategy description. For each vertex won by its player, a single line
+    is printed, of the form: v->w (where v and w are 0-based vertex indices). */
+static void write_strategy( std::ostream &os,
+                            const ParityGame::Strategy &strategy )
+{
+    for (verti v = 0; v < (verti)strategy.size(); ++v)
+    {
+        if (strategy[v] != NO_VERTEX) os << v << "->" << strategy[v] << '\n';
+    }
 }
 
 bool read_input(ParityGame &game)
@@ -385,6 +409,23 @@ void write_output( const ParityGame &game,
             info("Writing winners to file %s...", arg_winners_file.c_str());
             std::ofstream ofs(arg_winners_file.c_str());
             write_winners(ofs, game, strategy);
+            if (!ofs) error("Writing failed!");
+        }
+    }
+
+    /* Write strategy file */
+    if (!arg_strategy_file.empty() && !strategy.empty())
+    {
+        if (arg_strategy_file == "-")
+        {
+            write_strategy(std::cout, strategy);
+            if (!std::cout) error("Writing failed!");
+        }
+        else
+        {
+            info("Writing strategy to file %s...", arg_strategy_file.c_str());
+            std::ofstream ofs(arg_strategy_file.c_str());
+            write_strategy(ofs, strategy);
             if (!ofs) error("Writing failed!");
         }
     }
@@ -557,6 +598,24 @@ int main(int argc, char *argv[])
         info("Lifting attempts succeeded:   %12lld", lifts_successful);
         info("Total lifting attempts:       %12lld", lifts_total);
         // info("Minimum lifts required:    %12lld", 0LL);  // TODO
+
+        if (!failed && arg_verify)
+        {
+            double verify_time = time_used();
+
+            info("Starting verification...");
+            if (game.verify(strategy))
+            {
+                info("Verification succeeded.");
+            }
+            else
+            {
+                failed = true;
+                info("Verification failed!");
+            }
+            verify_time = time_used() - verify_time;
+            info("Time used to verify:         %10.3f s", verify_time);
+        }
 
         write_output(game, strategy);
     }
