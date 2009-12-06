@@ -14,6 +14,9 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <assert.h>
+#include <tr1/unordered_map>
+
+typedef std::tr1::unordered_map<verti, verti> vertex_map_t;
 
 ParityGame::ParityGame()
     : d_(0), vertex_(NULL), cardinality_(NULL)
@@ -76,8 +79,7 @@ void ParityGame::make_subgame( const ParityGame &game,
     vertex_[v_odd].priority = 1;
 
     // Create a map of old->new vertex indices
-    // TODO: replace this with a hash map for better performance?
-    std::map<verti, verti> vertex_map;
+    vertex_map_t vertex_map;
     for (verti n = 0; n < num_vertices; ++n)
     {
         vertex_[n] = game.vertex_[vertices[n]];
@@ -92,7 +94,7 @@ void ParityGame::make_subgame( const ParityGame &game,
               it != graph.succ_end(vertices[v]); ++it )
         {
             verti w;
-            std::map<verti, verti>::const_iterator map_it = vertex_map.find(*it);
+            vertex_map_t::const_iterator map_it = vertex_map.find(*it);
             if (map_it != vertex_map.end())
             {
                 w = map_it->second;
@@ -117,8 +119,7 @@ void ParityGame::make_subgame( const ParityGame &game,
     reset(num_vertices, game.d());
 
     // Create a map of old->new vertex indices
-    // TODO: replace this with a hash map for better performance?
-    std::map<verti, verti> vertex_map;
+    vertex_map_t vertex_map;
     for (verti n = 0; n < num_vertices; ++n)
     {
         vertex_[n] = game.vertex_[vertices[n]];
@@ -132,7 +133,7 @@ void ParityGame::make_subgame( const ParityGame &game,
         for ( StaticGraph::const_iterator it = graph.succ_begin(vertices[v]);
               it != graph.succ_end(vertices[v]); ++it )
         {
-            std::map<verti, verti>::const_iterator map_it = vertex_map.find(*it);
+            vertex_map_t::const_iterator map_it = vertex_map.find(*it);
             if (map_it != vertex_map.end())
             {
                 edges.push_back(std::make_pair(v, map_it->second));
