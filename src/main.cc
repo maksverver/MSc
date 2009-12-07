@@ -443,8 +443,6 @@ static void alarm_handler(int sig)
 
 static void set_timeout(int t)
 {
-    g_timed_out = false;
-
     /* Set handler for alarm signal */
     struct sigaction act;
     act.sa_handler = &alarm_handler;
@@ -459,13 +457,13 @@ static void set_timeout(int t)
     }
     else
     {
-        alarm(arg_timeout);
+        alarm(t);
     }
 }
 #else
 static void set_timeout(int t)
 {
-    g_timed_out = false;
+    (void)t;  // unused
     warn("Time-out not available.");
 }
 #endif
@@ -532,37 +530,37 @@ int main(int argc, char *argv[])
     }
     else
     {
+        // Create helper objects:
         LiftingStatistics stats(game);
+        std::auto_ptr<LiftingStrategyFactory> spm_strategy (
+            LiftingStrategyFactory::create(arg_spm_lifting_strategy) );
+        std::auto_ptr<ParityGameSolverFactory> solver_factory (
+            new SmallProgressMeasuresFactory(*spm_strategy, &stats) );
+
         info( "SPM lifting strategy:      %12s",
               arg_spm_lifting_strategy.c_str() );
 
-        if (arg_timeout > 0) set_timeout(0);
+        if (arg_timeout > 0) set_timeout(arg_timeout);
 
         double solve_time = time_used();
         info("Starting solve...");
 
-        // Allocate data structures
-        ParityGameSolver *solver;
-        std::auto_ptr<ComponentSolver> comp_solver;
-        std::auto_ptr<LiftingStrategy> spm_strategy;
+        // Allocate data structures:
+        std::auto_ptr<ParityGameSolver> solver;
+
         std::auto_ptr<SmallProgressMeasures> spm;
         if (arg_scc_decomposition)
         {
-            comp_solver.reset(
-                new ComponentSolver(game, arg_spm_lifting_strategy, &stats) );
-            solver = comp_solver.get();
+            solver.reset(new ComponentSolver(game, *solver_factory));
         }
         else
         {
-            spm_strategy.reset(
-                LiftingStrategy::create(game, arg_spm_lifting_strategy) );
-            assert(spm_strategy.get() != NULL);
-            spm.reset(new SmallProgressMeasures(game, *spm_strategy, &stats));
-            solver = spm.get();
+            solver.reset(solver_factory->create(game));
         }
 
-        // Solve game
-        g_solver = solver;
+        /* Solve game (storing g_solver in a global variable so the time-out
+           signal handler can abort it, if time elapses while solving). */
+        g_solver = solver.get();
         ParityGame::Strategy strategy = solver->solve();
         g_solver = NULL;
 

@@ -21,7 +21,7 @@ OBJS= \
 	main.o \
 	timing.o
 
-CFLAGS=-Wall -Wextra -O2 
+CFLAGS=-Wall -Wextra -O2
 LDLIBS=
 
 ifdef WITH_MCRL2

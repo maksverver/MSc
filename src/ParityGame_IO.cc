@@ -169,6 +169,8 @@ void ParityGame::read_pbes( const std::string &file_path,
     // Assign graph
     graph_.assign(edges, edge_dir);
 #else /* ifdef WITH_MCRL2 */
+    (void)file_path;  // unused
+    (void)edge_dir;   // unused
     assert(0);
 #endif /* def WITH_MCRL2 */
 }

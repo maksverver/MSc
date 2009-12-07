@@ -21,12 +21,10 @@ class ComponentSolver : public ParityGameSolver
 {
 public:
     ComponentSolver( const ParityGame &game,
-                     const std::string &strategy,
-                     LiftingStatistics *stats );
+                     ParityGameSolverFactory &pgsf );
     ~ComponentSolver();
 
     ParityGame::Strategy solve();
-    size_t memory_use() const { return memory_used_; }
 
 private:
     // SCC callback
@@ -34,10 +32,8 @@ private:
     friend class SCC<ComponentSolver>;
 
 protected:
-    std::string             lift_strat_;    /*!< SPM lifting strategy to use */
-    LiftingStatistics       *stats_;        /*!< Record lifting statistics */
-    size_t                  memory_used_;   /*!< Maximum memory used */
-    ParityGame::Strategy    strategy_;      /*!< The resulting strategy */
+    ParityGameSolverFactory &pgsf_;     //!< Solver factory to use
+    ParityGame::Strategy    strategy_;  //!< The resulting strategy
 };
 
 #endif /* ndef COMPONENT_SOLVER_H_INCLUDED */

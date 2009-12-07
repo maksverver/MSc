@@ -5,8 +5,9 @@
 /* NOTE: this code abuses the fact that verti is unsigned, making the top vector
          strictly greater than vectors of other measures. */
 
-OldMaxMeasureLiftingStrategy::OldMaxMeasureLiftingStrategy(const ParityGame &game)
-    : LiftingStrategy(game), queue_pos_(graph_.V(), queue_.end())
+OldMaxMeasureLiftingStrategy::OldMaxMeasureLiftingStrategy(
+    const ParityGame &game, const SmallProgressMeasures &spm )
+        : LiftingStrategy(game), spm_(spm), queue_pos_(graph_.V(), queue_.end())
 {
 }
 
@@ -67,4 +68,10 @@ verti OldMaxMeasureLiftingStrategy::next(verti prev_vertex, bool prev_lifted)
 size_t OldMaxMeasureLiftingStrategy::memory_use() const
 {
     return 0;  // TODO, after the implementation is a bit more sane
+}
+
+LiftingStrategy *OldMaxMeasureLiftingStrategyFactory::create(
+    const ParityGame &game, const SmallProgressMeasures &spm )
+{
+    return new OldMaxMeasureLiftingStrategy(game, spm);
 }
