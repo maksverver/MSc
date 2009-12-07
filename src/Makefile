@@ -13,6 +13,7 @@ OBJS= \
 	OldMaxMeasureLiftingStrategy.o \
 	ParityGame.o \
 	ParityGame_IO.o \
+	ParityGame_verify.o \
 	PredecessorLiftingStrategy.o \
 	SmallProgressMeasures.o \
 	logging.o \
