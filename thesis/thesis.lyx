@@ -82,14 +82,10 @@ d
 
 \begin_layout Standard
 A parity game can therefore be described by a four-tuple 
-\begin_inset Formula $\Gamma=(V_{◻},V_{\text{◇}},E,\phi)$
+\begin_inset Formula $\Gamma=(V_{\text{◇}},V_{\text{◻}},E,\phi)$
 \end_inset
 
 , where 
-\begin_inset Formula $V_{\text{◻}}$
-\end_inset
-
-and 
 \family roman
 \series medium
 \shape up
@@ -102,8 +98,12 @@ and
 \begin_inset Formula $V_{\text{◇}}$
 \end_inset
 
-partition the set of graph vertices 
-\begin_inset Formula $V=V_{\text{◻}}\cup V_{\text{◇}}$
+ and 
+\begin_inset Formula $V_{\text{◻}}$
+\end_inset
+
+ partition the set of graph vertices 
+\begin_inset Formula $V=V_{\text{◇}}\cup V_{◻}$
 \end_inset
 
  in the graph into vertices belonging to 
@@ -146,7 +146,7 @@ The edge set is such that each vertex has at least one outgoing edge; i.e.
 \end_layout
 
 \begin_layout Standard
-We will abbreviate players Even and Odd as ◻ and ◇ respectively.
+We will abbreviate players Even and Odd as ◇ and ◻ respectively.
  In some cases, we will use ▽ to refer to either one of the players and
  △ to refer to his opponent.
 \end_layout
@@ -364,7 +364,7 @@ A strategy
 \end_inset
 
  of the game graph into two sets of vertices 
-\begin_inset Formula $W_{◻}$
+\begin_inset Formula $W_{\text{◇}}$
 \end_inset
 
 
@@ -386,7 +386,7 @@ A strategy
 \noun default
 \color inherit
 
-\begin_inset Formula $W_{◇}$
+\begin_inset Formula $W_{◻}$
 \end_inset
 
  which can be won by player Even and Odd respectively.
@@ -451,7 +451,7 @@ memoryless strategies
 \end_inset
 
  whenever 
-\begin_inset Formula $v{}_{n}=w_{n}$
+\begin_inset Formula $v_{n}=w_{n}$
 \end_inset
 
 .
@@ -532,8 +532,8 @@ Sometimes we want to refer to the combined strategies of both players,
 , defined as:
 \begin_inset Formula \[
 \sigma(v)=\begin{cases}
-\sigma_{\text{◻}}(v) & \mbox{if }v\in W_{\text{◻}}\\
-\sigma_{\text{◇}}(v) & \mbox{if }v\in W_{\text{◇}}\end{cases}\]
+\sigma_{\text{◇}}(v) & \mbox{if }v\in W_{\text{◻}}\\
+\sigma_{\text{◻}}(v) & \mbox{if }v\in W_{\text{◇}}\end{cases}\]
 
 \end_inset
 
@@ -657,7 +657,7 @@ solving a game
 \end_inset
 
  is defined at least for all vertices 
-\begin_inset Formula $(V_{\text{◻}}\cap W_{◻})\cup(V_{\text{◇}}\cap W_{◇})$
+\begin_inset Formula $(V_{\text{◇}}\cap W_{\text{◇}})\cup(V_{\text{◻}}\cap W_{\text{◻}})$
 \end_inset
 
 .
@@ -757,25 +757,25 @@ Altough it is hard to compute the optimal strategies for the players in
 As we noted before, we are only interested in the strategy for vertices
  that are in the winning set of the player that controls them.
  Without loss of generality, let's assume we are verifying the set 
-\begin_inset Formula $W_{◻}$
+\begin_inset Formula $W_{◇}$
 \end_inset
 
  with optimal strategy 
-\begin_inset Formula $\sigma_{◻}$
+\begin_inset Formula $\sigma_{◇}$
 \end_inset
 
  for player Even (we can do the same for player Odd).
  Define a graph with vertices limited to 
-\begin_inset Formula $W_{◻}$
+\begin_inset Formula $W_{◇}$
 \end_inset
 
  and the set of edges 
-\begin_inset Formula $E|\sigma_{◻}$
+\begin_inset Formula $E|\sigma_{◇}$
 \end_inset
 
  as follows:
 \begin_inset Formula \[
-E|\sigma_{◻}=\left\{ vw\in E:v\in\left(W_{◻}\cap V_{◻}\right)\wedge\sigma_{\text{◻}}(v)=w\right\} \cup\left\{ vw\in E:v\in\left(W_{\text{◻}}\cap V_{\text{◇}}\right)\right\} \]
+E|\sigma_{◇}=\left\{ vw\in E:v\in\left(W_{◇}\cap V_{◇}\right)\wedge\sigma_{\text{◇}}(v)=w\right\} \cup\left\{ vw\in E:v\in\left(W_{◇}\cap V_{\text{◻}}\right)\right\} \]
 
 \end_inset
 
@@ -819,23 +819,23 @@ Less formally, the edge set includes the edges that are consistent with
 \noun off
 \color none
 Assuming these hold, then 
-\begin_inset Formula $\Gamma|\sigma_{\text{◻}}=(W_{\text{◻}}\cap V_{\text{◻}},W_{\text{◻}}\cap V_{\text{◇}},E|\sigma_{◻},\phi)$
+\begin_inset Formula $\Gamma|\sigma_{\text{◇}}=(W_{\text{◇}}\cap V_{\text{◇}},W_{◇}\cap V_{\text{◇}},E|\sigma_{◇},\phi)$
 \end_inset
 
  is a valid parity game, and precisely those plays in the original game
  consistent with strategy 
-\begin_inset Formula $\sigma_{\text{◻}}$
+\begin_inset Formula $\sigma_{\text{◇}}$
 \end_inset
 
  are possible in the game 
-\begin_inset Formula $\Gamma|\sigma_{\text{◻}}$
+\begin_inset Formula $\Gamma|\sigma_{\text{◇}}$
 \end_inset
 
  as well, except that all choice for player Even has been removed: every
  vertex controlled by Even has only one successor, because Even is bound
  to play by his strategy.
  This makes the game 
-\begin_inset Formula $\Gamma|\sigma_{\text{◻}}$
+\begin_inset Formula $\Gamma|\sigma_{◇}$
 \end_inset
 
  a single-player game controlled by Odd.
@@ -843,11 +843,11 @@ Assuming these hold, then
 
 \begin_layout Standard
 To verify that 
-\begin_inset Formula $W_{◻}$
+\begin_inset Formula $W_{◇}$
 \end_inset
 
  is a winning set for player Even when playing according to strategy 
-\begin_inset Formula $\sigma_{◻}$
+\begin_inset Formula $\sigma_{◇}$
 \end_inset
 
 , we must verify that the winning set for player Odd in 
@@ -860,7 +860,7 @@ To verify that
 \noun off
 \color none
 
-\begin_inset Formula $\Gamma|\sigma_{\text{◻}}$
+\begin_inset Formula $\Gamma|\sigma_{\text{◇}}$
 \end_inset
 
 
