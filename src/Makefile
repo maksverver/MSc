@@ -2,7 +2,7 @@
 WITH_MCRL2=
 
 OBJS= \
-	Compatibility.o \
+	compatibility.o \
 	ComponentSolver.o \
 	FocusListLiftingStrategy.o \
 	Graph.o \

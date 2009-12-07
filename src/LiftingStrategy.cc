@@ -16,7 +16,7 @@
 
 #include <stdlib.h>
 
-#include "Compatibility.h"
+#include "compatibility.h"
 #define strcasecmp compat_strcasecmp
 
 LiftingStrategy *LiftingStrategy::create( const ParityGame &game,

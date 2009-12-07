@@ -1,7 +1,7 @@
 #include <assert.h>
 #include <ctype.h>
 
-#include "Compatibility.h"
+#include "compatibility.h"
 
 static struct CompatibilityChecks {
     CompatibilityChecks() {

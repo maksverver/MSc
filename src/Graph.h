@@ -15,7 +15,7 @@
 #include <utility>
 #include <vector>
 
-#include "Compatibility.h"
+#include "compatibility.h"
 
 typedef uint32_t verti;    /*!< type used to number vertices */
 typedef uint32_t edgei;    /*!< type used to number edges */
