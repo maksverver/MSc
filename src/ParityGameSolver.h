@@ -29,10 +29,10 @@ public:
     const ParityGame &game() const { return game_; }
 
     /*! Abort the solver. */
-    const void abort() { aborted_ = true; }
+    void abort() { aborted_ = true; }
 
     /*! Has the solver been aborted? */
-    const bool aborted() { return aborted_; }
+    bool aborted() { return aborted_; }
 
 protected:
     const ParityGame &game_;

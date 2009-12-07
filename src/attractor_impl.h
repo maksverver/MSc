@@ -36,6 +36,9 @@ void make_attractor_set( const ParityGame &game, ParityGame::Player player,
                 {
                     if (vertices.find(*jt) == vertices.end()) goto skip_v;
                 }
+
+                // Store strategy for owner-controlled vertex:
+                if (strategy) (*strategy)[v] = NO_VERTEX;
             }
 
             // Add vertex v to the attractor set:

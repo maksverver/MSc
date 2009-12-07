@@ -15,8 +15,6 @@
 #include <vector>
 #include <utility>
 
-#define NO_VERTEX ((verti)-1)
-
 /*! Object used to collect statistics when solving using the SPM algorithm */
 class LiftingStatistics
 {

@@ -15,12 +15,13 @@ OBJS= \
 	ParityGame_IO.o \
 	ParityGame_verify.o \
 	PredecessorLiftingStrategy.o \
+	RecursiveSolver.o \
 	SmallProgressMeasures.o \
 	logging.o \
 	main.o \
 	timing.o
 
-CFLAGS=-Wall -O2 
+CFLAGS=-Wall -Wextra -O2 
 LDLIBS=
 
 ifdef WITH_MCRL2
