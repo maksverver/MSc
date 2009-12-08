@@ -35,6 +35,7 @@ endif
 
 CXXFLAGS:=$(CFLAGS)
 # For debugging:
+CXXFLAGS:=$(CFLAGS) -g
 #CXXFLAGS:=$(CFLAGS) -O0 -g -fmudflap -lmudflap
 
 all: main

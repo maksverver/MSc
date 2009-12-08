@@ -224,3 +224,28 @@ void ParityGame::write_dot(std::ostream &os) const
     }
     os << "}\n";
 }
+
+void ParityGame::write_debug(std::ostream &os) const
+{
+    for (verti v = 0; v < graph_.V(); ++v)
+    {
+        os << v << ' ';
+
+        // Print controlling player and vertex priority:
+        char l = ' ', r = ' ';
+        if (player(v) == PLAYER_EVEN) l = '<', r = '>';
+        if (player(v) == PLAYER_ODD)  l = '[', r = ']';
+        os << l << priority(v) << r;
+
+        // Print outgoing edges:
+        char sep = ' ';
+        for (StaticGraph::const_iterator it = graph_.succ_begin(v);
+             it != graph_.succ_end(v); ++it)
+        {
+            os << sep << *it;
+            sep = ',';
+        }
+        os << '\n';
+    }
+    os << std::flush;
+}

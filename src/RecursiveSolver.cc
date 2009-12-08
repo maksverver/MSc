@@ -4,12 +4,15 @@
 #include "assert.h"
 
 template<class T>
-size_t memory_use(const std::vector<T> &v)
+static size_t memory_use(const std::vector<T> &v)
 {
     return v.capacity()*sizeof(T);
 }
 
-std::vector<verti> get_complement(verti V, const std::set<verti> &vertices)
+/*! Returns the complement of a vertex set; i.e. an ordered list of all vertex
+    indices under V, from which the contents of `vertices' have been removed. */
+static std::vector<verti> get_complement( verti V,
+                                          const std::set<verti> &vertices )
 {
     std::vector<verti> res;
     res.reserve(V - vertices.size());
@@ -28,6 +31,20 @@ std::vector<verti> get_complement(verti V, const std::set<verti> &vertices)
     }
     assert(it == vertices.end());
     return res;
+}
+
+/*! Merges a substrategy into a main strategy, overwriting the existing strategy
+    for all vertices with indices in vertex_map. */
+void merge_strategies( std::vector<verti> &strategy,
+                       const std::vector<verti> &substrat,
+                       const std::vector<verti> &vertex_map )
+{
+    assert(substrat.size() == vertex_map.size());
+    for (verti v = 0; v < (verti)vertex_map.size(); ++v)
+    {
+        strategy[vertex_map[v]] =
+            (substrat[v] == NO_VERTEX) ? NO_VERTEX : vertex_map[substrat[v]];
+    }
 }
 
 RecursiveSolver::RecursiveSolver(const ParityGame &game)
@@ -83,6 +100,8 @@ ParityGame::Strategy RecursiveSolver::solve(const ParityGame &game, int min_prio
 
     // Compute attractor set of vertices lost to the opponent:
     std::set<verti> lost_attr;
+
+    if (min_prio_attr.size() < V)
     {
         // Find unsolved vertices so far:
         std::vector<verti> unsolved = get_complement(V, min_prio_attr);
@@ -101,9 +120,7 @@ ParityGame::Strategy RecursiveSolver::solve(const ParityGame &game, int min_prio
                            ::memory_use(unsolved) +
                            ::memory_use(substrat) );
 
-        // Merge substrat (from formerly unsolved part) into strategy.
-        for (size_t i = 0; i < unsolved.size(); ++i)
-            strategy[unsolved[i]] = substrat[i];
+        merge_strategies(strategy, substrat, unsolved);
 
         // Create attractor set of all vertices won by the opponent:
         for (verti v = 0; v < (verti)unsolved.size(); ++v)
@@ -144,9 +161,7 @@ ParityGame::Strategy RecursiveSolver::solve(const ParityGame &game, int min_prio
                            ::memory_use(unsolved) +
                            ::memory_use(substrat) );
 
-        // Merge substrat2 into strategy:
-        for (size_t i = 0; i < unsolved.size(); ++i)
-            strategy[unsolved[i]] = substrat[i];
+        merge_strategies(strategy, substrat, unsolved);
     }
 
     return strategy;
