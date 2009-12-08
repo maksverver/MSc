@@ -19,7 +19,7 @@
 #include "RecursiveSolver.h"
 #include "GraphOrdering.h"
 
-#ifdef WITH_MCLR2
+#ifdef WITH_MCRL2
 #include <aterm_init.h>
 #endif
 
