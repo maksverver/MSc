@@ -14,9 +14,9 @@
 #include "logging.h"
 #include "timing.h"
 #include "ParityGame.h"
-#include "LinearLiftingStrategy.h"
-#include "PredecessorLiftingStrategy.h"
 #include "ComponentSolver.h"
+#include "SmallProgressMeasures.h"
+#include "RecursiveSolver.h"
 #include "GraphOrdering.h"
 
 #ifdef WITH_MCLR2
@@ -65,10 +65,10 @@ static int          arg_random_out_degree     =      10;
 static int          arg_random_priorities     =      20;
 static int          arg_timeout               =       0;
 static bool         arg_verify                = false;
+static bool         arg_zielonka              = false;
 
 static const double MB = 1048576.0;  // one megabyte
 
-static volatile ParityGameSolver *g_solver = NULL;
 static volatile bool g_timed_out = false;
 
 
@@ -109,7 +109,8 @@ static void print_usage()
 "  --dual                 solve the dual game\n"
 "  --reorder/-e (bfs|dfs) reorder vertices\n"
 "  --timeout/-t <t>       abort solving after <t> seconds\n"
-"  --verify/-V            verify solution after solving\n");
+"  --verify/-V            verify solution after solving\n"
+"  --zielonka/-z          use Zielonka's recursive algorithm\n");
 }
 
 static void parse_args(int argc, char *argv[])
@@ -132,9 +133,10 @@ static void parse_args(int argc, char *argv[])
         { "reorder",    1, NULL, 'e' },
         { "timeout",    1, NULL, 't' },
         { "verify",     0, NULL, 'V' },
+        { "zielonka",   0, NULL, 'z' },
         { NULL,         false, NULL,  0  } };
 
-    static const char *short_options = "hi:l:d:p:r:w:s:e:t:V";
+    static const char *short_options = "hi:l:d:p:r:w:s:e:t:Vz";
 
     for (;;)
     {
@@ -251,6 +253,10 @@ static void parse_args(int argc, char *argv[])
 
         case 'V':   /* verify solution */
             arg_verify = true;
+            break;
+
+        case 'z':   /* use Zielonka's algorithm instead of SPM */
+            arg_zielonka = true;
             break;
 
         case '?':
@@ -437,7 +443,7 @@ static void alarm_handler(int sig)
     if (sig == SIGALRM && !g_timed_out)
     {
         g_timed_out = true;
-        if (g_solver != NULL) ((ParityGameSolver*)g_solver)->abort();
+        Abortable::abort_all();
     }
 }
 
@@ -522,7 +528,7 @@ int main(int argc, char *argv[])
 
     bool failed = true;
 
-    if (arg_spm_lifting_strategy.empty())
+    if (arg_spm_lifting_strategy.empty() && !arg_zielonka)
     {
         /* Don't solve; just convert data. */
         write_output(game);
@@ -530,25 +536,46 @@ int main(int argc, char *argv[])
     }
     else
     {
-        // Create helper objects:
-        LiftingStatistics stats(game);
-        std::auto_ptr<LiftingStrategyFactory> spm_strategy (
-            LiftingStrategyFactory::create(arg_spm_lifting_strategy) );
-        std::auto_ptr<ParityGameSolverFactory> solver_factory (
-            new SmallProgressMeasuresFactory(*spm_strategy, &stats) );
+        std::auto_ptr<LiftingStatistics> stats;
 
-        info( "SPM lifting strategy:      %12s",
-              arg_spm_lifting_strategy.c_str() );
+        // Allocate lifting strategy:
+        std::auto_ptr<LiftingStrategyFactory> spm_strategy;
+        if (!arg_spm_lifting_strategy.empty())
+        {
+            info( "SPM lifting strategy:      %12s",
+                  arg_spm_lifting_strategy.c_str() );
+
+            spm_strategy.reset(
+                LiftingStrategyFactory::create(arg_spm_lifting_strategy) );
+        }
+
+        // Create appropriate solver factory:
+        std::auto_ptr<ParityGameSolverFactory> solver_factory;
+
+        // Create SPM solver facory if requested:
+        if (spm_strategy.get() != NULL)
+        {
+            stats.reset(
+                new LiftingStatistics(game) );
+
+            solver_factory.reset(
+                new SmallProgressMeasuresFactory(*spm_strategy, stats.get()) );
+        }
+
+        // Create recursive solver factory if requested:
+        if (arg_zielonka)
+        {
+            solver_factory.reset(new RecursiveSolverFactory());
+        }
 
         if (arg_timeout > 0) set_timeout(arg_timeout);
 
         double solve_time = time_used();
         info("Starting solve...");
 
-        // Allocate data structures:
+        // Create solver instance:
+        assert(solver_factory.get() != NULL);
         std::auto_ptr<ParityGameSolver> solver;
-
-        std::auto_ptr<SmallProgressMeasures> spm;
         if (arg_scc_decomposition)
         {
             solver.reset(new ComponentSolver(game, *solver_factory));
@@ -558,11 +585,8 @@ int main(int argc, char *argv[])
             solver.reset(solver_factory->create(game));
         }
 
-        /* Solve game (storing g_solver in a global variable so the time-out
-           signal handler can abort it, if time elapses while solving). */
-        g_solver = solver.get();
+        // Now solve the game:
         ParityGame::Strategy strategy = solver->solve();
-        g_solver = NULL;
 
         failed = strategy.empty();
 
@@ -580,10 +604,6 @@ int main(int argc, char *argv[])
 
         solve_time = time_used() - solve_time;
 
-        long long lifts_total       = stats.lifts_attempted();
-        long long lifts_successful  = stats.lifts_succeeded();
-        long long lifts_failed      = lifts_total - lifts_successful;
-
         // Print some statistics
         info("Time used to solve:          %10.3f s", solve_time);
         // info("Peak memory usage:           %10.3f MB", get_vmsize()); // TODO
@@ -592,10 +612,18 @@ int main(int argc, char *argv[])
         info(" .. used by parity game:     %10.3f MB", game.memory_use()/MB);
         info("     .. used by graph:       %10.3f MB", game.graph().memory_use()/MB);
         info(" .. used by solver:          %10.3f MB", solver->memory_use()/MB);
-        info("Lifting attempts failed:      %12lld", lifts_failed);
-        info("Lifting attempts succeeded:   %12lld", lifts_successful);
-        info("Total lifting attempts:       %12lld", lifts_total);
-        // info("Minimum lifts required:    %12lld", 0LL);  // TODO
+
+        if (stats.get() != NULL)
+        {
+            long long lifts_total       = stats->lifts_attempted();
+            long long lifts_successful  = stats->lifts_succeeded();
+            long long lifts_failed      = lifts_total - lifts_successful;
+
+            info("Lifting attempts failed:      %12lld", lifts_failed);
+            info("Lifting attempts succeeded:   %12lld", lifts_successful);
+            info("Total lifting attempts:       %12lld", lifts_total);
+            // info("Minimum lifts required:    %12lld", 0LL);  // TODO
+        }
 
         if (!failed && arg_verify)
         {

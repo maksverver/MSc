@@ -94,7 +94,9 @@ protected:
     void set_top(verti v) { vec(v)[0] = (verti)-1; }
 
     /*! Translate local into global vertex index: */
-    verti map_vertex(verti v) { return v < vmap_size_ ? vmap_[v] : v; }
+    verti map_vertex(verti v) {
+        return vmap_ ? (v < vmap_size_ ? vmap_[v] : NO_VERTEX) : v;
+    }
 
  private:
     /*! Compares the first `N` elements of the SPM vectors for the given

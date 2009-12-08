@@ -9,13 +9,17 @@ public:
     RecursiveSolver(const ParityGame &game);
     ~RecursiveSolver();
 
-    // pure virtual methods declared by ParityGameSolver:
     ParityGame::Strategy solve();
-    size_t memory_use();
 
 private:
     //! Solves a subgame with a known minimum priority:
     ParityGame::Strategy solve(const ParityGame &game, int min_prio);
+};
+
+class RecursiveSolverFactory : public ParityGameSolverFactory
+{
+    ParityGameSolver *create( const ParityGame &game,
+        const verti *vertex_map, verti vertex_map_size );
 };
 
 #endif /* ndef RECURSIVE_SOLVER_H_INCLUDED */

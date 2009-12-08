@@ -3,8 +3,11 @@
 #include <set>
 #include "assert.h"
 
-// TODO: support aborting solver
-// TODO: support reporting memory use
+template<class T>
+size_t memory_use(const std::vector<T> &v)
+{
+    return v.capacity()*sizeof(T);
+}
 
 std::vector<verti> get_complement(verti V, const std::set<verti> &vertices)
 {
@@ -41,11 +44,6 @@ ParityGame::Strategy RecursiveSolver::solve()
     return solve(game(), 0);
 }
 
-size_t RecursiveSolver::memory_use()
-{
-    return 0;  // TODO
-}
-
 ParityGame::Strategy RecursiveSolver::solve(const ParityGame &game, int min_prio)
 {
     assert(min_prio < game.d());
@@ -54,6 +52,8 @@ ParityGame::Strategy RecursiveSolver::solve(const ParityGame &game, int min_prio
     const verti              V        = graph.V();
     const ParityGame::Player player   = (ParityGame::Player)(min_prio%2);
     const ParityGame::Player opponent = (ParityGame::Player)(1 - min_prio%2);
+
+    if (aborted()) return ParityGame::Strategy();
 
     if (game.d() - min_prio <= 1)
     {
@@ -66,6 +66,11 @@ ParityGame::Strategy RecursiveSolver::solve(const ParityGame &game, int min_prio
         return strategy;
     }
 
+    // Degenerate case: no vertices with this priority exist:
+    if (game.cardinality(min_prio) == 0) return solve(game, min_prio + 1);
+
+    ParityGame::Strategy strategy(V, NO_VERTEX);
+
     // Compute attractor set of minimum priority vertices:
     std::set<verti> min_prio_attr;
     for (verti v = 0; v < V; ++v)
@@ -73,13 +78,7 @@ ParityGame::Strategy RecursiveSolver::solve(const ParityGame &game, int min_prio
         assert(game.priority(v) >= min_prio);
         if (game.priority(v) == min_prio) min_prio_attr.insert(v);
     }
-    if (min_prio_attr.empty())
-    {
-        /* Degenerate case: no vertices with this priority exist; recurse
-           directly instead of creating a subgame equal to this game: */
-        return solve(game, min_prio + 1);
-    }
-    ParityGame::Strategy strategy(V, NO_VERTEX);
+    assert(!min_prio_attr.empty());
     make_attractor_set(game, player, min_prio_attr, &strategy);
 
     // Compute attractor set of vertices lost to the opponent:
@@ -87,13 +86,22 @@ ParityGame::Strategy RecursiveSolver::solve(const ParityGame &game, int min_prio
     {
         // Find unsolved vertices so far:
         std::vector<verti> unsolved = get_complement(V, min_prio_attr);
+        min_prio_attr.clear();  // free no-longer used memory
 
         // Create subgame with unsolved vertices:
         ParityGame subgame;
         subgame.make_subgame(game, &unsolved[0], unsolved.size());
         ParityGame::Strategy substrat = solve(subgame, min_prio + 1);
 
-        /* Merge substrat (from formerly unsolved part) into strategy. */
+        // Check if solving failed (or was aborted):
+        if (substrat.size() != unsolved.size()) return ParityGame::Strategy();
+
+        // Calculate current memory use:
+        update_memory_use( subgame.memory_use() +
+                           ::memory_use(unsolved) +
+                           ::memory_use(substrat) );
+
+        // Merge substrat (from formerly unsolved part) into strategy.
         for (size_t i = 0; i < unsolved.size(); ++i)
             strategy[unsolved[i]] = substrat[i];
 
@@ -128,10 +136,27 @@ ParityGame::Strategy RecursiveSolver::solve(const ParityGame &game, int min_prio
         subgame.make_subgame(game, &unsolved[0], unsolved.size());
         ParityGame::Strategy substrat = solve(subgame, min_prio);
 
+        // Check if solving failed (or was aborted):
+        if (substrat.size() != unsolved.size()) return ParityGame::Strategy();
+
+        // Calculate current memory use:
+        update_memory_use( subgame.memory_use() +
+                           ::memory_use(unsolved) +
+                           ::memory_use(substrat) );
+
         // Merge substrat2 into strategy:
         for (size_t i = 0; i < unsolved.size(); ++i)
             strategy[unsolved[i]] = substrat[i];
     }
 
     return strategy;
+}
+
+ParityGameSolver *RecursiveSolverFactory::create( const ParityGame &game,
+        const verti *vertex_map, verti vertex_map_size )
+{
+    (void)vertex_map;       // unused
+    (void)vertex_map_size;  // unused
+
+    return new RecursiveSolver(game);
 }

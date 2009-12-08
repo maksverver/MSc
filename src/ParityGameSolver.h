@@ -11,15 +11,16 @@
 #define PARITY_GAME_SOLVER
 
 #include "ParityGame.h"
+#include "Abortable.h"
 #include <vector>
 
 /*! Abstract base class for parity game solvers: classes that encapsulate
     algorithms to compute the winning set and optimal strategies in a game. */
-class ParityGameSolver
+class ParityGameSolver : public Abortable
 {
 public:
     ParityGameSolver(const ParityGame &game)
-        : game_(game), aborted_(false), max_memory_size(0) { };
+        : game_(game), max_memory_size(0) { };
     virtual ~ParityGameSolver() { };
 
     /*! Solve the game and return the strategies for both players. */
@@ -31,12 +32,6 @@ public:
     /*! Returns the parity game for this solver instance. */
     const ParityGame &game() const { return game_; }
 
-    /*! Abort the solver. */
-    void abort() { aborted_ = true; }
-
-    /*! Has the solver been aborted? */
-    bool aborted() { return aborted_; }
-
 protected:
     void update_memory_use(size_t current_size) {
         if (current_size > max_memory_size) max_memory_size = current_size;
@@ -44,7 +39,6 @@ protected:
 
 protected:
     const ParityGame    &game_;     //!< Game being solved
-    volatile bool       aborted_;   //!< Set to true when the game is aborted
     size_t              max_memory_size;    //!< Max. amount of memory used
 };
 
@@ -60,7 +54,7 @@ public:
             vertex lifting statistics even if the game is decomposed first.)
         \param vertex_map_size number of vertices mapped */
     virtual ParityGameSolver *create( const ParityGame &game,
-        const verti *vertex_map = NULL, verti vertex_map_size = 0) = 0;
+        const verti *vertex_map = NULL, verti vertex_map_size = 0 ) = 0;
 };
 
 #endif /* ndef PARITY_GAME_SOLVER */

@@ -26,18 +26,14 @@ ComponentSolver::~ComponentSolver()
 ParityGame::Strategy ComponentSolver::solve()
 {
     strategy_ = ParityGame::Strategy(game_.graph().V(), NO_VERTEX);
-
-    if (decompose_graph(game_.graph(), *this) != 0)
-    {
-        error("Component solving failed!");
-        strategy_.clear();
-    }
-
+    if (decompose_graph(game_.graph(), *this) != 0) strategy_.clear();
     return strategy_;
 }
 
 int ComponentSolver::operator()(const verti *vertices, size_t num_vertices)
 {
+    if (aborted()) return -1;
+
     info("Constructing subgame with %d vertices...", (int)num_vertices);
 
     // Construct a subgame
@@ -51,7 +47,6 @@ int ComponentSolver::operator()(const verti *vertices, size_t num_vertices)
           old_d - subgame.d(), old_d );
 
     // Solve the subgame
-    // FIXME: now the subgame can't be aborted :/
     info("Solving subgame...", (int)num_vertices);
     std::auto_ptr<ParityGameSolver> subsolver(
         pgsf_.create(subgame, vertices, num_vertices) );
@@ -69,5 +64,14 @@ int ComponentSolver::operator()(const verti *vertices, size_t num_vertices)
         strategy_[vertices[n]] = substrat[n];
     }
 
-    return aborted() ? -1 : 0;
+    return 0;
+}
+
+ParityGameSolver *ComponentSolverFactory::create( const ParityGame &game,
+        const verti *vertex_map, verti vertex_map_size )
+{
+    // the component solver is intended to be used as a top-level solver only:
+    if (vertex_map || vertex_map_size) return NULL;
+
+    return new ComponentSolver(game, pgsf_);
 }

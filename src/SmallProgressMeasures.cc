@@ -23,7 +23,6 @@ LiftingStatistics::LiftingStatistics(const ParityGame &game)
 void LiftingStatistics::record_lift(verti v, bool success)
 {
     assert(v == NO_VERTEX || v < vertex_stats_.size());
-    if (v == NO_VERTEX) info("verti: %d  max_size: %d", v, (int)vertex_stats_.size()); // debug
 
     ++lifts_attempted_;
     if (v != NO_VERTEX) ++vertex_stats_[v].first;
@@ -188,7 +187,6 @@ ParityGame::Strategy SmallProgressMeasures::solve()
         std::vector<verti> submap;
 
         // Solve the subgame with SPM:
-        // FIXME: now the subgame can't be aborted :/
         std::auto_ptr<SmallProgressMeasures> subsolver;
 
         if (stats_ == NULL)

@@ -36,4 +36,16 @@ protected:
     ParityGame::Strategy    strategy_;  //!< The resulting strategy
 };
 
+class ComponentSolverFactory : public ParityGameSolverFactory
+{
+    ComponentSolverFactory(ParityGameSolverFactory &pgsf)
+        : pgsf_(pgsf) { };
+
+    ParityGameSolver *create( const ParityGame &game,
+        const verti *vertex_map, verti vertex_map_size );
+
+protected:
+    ParityGameSolverFactory &pgsf_;     //!< Factory used to create subsolvers
+};
+
 #endif /* ndef COMPONENT_SOLVER_H_INCLUDED */

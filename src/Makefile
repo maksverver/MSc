@@ -2,6 +2,7 @@
 WITH_MCRL2=
 
 OBJS= \
+	Abortable.o \
 	compatibility.o \
 	ComponentSolver.o \
 	FocusListLiftingStrategy.o \
