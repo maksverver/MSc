@@ -39,6 +39,7 @@ protected:
 
 class ComponentSolverFactory : public ParityGameSolverFactory
 {
+public:
     ComponentSolverFactory(ParityGameSolverFactory &pgsf)
         : pgsf_(pgsf) { };
 

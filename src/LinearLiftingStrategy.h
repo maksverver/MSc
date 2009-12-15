@@ -35,7 +35,7 @@ private:
 class LinearLiftingStrategyFactory : public LiftingStrategyFactory
 {
 public:
-    LinearLiftingStrategyFactory(bool backward)
+    LinearLiftingStrategyFactory(bool backward = false)
         : backward_(backward) { };
 
     LiftingStrategy *create( const ParityGame &game,

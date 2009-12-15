@@ -11,13 +11,13 @@
 #define POSIX
 #endif
 
-#include "timing.h"
+#include "ComponentSolver.h"
+#include "GraphOrdering.h"
 #include "Logger.h"
 #include "ParityGame.h"
-#include "ComponentSolver.h"
-#include "SmallProgressMeasures.h"
 #include "RecursiveSolver.h"
-#include "GraphOrdering.h"
+#include "SmallProgressMeasures.h"
+#include "Timer.h"
 
 #ifdef WITH_MCRL2
 #include <aterm_init.h>
@@ -348,12 +348,12 @@ bool read_input(ParityGame &game)
 
     case INPUT_PGSOLVER:
         Logger::info("Reading PGSolver input...");
-        game.read_pgsolver(std::cin, StaticGraph::EDGE_BIDIRECTIONAL);
+        game.read_pgsolver(std::cin);
         return true;
 
     case INPUT_PBES:
         Logger::info("Generating parity game from PBES input....");
-        game.read_pbes("", StaticGraph::EDGE_BIDIRECTIONAL);
+        game.read_pbes("");
         return true;
 
     case INPUT_NONE:
@@ -492,7 +492,6 @@ static void set_timeout(int t)
 
 int main(int argc, char *argv[])
 {
-    time_initialize();
     Logger::severity(Logger::INFO);
 
 #ifdef WITH_MCRL2
@@ -592,7 +591,7 @@ int main(int argc, char *argv[])
 
         if (arg_timeout > 0) set_timeout(arg_timeout);
 
-        double solve_time = time_used();
+        Timer timer;
         Logger::info("Starting solve...");
 
         // Create solver instance:
@@ -624,10 +623,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        solve_time = time_used() - solve_time;
-
         // Print some statistics
-        Logger::info("Time used to solve:          %10.3f s", solve_time);
+        Logger::info("Time used to solve:          %10.3f s", timer.elapsed());
         Logger::info("Current memory use:           %10.3f MB", get_vmsize());
         size_t total_memory_use = game.memory_use() + solver->memory_use();
         Logger::info( "Memory required to solve:    %10.3f MB",
@@ -657,7 +654,7 @@ int main(int argc, char *argv[])
 
         if (!failed && arg_verify)
         {
-            double verify_time = time_used();
+            Timer timer;
 
             Logger::info("Starting verification...");
             if (game.verify(strategy))
@@ -669,9 +666,8 @@ int main(int argc, char *argv[])
                 failed = true;
                 Logger::info("Verification failed!");
             }
-            verify_time = time_used() - verify_time;
             Logger::info( "Time used to verify:         %10.3f s",
-                           verify_time );
+                           timer.elapsed() );
         }
 
         write_output(game, strategy);

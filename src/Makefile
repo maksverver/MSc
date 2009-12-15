@@ -19,11 +19,10 @@ OBJS= \
 	PredecessorLiftingStrategy.o \
 	RecursiveSolver.o \
 	SmallProgressMeasures.o \
-	main.o \
 	timing.o
 
 CFLAGS=-Wall -Wextra -O2
-LDLIBS=
+LDLIBS=-lrt
 
 ifdef WITH_MCRL2
 CFLAGS:=$(CFLAGS) -DWITH_MCRL2=$(WITH_MCRL2) \
@@ -43,7 +42,7 @@ all: main
 docs:
 	doxygen
 
-main: $(OBJS)
+main: $(OBJS) main.o
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 clean:
@@ -52,5 +51,8 @@ clean:
 distclean: clean
 	rm -f main
 	rm -rf html
+
+mcrl2-example: $(OBJS) mcrl2-example.o
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 .PHONY: all clean distclean docs

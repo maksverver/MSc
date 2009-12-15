@@ -134,7 +134,7 @@ class SmallProgressMeasuresFactory : public ParityGameSolverFactory
 {
 public:
     SmallProgressMeasuresFactory( LiftingStrategyFactory &lsf,
-                                  LiftingStatistics *stats )
+                                  LiftingStatistics *stats = 0 )
         : lsf_(lsf), stats_(stats) { };
 
     ParityGameSolver *create( const ParityGame &game,

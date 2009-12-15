@@ -123,14 +123,15 @@ public:
     void compress_priorities();
 
     /*! Read a game description in PGSolver format. */
-    void read_pgsolver(std::istream &is, StaticGraph::EdgeDirection edge_dir);
+    void read_pgsolver( std::istream &is,
+        StaticGraph::EdgeDirection edge_dir = StaticGraph::EDGE_BIDIRECTIONAL );
 
     /*! Write a game description in PGSolver format. */
     void write_pgsolver(std::ostream &os) const;
 
     /*! Read a game description from an mCRL2 PBES. */
-    void read_pbes( const std::string &file_path,
-                    StaticGraph::EdgeDirection edge_dir );
+    void read_pbes( const std::string &file_path, verti *goal_vertex = 0,
+        StaticGraph::EdgeDirection edge_dir = StaticGraph::EDGE_BIDIRECTIONAL );
 
     /*! Read raw parity game data from input stream */
     void read_raw(std::istream &is);
