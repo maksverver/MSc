@@ -58,9 +58,11 @@ int ComponentSolver::operator()(const verti *vertices, size_t num_vertices)
 
     // Copy strategy from subgame
     assert(substrat.size() == num_vertices + 2);  /* + 2 for 2 dummy vertices */
+    // FIXME: use merge_strategies() from RecursiveSolver instead
     for (size_t n = 0; n < num_vertices; ++n)
     {
-        strategy_[vertices[n]] = substrat[n];
+        strategy_[vertices[n]] =
+            (substrat[n] == NO_VERTEX) ? NO_VERTEX : vertices[substrat[n]];
     }
 
     return 0;

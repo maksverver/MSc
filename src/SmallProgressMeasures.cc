@@ -215,6 +215,7 @@ ParityGame::Strategy SmallProgressMeasures::solve()
         assert(substrat.size() == won_by_odd.size());
 
         // Add substrategy for Odd to result:
+        // FIXME: use merge_strategies() from RecursiveSolver instead
         for (size_t n = 0; n < won_by_odd.size(); ++n)
         {
             if (substrat[n] != NO_VERTEX)
