@@ -134,37 +134,37 @@ void ParityGame::read_pbes( const std::string &file_path,
 
     // Build the edge list
     StaticGraph::edge_list edges;
-    verti num_vertices = 3;
-    for (verti v = 2; v < num_vertices; ++v)
+    verti begin = 0, end = 3;
+    for (verti v = begin; v < end; ++v)
     {
         std::set<unsigned> deps = pgg.get_dependencies(v);
         for ( std::set<unsigned>::const_iterator it = deps.begin();
               it != deps.end(); ++it )
         {
             verti w = (verti)*it;
-            assert(w >= 2);
-            if (w >= num_vertices) num_vertices = w + 1;
-            edges.push_back(std::make_pair(v - 2, w - 2));
+            assert(w >= begin);
+            if (w >= end) end = w + 1;
+            edges.push_back(std::make_pair(v - begin, w - begin));
         }
     }
 
     // Determine maximum prioirity
     int max_prio = 0;
-    for (verti v = 2; v < num_vertices; ++v)
+    for (verti v = begin; v < end; ++v)
     {
         max_prio = std::max(max_prio, (int)pgg.get_priority(v));
     }
 
     // Assign vertex info and recount cardinalities
-    reset(num_vertices - 2, max_prio + 1);
-    for (verti v = 2; v < num_vertices; ++v)
+    reset(end - begin, max_prio + 1);
+    for (verti v = begin; v < end; ++v)
     {
         bool and_op = pgg.get_operation(v) ==
                       mcrl2::pbes_system::parity_game_generator::PGAME_AND;
-        vertex_[v - 2].player = and_op ? PLAYER_ODD : PLAYER_EVEN;
-        vertex_[v - 2].priority = pgg.get_priority(v);
+        vertex_[v - begin].player = and_op ? PLAYER_ODD : PLAYER_EVEN;
+        vertex_[v - begin].priority = pgg.get_priority(v);
     }
-    recalculate_cardinalities(num_vertices - 2);
+    recalculate_cardinalities(end - begin);
 
     // Assign graph
     graph_.assign(edges, edge_dir);
