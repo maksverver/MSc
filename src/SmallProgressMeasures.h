@@ -12,6 +12,7 @@
 
 #include "ParityGameSolver.h"
 #include "LiftingStrategy.h"
+#include "Logger.h"
 #include <vector>
 #include <utility>
 
@@ -51,7 +52,7 @@ private:
     However, since all components with even indices (zero-based) are fixed at 0,
     we only store values for the odd indices.
 */
-class SmallProgressMeasures : public ParityGameSolver
+class SmallProgressMeasures : public ParityGameSolver, public virtual Logger
 {
 public:
     SmallProgressMeasures( const ParityGame &game,

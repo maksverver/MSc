@@ -10,6 +10,7 @@ OBJS= \
 	GraphOrdering.o \
 	LiftingStrategy.o \
 	LinearLiftingStrategy.o \
+	Logger.o \
 	MaxMeasureLiftingStrategy.o \
 	OldMaxMeasureLiftingStrategy.o \
 	ParityGame.o \
@@ -18,7 +19,6 @@ OBJS= \
 	PredecessorLiftingStrategy.o \
 	RecursiveSolver.o \
 	SmallProgressMeasures.o \
-	logging.o \
 	main.o \
 	timing.o
 
