@@ -8,6 +8,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #include "ParityGame.h"
+#include "Logger.h"
 #include <assert.h>
 #ifdef WITH_MCRL2
 #include <mcrl2/pbes/pbes.h>
@@ -117,7 +118,7 @@ void ParityGame::write_pgsolver(std::ostream &os) const
     }
 }
 
-void ParityGame::read_pbes( const std::string &file_path,
+void ParityGame::read_pbes( const std::string &file_path, verti *goal_vertex,
                             StaticGraph::EdgeDirection edge_dir )
 {
 #ifdef WITH_MCRL2
@@ -125,6 +126,8 @@ void ParityGame::read_pbes( const std::string &file_path,
              are numbered from 2 to num_vertices-1 with no gaps, with 0 and 1
              representing true and false (respectively) and 2 representing the
              initial condition. */
+
+    if (goal_vertex) *goal_vertex = 2;
 
     mcrl2::pbes_system::pbes<> pbes;
     pbes.load(file_path);  // TODO: handle exceptions raised here?
@@ -169,9 +172,11 @@ void ParityGame::read_pbes( const std::string &file_path,
     // Assign graph
     graph_.assign(edges, edge_dir);
 #else /* ifdef WITH_MCRL2 */
-    (void)file_path;  // unused
-    (void)edge_dir;   // unused
-    assert(0);
+    (void)file_path;    // unused
+    (void)edge_dir;     // unused
+    (void)goal_vertex;  // unused
+    Logger::fatal( "ParityGame::read_pbes() called, but "
+                   "compiled without mCRL2 support!\n" );
 #endif /* def WITH_MCRL2 */
 }
 
@@ -223,4 +228,29 @@ void ParityGame::write_dot(std::ostream &os) const
         }
     }
     os << "}\n";
+}
+
+void ParityGame::write_debug(std::ostream &os) const
+{
+    for (verti v = 0; v < graph_.V(); ++v)
+    {
+        os << v << ' ';
+
+        // Print controlling player and vertex priority:
+        char l = ' ', r = ' ';
+        if (player(v) == PLAYER_EVEN) l = '<', r = '>';
+        if (player(v) == PLAYER_ODD)  l = '[', r = ']';
+        os << l << priority(v) << r;
+
+        // Print outgoing edges:
+        char sep = ' ';
+        for (StaticGraph::const_iterator it = graph_.succ_begin(v);
+             it != graph_.succ_end(v); ++it)
+        {
+            os << sep << *it;
+            sep = ',';
+        }
+        os << '\n';
+    }
+    os << std::flush;
 }

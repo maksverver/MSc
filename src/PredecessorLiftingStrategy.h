@@ -61,7 +61,7 @@ private:
 class PredecessorLiftingStrategyFactory : public LiftingStrategyFactory
 {
 public:
-    PredecessorLiftingStrategyFactory(bool backward, bool stack)
+    PredecessorLiftingStrategyFactory(bool backward = false, bool stack = false)
         : backward_(backward), stack_(stack) { };
 
     LiftingStrategy *create( const ParityGame &game,

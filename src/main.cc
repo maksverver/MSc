@@ -11,13 +11,13 @@
 #define POSIX
 #endif
 
-#include "logging.h"
-#include "timing.h"
-#include "ParityGame.h"
 #include "ComponentSolver.h"
-#include "SmallProgressMeasures.h"
-#include "RecursiveSolver.h"
 #include "GraphOrdering.h"
+#include "Logger.h"
+#include "ParityGame.h"
+#include "RecursiveSolver.h"
+#include "SmallProgressMeasures.h"
+#include "Timer.h"
 
 #ifdef WITH_MCRL2
 #include <aterm_init.h>
@@ -110,7 +110,9 @@ static void print_usage()
 "  --reorder/-e (bfs|dfs) reorder vertices\n"
 "  --timeout/-t <t>       abort solving after <t> seconds\n"
 "  --verify/-V            verify solution after solving\n"
-"  --zielonka/-z          use Zielonka's recursive algorithm\n");
+"  --zielonka/-z          use Zielonka's recursive algorithm\n"
+"  --verbosity/-v         message verbosity (0-5; default: 4)\n"
+"  --quiet/-q             no messages (equivalent to -v0)\n" );
 }
 
 static void parse_args(int argc, char *argv[])
@@ -134,9 +136,11 @@ static void parse_args(int argc, char *argv[])
         { "timeout",    1, NULL, 't' },
         { "verify",     0, NULL, 'V' },
         { "zielonka",   0, NULL, 'z' },
-        { NULL,         false, NULL,  0  } };
+        { "verbosity",  1, NULL, 'v' },
+        { "quiet",      0, NULL, 'q' },
+        { NULL,         0, NULL,  0  } };
 
-    static const char *short_options = "hi:l:d:p:r:w:s:e:t:Vz";
+    static const char *short_options = "hi:l:d:p:r:w:s:e:t:Vzv:q";
 
     for (;;)
     {
@@ -259,6 +263,18 @@ static void parse_args(int argc, char *argv[])
             arg_zielonka = true;
             break;
 
+        case 'v':   /* set logger severity to NONE - verbosity */
+            {
+                int severity = Logger::NONE - atoi(optarg);
+                if (severity > Logger::NONE)  severity = Logger::NONE;
+                if (severity < Logger::DEBUG) severity = Logger::DEBUG;
+                Logger::severity((Logger::Severity)severity);
+            } break;
+
+        case 'q':  /* set logger severity to NONE */
+            Logger::severity(Logger::NONE);
+            break;
+
         case '?':
             {
                 printf("Unrecognized option!\n");
@@ -314,9 +330,9 @@ bool read_input(ParityGame &game)
     switch (arg_input_format)
     {
     case INPUT_RANDOM:
-        info( "Generating random parity game with %d vertices, "
-                "out-degree %d, and %d priorities...", arg_random_size,
-                arg_random_out_degree, arg_random_priorities );
+        Logger::info( "Generating random parity game with %d vertices, "
+                      "out-degree %d, and %d priorities...", arg_random_size,
+                      arg_random_out_degree, arg_random_priorities );
         srand(arg_random_seed);
 
         game.make_random(
@@ -326,18 +342,18 @@ bool read_input(ParityGame &game)
         return true;
 
     case INPUT_RAW:
-        info("Reading raw input...");
+        Logger::info("Reading raw input...");
         game.read_raw(std::cin);
         return true;
 
     case INPUT_PGSOLVER:
-        info("Reading PGSolver input...");
-        game.read_pgsolver(std::cin, StaticGraph::EDGE_BIDIRECTIONAL);
+        Logger::info("Reading PGSolver input...");
+        game.read_pgsolver(std::cin);
         return true;
 
     case INPUT_PBES:
-        info("Generating parity game from PBES input....");
-        game.read_pbes("", StaticGraph::EDGE_BIDIRECTIONAL);
+        Logger::info("Generating parity game from PBES input....");
+        game.read_pbes("");
         return true;
 
     case INPUT_NONE:
@@ -356,15 +372,15 @@ void write_output( const ParityGame &game,
         if (arg_dot_file == "-")
         {
             game.write_dot(std::cout);
-            if (!std::cout) error("Writing failed!");
+            if (!std::cout) Logger::error("Writing failed!");
         }
         else
         {
-            info("Writing GraphViz dot game description to file %s...",
-                arg_dot_file.c_str());
+            Logger::info( "Writing GraphViz dot game description to file %s...",
+                          arg_dot_file.c_str() );
             std::ofstream ofs(arg_dot_file.c_str());
             game.write_dot(ofs);
-            if (!ofs) error("Writing failed!");
+            if (!ofs) Logger::error("Writing failed!");
         }
     }
 
@@ -377,11 +393,11 @@ void write_output( const ParityGame &game,
         }
         else
         {
-            info( "Writing PGSolver game description to file %s...",
-                  arg_pgsolver_file.c_str() );
+            Logger::info( "Writing PGSolver game description to file %s...",
+                          arg_pgsolver_file.c_str() );
             std::ofstream ofs(arg_pgsolver_file.c_str());
             game.write_pgsolver(ofs);
-            if (!ofs) error("Writing failed!");
+            if (!ofs) Logger::error("Writing failed!");
         }
     }
 
@@ -394,11 +410,11 @@ void write_output( const ParityGame &game,
         }
         else
         {
-            info( "Writing raw game description to file %s...",
-                  arg_raw_file.c_str() );
+            Logger::info( "Writing raw game description to file %s...",
+                          arg_raw_file.c_str() );
             std::ofstream ofs(arg_raw_file.c_str());
             game.write_raw(ofs);
-            if (!ofs) error("Writing failed!");
+            if (!ofs) Logger::error("Writing failed!");
         }
     }
 
@@ -408,14 +424,14 @@ void write_output( const ParityGame &game,
         if (arg_winners_file == "-")
         {
             write_winners(std::cout, game, strategy);
-            if (!std::cout) error("Writing failed!");
+            if (!std::cout) Logger::error("Writing failed!");
         }
         else
         {
-            info("Writing winners to file %s...", arg_winners_file.c_str());
+            Logger::info("Writing winners to file %s...", arg_winners_file.c_str());
             std::ofstream ofs(arg_winners_file.c_str());
             write_winners(ofs, game, strategy);
-            if (!ofs) error("Writing failed!");
+            if (!ofs) Logger::error("Writing failed!");
         }
     }
 
@@ -425,14 +441,14 @@ void write_output( const ParityGame &game,
         if (arg_strategy_file == "-")
         {
             write_strategy(std::cout, strategy);
-            if (!std::cout) error("Writing failed!");
+            if (!std::cout) Logger::error("Writing failed!");
         }
         else
         {
-            info("Writing strategy to file %s...", arg_strategy_file.c_str());
+            Logger::info("Writing strategy to file %s...", arg_strategy_file.c_str());
             std::ofstream ofs(arg_strategy_file.c_str());
             write_strategy(ofs, strategy);
-            if (!ofs) error("Writing failed!");
+            if (!ofs) Logger::error("Writing failed!");
         }
     }
 }
@@ -459,7 +475,7 @@ static void set_timeout(int t)
     int res = sigaction(SIGALRM, &act, NULL);
     if (res != 0)
     {
-        warn("Couldn't install signal handler.");
+        Logger::warn("Couldn't install signal handler.");
     }
     else
     {
@@ -476,7 +492,7 @@ static void set_timeout(int t)
 
 int main(int argc, char *argv[])
 {
-    time_initialize();
+    Logger::severity(Logger::INFO);
 
 #ifdef WITH_MCRL2
     MCRL2_ATERMPP_INIT(argc, argv);
@@ -488,7 +504,7 @@ int main(int argc, char *argv[])
     ParityGame game;
     if (!read_input(game))
     {
-        fatal("Couldn't parse parity game from input!");
+        Logger::fatal("Couldn't parse parity game from input!");
     }
 
     /* Do priority compression at the start too. */
@@ -497,13 +513,13 @@ int main(int argc, char *argv[])
 
     if (arg_solve_dual)
     {
-        info("Switching to dual game...");
+        Logger::info("Switching to dual game...");
         game.make_dual();
     }
 
     if (arg_reordering == REORDER_BFS)
     {
-        info("Reordering vertices in bread-first search preordering.");
+        Logger::info("Reordering vertices in bread-first search preordering.");
         std::vector<verti> perm;
         get_bfs_order(game.graph(), perm);
         game.shuffle(perm);
@@ -511,20 +527,25 @@ int main(int argc, char *argv[])
 
     if (arg_reordering == REORDER_DFS)
     {
-        info("Reordering vertices in depth-first search preordering.");
+        Logger::info("Reordering vertices in depth-first search preordering.");
         std::vector<verti> perm;
         get_dfs_order(game.graph(), perm);
         game.shuffle(perm);
     }
 
     /* Print some game info: */
-    info("Number of vertices:        %12lld", (long long)game.graph().V());
-    info("Number of edges:           %12lld", (long long)game.graph().E());
-    info("Forward edge ratio:        %.10f",
-          (double)count_forward_edges(game.graph())/game.graph().E() );
-    info("Number of priorities:      %12d (was %d)", game.d(), old_d);
+    Logger::info( "Number of vertices:        %12lld",
+                  (long long)game.graph().V() );
+    Logger::info( "Number of edges:           %12lld",
+                  (long long)game.graph().E() );
+    Logger::info( "Forward edge ratio:        %.10f",
+                  (double)count_forward_edges(game.graph())/game.graph().E() );
+    Logger::info( "Number of priorities:      %12d (was %d)",
+                  game.d(), old_d);
     for (int p = 0; p < game.d(); ++p)
-        info("  %2d occurs %d times", p, game.cardinality(p));
+    {
+        Logger::info("  %2d occurs %d times", p, game.cardinality(p));
+    }
 
     bool failed = true;
 
@@ -542,8 +563,8 @@ int main(int argc, char *argv[])
         std::auto_ptr<LiftingStrategyFactory> spm_strategy;
         if (!arg_spm_lifting_strategy.empty())
         {
-            info( "SPM lifting strategy:      %12s",
-                  arg_spm_lifting_strategy.c_str() );
+            Logger::info( "SPM lifting strategy:      %12s",
+                          arg_spm_lifting_strategy.c_str() );
 
             spm_strategy.reset(
                 LiftingStrategyFactory::create(arg_spm_lifting_strategy) );
@@ -570,8 +591,8 @@ int main(int argc, char *argv[])
 
         if (arg_timeout > 0) set_timeout(arg_timeout);
 
-        double solve_time = time_used();
-        info("Starting solve...");
+        Timer timer;
+        Logger::info("Starting solve...");
 
         // Create solver instance:
         assert(solver_factory.get() != NULL);
@@ -594,24 +615,26 @@ int main(int argc, char *argv[])
         {
             if (solver->aborted())
             {
-                error("time limit exceeded!");
+                Logger::error("time limit exceeded!");
             }
             else
             {
-                error("solving failed!");
+                Logger::error("solving failed!");
             }
         }
 
-        solve_time = time_used() - solve_time;
-
         // Print some statistics
-        info("Time used to solve:          %10.3f s", solve_time);
-        // info("Peak memory usage:           %10.3f MB", get_vmsize()); // TODO
+        Logger::info("Time used to solve:          %10.3f s", timer.elapsed());
+        Logger::info("Current memory use:           %10.3f MB", get_vmsize());
         size_t total_memory_use = game.memory_use() + solver->memory_use();
-        info("Memory required to solve:    %10.3f MB", total_memory_use /MB);
-        info(" .. used by parity game:     %10.3f MB", game.memory_use()/MB);
-        info("     .. used by graph:       %10.3f MB", game.graph().memory_use()/MB);
-        info(" .. used by solver:          %10.3f MB", solver->memory_use()/MB);
+        Logger::info( "Memory required to solve:    %10.3f MB",
+                      total_memory_use /MB );
+        Logger::info( " .. used by parity game:     %10.3f MB",
+                      game.memory_use()/MB );
+        Logger::info( "     .. used by graph:       %10.3f MB",
+                      game.graph().memory_use()/MB );
+        Logger::info( " .. used by solver:          %10.3f MB",
+                      solver->memory_use()/MB );
 
         if (stats.get() != NULL)
         {
@@ -619,34 +642,38 @@ int main(int argc, char *argv[])
             long long lifts_successful  = stats->lifts_succeeded();
             long long lifts_failed      = lifts_total - lifts_successful;
 
-            info("Lifting attempts failed:      %12lld", lifts_failed);
-            info("Lifting attempts succeeded:   %12lld", lifts_successful);
-            info("Total lifting attempts:       %12lld", lifts_total);
-            // info("Minimum lifts required:    %12lld", 0LL);  // TODO
+            Logger::info( "Lifting attempts failed:      %12lld",
+                           lifts_failed );
+            Logger::info( "Lifting attempts succeeded:   %12lld",
+                           lifts_successful );
+            Logger::info( "Total lifting attempts:       %12lld",
+                           lifts_total );
+            Logger::info( "Minimum lifts required:    %12lld",
+                           0LL);  // TODO
         }
 
         if (!failed && arg_verify)
         {
-            double verify_time = time_used();
+            Timer timer;
 
-            info("Starting verification...");
+            Logger::info("Starting verification...");
             if (game.verify(strategy))
             {
-                info("Verification succeeded.");
+                Logger::info("Verification succeeded.");
             }
             else
             {
                 failed = true;
-                info("Verification failed!");
+                Logger::info("Verification failed!");
             }
-            verify_time = time_used() - verify_time;
-            info("Time used to verify:         %10.3f s", verify_time);
+            Logger::info( "Time used to verify:         %10.3f s",
+                           timer.elapsed() );
         }
 
         write_output(game, strategy);
     }
 
-    info("Exiting.");
+    Logger::info("Exiting.");
 
     exit(failed ? EXIT_FAILURE : EXIT_SUCCESS);
 }

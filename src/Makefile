@@ -10,6 +10,7 @@ OBJS= \
 	GraphOrdering.o \
 	LiftingStrategy.o \
 	LinearLiftingStrategy.o \
+	Logger.o \
 	MaxMeasureLiftingStrategy.o \
 	OldMaxMeasureLiftingStrategy.o \
 	ParityGame.o \
@@ -18,12 +19,10 @@ OBJS= \
 	PredecessorLiftingStrategy.o \
 	RecursiveSolver.o \
 	SmallProgressMeasures.o \
-	logging.o \
-	main.o \
 	timing.o
 
 CFLAGS=-Wall -Wextra -O2
-LDLIBS=
+LDLIBS=-lrt
 
 ifdef WITH_MCRL2
 CFLAGS:=$(CFLAGS) -DWITH_MCRL2=$(WITH_MCRL2) \
@@ -35,6 +34,7 @@ endif
 
 CXXFLAGS:=$(CFLAGS)
 # For debugging:
+CXXFLAGS:=$(CFLAGS) -g
 #CXXFLAGS:=$(CFLAGS) -O0 -g -fmudflap -lmudflap
 
 all: main
@@ -42,7 +42,7 @@ all: main
 docs:
 	doxygen
 
-main: $(OBJS)
+main: $(OBJS) main.o
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 clean:
@@ -51,5 +51,8 @@ clean:
 distclean: clean
 	rm -f main
 	rm -rf html
+
+mcrl2-example: $(OBJS) mcrl2-example.o
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 .PHONY: all clean distclean docs

@@ -7,25 +7,19 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef LOGGING_H_INCLUDED
-#define LOGGING_H_INCLUDED
+#ifndef TIMER_H_INCLUDED
+#define TIMER_H_INCLUDED
 
-#include "timing.h"
+extern "C" double time_now();
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+class Timer
+{
+public:
+    Timer() : last_(time_now()) { };
+    double elapsed() { return time_now() - last_; }
 
-void info(const char *fmt, ...);
-void warn(const char *fmt, ...);
-void error(const char *fmt, ...);
-#if __GNUC__ >= 3
-__attribute__((noreturn))
-#endif
-void fatal(const char *fmt, ...);
+private:
+    double last_;
+};
 
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* ndef LOGGING_H_INCLUDED */
+#endif /* nde fTIMER_H_INCLUDED */

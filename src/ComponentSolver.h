@@ -11,13 +11,14 @@
 #define COMPONENT_SOLVER_H_INCLUDED
 
 #include "SmallProgressMeasures.h"
+#include "Logger.h"
 #include "SCC.h"
 #include <string>
 #include <vector>
 
 /*! A solver that breaks down the game graph into strongly connected components,
     and uses the SPM algorithm to solve independent subgames. */
-class ComponentSolver : public ParityGameSolver
+class ComponentSolver : public ParityGameSolver, public virtual Logger
 {
 public:
     ComponentSolver( const ParityGame &game,
@@ -38,6 +39,7 @@ protected:
 
 class ComponentSolverFactory : public ParityGameSolverFactory
 {
+public:
     ComponentSolverFactory(ParityGameSolverFactory &pgsf)
         : pgsf_(pgsf) { };
 

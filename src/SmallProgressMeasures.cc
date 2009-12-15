@@ -8,7 +8,6 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #include "SmallProgressMeasures.h"
-#include "logging.h"
 #include <algorithm>
 #include <memory>
 #include <assert.h>

@@ -1,3 +1,12 @@
+// Copyright (c) 2007, 2009 University of Twente
+// Copyright (c) 2007, 2009 Michael Weber <michaelw@cs.utwente.nl>
+// Copyright (c) 2009 Maks Verver <maksverver@geocities.com>
+// Copyright (c) 2009 Eindhoven University of Technology
+//
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
+
 #ifndef COMPATIBILITY_H_INCLUDED
 #define COMPATIBILITY_H_INCLUDED
 
@@ -8,7 +17,7 @@
     platforms/compilers that do not support the POSIX and/or C99 standards.
 
     Contrary to common conventions, this file should be included last in source
-    files that requireit, so any platform-specific definitions can take
+    files that require it, so any platform-specific definitions can take
     precedence.
 */
 
