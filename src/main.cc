@@ -625,7 +625,7 @@ int main(int argc, char *argv[])
 
         // Print some statistics
         Logger::info("Time used to solve:          %10.3f s", timer.elapsed());
-        Logger::info("Current memory use:           %10.3f MB", get_vmsize());
+        Logger::info("Current memory use:          %10.3f MB", get_vmsize());
         size_t total_memory_use = game.memory_use() + solver->memory_use();
         Logger::info( "Memory required to solve:    %10.3f MB",
                       total_memory_use /MB );

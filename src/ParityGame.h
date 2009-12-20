@@ -76,6 +76,8 @@ public:
     void make_random( verti V, unsigned out_deg,
                       StaticGraph::EdgeDirection edge_dir, int d );
 
+#if 0  // FIXME: remove this permanently if I don't need it anymore
+
     /*! Create a subgame containing only the given vertices from the original
         game. Vertices are renumbered to be in range [0..num_vertices) and
         two dummy nodes are added, won by the even or odd player respectively.
@@ -89,6 +91,8 @@ public:
     void make_subgame( const ParityGame &game,
                        const verti *vertices, verti num_vertices,
                        const Strategy &strategy );
+
+#endif
 
     /*! Create a subgame containing only the given vertices from the original
         game. Vertices are renumbered to be in range [0..num_vertices) and

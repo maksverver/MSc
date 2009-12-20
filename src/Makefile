@@ -15,6 +15,7 @@ OBJS= \
 	OldMaxMeasureLiftingStrategy.o \
 	ParityGame.o \
 	ParityGame_IO.o \
+	ParityGameSolver.o \
 	ParityGame_verify.o \
 	PredecessorLiftingStrategy.o \
 	RecursiveSolver.o \
