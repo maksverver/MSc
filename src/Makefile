@@ -22,10 +22,12 @@ OBJS= \
 	SmallProgressMeasures.o \
 	timing.o
 
-CFLAGS=-Wall -Wextra -O2
+CFLAGS=-Wall -O2
 LDLIBS=-lrt
 
-CFLAGS:=$(CFLAGS) -DUSE_TIMER=1
+ifndef WITH_MCRL2
+CFLAGS:=$(CFLAGS) -Wextra -DUSE_TIMER=1
+endif
 
 ifdef WITH_MCRL2
 CFLAGS:=$(CFLAGS) -DWITH_MCRL2=$(WITH_MCRL2) \

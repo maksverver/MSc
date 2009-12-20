@@ -14,6 +14,10 @@
 #include <iostream>
 #include <vector>
 
+#ifdef WITH_MCRL2
+#include <mcrl2/pbes/pbes.h>
+#endif
+
 #if __GNUC__ >= 3
 #   define ATTR_PACKED  __attribute__((__packed__))
 #else
@@ -181,7 +185,7 @@ public:
     /*! Generate a parity game from an mCRL2 PBES. */
     template <typename Container>
     void assign_pbes(
-        pbes_system::pbes<Container> &pbes, verti *goal_vertex = 0,
+        mcrl2::pbes_system::pbes<Container> &pbes, verti *goal_vertex = 0,
         StaticGraph::EdgeDirection edge_dir = StaticGraph::EDGE_BIDIRECTIONAL );
 #endif
 
