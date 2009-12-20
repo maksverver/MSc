@@ -12,13 +12,17 @@
 #include <stdio.h>
 
 Logger::Severity Logger::severity_ = FATAL;
+#ifdef USE_TIMER
 Timer Logger::timer_;
+#endif
 
 /*! Prints an error message followed by a newline character, prefixed by the
     time in seconds spend by the program and displaying the type of error. */
 void Logger::print_message(Severity severity, const char *fmt, va_list ap)
 {
+#ifdef USE_TIMER
     fprintf(stderr, "[%7.3f] ", timer_.elapsed());
+#endif
     switch (severity)
     {
     case WARN:  fprintf(stderr, "WARNING: "); break;

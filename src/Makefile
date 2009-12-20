@@ -25,6 +25,8 @@ OBJS= \
 CFLAGS=-Wall -Wextra -O2
 LDLIBS=-lrt
 
+CFLAGS:=$(CFLAGS) -DUSE_TIMER=1
+
 ifdef WITH_MCRL2
 CFLAGS:=$(CFLAGS) -DWITH_MCRL2=$(WITH_MCRL2) \
 	-I../../mcrl2/include \

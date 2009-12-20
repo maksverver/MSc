@@ -10,7 +10,9 @@
 #ifndef LOGGER_H_INCLUDED
 #define LOGGER_H_INCLUDED
 
+#ifdef USE_TIMER
 #include "Timer.h"
+#endif
 #include <stdarg.h>
 #include <stdlib.h>
 
@@ -46,7 +48,9 @@ private:
     static void print_message(Severity severity, const char *fmt, va_list ap);
 
 private:
+#ifdef USE_TIMER
     static Timer timer_;        //! global timer shown in messages
+#endif
     static Severity severity_;  //! minimum severity for displayed messages
 };
 
