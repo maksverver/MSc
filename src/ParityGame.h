@@ -177,6 +177,14 @@ public:
         both players. */
     bool verify(const Strategy &s) const;
 
+#ifdef WITH_MCRL2
+    /*! Generate a parity game from an mCRL2 PBES. */
+    template <typename Container>
+    void assign_pbes(
+        pbes_system::pbes<Container> &pbes, verti *goal_vertex = 0,
+        StaticGraph::EdgeDirection edge_dir = StaticGraph::EDGE_BIDIRECTIONAL );
+#endif
+
 protected:
     /*! Re-allocate memory to store information on V vertices with priorities
         between 0 and `d` (exclusive). */
@@ -201,5 +209,9 @@ private:
         cardinality_[p] is equal to the number of vertices with priority p. */
     verti *cardinality_;
 };
+
+#ifdef WITH_MCRL2
+#include "ParityGame_pbes.h"
+#endif
 
 #endif /* ndef PARITY_GAME_H_INCLUDED */
