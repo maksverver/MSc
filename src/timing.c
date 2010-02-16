@@ -24,8 +24,8 @@ double time_now()
 #else  /* Windows */
 
     FILETIME filetime;
-    GetSystemTimeAsFileTime(&filetime);
     ULARGE_INTEGER largeint;
+    GetSystemTimeAsFileTime(&filetime);
     largeint.LowPart  = filetime.dwLowDateTime;
     largeint.HighPart = filetime.dwHighDateTime;
     return largeint.QuadPart/1e-7;
