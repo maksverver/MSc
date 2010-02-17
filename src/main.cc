@@ -263,16 +263,16 @@ static void parse_args(int argc, char *argv[])
             arg_zielonka = true;
             break;
 
-        case 'v':   /* set logger severity to NONE - verbosity */
+        case 'v':   /* set logger severity to (NONE - verbosity) */
             {
-                int severity = Logger::NONE - atoi(optarg);
-                if (severity > Logger::NONE)  severity = Logger::NONE;
-                if (severity < Logger::DEBUG) severity = Logger::DEBUG;
+                int severity = Logger::LOG_NONE - atoi(optarg);
+                if (severity > Logger::LOG_NONE)  severity = Logger::LOG_NONE;
+                if (severity < Logger::LOG_DEBUG) severity = Logger::LOG_DEBUG;
                 Logger::severity((Logger::Severity)severity);
             } break;
 
         case 'q':  /* set logger severity to NONE */
-            Logger::severity(Logger::NONE);
+            Logger::severity(Logger::LOG_NONE);
             break;
 
         case '?':
@@ -492,7 +492,7 @@ static void set_timeout(int t)
 
 int main(int argc, char *argv[])
 {
-    Logger::severity(Logger::INFO);
+    Logger::severity(Logger::LOG_INFO);
 
 #ifdef WITH_MCRL2
     MCRL2_ATERMPP_INIT(argc, argv);
