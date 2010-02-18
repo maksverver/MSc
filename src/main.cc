@@ -71,7 +71,7 @@ static const double MB = 1048576.0;  // one megabyte
 
 static volatile bool g_timed_out = false;
 
-
+#ifdef POSIX
 struct MStat {
     int size, resident, share, text, lib, data, dt;
 };
@@ -89,6 +89,12 @@ static double get_vmsize()
     if (!read_mstat(mstat)) return -1;
     return mstat.size*(getpagesize()/MB);
 }
+#else
+static double get_vmsize()
+{
+    return 0;
+}
+#endif
 
 static void print_usage()
 {
@@ -486,7 +492,7 @@ static void set_timeout(int t)
 static void set_timeout(int t)
 {
     (void)t;  // unused
-    warn("Time-out not available.");
+    Logger::warn("Time-out not available.");
 }
 #endif
 

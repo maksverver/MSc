@@ -26,7 +26,7 @@ CFLAGS=-Wall -O2
 LDLIBS=-lrt
 
 ifndef WITH_MCRL2
-CFLAGS:=$(CFLAGS) -Wextra -DUSE_TIMER=1
+CFLAGS:=$(CFLAGS) -Wextra -DUSE_TIMER
 endif
 
 ifdef WITH_MCRL2
