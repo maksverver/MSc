@@ -55,13 +55,14 @@ static std::string  arg_pgsolver_file         = "";
 static std::string  arg_raw_file              = "";
 static std::string  arg_winners_file          = "";
 static std::string  arg_strategy_file         = "";
+static std::string  arg_debug_file            = "";
 static std::string  arg_spm_lifting_strategy  = "";
 static bool         arg_scc_decomposition     = false;
 static bool         arg_solve_dual            = false;
 static Reordering   arg_reordering            = REORDER_NONE;
 static int          arg_random_size           = 1000000;
 static int          arg_random_seed           =       1;
-static int          arg_random_out_degree     =      10;
+static int          arg_random_out_degree     =       3;
 static int          arg_random_priorities     =      20;
 static int          arg_timeout               =       0;
 static bool         arg_verify                = false;
@@ -118,7 +119,8 @@ static void print_usage()
 "  --verify/-V            verify solution after solving\n"
 "  --zielonka/-z          use Zielonka's recursive algorithm\n"
 "  --verbosity/-v         message verbosity (0-5; default: 4)\n"
-"  --quiet/-q             no messages (equivalent to -v0)\n" );
+"  --quiet/-q             no messages (equivalent to -v0)\n"
+"  --debug/-D             write solution in debug format to <file>\n");
 }
 
 static void parse_args(int argc, char *argv[])
@@ -144,9 +146,10 @@ static void parse_args(int argc, char *argv[])
         { "zielonka",   0, NULL, 'z' },
         { "verbosity",  1, NULL, 'v' },
         { "quiet",      0, NULL, 'q' },
+        { "debug",      1, NULL, 'D' },
         { NULL,         0, NULL,  0  } };
 
-    static const char *short_options = "hi:l:d:p:r:w:s:e:t:Vzv:q";
+    static const char *short_options = "hi:l:d:p:r:w:s:e:t:Vzv:qD:";
 
     for (;;)
     {
@@ -279,6 +282,10 @@ static void parse_args(int argc, char *argv[])
 
         case 'q':  /* set logger severity to NONE */
             Logger::severity(Logger::LOG_NONE);
+            break;
+
+        case 'D':   /* debug output file */
+            arg_debug_file = optarg;
             break;
 
         case '?':
@@ -434,7 +441,8 @@ void write_output( const ParityGame &game,
         }
         else
         {
-            Logger::info("Writing winners to file %s...", arg_winners_file.c_str());
+            Logger::info( "Writing winners to file %s...",
+                          arg_winners_file.c_str() );
             std::ofstream ofs(arg_winners_file.c_str());
             write_winners(ofs, game, strategy);
             if (!ofs) Logger::error("Writing failed!");
@@ -451,9 +459,27 @@ void write_output( const ParityGame &game,
         }
         else
         {
-            Logger::info("Writing strategy to file %s...", arg_strategy_file.c_str());
+            Logger::info( "Writing strategy to file %s...",
+                          arg_strategy_file.c_str() );
             std::ofstream ofs(arg_strategy_file.c_str());
             write_strategy(ofs, strategy);
+            if (!ofs) Logger::error("Writing failed!");
+        }
+    }
+
+    /* Write debug file */
+    if (!arg_debug_file.empty())
+    {
+        if (arg_debug_file == "-")
+        {
+            game.write_debug(strategy, std::cout);
+        }
+        else
+        {
+            Logger::info( "Writing debug info to file %s...",
+                          arg_debug_file.c_str() );
+            std::ofstream ofs(arg_debug_file.c_str());
+            game.write_debug(strategy, ofs);
             if (!ofs) Logger::error("Writing failed!");
         }
     }

@@ -180,7 +180,7 @@ void ParityGame::write_dot(std::ostream &os) const
     os << "}\n";
 }
 
-void ParityGame::write_debug(std::ostream &os) const
+void ParityGame::write_debug(const Strategy &s, std::ostream &os) const
 {
     for (verti v = 0; v < graph_.V(); ++v)
     {
@@ -200,6 +200,10 @@ void ParityGame::write_debug(std::ostream &os) const
             os << sep << *it;
             sep = ',';
         }
+
+        // Print strategy (if applicable)
+        if (!s.empty() && s.at(v) != NO_VERTEX) os << " -> " << s.at(v);
+
         os << '\n';
     }
     os << std::flush;

@@ -151,8 +151,9 @@ public:
     void write_dot(std::ostream &os) const;
 
     /*! Write human-readable description of game to error stream (intended to
-        be used while debugging only) */
-    void write_debug(std::ostream &os = std::cerr) const;
+        be used while debugging only) with optional strategy. */
+    void write_debug( const Strategy &s = Strategy(),
+        std::ostream &os = std::cerr) const;
 
     /*! Returns the memory used to store the parity game.
         This includes memory used by the graph! */
