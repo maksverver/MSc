@@ -70,10 +70,16 @@ void ParityGame::read_pgsolver( std::istream &is,
 
             edges.push_back(std::make_pair(id, succ));
 
-            // Skip to separator (comma) or end-of-list (semicolon)
-            while (is.get(ch) && ch != ',' && ch != ';') ch = 0;
+            // Skip to separator (comma) or end-of-list (semicolon), while
+            // ignoring the contents of quoted strings.
+            bool quoted = false, escaped = false;
+            while (is.get(ch)) {
+                if (ch == '"' && !escaped) quoted = !quoted;
+                escaped = ch == '\\' && !escaped;
+                if ((ch == ',' || ch == ';') && !quoted) break;
+            }
 
-        } while (ch == ',');
+        } while (is && ch == ',');
     }
 
     // Ensure max_prio is even, so max_prio - p preserves parity:
