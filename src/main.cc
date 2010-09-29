@@ -118,7 +118,7 @@ static void print_usage()
 "  --timeout/-t <t>       abort solving after <t> seconds\n"
 "  --verify/-V            verify solution after solving\n"
 "  --zielonka/-z          use Zielonka's recursive algorithm\n"
-"  --verbosity/-v         message verbosity (0-5; default: 4)\n"
+"  --verbosity/-v         message verbosity (0-6; default: 4)\n"
 "  --quiet/-q             no messages (equivalent to -v0)\n"
 "  --debug/-D             write solution in debug format to <file>\n");
 }
@@ -524,7 +524,7 @@ static void set_timeout(int t)
 
 int main(int argc, char *argv[])
 {
-    Logger::severity(Logger::LOG_INFO);
+    Logger::severity(Logger::LOG_WARN);
 
 #ifdef WITH_MCRL2
     MCRL2_ATERMPP_INIT(argc, argv);
@@ -656,16 +656,16 @@ int main(int argc, char *argv[])
         }
 
         // Print some statistics
-        Logger::info("Time used to solve:          %10.3f s", timer.elapsed());
-        Logger::info("Current memory use:          %10.3f MB", get_vmsize());
+        Logger::message("Time used to solve:          %10.3f s", timer.elapsed());
+        Logger::message("Current memory use:          %10.3f MB", get_vmsize());
         size_t total_memory_use = game.memory_use() + solver->memory_use();
-        Logger::info( "Memory required to solve:    %10.3f MB",
+        Logger::message( "Memory required to solve:    %10.3f MB",
                       total_memory_use /MB );
-        Logger::info( " .. used by parity game:     %10.3f MB",
+        Logger::message( " .. used by parity game:     %10.3f MB",
                       game.memory_use()/MB );
-        Logger::info( "     .. used by graph:       %10.3f MB",
+        Logger::message( "     .. used by graph:       %10.3f MB",
                       game.graph().memory_use()/MB );
-        Logger::info( " .. used by solver:          %10.3f MB",
+        Logger::message( " .. used by solver:          %10.3f MB",
                       solver->memory_use()/MB );
 
         if (stats.get() != NULL)
@@ -674,13 +674,13 @@ int main(int argc, char *argv[])
             long long lifts_successful  = stats->lifts_succeeded();
             long long lifts_failed      = lifts_total - lifts_successful;
 
-            Logger::info( "Lifting attempts failed:      %12lld",
+            Logger::message( "Lifting attempts failed:      %12lld",
                            lifts_failed );
-            Logger::info( "Lifting attempts succeeded:   %12lld",
+            Logger::message( "Lifting attempts succeeded:   %12lld",
                            lifts_successful );
-            Logger::info( "Total lifting attempts:       %12lld",
+            Logger::message( "Total lifting attempts:       %12lld",
                            lifts_total );
-            Logger::info( "Minimum lifts required:    %12lld",
+            Logger::message( "Minimum lifts required:    %12lld",
                            0LL);  // TODO
         }
 
@@ -698,8 +698,8 @@ int main(int argc, char *argv[])
                 failed = true;
                 Logger::info("Verification failed!");
             }
-            Logger::info( "Time used to verify:         %10.3f s",
-                           timer.elapsed() );
+            Logger::message( "Time used to verify:         %10.3f s",
+                             timer.elapsed() );
         }
 
         write_output(game, strategy);

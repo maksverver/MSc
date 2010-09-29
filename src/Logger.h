@@ -21,8 +21,8 @@ class Logger
 public:
     //! Severity of reported messages.
     enum Severity {
-        LOG_DEBUG = 0, LOG_INFO = 1, LOG_WARN = 2,
-        LOG_ERROR = 3, LOG_FATAL = 4, LOG_NONE = 5
+        LOG_DEBUG = 0, LOG_INFO = 1, LOG_WARN = 2, LOG_MESSAGE = 3,
+        LOG_ERROR = 4, LOG_FATAL = 5, LOG_NONE = 6
     };
 
     //! Return the minimum severity of displayed messages
@@ -37,6 +37,7 @@ public:
     inline static void debug(const char *fmt, ...);
     inline static void info(const char *fmt, ...);
     inline static void warn(const char *fmt, ...);
+    inline static void message(const char *fmt, ...);
     inline static void error(const char *fmt, ...);
 #if __GNUC__ >= 3
     __attribute__((noreturn))
@@ -85,6 +86,17 @@ void Logger::warn(const char *fmt, ...)
         va_list ap;
         va_start(ap, fmt);
         print_message(LOG_WARN, fmt, ap);
+        va_end(ap);
+    }
+}
+
+void Logger::message(const char *fmt, ...)
+{
+    if (enabled(LOG_MESSAGE))
+    {
+        va_list ap;
+        va_start(ap, fmt);
+        print_message(LOG_MESSAGE, fmt, ap);
         va_end(ap);
     }
 }
