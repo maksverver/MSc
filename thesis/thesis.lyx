@@ -1,4 +1,4 @@
-#LyX 1.6.4 created this file. For more info see http://www.lyx.org/
+#LyX 1.6.7 created this file. For more info see http://www.lyx.org/
 \lyxformat 345
 \begin_document
 \begin_header
@@ -46,6 +46,10 @@
 Title goes here
 \end_layout
 
+\begin_layout Chapter
+Introduction
+\end_layout
+
 \begin_layout Section
 Parity Games
 \end_layout
@@ -55,7 +59,7 @@ A
 \emph on
 parity game
 \emph default
- is a game played by two players, called Even and Odd on a directed graph.
+ is a game played by two players, called Even and Odd, on a directed graph.
  Each vertex in the graph is associated with (
 \emph on
 owned
@@ -69,20 +73,47 @@ controlled
 \emph on
 priority
 \emph default
- is assigned, which is an integer between 0 and 
-\emph on
-d
-\emph default
-, where 
-\emph on
-d
-\emph default
- is the maximum priority occuring in the graph.
+ is assigned, which is a non-negative integer.
+ The picture below visualizes one possible parity game:
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+[picture goes here]
+\end_layout
+
+\begin_layout Standard
+There are different conventions for the names of players.
+ They can be called Even and Odd, or denoted by symbols ◇ and ◻, which is
+ particularly useful when visualizing games, as can be seen in the picture
+ above: the shape of the vertices corresponds with the players that control
+ them.
+ For the description of algorithms and data structures, especially when
+ computations are involved, it is more convenient to use integers 
+\begin_inset Formula $0$
+\end_inset
+
+ and 
+\begin_inset Formula $1$
+\end_inset
+
+.
+ For example, if we consider a player 
+\begin_inset Formula $x$
+\end_inset
+
+, his opponent can be described as 
+\begin_inset Formula $1-x$
+\end_inset
+
+.
+ For consistency, I will only use 0 and 1 here.
 \end_layout
 
 \begin_layout Standard
 A parity game can therefore be described by a four-tuple 
-\begin_inset Formula $\Gamma=(V_{\text{◇}},V_{\text{◻}},E,\phi)$
+\begin_inset Formula $\Gamma=(V_{\text{0}},V_{\text{1}},E,\phi)$
 \end_inset
 
 , where 
@@ -95,15 +126,15 @@ A parity game can therefore be described by a four-tuple
 \noun off
 \color none
 
-\begin_inset Formula $V_{\text{◇}}$
+\begin_inset Formula $V_{\text{0}}$
 \end_inset
 
  and 
-\begin_inset Formula $V_{\text{◻}}$
+\begin_inset Formula $V_{\text{1}}$
 \end_inset
 
- partition the set of graph vertices 
-\begin_inset Formula $V=V_{\text{◇}}\cup V_{◻}$
+ partition the set of vertices 
+\begin_inset Formula $V=V_{0}\cup V_{1}$
 \end_inset
 
  in the graph into vertices belonging to 
@@ -121,34 +152,101 @@ Even and Odd respectively.
 \end_inset
 
  is the set of edges in the game graph.
+ Note that 
+\begin_inset Formula $E$
+\end_inset
+
+ is a true set: every ordered pair of vertices has at most one edge between
+ them.
+ Duplicate edges are not allowed, but loops (edges which lead from a vertex
+ back to itself) may occur.
  
 \begin_inset Formula $\phi:V\rightarrow\mathbb{N}_{0}$
 \end_inset
 
- is the vertex priority function and consequently 
-\begin_inset Formula $d=\max\left\{ \phi(v):v\in V\right\} $
+ is the priority function that assigns a priority to every vertex in the
+ graph.
+ The number of distinct priority values assigned to vertices in the game,
+ is called the 
+\emph on
+order of the game
+\emph default
+, wich is equal to the cardinality of the range of 
+\begin_inset Formula $\phi$
 \end_inset
 
 .
 \end_layout
 
 \begin_layout Standard
-The edge set is such that each vertex has at least one outgoing edge; i.e.
+Parity games can be played on finite as well as infinite graphs.
+ A parity game is called finite if it is played on a graph with a finite
+ number of vertices.
+ Consequently, the number of edges will be finite too (since the edge set
+ is 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+a subset of
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
  
-\begin_inset Formula $\forall v\in V\;\exists w\in V\; vw\in E$
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+
+\begin_inset Formula $V\times V$
 \end_inset
 
-; note that the edge set may include loops but no duplicates (it is not
- a multiset).
- The vertex and edge sets can be either finite or infinite; we wil assume
- they are finite unless noted otherwise.
- The maximum priority is always finite.
-\end_layout
+)
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
+.
+ Finally, because the number of distinct priorities is bounded by 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
 
-\begin_layout Standard
-We will abbreviate players Even and Odd as ◇ and ◻ respectively.
- In some cases, we will use ▽ to refer to either one of the players and
- △ to refer to his opponent.
+\begin_inset Formula $\left|V\right|$
+\end_inset
+
+
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
+, the order of a finite game is finite as well.
 \end_layout
 
 \begin_layout Subsection
@@ -160,15 +258,15 @@ A parity game is played by placing a token on some initial vertex.
  The player to whom the vertex belongs makes a move by moving the token
  to an adjacent vertex, which may belong to either player, who then makes
  the next move.
- Since every vertex has at least one outgoing edge, the game continues indefinit
-ely.
- The moves may be described by the vertices that the token visits; such
- a sequence is called a 
+ When the token lands on a vertex without any outgoing edges, the game ends.
+ However, it is more common for a game to continue indefinitely, causing
+ an infinite sequence of moves.
+ This sequence of moves on the graph is called a 
 \emph on
 play
 \emph default
-.
- Formally,
+ and it can be described as the sequence of vertices visited by the token.
+ Formally, 
 \begin_inset Formula $\pi=v_{1}v_{2}\ldots$
 \end_inset
 
@@ -177,7 +275,8 @@ play
 \end_inset
 
 .
- A subsequence of a play is called a 
+ A finite subsequence of a play that ends on a vertex with outgoing edges
+ is called a 
 \emph on
 partial play
 \emph default
@@ -185,20 +284,28 @@ partial play
 \end_layout
 
 \begin_layout Standard
-The 
+For finite plays, the loser of the game is the player who is first unable
+ to move.
+ His opponent is the winner.
+ In a finite play, the loser is therefore simply the controller of the final
+ vertex in the play.
+\end_layout
+
+\begin_layout Standard
+For infinite plays, we first define the 
 \emph on
 dominant priority
 \emph default
+ 
+\begin_inset Formula $P(\pi)$
+\end_inset
+
  for a play 
 \begin_inset Formula $\pi=v_{1}v_{2}\ldots$
 \end_inset
 
- denoted 
-\begin_inset Formula $P(\pi)$
-\end_inset
-
- is the smallest value that occurs infinitely often in the sequence 
-\begin_inset Formula $\phi(v)_{1}\phi(v_{2})\ldots$
+ as the smallest value that occurs infinitely often in the sequence 
+\begin_inset Formula $\phi(v_{1})\phi(v_{2})\ldots$
 \end_inset
 
  or formally: 
@@ -206,16 +313,10 @@ dominant priority
 \end_inset
 
 .
- Since the set of priorities is bounded by 
-\begin_inset Formula $d$
-\end_inset
-
-, the dominant priority is always defined.
-\end_layout
-
-\begin_layout Standard
-A play is won by player Even if the dominant priority for the play even,
+ A play is won by player Even if the dominant priority for the play is even,
  and won by Odd otherwise (hence their names).
+ When the set of priorities is finite, the dominant priority is well-defined,
+ assigning a winner to every infinite play.
 \end_layout
 
 \begin_layout Subsection
@@ -223,10 +324,17 @@ Strategies and Solutions
 \end_layout
 
 \begin_layout Standard
-Let's take ▽ to be either player Even or player Odd.
- A strategy for ▽ assigns a move to each position in which ▽ is to move.
- Formally, this strategy is a function 
-\begin_inset Formula $\dot{\sigma}_{▽}:V^{*}\times V_{▽}\rightarrow V$
+A strategy for player 
+\begin_inset Formula $x$
+\end_inset
+
+ assigns a move to each position in which 
+\begin_inset Formula $x$
+\end_inset
+
+ is to move.
+ Formally, the strategy is a function 
+\begin_inset Formula $\dot{\sigma}_{x}:V^{*}\times V_{x}\rightarrow V$
 \end_inset
 
 
@@ -239,7 +347,7 @@ Let's take ▽ to be either player Even or player Odd.
 \noun off
 \color none
  such that if 
-\begin_inset Formula $\dot{\sigma}_{▽}(v_{1}\ldots v_{n})=v_{n+1}$
+\begin_inset Formula $\dot{\sigma}_{x}(v_{1}\ldots v_{n})=v_{n+1}$
 \end_inset
 
  then 
@@ -261,7 +369,7 @@ Let's take ▽ to be either player Even or player Odd.
 \noun default
 \color inherit
 
-\begin_inset Formula $\dot{\sigma}_{▽}$
+\begin_inset Formula $\dot{\sigma}_{x}$
 \end_inset
 
  
@@ -273,26 +381,12 @@ Let's take ▽ to be either player Even or player Odd.
 \bar no
 \noun off
 \color none
-for 
-\family default
-\series default
-\shape default
-\size default
-\emph default
-\bar default
-\noun default
-\color inherit
-▽
-\family roman
-\series medium
-\shape up
-\size normal
-\emph off
-\bar no
-\noun off
-\color none
+for player 
+\begin_inset Formula $x$
+\end_inset
+
  if 
-\begin_inset Formula $\dot{\sigma}_{\text{▽}}(v_{1}\ldots v_{i})=v_{i+1}$
+\begin_inset Formula $\dot{\sigma}_{x}(v_{1}\ldots v_{i})=v_{i+1}$
 \end_inset
 
  for all 
@@ -305,7 +399,7 @@ for
 \noun default
 \color inherit
 
-\begin_inset Formula $v_{i}\in V_{▽}$
+\begin_inset Formula $v_{i}\in V_{x}$
 \end_inset
 
 
@@ -322,10 +416,18 @@ for
 
 \begin_layout Standard
 A strategy 
-\begin_inset Formula $\dot{\sigma}_{▽}$
+\begin_inset Formula $\dot{\sigma}_{x}$
 \end_inset
 
- is called winning for ▽ at starting vertex 
+ is called 
+\emph on
+winning
+\emph default
+ for player 
+\begin_inset Formula $x$
+\end_inset
+
+ at starting vertex 
 \begin_inset Formula $v_{1}$
 \end_inset
 
@@ -352,19 +454,28 @@ A strategy
 \noun default
 \color inherit
  consistent with 
-\begin_inset Formula $\dot{\sigma}_{▽}$
+\begin_inset Formula $\dot{\sigma}_{x}$
 \end_inset
 
- are won by ▽.
- An important property of parity games is that for every starting vertex,
- either player Even or player Odd has a winning strategy [TODO: reference
- proof; Borel determinancy].
- This allows us to partition the vertex set 
+ are won by player 
+\begin_inset Formula $x$
+\end_inset
+
+.
+ Parity games of a finite order have the important property that they are
+ fully 
+\emph on
+determined
+\emph default
+, i.e.
+ for every starting vertex either player Even or player Odd has a winning
+ strategy [TODO: reference proof; Borel determinancy].
+ Thus, for these games, we can partition the vertex set 
 \begin_inset Formula $V$
 \end_inset
 
  of the game graph into two sets of vertices 
-\begin_inset Formula $W_{\text{◇}}$
+\begin_inset Formula $W_{\text{0}}$
 \end_inset
 
 
@@ -386,14 +497,96 @@ A strategy
 \noun default
 \color inherit
 
-\begin_inset Formula $W_{◻}$
+\begin_inset Formula $W_{1}$
 \end_inset
 
  which can be won by player Even and Odd respectively.
+ When the order is infinite, we can still identify disjoint sets 
+\begin_inset Formula $W_{\text{0}}$
+\end_inset
+
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+ and 
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
+
+\begin_inset Formula $W_{1}$
+\end_inset
+
+, but they may not be a true partition.
+\end_layout
+
+\begin_layout Standard
+In many practical applications, determination of winning sets is enough
+ to constitute a solution.
+ For example, when using parity games as a vehicle for model checking, the
+ question whether a formal property holds corresponds with the question
+ wether a particular vertex in a game graph is won by player Even or Odd.
+ In this case, partitioning the vertices into winning sets is sufficient
+ to determine whether the property holds.
+ In fact, in this case it would suffice to determine which player wins from
+ this particular vertex (without fully determining winning sets).
+\end_layout
+
+\begin_layout Standard
+A possible objection against determining winning sets without associated
+ strategies is that even if we assume the output to be correct, the winning
+ sets alone do not provide any insight in 
+\emph on
+why
+\emph default
+ a particular vertex is won by a particular player.
+ Strategies can be useful to understand the outcome of the games.
+ In the application of model checking, strategies can be used to generate
+ counter-examples to a desired property when it turns out it doesn't hold.
+ Moreover, if we have not just a winning set, but also associated strategies,
+ we can readily verify their correctness (as will be described in detail
+ later).
+\end_layout
+
+\begin_layout Standard
+Therefore, 
+\emph on
+solving a game
+\emph default
+ in the most general sense means to identify optimal strategies for both
+ players in addition to winning sets for both players.
+ A solution therefore is a triple 
+\begin_inset Formula $W_{0},W_{1},\sigma$
+\end_inset
+
+.
+ We require that 
+\begin_inset Formula $\sigma$
+\end_inset
+
+ is defined at least for all vertices 
+\begin_inset Formula $(V_{0}\cap W_{0})\cup(V_{\text{1}}\cap W_{1})$
+\end_inset
+
+.
+ Note that even in finite games, strategies (unlike winning sets) do not
+ complement each other, so given an optimal strategy for one player, we
+ cannot (easily) deduce the strategy for his opponent.
+ 
 \end_layout
 
 \begin_layout Subsection
-Optimal Strategies and Memory
+Optimal Strategies and Finite Memory
 \end_layout
 
 \begin_layout Standard
@@ -407,7 +600,7 @@ A strategy
 \noun off
 \color none
 
-\begin_inset Formula $\dot{\sigma}_{▽}$
+\begin_inset Formula $\dot{\sigma}_{x}$
 \end_inset
 
  is called an 
@@ -421,16 +614,24 @@ A strategy
 \color inherit
 optimal strategy
 \emph default
- when it is winning for ▽ starting from any vertex 
-\begin_inset Formula $v\in W_{▽}$
+ when it is winning for player 
+\begin_inset Formula $x$
+\end_inset
+
+ starting from any vertex 
+\begin_inset Formula $v\in W_{x}$
 \end_inset
 
 .
- Functions as described above are called 
+\end_layout
+
+\begin_layout Standard
+A strategy, as described above, is called an
 \emph on
-infinite-memory strategies
+ infinite-memory strategies
 \emph default
-, because they use the entire move history to determine the next move.
+, because they can take the entire move history into account to determine
+ the next move.
  In contrast, 
 \emph on
 memoryless strategies
@@ -447,7 +648,7 @@ memoryless strategies
 \noun off
 \color none
 
-\begin_inset Formula $\dot{\sigma}_{▽}(v_{1}\ldots v_{n})=\dot{\sigma}_{\text{▽}}(w_{1}\ldots w_{n})$
+\begin_inset Formula $\dot{\sigma}_{x}(v_{1}\ldots v_{n})=\dot{\sigma}_{x}(w_{1}\ldots w_{n})$
 \end_inset
 
  whenever 
@@ -459,7 +660,7 @@ memoryless strategies
 
 \begin_layout Standard
 We will define memoryless strategies as functions 
-\begin_inset Formula $\sigma_{▽}:V_{▽}\rightarrow V$
+\begin_inset Formula $\sigma_{x}:V_{x}\rightarrow V$
 \end_inset
 
  such that if
@@ -472,7 +673,7 @@ We will define memoryless strategies as functions
 \noun off
 \color none
  
-\begin_inset Formula $\sigma_{▽}(v)=w$
+\begin_inset Formula $\sigma_{x}(v)=w$
 \end_inset
 
  then 
@@ -481,7 +682,7 @@ We will define memoryless strategies as functions
 
 .
  A memoryless strategy 
-\begin_inset Formula $\sigma_{▽}$
+\begin_inset Formula $\sigma_{x}$
 \end_inset
 
 is then consistent with a play 
@@ -489,32 +690,32 @@ is then consistent with a play
 \end_inset
 
  if 
-\begin_inset Formula $\sigma_{\text{▽}}(v_{i})=v_{i+1}$
+\begin_inset Formula $\sigma_{x}(v_{i})=v_{i+1}$
 \end_inset
 
  for all 
-\begin_inset Formula $v_{i}\in V_{▽}$
+\begin_inset Formula $v_{i}\in V_{x}$
 \end_inset
 
 .
  Without loss of generality, we can restrict the domain of 
-\begin_inset Formula $\sigma_{\text{▽}}$
+\begin_inset Formula $\sigma_{\text{x}}$
 \end_inset
 
  to 
-\begin_inset Formula $V_{\text{▽}}\cap W_{\text{▽}}$
+\begin_inset Formula $V_{\text{x}}\cap W_{x}$
 \end_inset
 
  since for vertices in 
-\begin_inset Formula $V_{\text{▽}}$
+\begin_inset Formula $V_{x}$
 \end_inset
 
 but not in 
-\begin_inset Formula $W_{\text{▽}}$
+\begin_inset Formula $W_{\text{x}}$
 \end_inset
 
 , player 
-\begin_inset Formula $\text{▽}$
+\begin_inset Formula $x$
 \end_inset
 
  has no winning move, and therefore any adjacent vertex can be selected
@@ -532,8 +733,8 @@ Sometimes we want to refer to the combined strategies of both players,
 , defined as:
 \begin_inset Formula \[
 \sigma(v)=\begin{cases}
-\sigma_{\text{◇}}(v) & \mbox{if }v\in W_{\text{◻}}\\
-\sigma_{\text{◻}}(v) & \mbox{if }v\in W_{\text{◇}}\end{cases}\]
+\sigma_{0}(v) & \mbox{if }v\in V_{0}\\
+\sigma_{1}(v) & \mbox{if }v\in V_{1}\end{cases}\]
 
 \end_inset
 
@@ -541,7 +742,8 @@ Sometimes we want to refer to the combined strategies of both players,
 \end_layout
 
 \begin_layout Standard
-It turns out that for all games optimal memoryless strategies exist.
+It turns out that for all games of a finite order optimal, memoryless strategies
+ exist.
  Zielonka
 \begin_inset CommandInset citation
 LatexCommand cite
@@ -549,20 +751,22 @@ key "zielonka1998igf"
 
 \end_inset
 
- gives two proofs of this property that apply to infinite graphs as well
- as finite graphs.
+ gives two proofs of this property.
+ Research on finite-order games typically focuses on finding memoryless
+ strategies for both players, since these have the desirable property that
+ they can be enumerated by simply listing the optimal move for every vertex.
 \end_layout
 
 \begin_layout Standard
-(Jurdziński 
+[A consequence of both players following memoryless strategies on a finite
+ graph (as pointed out by Jurdziński 
 \begin_inset CommandInset citation
 LatexCommand cite
 key "jurdzinski2000spm"
 
 \end_inset
 
- notes that if the vertex set is finite and both players follow a memoryless
- strategy, then any play must be eventually periodic.
+) is that play will eventually become periodic.
  In other words, for every play 
 \begin_inset Formula $v_{1}v_{2}\ldots$
 \end_inset
@@ -583,11 +787,12 @@ key "jurdzinski2000spm"
 \begin_inset Formula $i\geq k$
 \end_inset
 
-.)
+.)]
 \end_layout
 
 \begin_layout Standard
-From here on, we will use the term 
+For brevity, since this report is about finding optimal strategies to finite
+ parity games, we will use the term 
 \emph on
 strategy
 \emph default
@@ -599,72 +804,562 @@ optimal memoryless strategy
 \end_layout
 
 \begin_layout Subsection
-Solutions
+Restrictions on the graph
 \end_layout
 
 \begin_layout Standard
-Now we have defined winning sets and strategies, we should discuss the purpose
- of parity game algoritms, which aim to solve parity games.
- At the very least, solving a game should yield a partition of the vertex
- sets into winning sets for both players.
- Since the two winning sets complement each other, it suffices to compute
- just one and the vertices outside the one winning set must be part of the
- other.
+For convenience, I will assume some restrictions on the structure of the
+ graph, which simplify the design and analysis of the data structures and
+ algorithms involved considerably, but which do not diminish the practical
+ utility of parity games algorithms.
+ Of these, the first two properties are simplifications that do not limit
+ the classes of games that can be analyzed in general.
+ Only the third restriction is a true restriction in a theoretical sense.
+\end_layout
+
+\begin_layout Enumerate
+Every vertex has at least one outgoing edge.
+\end_layout
+
+\begin_layout Enumerate
+The graph is connected.
+\end_layout
+
+\begin_layout Enumerate
+The graph is finite.
 \end_layout
 
 \begin_layout Standard
-In many practical applications, determination of winning sets is enough
- to constitute a solution.
- For example, when using parity games as a vehicle for model checking, the
- question whether a formal property holds corresponds with the question
- wether a particular vertex in the game graph is won by player Even or Odd.
- In this case, partitioning the vertices into winning sets is sufficient
- to determine whether the property holds.
- In fact, in this case it would suffice to determine which player wins from
- this particular vertex (without fully determining winning sets).
-\end_layout
-
-\begin_layout Standard
-The problem with determining winning sets without associated strategies
- is that even if we assume the output to be correct, it does not provide
- any insight in 
+The first property makes finite plays impossible, which simplifies the analysis
+ of many algorithms.
+ We will call a game a 
 \emph on
-why
+proper game
 \emph default
- a particular vertex is won by a player.
- Strategies can be useful to understand the outcome of the games.
- In the application of model checking, strategies may be used to generate
- counter-examples to a desired property when it turns out it doesn't hold.
- Moreover, if we have not just a winning set, but also associated strategies,
- we can readily verify their correctness (as will be described in detail
- below).
+ if its graph satisfies this property.
+ However, improper games (whose game graphs contain vertices with no outgoing
+ edges) can be turned into proper games by considering each vertex without
+ outgoing edges.
+ If it is controlled by player 
+\begin_inset Formula $x$
+\end_inset
+
+, we can change its priority to 
+\begin_inset Formula $1-x$
+\end_inset
+
+ and add an edge from the vertex back to itself.
+ In the modified graph every vertex has an outgoing edge, yet it has the
+ same solution and winning strategies as the original graph.
+ [Does this need proof?]
 \end_layout
 
 \begin_layout Standard
-Therefore, 
+The second property does not restrict the classes of games that can be solved
+ either.
+ During a play, the token never leaves the (weakly) connected component
+ of the graph that it starts in, so for any unconnected graph, we can decompose
+ the graph into weakly connected components, analyze these components individual
+ly, and combine the results.
+\end_layout
+
+\begin_layout Standard
+The final property is a true restriction because it makes it impossible
+ to analyze infinite graphs.
+ This has practical as well as theoretical benefits.
+ From a practical point of view, since all of the game data is now finite,
+ it allows us to represent graphs explicitly using only finite memory (otherwise
+, we would need a symbolic representation).
+ From a theoretical point of view, a finite vertex set allows for algorithms
+ and proofs that do not generalize to infinite graphs.
+ In particular, the winner of any play can be decided, because the order
+ of the graph is finite.
+\end_layout
+
+\begin_layout Subsection
+Restrictions on the set of priorities
+\end_layout
+
+\begin_layout Standard
+When discussing actual implementations of data structures and algorithms,
+ it is convenient to assume that the priorities in the game are not just
+ integers, but bounded by a value that is as small as possible.
+ Fortunately, we can reduce the values of priorities used to a range between
+ 0 and 
+\begin_inset Formula $d$
+\end_inset
+
+ (exclusive), where 
+\begin_inset Formula $d$
+\end_inset
+
+ is the order of the game.
+ This is done by remapping priorities for vertices in a process called 
 \emph on
-solving a game
+priority compression.
+
 \emph default
- in the most general sense means to determine the partition of the game
- vertices into winning sets as well as optimal strategies for both players.
- A solution therefore is a triple 
-\begin_inset Formula $W,W,\sigma$
+ [cite: PGSolver manual? or an earlier paper?]
+\end_layout
+
+\begin_layout Standard
+Consider we have a game 
+\begin_inset Formula $\Gamma=(V_{\text{0}},V_{\text{1}},E,\phi)$
+\end_inset
+
+ and we wish to apply priority compression.
+ To do so, we find the first unused priority (say, 
+\begin_inset Formula $p$
+\end_inset
+
+) in the game.
+ If 
+\begin_inset Formula $p=d$
+\end_inset
+
+ then all priorities from 
+\begin_inset Formula $0$
+\end_inset
+
+ through 
+\begin_inset Formula $d-1$
+\end_inset
+
+ (inclusive) are used and since the order of the game is 
+\begin_inset Formula $d$
+\end_inset
+
+ this means we are done.
+ Otherwise, let 
+\series bold
+
+\begin_inset Formula $q$
+\end_inset
+
+
+\series default
+ be the least priority greater than 
+\begin_inset Formula $p$
+\end_inset
+
+ that is used.
+\end_layout
+
+\begin_layout Standard
+If 
+\begin_inset Formula $p=0$
+\end_inset
+
+ then we can decrement all priorities by 
+\begin_inset Formula $q$
+\end_inset
+
+ and, if 
+\begin_inset Formula $q$
+\end_inset
+
+ is odd, we additionally switch the roles of players Even and Odd.
+ Formally, we construct a game 
+\begin_inset Formula $\Gamma'=(V_{\text{0}}',V_{\text{1}}',E',\phi')$
+\end_inset
+
+ where 
+\begin_inset Formula $V_{x}'=V_{y}$
+\end_inset
+
+ and 
+\begin_inset Formula $x=y-p\mod{2}$
+\end_inset
+
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+, 
+\begin_inset Formula $\phi'(v)=\phi(v)-q$
+\end_inset
+
+ and 
+\begin_inset Formula $E'=E$
 \end_inset
 
 .
- We require that 
-\begin_inset Formula $\sigma$
+\end_layout
+
+\begin_layout Standard
+If, however, 
+\begin_inset Formula $p>0$
 \end_inset
 
- is defined at least for all vertices 
-\begin_inset Formula $(V_{\text{◇}}\cap W_{\text{◇}})\cup(V_{\text{◻}}\cap W_{\text{◻}})$
+ then we keep 
+\begin_inset Formula $V_{0}'=V_{0}$
+\end_inset
+
+ and 
+\begin_inset Formula $V_{1}'=V_{1}$
 \end_inset
 
 .
- Note that unlike winning sets, strategies do not complement each other,
- so given an optimal strategy for one player, we cannot (easily) deduce
- the strategy for his opponent.
+ However, if 
+\begin_inset Formula $p\equiv q\mod{2}$
+\end_inset
+
+then we get rid of the unused priorities and lump the vertices with priority
  
+\begin_inset Formula $q$
+\end_inset
+
+ in with those with priority 
+\begin_inset Formula $p$
+\end_inset
+
+.
+ After all, 
+\begin_inset Formula $p$
+\end_inset
+
+ and 
+\begin_inset Formula $q$
+\end_inset
+
+ have the same parity, and since none of the values in between are used,
+ they can be interchanged without affecting the outcome of the game.
+ [Does this need proof?] More formally, in this case we define 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+
+\begin_inset Formula $\phi'(v)$
+\end_inset
+
+ as:
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
+ 
+\begin_inset Formula \[
+\phi'(v)=\begin{cases}
+\phi(v) & \mbox{if }\phi(v)\leq p\\
+\phi(v)+p-q & \mbox{\mbox{if }\ensuremath{\phi(v)>p}}\end{cases}\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Since 
+\begin_inset Formula $p-q\equiv0\mod{2}$
+\end_inset
+
+ we have preserved parity: 
+\begin_inset Formula $\phi'(v)\equiv\phi(v)\mod{2}$
+\end_inset
+
+.
+ Finaly, if 
+\begin_inset Formula $p>0$
+\end_inset
+
+ and 
+\begin_inset Formula $p\not\equiv q\mod{2}$
+\end_inset
+
+ then we can remove the unused priorities, but we do not want to equate
+ 
+\begin_inset Formula $p$
+\end_inset
+
+ and 
+\begin_inset Formula $q$
+\end_inset
+
+ which have different priorities:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+\phi'(v)=\begin{cases}
+\phi(v) & \mbox{if }\phi(v)\leq p\\
+\phi(v)+p-q+1 & \mbox{\mbox{if} \ensuremath{\phi(v)<p}}\end{cases}\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Again, since 
+\begin_inset Formula $p-q+1\equiv0\mod{2}$
+\end_inset
+
+ this preserved the parity of 
+\begin_inset Formula $\phi$
+\end_inset
+
+ while removing the unused priorities between 
+\begin_inset Formula $p$
+\end_inset
+
+ and 
+\begin_inset Formula $q$
+\end_inset
+
+.
+ We need to repeat the process described here for every gap in the set of
+ used priorities (which is at most 
+\begin_inset Formula $d$
+\end_inset
+
+ times) and the result will always be a set of 
+\begin_inset Formula $d$
+\end_inset
+
+ used priorities from 
+\begin_inset Formula $0$
+\end_inset
+
+ to 
+\begin_inset Formula $d-1$
+\end_inset
+
+ (inclusive).
+\end_layout
+
+\begin_layout Standard
+Most solving algorithms do not require that priorities are compressed into
+ a minimal range, but the maximum occurring priority usually is a component
+ in the total amount of time or memory required.
+ Therefore, it is useful to preprocess every game to minimize the priority
+ set in this way, especially since this can be easily done in time linear
+ in the number of vertices, which makes it a relatively inexpensive operation.
+\end_layout
+
+\begin_layout Subsection
+Common Terminology
+\end_layout
+
+\begin_layout Standard
+There are a number of concepts which can be applied to parity games which
+ have been described in literature before.
+ In particular, Zielonka introduces some useful terminology in a treatise
+ on two-player games played on coloured graphs (of which parity games are
+ a subset) which will be repeated here.
+ He describes attractor sets and traps.
+ Additionally, I will describe subgames analogous to (though slightly different
+ from) subarenas.
+\end_layout
+
+\begin_layout Subsubsection
+Subgames
+\end_layout
+
+\begin_layout Standard
+A 
+\emph on
+subgame
+\emph default
+ of a game 
+\begin_inset Formula $\Gamma=(V_{\text{0}},V_{\text{1}},E,\phi)$
+\end_inset
+
+ induced by a vertex set 
+\begin_inset Formula $U\subseteq V$
+\end_inset
+
+ is the game 
+\begin_inset Formula $\Gamma|U=(V_{\text{0}}\cap U,V_{\text{1}}\cap U,E\cap\left(U\times U\right),\phi|U)$
+\end_inset
+
+ where 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+
+\begin_inset Formula $\phi|U$
+\end_inset
+
+ denotes 
+\begin_inset Formula $\phi$
+\end_inset
+
+ with its domain limited to 
+\begin_inset Formula $U$
+\end_inset
+
+.
+ In other words, the game obtained when only considering vertices from 
+\begin_inset Formula $U$
+\end_inset
+
+ and ignoring the rest.
+ 
+\begin_inset Formula $\Gamma|U$
+\end_inset
+
+ is called a 
+\family default
+\series default
+\shape default
+\size default
+\emph on
+\bar default
+\noun default
+\color inherit
+proper subgame
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+ if every vertex in 
+\begin_inset Formula $U$
+\end_inset
+
+ has at least one successor also in 
+\begin_inset Formula $U$
+\end_inset
+
+ (in other words, it simply is a proper game as described above).
+\end_layout
+
+\begin_layout Subsubsection
+Traps
+\end_layout
+
+\begin_layout Standard
+Let 
+\begin_inset Formula $vE$
+\end_inset
+
+ be the set of vertices which are successors of 
+\begin_inset Formula $v$
+\end_inset
+
+ in 
+\begin_inset Formula $E$
+\end_inset
+
+, or formally 
+\begin_inset Formula $vE=\left\{ w|vw\in E\right\} .$
+\end_inset
+
+ A non-empty vertex set 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+
+\begin_inset Formula $U\subseteq V$
+\end_inset
+
+ is a trap for player 
+\begin_inset Formula $x$
+\end_inset
+
+ (or an 
+\begin_inset Formula $x$
+\end_inset
+
+-trap, for short) when, informally, player 
+\begin_inset Formula $x$
+\end_inset
+
+ cannot force the token out of 
+\begin_inset Formula $U$
+\end_inset
+
+.
+ Formally, 
+\begin_inset Formula $U$
+\end_inset
+
+ is an 
+\begin_inset Formula $x$
+\end_inset
+
+-trap if for all 
+\begin_inset Formula $v\in U$
+\end_inset
+
+:
+\end_layout
+
+\begin_layout Standard
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+\begin_inset Formula \[
+v\in V_{x}\rightarrow vE\subseteq U\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+\begin_inset Formula \[
+v\in V_{1-x}\rightarrow vE\cap U\neq\emptyset\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Attractor sets
+\end_layout
+
+\begin_layout Standard
+TODO: Define attractor set.
+\end_layout
+
+\begin_layout Standard
+Describe duality between attractor sets and traps (complement of attractor
+ set is a trap).
+ Note that traps formed this way are always proper subgames.
 \end_layout
 
 \begin_layout Subsection
@@ -672,16 +1367,19 @@ Degenerate cases
 \end_layout
 
 \begin_layout Standard
-[Note that degenerate cases are usually not provided as input, but may occur
- in the process of applying solving techniques.]
-\end_layout
-
-\begin_layout Subsubsection
-Disconnected games
+In addition to games which do not comply with the restrictions mentioned
+ above, there are also a few classes of degenerate games that are special
+ cases of the general game describe above.
+ There are mentioned separately because specific algorithms exist to solve
+ them quicker than is possible for the general case.
 \end_layout
 
 \begin_layout Standard
-[TODO: define this]
+These special cases are occasionally provided as input to a solver (for
+ example, as the representation of a particularly simple model checking
+ problem) but more commonly they arise after applying a number of reduction
+ or partial solution techniques, as subproblems to be solved.
+ Treating these cases separately can provide benefits in particular cases.
 \end_layout
 
 \begin_layout Subsubsection
@@ -689,26 +1387,64 @@ Single-player games
 \end_layout
 
 \begin_layout Standard
-A single-player game is a parity game in which all vertices controlled by
- one of the two players have outdegree equal to 1.
- This player has no choice in where to move the token next (since every
- vertex he controls has only one successor).
- His opponent is called the controlling player of the game, because this
- player makes all the choices in the game.
+A parity game is a 
+\emph on
+single-player game for player 
+\begin_inset Formula $x$
+\end_inset
+
+ 
+\emph default
+when all vertices controlled by player 
+\begin_inset Formula $1-x$
+\end_inset
+
+ have outdegree equal to 1.
+ In such a game, only player 
+\begin_inset Formula $x$
+\end_inset
+
+ can make choices, and player 
+\series bold
+
+\begin_inset Formula $x-1$
+\end_inset
+
+
+\series default
+ is forced to always move the token to the single available successor whenever
+ it lands on one of his vertices.
 \end_layout
 
 \begin_layout Standard
-In such a game, all vertices that are part of a cycle with minimum priority
- of parity equal to that of the controlling player are won by the controlling
- player, as well as any vertices from which such cycles can be reached.
- All other vertices are necessarily won by the opponent.
+In such a game, player 
+\begin_inset Formula $x$
+\end_inset
+
+ wins from precisely from the vertices which lie on a cycle of which the
+ minimum priority has parity equal to 
+\begin_inset Formula $x$
+\end_inset
+
+, as well as from all vertices from which such a cycle can be reached.
+ After all, his opponent has no choice, so he can never force the token
+ out of a cycle or prevent player 
+\begin_inset Formula $x$
+\end_inset
+
+ from reaching a cycle when there exists a path to it.
+ The remaining vertices (if there are any) are won by player 
+\begin_inset Formula $x-1$
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Standard
-When the game graph is a cycle graph (or a collection of unconnected cycle
- graphs) neither player has any choice.
- In these games, optimal strategies are obvious and the winner of vertices
- in a cycle are determined by the the minimum priority occuring in the cycle.
+In extremely rare cases the game is played on a cycle graph and neither
+ player has a choice.
+ In that case, strategies are trivial and whichever player has the dominant
+ priority on the cycle wins from any vertex in the game.
 \end_layout
 
 \begin_layout Subsubsection
@@ -726,15 +1462,6 @@ name "sub:Single-priority-games"
 If all vertices in the game are associated with the same priority, then
  any strategy is optimal for either player, and all vertices are trivally
  won by player corresponding to the parity of the single occuring priority.
-\end_layout
-
-\begin_layout Subsection
-TODO
-\end_layout
-
-\begin_layout Standard
-TODO: something about attractor sets, traps.
- Cite Zielonka as reference.
 \end_layout
 
 \begin_layout Subsection
@@ -926,7 +1653,7 @@ i
 \emph on
 i
 \emph default
--cycle can only include edges with vertices of priority 
+-cycle can only include edges between vertices of priority 
 \emph on
 i
 \emph default
@@ -959,15 +1686,17 @@ i
 i
 \emph default
  inside a single connected component.
- If found, we know that an i-cycle can be constructed in this component
- (although we do not need to actually construct any for the purpose of verificat
-ion).
+ If found, we know that an i-cycle can be constructed in this component.
+ If necessary, these i-cycles can be enumerated using a backtracking algorithm,
+ but for the purpose of verification it suffices to know that one exists.
 \end_layout
 
 \begin_layout Standard
-Verifying the first two properties takes time linear in the number of edges.
- Strongly connected components can be found in linear time as well using
- Tarjan's algorithm
+Verifying the first two properties described above takes time linear in
+ the number of edges.
+ [[FIXME: current implementation actually uses time less than E for both
+ properties! (See code.) Need to describe details above.]] Strongly connected
+ components can be found in linear time as well, using Tarjan's algorithm
 \begin_inset CommandInset citation
 LatexCommand cite
 key "tarjan1971depth"
@@ -975,12 +1704,13 @@ key "tarjan1971depth"
 \end_inset
 
 .
- Because this must be done at most once for each distinct priority (to verify
- winning sets and strategies for both players) this yields an 
-\begin_inset Formula $O(d\left|E\right|)$
+ Because we need to construct a graph (and then find its components) once
+ for each distinct priority to verify winning sets and strategies for both
+ players, the final verification algorithm runs in 
+\begin_inset Formula $O(E+E+d\left|E\right|)=O(d\left|E\right|)$
 \end_inset
 
- verication algorithm.
+ worst-case time.
 \end_layout
 
 \begin_layout Section
@@ -1006,7 +1736,7 @@ Application To Model Checking
 \end_layout
 
 \begin_layout Standard
-Parity games 
+To write.
 \end_layout
 
 \begin_layout Chapter
@@ -1014,7 +1744,44 @@ TODO
 \end_layout
 
 \begin_layout Standard
-- replace Even/Odd symbols with 0 and 1, remove all the weird symbols.
+- remove remaining symbols (replace with 0 and 1)
+\end_layout
+
+\begin_layout Standard
+- describe how to solve single-player games (compare with PGSolver?)
+\end_layout
+
+\begin_layout Standard
+- describe Small Progress Measures
+\end_layout
+
+\begin_layout Standard
+- cite parallel implementation by Michael
+\end_layout
+
+\begin_layout Standard
+- describe importance lifting strategy
+\end_layout
+
+\begin_layout Standard
+- cite parallel implementation by Michael
+\end_layout
+
+\begin_layout Standard
+- replace x by a different player variable? (Zielonka uses 
+\begin_inset Formula $\sigma$
+\end_inset
+
+ for players, but Jurdzinski uses it for strategies instead)
+\end_layout
+
+\begin_layout Standard
+- describe all my algorithms!
+\end_layout
+
+\begin_layout Standard
+- should mention known complexity bounds somewhere (NP and Co-NP (how?)
+ and therefore likely to be in P, because otherwise NP=co-NP)
 \end_layout
 
 \begin_layout Standard
