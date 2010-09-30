@@ -78,9 +78,16 @@ priority
 \end_layout
 
 \begin_layout Standard
+\begin_inset Note Note
+status open
 
-\series bold
-[picture goes here]
+\begin_layout Plain Layout
+picture here
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -319,6 +326,25 @@ dominant priority
  assigning a winner to every infinite play.
 \end_layout
 
+\begin_layout Standard
+It should be noted that there is no consensus in literature on priorities
+ should be ordered.
+ Throughout this report I will use the convention of lower priority values
+ having precedence over higher values, thus 
+\begin_inset Formula $0$
+\end_inset
+
+ being the 
+\begin_inset Quotes eld
+\end_inset
+
+highest
+\begin_inset Quotes erd
+\end_inset
+
+ priority, as described above.
+\end_layout
+
 \begin_layout Subsection
 Strategies and Solutions
 \end_layout
@@ -469,7 +495,17 @@ determined
 \emph default
 , i.e.
  for every starting vertex either player Even or player Odd has a winning
- strategy [TODO: reference proof; Borel determinancy].
+ strategy 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+TODO: reference proof; Borel determinancy
+\end_layout
+
+\end_inset
+
+.
  Thus, for these games, we can partition the vertex set 
 \begin_inset Formula $V$
 \end_inset
@@ -758,7 +794,11 @@ key "zielonka1998igf"
 \end_layout
 
 \begin_layout Standard
-[A consequence of both players following memoryless strategies on a finite
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+A consequence of both players following memoryless strategies on a finite
  graph (as pointed out by Jurdziński 
 \begin_inset CommandInset citation
 LatexCommand cite
@@ -787,7 +827,12 @@ key "jurdzinski2000spm"
 \begin_inset Formula $i\geq k$
 \end_inset
 
-.)]
+.)
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -851,7 +896,17 @@ proper game
  and add an edge from the vertex back to itself.
  In the modified graph every vertex has an outgoing edge, yet it has the
  same solution and winning strategies as the original graph.
- [Does this need proof?]
+ 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Does this need proof?
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -899,7 +954,17 @@ When discussing actual implementations of data structures and algorithms,
 priority compression.
 
 \emph default
- [cite: PGSolver manual? or an earlier paper?]
+ 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+cite: PGSolver manual? or an earlier paper?
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -1029,7 +1094,17 @@ then we get rid of the unused priorities and lump the vertices with priority
 
  have the same parity, and since none of the values in between are used,
  they can be interchanged without affecting the outcome of the game.
- [Does this need proof?] More formally, in this case we define 
+ 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Does this need proof?
+\end_layout
+
+\end_inset
+
+ More formally, in this case we define 
 \family roman
 \series medium
 \shape up
@@ -1407,7 +1482,7 @@ when all vertices controlled by player
  can make choices, and player 
 \series bold
 
-\begin_inset Formula $x-1$
+\begin_inset Formula $1-x$
 \end_inset
 
 
@@ -1434,7 +1509,7 @@ In such a game, player
 
  from reaching a cycle when there exists a path to it.
  The remaining vertices (if there are any) are won by player 
-\begin_inset Formula $x-1$
+\begin_inset Formula $1-x$
 \end_inset
 
 .
@@ -1447,8 +1522,23 @@ In extremely rare cases the game is played on a cycle graph and neither
  priority on the cycle wins from any vertex in the game.
 \end_layout
 
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+TODO: describe how to solve; similar to verification algorithm below.
+ Maybe compare with PGSolver (if that's different).
+ Otherwise, move details from verification to here.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Subsubsection
-Single-priority games
+Single-parity games
 \begin_inset CommandInset label
 LatexCommand label
 name "sub:Single-priority-games"
@@ -1459,9 +1549,49 @@ name "sub:Single-priority-games"
 \end_layout
 
 \begin_layout Standard
-If all vertices in the game are associated with the same priority, then
- any strategy is optimal for either player, and all vertices are trivally
- won by player corresponding to the parity of the single occuring priority.
+If the priorities of vertices all have the same parity (even or odd) then
+ the corresponding player will trivially win from every starting vertex,
+ with an arbitrary strategy.
+ A special case is the single-priority game, where only a single priority
+ is used.
+ Note that priority compression will reduce both single-parity and single-priori
+ty games to a game in which 0 is the only priority in use, making this type
+ of game easy to recognize.
+\end_layout
+
+\begin_layout Subsubsection
+Graph decomposition
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Describe solving strongly connected components invidiually (not really a
+ degenerate case but OK)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+What other simplifications/special cases have been identified.
+\end_layout
+
+\begin_layout Plain Layout
+Browse PGSolver docs/Jeroen's thesis for stuff worth repeating here.
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection
@@ -1483,26 +1613,30 @@ Altough it is hard to compute the optimal strategies for the players in
 \begin_layout Standard
 As we noted before, we are only interested in the strategy for vertices
  that are in the winning set of the player that controls them.
- Without loss of generality, let's assume we are verifying the set 
-\begin_inset Formula $W_{◇}$
+ Assume we are verifying the set 
+\begin_inset Formula $W_{x}$
 \end_inset
 
  with optimal strategy 
-\begin_inset Formula $\sigma_{◇}$
+\begin_inset Formula $\sigma_{x}$
 \end_inset
 
- for player Even (we can do the same for player Odd).
+ for player 
+\begin_inset Formula $x$
+\end_inset
+
+.
  Define a graph with vertices limited to 
-\begin_inset Formula $W_{◇}$
+\begin_inset Formula $W_{x}$
 \end_inset
 
  and the set of edges 
-\begin_inset Formula $E|\sigma_{◇}$
+\begin_inset Formula $E|\sigma_{x}$
 \end_inset
 
  as follows:
 \begin_inset Formula \[
-E|\sigma_{◇}=\left\{ vw\in E:v\in\left(W_{◇}\cap V_{◇}\right)\wedge\sigma_{\text{◇}}(v)=w\right\} \cup\left\{ vw\in E:v\in\left(W_{◇}\cap V_{\text{◻}}\right)\right\} \]
+E|\sigma_{x}=\left\{ vw\in E:v\in\left(W_{x}\cap V_{x}\right)\wedge\sigma_{\text{x}}(v)=w\right\} \cup\left\{ vw\in E:v\in\left(W_{x}\cap V_{1-x}\right)\right\} \]
 
 \end_inset
 
@@ -1511,24 +1645,28 @@ E|\sigma_{◇}=\left\{ vw\in E:v\in\left(W_{◇}\cap V_{◇}\right)\wedge\sigma_
 
 \begin_layout Standard
 Less formally, the edge set includes the edges that are consistent with
- Even's strategy, as well as all edges originating at vertices controlled
- by the Odd.
+ 
+\begin_inset Formula $x$
+\end_inset
+
+'s strategy, as well as all edges originating at vertices controlled by
+ his opponent.
  We must first verify two trivial properties:
 \end_layout
 
 \begin_layout Enumerate
-\begin_inset Formula $E|\sigma_{\text{▽}}\subseteq E$
+\begin_inset Formula $E|\sigma_{x}\subseteq E$
 \end_inset
 
  (otherwise the strategy 
-\begin_inset Formula $\sigma_{\text{▽}}$
+\begin_inset Formula $\sigma_{\text{x}}$
 \end_inset
 
  prescribes a transition that is not available in the original game graph)
 \end_layout
 
 \begin_layout Enumerate
-\begin_inset Formula $E|\sigma_{\text{▽}}\subseteq W_{\text{▽}}\times W_{\text{▽}}$
+\begin_inset Formula $E|\sigma_{x}\subseteq W_{\text{x}}\times W_{x}$
 \end_inset
 
  (otherwise either the player or his opponent can move the token outside
@@ -1546,38 +1684,77 @@ Less formally, the edge set includes the edges that are consistent with
 \noun off
 \color none
 Assuming these hold, then 
-\begin_inset Formula $\Gamma|\sigma_{\text{◇}}=(W_{\text{◇}}\cap V_{\text{◇}},W_{◇}\cap V_{\text{◇}},E|\sigma_{◇},\phi)$
+\begin_inset Formula $\Gamma|\sigma_{\text{x}}=(W_{x}\cap V_{x},W_{x}\cap V_{1-x},E|\sigma_{x},\phi|W_{x})$
 \end_inset
 
  is a valid parity game, and precisely those plays in the original game
  consistent with strategy 
-\begin_inset Formula $\sigma_{\text{◇}}$
+\begin_inset Formula $\sigma_{x}$
 \end_inset
 
  are possible in the game 
-\begin_inset Formula $\Gamma|\sigma_{\text{◇}}$
+\begin_inset Formula $\Gamma|\sigma_{\text{x}}$
 \end_inset
 
- as well, except that all choice for player Even has been removed: every
- vertex controlled by Even has only one successor, because Even is bound
- to play by his strategy.
+ as well, except that all choice for player 
+\begin_inset Formula $x$
+\end_inset
+
+ has been removed: every vertex controlled by 
+\begin_inset Formula $x$
+\end_inset
+
+ has only one successor, because 
+\begin_inset Formula $x$
+\end_inset
+
+ is bound to play by his strategy.
  This makes the game 
-\begin_inset Formula $\Gamma|\sigma_{◇}$
+\begin_inset Formula $\Gamma|\sigma_{x}$
 \end_inset
 
- a single-player game controlled by Odd.
+ a single-player game controlled by player 
+\begin_inset Formula $1-x$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+TODO: if we have described how to solve single-player games above, it suffices
+ to say that we apply the same algorithm here and check if the winning set
+ is empty.
+ We still need to present complexity analysis of the total algorithm here.
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
 To verify that 
-\begin_inset Formula $W_{◇}$
+\begin_inset Formula $W_{x}$
 \end_inset
 
- is a winning set for player Even when playing according to strategy 
-\begin_inset Formula $\sigma_{◇}$
+ is a winning set for player 
+\begin_inset Formula $x$
 \end_inset
 
-, we must verify that the winning set for player Odd in 
+ when playing according to strategy 
+\begin_inset Formula $\sigma_{x}$
+\end_inset
+
+, we must verify that the winning set for player 
+\begin_inset Formula $1-x$
+\end_inset
+
+ in 
 \family roman
 \series medium
 \shape up
@@ -1587,7 +1764,7 @@ To verify that
 \noun off
 \color none
 
-\begin_inset Formula $\Gamma|\sigma_{\text{◇}}$
+\begin_inset Formula $\Gamma|\sigma_{\text{x}}$
 \end_inset
 
 
@@ -1609,9 +1786,12 @@ To verify that
 \bar no
 \noun off
 \color none
- As noted earlier, when discussing single-player games, player Odd can win
- from at least some vertices if (and only if) the graph contains a cycle
- with odd minimum priority (for brevity, let's call this an 
+ As noted earlier, when discussing single-player games, player 
+\begin_inset Formula $1-x$
+\end_inset
+
+ can win from at least some vertices if (and only if) the graph contains
+ a cycle with odd minimum priority (for brevity, let's call this an 
 \family default
 \series default
 \shape default
@@ -1649,7 +1829,11 @@ i
 i
 \emph default
  lying on a cycle after removal of all edges incident with vertices of priority
- less than i, because an 
+ less than 
+\begin_inset Formula $i$
+\end_inset
+
+, because an 
 \emph on
 i
 \emph default
@@ -1667,11 +1851,11 @@ i
 i
 \emph default
  or higher, we can use the connection between strongly connected components
- of the graph and a cycle in a graph: every cycle must occur in a single
- strongly connected component (since all vertices in a cycle are by the
- definition part of the same strongly connected component) and if the edge
- set of a strongly-connected component is non-empty, then all vertices in
- the strongly-connected component must lie on a cycle.
+ of the graph and a cycle in a graph: every cycle must lie in a single strongly
+ connected component (since all vertices in a cycle are by the definition
+ part of the same strongly connected component) and if the edge set of a
+ strongly-connected component is non-empty, then all vertices in the strongly-co
+nnected component must lie on a cycle.
 \end_layout
 
 \begin_layout Standard
@@ -1694,9 +1878,19 @@ i
 \begin_layout Standard
 Verifying the first two properties described above takes time linear in
  the number of edges.
- [[FIXME: current implementation actually uses time less than E for both
- properties! (See code.) Need to describe details above.]] Strongly connected
- components can be found in linear time as well, using Tarjan's algorithm
+ 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+FIXME: current implementation actually uses time less than E for both properties
+! (See code.) Need to describe details above.
+\end_layout
+
+\end_inset
+
+ Strongly connected components can be found in linear time as well, using
+ Tarjan's algorithm
 \begin_inset CommandInset citation
 LatexCommand cite
 key "tarjan1971depth"
@@ -1728,7 +1922,30 @@ Zielonka describes strategies for a more general class of games played on
 \end_layout
 
 \begin_layout Standard
-[Borel determinacy; proof of winning strategies for either players]
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Borel determinacy; proof of winning strategies for either players
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Computational Complexity
+\end_layout
+
+\begin_layout Standard
+[To write: something about known time complexity in NP and Co-NP (how?)
+ and therefore likely to be in P (because otherwise NP=co-NP, which is unlikely).
+ Best known complexity of algorithms.
+ At least mention Zielonka, SPM and strategy improvement.
+ Maybe add section about reduction to other (NP-complete of course) problems.
+ Mention that solving games in practice usually takes considerably less
+ time than the worst-case complexity suggests.]
 \end_layout
 
 \begin_layout Section
@@ -1736,52 +1953,581 @@ Application To Model Checking
 \end_layout
 
 \begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
 To write.
 \end_layout
 
+\end_inset
+
+
+\end_layout
+
 \begin_layout Chapter
-TODO
+Common algorithms and data structures
 \end_layout
 
 \begin_layout Standard
-- remove remaining symbols (replace with 0 and 1)
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+- describe graph representation
+\end_layout
+
+\begin_layout Plain Layout
+- describe representation of strategies
+\end_layout
+
+\begin_layout Plain Layout
+- describe preprocessing algorithms
+\end_layout
+
+\begin_layout Plain Layout
+- describe SCC processing
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Chapter
+Small Progress Measures
 \end_layout
 
 \begin_layout Standard
-- describe how to solve single-player games (compare with PGSolver?)
+Small Progress Measures is a relatively simple, iterative algorithm for
+ partially solving parity games.
+ A game is solved partially in the sense that the winning set and optimal
+ strategy for one player is determined.
+ To solve a game completely, the algorithm must therefore be run twice,
+ but fortunately for the second run the part of the game that has already
+ been solved can be omitted, which typically greatly reduces the time required
+ to solve the remaining part of the game.
 \end_layout
 
 \begin_layout Standard
-- describe Small Progress Measures
+Small Progress Measures (or SPM for short) is attractive because it is relativel
+y simple which allows it to be implemented easily and provides ample opportunity
+ to parallellize the core algorithm.
+ Additionally, the algorithm is among those with the lowest complexity bounds
+ known for solving parity games, with a worst-case time complexity of 
+\begin_inset Formula $O\left(\left|E\right|\left(\left|V\right|/\left\lfloor \frac{d}{2}\right\rfloor \right)^{\left\lfloor \frac{d}{2}\right\rfloor }\right)$
+\end_inset
+
+ and requiring 
+\begin_inset Formula $O(\left|V\right|d)$
+\end_inset
+
+ space (in addition to space required to store the parity game itself).
+\end_layout
+
+\begin_layout Section
+Description
 \end_layout
 
 \begin_layout Standard
+Here I will outline SPM as described by Jurdziński.
+ Let's assume we want to solve the game for player even.
+ Then, we associate with each vertex a value, which is either a 
+\series bold
+
+\begin_inset Formula $d$
+\end_inset
+
+
+\series default
+-vector of nonnegative integers or the special value 
+\begin_inset Formula $\top$
+\end_inset
+
+ (top) indexed from 
+\begin_inset Formula $0$
+\end_inset
+
+ to 
+\begin_inset Formula $d-1$
+\end_inset
+
+.
+ The 
+\series bold
+
+\begin_inset Formula $d$
+\end_inset
+
+
+\series default
+-vector is a member of the vector space 
+\begin_inset Formula $M=M_{0}\times M_{1}\times\cdots\times M_{d-1}$
+\end_inset
+
+ where 
+\begin_inset Formula $M_{i}$
+\end_inset
+
+ is defined:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+M_{i}=\begin{cases}
+\{0\} & \mbox{if \ensuremath{i\equiv0\mod{2}}}\\
+\{0..\left|\{v\in V:\phi(v)=i\}\right|\} & \mbox{if \ensuremath{i\equiv1\mod{2}}}\end{cases}\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Elements from the set 
+\begin_inset Formula $M^{\top}=M\cup\{\top\}$
+\end_inset
+
+ are called Small Progress Measures (the term 
+\begin_inset Quotes eld
+\end_inset
+
+small
+\begin_inset Quotes erd
+\end_inset
+
+ is used because they come from a reduced vector space where every even
+ element is fixed to zero) and will be denoted with lower-case Greek letters.
+ On these values a comparison operator 
+\begin_inset Formula $<_{i}$
+\end_inset
+
+ is defined that compares two vectors lexicographically up to (and including)
+ the element with index 
+\begin_inset Formula $i$
+\end_inset
+
+.
+ 
+\begin_inset Formula $\top$
+\end_inset
+
+ is always considered greater than any vector.
+ Formally:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+\begin{array}{cl}
+\alpha<_{i}\beta\;\Leftrightarrow\alpha\neq\top\wedge\beta=\top & \mbox{if }\ensuremath{\alpha=\top\mbox{ or }\beta=\top}\\
+\exists j\leq i:\;\alpha_{j}<\beta_{j}\wedge\left(\forall k<j:\;\alpha_{j}=\beta_{j}\right) & \mbox{otherwise}\end{array}\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+The operator 
+\begin_inset Formula $<_{i}$
+\end_inset
+
+ establishes a strict weak ordering on the elements of 
+\begin_inset Formula $M^{\top}$
+\end_inset
+
+.
+ The other operators can then be defined accordingly:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+\alpha>_{i}\beta\;\Leftrightarrow\;\beta<_{i}\alpha\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+\alpha\leq_{i}\beta\;\Leftrightarrow\;\neg\left(\alpha>_{i}\beta\right)\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+\alpha\geq_{i}\beta\;\Leftrightarrow\;\neg\left(\alpha<_{i}\beta\right)\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+\alpha=_{i}\beta\;\Leftrightarrow\left(\alpha\leq_{i}\beta\right)\wedge\left(\alpha\geq_{i}\beta\right)\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+\alpha\neq_{i}\beta\;\Leftrightarrow\left(\alpha<_{i}\beta\right)\vee\left(\alpha>_{i}\beta\right)\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Let 
+\begin_inset Formula $\rho:V\rightarrow M$
+\end_inset
+
+ be a function that maps progress measures to vertices.
+ We will first define a function 
+\begin_inset Formula $Prog(\rho,v,w):(V\rightarrow M)\times E\rightarrow M^{\top}$
+\end_inset
+
+ that determines the minimum progress measure for 
+\begin_inset Formula $v$
+\end_inset
+
+ when 
+\begin_inset Formula $vw$
+\end_inset
+
+ is included in the strategy for player Even.
+ It is defined as follows:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+Prog(\rho,v,w)=\begin{cases}
+\top & \mbox{if \ensuremath{\rho(w)=\top}, otherwise:}\\
+\min_{m\in M^{T}}m\geq_{\phi(v)}\rho(w) & \mbox{if \ensuremath{\phi(v)\equiv0\mod{2}},}\\
+\min_{m\in M^{T}}m>_{\phi(v)}\rho(w) & \mbox{if }\ensuremath{\phi(v)\equiv1\mod{2}}.\end{cases}\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Next we can define a function 
+\begin_inset Formula $Lift(\rho,v)$
+\end_inset
+
+ which attempts to increase the progress vector assigned to 
+\begin_inset Formula $v$
+\end_inset
+
+ in 
+\begin_inset Formula $\rho$
+\end_inset
+
+, as follows:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+Lift(\rho,v)(u)=\begin{cases}
+\rho(u) & \mbox{if \ensuremath{u\neq v}}\\
+\max\{\rho(v),\min_{vw\in E}Prog(\rho,v,w)\} & \mbox{if \ensuremath{u=v\wedge v\in V_{0}} }\\
+\max\{\rho(v),\max_{vw\in E}Prog(\rho,v,w)\} & \mbox{if }\ensuremath{u=v\wedge v\in V_{1}}\end{cases}\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+And similarly, globally:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+Lift(\rho)=\begin{cases}
+Lift(\rho,v) & \mbox{if \ensuremath{\exists v\in V:\; Lift(\rho,v)\neq\rho},}\\
+\rho & \mbox{otherwise}\end{cases}\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Now if we iterate 
+\begin_inset Formula $Lift(\rho)$
+\end_inset
+
+ starting from a zero progress measure (
+\begin_inset Formula $\rho(v)_{i}=0$
+\end_inset
+
+ for all 
+\begin_inset Formula $v\in V$
+\end_inset
+
+ and 
+\begin_inset Formula $i\in\{0..d-1\}$
+\end_inset
+
+) we will arrive at a minimum fixed point 
+\begin_inset Formula $\rho=Lift(\rho)$
+\end_inset
+
+.
+ This is our final progress measure function and Jurdziński proves that
+ we can use its value as follows to deduce the winning sets and the strategy
+ for player Even:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+W_{0}=\{v\in V:\;\rho(v)<\top\}\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+W_{1}=\{v\in V:\;\rho(v)=\top\}\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+\sigma_{0}(v)=w\mbox{ if \ensuremath{v\in W_{0}} and}\rho(v)=_{\phi(v)}\rho(w)\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+(Note that if in the last definition the choice of 
+\begin_inset Formula $w$
+\end_inset
+
+ is not unique, we can arbitrarily choose any of the possible successors
+ to obtain an optimal strategy.)
+\end_layout
+
+\begin_layout Subsection
+[Choice of lifted vertex]
+\end_layout
+
+\begin_layout Standard
+In the above description it has not been specified how we will select a
+ vertex to be lifted (in the first line of the definition of 
+\begin_inset Formula $Lift(\rho)$
+\end_inset
+
+) when more than one choice of vertex is available.
+ This is because, as part of the correctness proof for the algorithm, Jurdziński
+ shows that the order in which vertices are lifted does not matter for the
+ correctness or worst-case performance of the algorithm.
+ Regardless of the strategy used, the algorithm will always arrive at the
+ unique minimum fixed point, and the worst-case number of applications of
+ the 
+\begin_inset Formula $Lift$
+\end_inset
+
+ function required to arrive at this fixed point, does not depend on the
+ choice of vertices to lift.
+\end_layout
+
+\begin_layout Standard
+However, in practice this strategy for vertex selection appears to have
+ a large impact on the running time of the implementation.
+ There are two reasons for this:
+\end_layout
+
+\begin_layout Enumerate
+As mentioned above, in many cases an appropriate vertex selection strategy
+ can reduce the number of applications of 
+\begin_inset Formula $Lift(p)$
+\end_inset
+
+ required to find the minimum fixed point, and since each application takes
+ roughly the same time, this generally means faster execution.
+\end_layout
+
+\begin_layout Enumerate
+In a practical implementation, to find a vertex that can be lifted, one
+ has to consider vertices from a possible set of candidates, and calculate
+ 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+
+\begin_inset Formula $Lift(\rho,v)(v)$
+\end_inset
+
+ in order to determine if 
+\begin_inset Formula $Lift(\rho,v)\neq\rho$
+\end_inset
+
+.
+ An inappropriate strategy may spend a relatively large amount of time looking
+ at vertices which cannot be lifted.
+\end_layout
+
+\begin_layout Standard
+Additionally, the freedom to lift (or try to lift) vertices in any order
+ enables implementors to write parallel implementations in which the game
+ graph is partitioned and distributed over multiple processors, and vertices
+ at different locations can be lifted independently and in parallel.
+\end_layout
+
+\begin_layout Section
+Implementation
+\end_layout
+
+\begin_layout Standard
+To implement the algorithm described above, we work back from top to bottom.
+ The top level algorithm is simple: start with all-zero progress measures,
+ while a vertex can be found that can be lifted, lift it.
+ Jurdziński notes that finding a suitable vertex to lift takes at most 
+\begin_inset Formula $O(\left|V\right|)$
+\end_inset
+
+ time.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+- describe nondetermenistic parts (lifting strategy)
+\end_layout
+
+\begin_layout Plain Layout
 - cite parallel implementation by Michael
 \end_layout
 
-\begin_layout Standard
-- describe importance lifting strategy
+\begin_layout Plain Layout
+- cite parallel implementaiton on PS3 [mention/cite Jorne Kandziora, Freark
+ van den Berg]
+\end_layout
+
+\begin_layout Plain Layout
+- describe dual version as implemented by Olivier Friedman
+\end_layout
+
+\begin_layout Plain Layout
+- describe preprocessing passses: removing cycles of odd players/odd priority
+ and setting measure to top (partially implemented) + what else?
+\end_layout
+
+\begin_layout Plain Layout
+(re: removing odd cycles: cite PGSolver&Michael for loops on vertices, credit
+ Freark for coming up with a very limited version applied to longer cycles)
+\end_layout
+
+\begin_layout Plain Layout
+- note that solving time for the two players is usually highly asymmetric,
+ which is why the dual method works well, and why it makes sense to try
+ to pick the easiest player to solve for first, as the second run will be
+ on a smaller graph and then run much faster.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Chapter
+Zielonka's Recursive Algorithm
 \end_layout
 
 \begin_layout Standard
-- cite parallel implementation by Michael
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+- describe how it works
+\end_layout
+
+\begin_layout Plain Layout
+- note that it's a constructive proof
+\end_layout
+
+\begin_layout Plain Layout
+- note that it's derived from McNaughton
+\end_layout
+
+\begin_layout Plain Layout
+- describe my implementation
+\end_layout
+
+\begin_layout Plain Layout
+- but finish stuff above first!
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Chapter
+TODO LIST
 \end_layout
 
 \begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+- identify and label lemma's so I can refer to them more easily
+\begin_inset Newline newline
+\end_inset
+
 - replace x by a different player variable? (Zielonka uses 
 \begin_inset Formula $\sigma$
 \end_inset
 
- for players, but Jurdzinski uses it for strategies instead)
+ for players, but Jurdziński uses it for strategies instead)
+\begin_inset Newline newline
+\end_inset
+
+- label lemmas (if needed for proofs)
+\begin_inset Newline newline
+\end_inset
+
+- have I described everything I came up with?
 \end_layout
 
-\begin_layout Standard
-- describe all my algorithms!
-\end_layout
+\end_inset
 
-\begin_layout Standard
-- should mention known complexity bounds somewhere (NP and Co-NP (how?)
- and therefore likely to be in P, because otherwise NP=co-NP)
+
 \end_layout
 
 \begin_layout Standard
