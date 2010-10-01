@@ -1428,13 +1428,22 @@ Attractor sets
 \end_layout
 
 \begin_layout Standard
-TODO: Define attractor set.
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Define attractor set.
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 Describe duality between attractor sets and traps (complement of attractor
  set is a trap).
  Note that traps formed this way are always proper subgames.
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection
@@ -1970,16 +1979,399 @@ Common algorithms and data structures
 \end_layout
 
 \begin_layout Standard
+The results that will be presented later on are based on emperical evaluation
+ of various parity game solving algorithms on both synthetic and real-world
+ cases.
+ The results obtained therefore depend not only on the choice of algorithms,
+ but also on various implementation details, such as the data structures
+ and programming techniques used to implement those algorithms.
+\end_layout
+
+\begin_layout Standard
+It has been shown that in practice different experimental tools have different
+ performance characteristics despite being based on the same theoretical
+ algorithms.
+ This phenomon occurs because of undocumented differences in the implementation
+ of these different tools, sometimes arising from intentional changes to
+ those algorithms (preprocessing operations or optimizations for particular
+ instances, for example) and more often because the algorithms described
+ in literature are usually not described to a sufficient level of detail
+ that they can be implemented without being forced to make concrete implementati
+on choices.
+ For theoretical analysis this is not necessary (and usually, in the interest
+ of conciseness, not desired), but for practical results it matters significantl
+y how the missing parts are implemented concretely.
+\end_layout
+
+\begin_layout Standard
+In order to ensure that results to be presented here are reproducable, and
+ to make the differences in results obtained with different tools easier
+ to understand and explain, I will document the choices that I made in the
+ implementation of my solving tool to a fair amount of detail.
+ In particular, the core data structures and the algorithms will be documented
+ precisely.
+\end_layout
+
+\begin_layout Standard
+Finally, the descriptions provided here and in later chapters are a useful
+ key to understanding the source code of my solver tool, since it provides
+ a high-level overview of its design.
+\end_layout
+
+\begin_layout Section
+Parity Games
+\end_layout
+
+\begin_layout Standard
+Recall that a parity game consists of a directed graph, a partition of vertices
+ into sets owned by the two players, and the assignment of a priority to
+ every vertex.
+ This data must be represented in some way in a solver.
+\end_layout
+
+\begin_layout Standard
+When executing a solving algorithm, the parity game data is read, but usually
+ not modified.
+ Therefore, an implementation that allows efficient read-only access is
+ more important than a data structure with high flexibility in regards to
+ updates.
+ However, many of the simplification and preprocessing algorithms must either
+ modify the parity game under consideration or be able to quickly produce
+ a modified copy of it.
+ This use case must be accommodated as well.
+\end_layout
+
+\begin_layout Standard
+Finally, since practical instances of parity games tend to be fairly large,
+ it is desirable that the parity game representation is as compact as possible,
+ to the extend this is possible without compromising access speed.
+ This not only reduces the amount of memory needed to solve particularly
+ large instances, but also ensures that the solving algorithms benefit maximally
+ from caching effects.
+\end_layout
+
+\begin_layout Subsection
+The game graph structure
+\end_layout
+
+\begin_layout Standard
+A parity game is played on a directed graph, which consists of a set of
+ vertices (
+\begin_inset Formula $V$
+\end_inset
+
+) and a set of edges (
+\begin_inset Formula $E\subseteq V\times V$
+\end_inset
+
+).
+ Vertices will be identified with integers from 0 through 
+\begin_inset Formula $\left|V\right|$
+\end_inset
+
+ (exclusive).
+ At a minimum, we will store 
+\begin_inset Formula $\left|V\right|$
+\end_inset
+
+ and 
+\begin_inset Formula $\left|E\right|$
+\end_inset
+
+, the number of vertices and edges in the graph respectively.
+\end_layout
+
+\begin_layout Standard
+To represent the graph in its entirety, we then only need to store the edges.
+ We could store those as an array of pairs of integers (the source and destinati
+on vertices of a directed edge).
+ This is reasonably compact (requiring 
+\begin_inset Formula $2\left|E\right|$
+\end_inset
+
+ integers to be stored).
+ However, this representation is impractical if we want to quickly access
+ a set of successors (
+\begin_inset Formula $vE$
+\end_inset
+
+) or predecessors (
+\begin_inset Formula $Ev$
+\end_inset
+
+) of a vertex, which are common operations in many algorithms.
+\end_layout
+
+\begin_layout Standard
+Therefore, a different representation is used.
+ Suppose we start with the array of edges described above and sort them
+ by source vertex first, and destination vertex second.
+ Then, all the edges from a vertex 
+\begin_inset Formula $v$
+\end_inset
+
+ to its successors will occur as a consecutive sequence in the edge array,
+ and we can describe this as an interval 
+\begin_inset Formula $[\mathtt{succBegin[v],\mathtt{succEnd[v]})}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+This representation as described would require 
+\begin_inset Formula $2\left|E\right|+2\left|V\right|$
+\end_inset
+
+ integers to be stored, and allows the following operations to be performed
+ efficiently:
+\end_layout
+
+\begin_layout Enumerate
+Enumerate the successors of a vertex (
+\begin_inset Formula $vE$
+\end_inset
+
+), in order.
+\end_layout
+
+\begin_layout Enumerate
+Calculate the number of successors of a vertex (
+\begin_inset Formula $\left|vE\right|$
+\end_inset
+
+), by calculating 
+\begin_inset Formula $\mathtt{succEnd[v]}-\mathtt{succBegin[v]}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+Determine if 
+\begin_inset Formula $vw\in E$
+\end_inset
+
+ (with binary search, this could take 
+\begin_inset Formula $O\left(log\left(\left|vE\right|+1\right)\right)$
+\end_inset
+
+ time).
+\end_layout
+
+\begin_layout Standard
+Of course, the first operation is the one that is used most commonly.
+ Additionally, we can apply two simplifications.
+ First, since the predecessor vertex of all edges with indices between 
+\begin_inset Formula $\mathtt{succBegin[v]}$
+\end_inset
+
+ and 
+\begin_inset Formula $\mathtt{succEnd[v]}$
+\end_inset
+
+ are known to be equal to 
+\begin_inset Formula $v$
+\end_inset
+
+, we don't need to store predecessor vertices at all.
+ Additionally, it is easy to see that 
+\begin_inset Formula $\mathtt{succEnd[v]=succBegin[v+1]}$
+\end_inset
+
+ for all 
+\begin_inset Formula $v$
+\end_inset
+
+ except the last vertex, so we can store all indices in a single array of
+ length 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+
+\begin_inset Formula $\left|V\right|+1$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+This it the final representation that is used, and requires 
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
+
+\begin_inset Formula $\left|E\right|+\left|V\right|+1$
+\end_inset
+
+ integers to store the edge data.
+ However, this edge representation only allows us to quickly find successors
+ of edges.
+ For some algorithms, it's useful to be able to find predecessors quickly
+ as well.
+ For this reason, the graph data structure by default stores the edge set
+ in reverse order too, doubling the amount of memory required.
+\end_layout
+
+\begin_layout Standard
+It should be noted that this dense edge representation does not allow efficient
+ insertion or removal of individual edges in the game graph, because each
+ such operation requires a large part of the edge array to be moved.
+ Fortunately, the preprocessing algorithms that are applied in the solver
+ are applied to the graph as a whole, and the cost of individual changes
+ can therefore be amortized over the entire graph-wide operation.
+\end_layout
+
+\begin_layout Subsection
+The parity game structure
+\end_layout
+
+\begin_layout Standard
+In addition to the game graph, a parity game must store two attributes for
+ each vertex:
+\end_layout
+
+\begin_layout Enumerate
+The controlling player (Even or Odd), and
+\end_layout
+
+\begin_layout Enumerate
+the associated priority value, 
+\begin_inset Formula $\phi(v)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+These two attributes are packed into a two-byte structure, and stored in
+ an array of length 
+\begin_inset Formula $\left|V\right|$
+\end_inset
+
+.
+ Note that this limits the maximum priority that can be represented to 255,
+ which seems low, but is much larger than occurs in practice (although synthetic
+ cases with larger priorities could easily be generated).
+\end_layout
+
+\begin_layout Standard
+Additionaly, we store in the parity game structure two properties of the
+ game:
+\end_layout
+
+\begin_layout Enumerate
+The priority limit (
+\begin_inset Formula $d$
+\end_inset
+
+) which is calculated as the maximum priority value used + 1.
+ (This is equal to the order of the game assuming all priority values are
+ used.)
+\end_layout
+
+\begin_layout Enumerate
+An array of integers of length 
+\begin_inset Formula $d$
+\end_inset
+
+ that stores how many vertices occur with each individual priority value.
+\end_layout
+
+\begin_layout Standard
+This information can be recomputed from the vertex attributes in time 
+\begin_inset Formula $O(\left|V\right|)$
+\end_inset
+
+, but it is useful in a number of situations, for example, to quickly calculate
+ the worst-case execution time of the SPM algorithm or to quickly determine
+ whether priority compression is possible.
+\end_layout
+
+\begin_layout Subsection
+The solution structure
+\end_layout
+
+\begin_layout Standard
+Every solving algorithm needs to return a solution to the given parity game,
+ which consists of a partitioning of the vertex set into winning sets for
+ both players, and a strategy for each player which is defined at least
+ for vertices in the winning set of that player.
+\end_layout
+
+\begin_layout Standard
+This characterization shows that there is a strong relation between winning
+ sets and strategies of players: when a player controls a vertex which lies
+ outside his winning set, he has no meaningful strategy there (as every
+ possible move is by definition losing).
+ Therefore, we will simply define solutions as arrays which assign to every
+ vertex the successor vertex for the controlling player, or the special
+ value 
+\begin_inset Formula $-1$
+\end_inset
+
+ if it is in his opponent's winning set instead:
+\begin_inset Formula \[
+\mathtt{solution[v]}=\begin{cases}
+\sigma_{0}(v) & \mbox{ if }v\in V_{0}\cap W_{0}\\
+\sigma_{1}(v) & \mbox{ if }v\in V_{1}\cap W_{1}\\
+-1 & \mbox{ if }v\in(V_{0}\cap W_{1})\cup(V_{1}\cap W_{0})\end{cases}\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+From a solution array, winning sets and strategies can be trivially obtained
+ as follows:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+W_{x}=\{v\in V_{x}:\;\mathtt{solution[v]}\neq-1\}\]
+
+\end_inset
+
+
+\begin_inset Formula \[
+\sigma_{x}(v)=\begin{cases}
+\mathtt{solution[v]} & \mbox{ if }v\in W_{x}\\
+\min(vE) & \mbox{ if \ensuremath{v\notin W_{x}}}\end{cases}\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Note that the choice of the minimum successor for vertices which are lost
+ to the current player is arbitrary; in those cases any successor could
+ be chosen.
+\end_layout
+
+\begin_layout Standard
 \begin_inset Note Note
 status open
-
-\begin_layout Plain Layout
-- describe graph representation
-\end_layout
-
-\begin_layout Plain Layout
-- describe representation of strategies
-\end_layout
 
 \begin_layout Plain Layout
 - describe preprocessing algorithms
@@ -1987,6 +2379,15 @@ status open
 
 \begin_layout Plain Layout
 - describe SCC processing
+\end_layout
+
+\begin_layout Plain Layout
+- descripe mapping used to map subgames back to original games, preserving
+ results
+\end_layout
+
+\begin_layout Plain Layout
+- browse code for stuff I didn't cover yet
 \end_layout
 
 \end_inset
@@ -2248,7 +2649,7 @@ Next we can define a function
 \begin_inset Formula \[
 Lift(\rho,v)(u)=\begin{cases}
 \rho(u) & \mbox{if \ensuremath{u\neq v}}\\
-\max\{\rho(v),\min_{vw\in E}Prog(\rho,v,w)\} & \mbox{if \ensuremath{u=v\wedge v\in V_{0}} }\\
+\max\{\rho(v),\min_{vw\in E}Prog(\rho,v,w)\} & \mbox{if \ensuremath{u=v\wedge v\in V_{0}}}\\
 \max\{\rho(v),\max_{vw\in E}Prog(\rho,v,w)\} & \mbox{if }\ensuremath{u=v\wedge v\in V_{1}}\end{cases}\]
 
 \end_inset
@@ -2318,7 +2719,7 @@ W_{1}=\{v\in V:\;\rho(v)=\top\}\]
 
 \begin_layout Standard
 \begin_inset Formula \[
-\sigma_{0}(v)=w\mbox{ if \ensuremath{v\in W_{0}} and}\rho(v)=_{\phi(v)}\rho(w)\]
+\sigma_{0}(v)=w\mbox{ if \ensuremath{v\in W_{0}}and}\rho(v)=_{\phi(v)}\rho(w)\]
 
 \end_inset
 
