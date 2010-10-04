@@ -74,7 +74,6 @@ controlled
 priority
 \emph default
  is assigned, which is a non-negative integer.
- The picture below visualizes one possible parity game:
 \end_layout
 
 \begin_layout Standard
@@ -345,6 +344,20 @@ highest
  priority, as described above.
 \end_layout
 
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Repeat example game, with winning/losing sets and strategies for players
+ identified.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Subsection
 Strategies and Solutions
 \end_layout
@@ -500,7 +513,7 @@ determined
 status open
 
 \begin_layout Plain Layout
-TODO: reference proof; Borel determinancy
+TODO: cite proof; Borel determinacy
 \end_layout
 
 \end_inset
@@ -848,7 +861,85 @@ optimal memoryless strategy
 .
 \end_layout
 
-\begin_layout Subsection
+\begin_layout Section
+Computational Complexity
+\end_layout
+
+\begin_layout Standard
+[To write: something about known time complexity in NP and Co-NP (how?)
+ and therefore likely to be in P (because otherwise NP=co-NP, which is unlikely).
+ Best known complexity of algorithms.
+ At least mention Zielonka, SPM and strategy improvement.
+ Maybe add section about reduction to other (NP-complete of course) problems.
+ Mention that solving games in practice usually takes considerably less
+ time than the worst-case complexity suggests.]
+\end_layout
+
+\begin_layout Section
+Application To Model Checking
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+To write.
+ Should include mapping from modal mu calculus + LTS to parity games.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Related Work
+\end_layout
+
+\begin_layout Standard
+Zielonka describes strategies for a more general class of games played on
+ infinite (or finite) graphs, using colouring of vertices using colours
+ from a finite set instead of simple integers, and with a more complex winning
+ condition.
+ The class of games he describes cannot generally be solved by memoryless
+ strategies, but many of the concepts he mentions are applicable to parity
+ games.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Describe where Parity Games lie in the Borel hierarchy.
+\end_layout
+
+\begin_layout Plain Layout
+Describe previous solvers?
+\end_layout
+
+\begin_layout Plain Layout
+Describe other algorithms not described in this paper (strategy improvement,
+ others implemented in PGSolver).
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Chapter
+[Detailed description]
+\end_layout
+
+\begin_layout Standard
+[The goal of this part is to describe common restrictions and terminology
+ which will be used in later descriptions and analysis of algorithms.
+ Nothing new is introduced here.]
+\end_layout
+
+\begin_layout Section
 Restrictions on the graph
 \end_layout
 
@@ -931,7 +1022,7 @@ The final property is a true restriction because it makes it impossible
  of the graph is finite.
 \end_layout
 
-\begin_layout Subsection
+\begin_layout Section
 Restrictions on the set of priorities
 \end_layout
 
@@ -1225,7 +1316,7 @@ Most solving algorithms do not require that priorities are compressed into
  in the number of vertices, which makes it a relatively inexpensive operation.
 \end_layout
 
-\begin_layout Subsection
+\begin_layout Section
 Common Terminology
 \end_layout
 
@@ -1240,7 +1331,7 @@ There are a number of concepts which can be applied to parity games which
  from) subarenas.
 \end_layout
 
-\begin_layout Subsubsection
+\begin_layout Subsection
 Subgames
 \end_layout
 
@@ -1321,7 +1412,7 @@ proper subgame
  (in other words, it simply is a proper game as described above).
 \end_layout
 
-\begin_layout Subsubsection
+\begin_layout Subsection
 Traps
 \end_layout
 
@@ -1342,6 +1433,11 @@ Let
 \begin_inset Formula $vE=\left\{ w|vw\in E\right\} .$
 \end_inset
 
+ Analogously, 
+\begin_inset Formula $Ew=\{v|vw\in E\}$
+\end_inset
+
+.
  A non-empty vertex set 
 \family roman
 \series medium
@@ -1398,7 +1494,7 @@ Let
 \noun off
 \color none
 \begin_inset Formula \[
-v\in V_{x}\rightarrow vE\subseteq U\]
+v\in V_{x}\rightarrow vE\setminus U=\emptyset\]
 
 \end_inset
 
@@ -1423,38 +1519,236 @@ v\in V_{1-x}\rightarrow vE\cap U\neq\emptyset\]
 
 \end_layout
 
-\begin_layout Subsubsection
+\begin_layout Subsection
 Attractor sets
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
+An attractor set for a player 
+\begin_inset Formula $x$
+\end_inset
 
-\begin_layout Plain Layout
-Define attractor set.
+ on a vertex set 
+\bar under
+
+\begin_inset Formula $U\subseteq V$
+\end_inset
+
+
+\bar default
+, denoted 
+\begin_inset Formula $Attr^{x}(\Gamma,U)$
+\end_inset
+
+, is the set of vertices from which the player 
+\begin_inset Formula $x$
+\end_inset
+
+ can force the token into one of the vertices in 
+\begin_inset Formula $U$
+\end_inset
+
+ (including, by definition, vertices in 
+\begin_inset Formula $U$
+\end_inset
+
+ itself).
+ It is a fixed point attractor under expansion using the recursive definition:
 \end_layout
 
-\begin_layout Plain Layout
-Describe duality between attractor sets and traps (complement of attractor
- set is a trap).
- Note that traps formed this way are always proper subgames.
-\end_layout
+\begin_layout Standard
+Zielonka gives an iterative definition of an attractor set:
+\begin_inset Formula \[
+U_{0}=U\]
 
 \end_inset
 
 
 \end_layout
 
-\begin_layout Subsection
+\begin_layout Standard
+\begin_inset Formula \[
+U_{i+1}=U_{i}\cup\{v\in V_{x}:\; vE\cap U_{i}\neq\emptyset\}\cup\{v\in V_{1-x}:\; vE\setminus U_{i}=\emptyset\}\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+Attr^{x}(\Gamma,U)=U_{0}\cup U_{1}\cup\cdots\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This is also useful to compute the attractor set iteratively.
+ Since it is a fixed point attractor, 
+\begin_inset Formula $Attr^{x}(\Gamma,U)$
+\end_inset
+
+ 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+converges to 
+\begin_inset Formula $U_{i}$
+\end_inset
+
+ with 
+\begin_inset Formula $U_{i}=U_{i+1}$
+\end_inset
+
+.
+ From a practical point of view, we expand the attractor set until we can
+ add no more vertices to it, and then we are done.
+\end_layout
+
+\begin_layout Subsubsection
+Attractor strategies
+\end_layout
+
+\begin_layout Standard
+An important property of attractor sets, is that if 
+\begin_inset Formula $U\subseteq W^{x}$
+\end_inset
+
+, then 
+\begin_inset Formula $Attr^{x}(\Gamma,U)\subseteq W^{x}$
+\end_inset
+
+ too.
+ Of course, if we know the optimal strategy for all vertices 
+\begin_inset Formula $v\in U$
+\end_inset
+
+, then we also want to extend this strategy to 
+\begin_inset Formula $Attr^{x}(\Gamma,U)$
+\end_inset
+
+.
+ Fortunately, this can easily be done: every vertex that appears first in
+ 
+\begin_inset Formula $U_{i+1}$
+\end_inset
+
+ (i.e.
+ it is a member of 
+\begin_inset Formula $U_{i+1}\setminus U_{i}$
+\end_inset
+
+) has a successor in 
+\begin_inset Formula $U_{i}$
+\end_inset
+
+, and when we repeatedly choose such a successor, then we arrive at 
+\begin_inset Formula $U_{0}$
+\end_inset
+
+ in 
+\begin_inset Formula $i$
+\end_inset
+
+ steps, at which point the rest of the startegy is known.
+ Zielonka proves these properties in more detail.
+\end_layout
+
+\begin_layout Subsubsection
+Duality between attractor sets and traps
+\end_layout
+
+\begin_layout Standard
+The second important property of attractor sets, is that the complement
+ of an attractor set for player 
+\begin_inset Formula $x$
+\end_inset
+
+ (formally: 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+
+\begin_inset Formula $V'=V\setminus Attr^{x}(\Gamma,U)$
+\end_inset
+
+
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
+) is a trap for 
+\begin_inset Formula $x$
+\end_inset
+
+.
+ Moreover, if 
+\begin_inset Formula $\Gamma$
+\end_inset
+
+ is a proper game, 
+\begin_inset Formula $\Gamma|V'$
+\end_inset
+
+ is a proper subgame
+\emph on
+ 
+\emph default
+of 
+\begin_inset Formula $\Gamma$
+\end_inset
+
+, since if a vertex 
+\begin_inset Formula $v\in V'$
+\end_inset
+
+ has no successor 
+\begin_inset Formula $w\in V'$
+\end_inset
+
+ then all its successors must be in 
+\begin_inset Formula $Attr^{x}(\Gamma,U)$
+\end_inset
+
+ and 
+\begin_inset Formula $v$
+\end_inset
+
+ would have, by definition, been in the attractor set, instead of its complement.
+\end_layout
+
+\begin_layout Standard
+This property is important because it means that if we start with a proper
+ game (which is assumed in the following) then we can safely remove attractor
+ sets of arbitrary vertex sets and obtain a proper subgam, which is not
+ the case if we would remove arbitrary vertex sets.
+\end_layout
+
+\begin_layout Section
 Degenerate cases
 \end_layout
 
 \begin_layout Standard
 In addition to games which do not comply with the restrictions mentioned
- above, there are also a few classes of degenerate games that are special
+ earlier, there are also a few classes of degenerate games that are special
  cases of the general game describe above.
- There are mentioned separately because specific algorithms exist to solve
+ They are mentioned separately because specific algorithms exist to solve
  them quicker than is possible for the general case.
 \end_layout
 
@@ -1463,10 +1757,31 @@ These special cases are occasionally provided as input to a solver (for
  example, as the representation of a particularly simple model checking
  problem) but more commonly they arise after applying a number of reduction
  or partial solution techniques, as subproblems to be solved.
- Treating these cases separately can provide benefits in particular cases.
 \end_layout
 
-\begin_layout Subsubsection
+\begin_layout Subsection
+Single-parity games
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Single-priority-games"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+If the priorities of vertices all have the same parity (even or odd) then
+ the corresponding player will trivially win from every starting vertex,
+ with an arbitrary strategy.
+ A special case is the single-priority game, where only a single priority
+ is used.
+ Note that priority compression will reduce both single-parity and single-priori
+ty games to a game in which 0 is the only priority in use, making this type
+ of game easy to recognize.
+\end_layout
+
+\begin_layout Subsection
 Single-player games
 \end_layout
 
@@ -1536,66 +1851,41 @@ In extremely rare cases the game is played on a cycle graph and neither
 status open
 
 \begin_layout Plain Layout
-TODO: describe how to solve; similar to verification algorithm below.
- Maybe compare with PGSolver (if that's different).
- Otherwise, move details from verification to here.
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Subsubsection
-Single-parity games
-\begin_inset CommandInset label
-LatexCommand label
-name "sub:Single-priority-games"
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-If the priorities of vertices all have the same parity (even or odd) then
- the corresponding player will trivially win from every starting vertex,
- with an arbitrary strategy.
- A special case is the single-priority game, where only a single priority
- is used.
- Note that priority compression will reduce both single-parity and single-priori
-ty games to a game in which 0 is the only priority in use, making this type
- of game easy to recognize.
-\end_layout
-
-\begin_layout Subsubsection
-Graph decomposition
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-Describe solving strongly connected components invidiually (not really a
- degenerate case but OK)
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-What other simplifications/special cases have been identified.
+What other special cases have been identified?
 \end_layout
 
 \begin_layout Plain Layout
 Browse PGSolver docs/Jeroen's thesis for stuff worth repeating here.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Chapter
+Verification
+\end_layout
+
+\begin_layout Standard
+[Intro: I'll describe how to verify solutions, which is important to verify
+ correctness of algorithms after implementation, independent of correctness
+ proof of theoretical algorithms.
+ This is imporant to validate the emperical results.]
+\end_layout
+
+\begin_layout Section
+Solving single parity games
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+TODO: describe how to solve; similar to verification algorithm below.
+ Maybe compare with PGSolver (if that's different).
+ Otherwise, move details from verification to here.
 \end_layout
 
 \end_inset
@@ -1727,7 +2017,6 @@ Assuming these hold, then
 \end_inset
 
 .
- 
 \end_layout
 
 \begin_layout Standard
@@ -1916,66 +2205,22 @@ key "tarjan1971depth"
  worst-case time.
 \end_layout
 
-\begin_layout Section
-Related Work
-\end_layout
-
-\begin_layout Standard
-Zielonka describes strategies for a more general class of games played on
- infinite (or finite) graphs, using colouring of vertices using colours
- from a finite set instead of simple integers, and with a more complex winning
- condition.
- The class of games he describes cannot generally be solved by memoryless
- strategies, but many of the concepts he mentions are applicable to parity
- games.
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-Borel determinacy; proof of winning strategies for either players
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Section
-Computational Complexity
-\end_layout
-
-\begin_layout Standard
-[To write: something about known time complexity in NP and Co-NP (how?)
- and therefore likely to be in P (because otherwise NP=co-NP, which is unlikely).
- Best known complexity of algorithms.
- At least mention Zielonka, SPM and strategy improvement.
- Maybe add section about reduction to other (NP-complete of course) problems.
- Mention that solving games in practice usually takes considerably less
- time than the worst-case complexity suggests.]
-\end_layout
-
-\begin_layout Section
-Application To Model Checking
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-To write.
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
 \begin_layout Chapter
 Common algorithms and data structures
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Maybe move this one chapter up, if the verification algorithm's description
+ depends on it?
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -2369,21 +2614,52 @@ Note that the choice of the minimum successor for vertices which are lost
  be chosen.
 \end_layout
 
+\begin_layout Subsection
+Solving subgames
+\end_layout
+
 \begin_layout Standard
 \begin_inset Note Note
 status open
 
 \begin_layout Plain Layout
-- describe preprocessing algorithms
-\end_layout
-
-\begin_layout Plain Layout
-- describe SCC processing
-\end_layout
-
-\begin_layout Plain Layout
 - descripe mapping used to map subgames back to original games, preserving
  results
+\end_layout
+
+\begin_layout Plain Layout
+- describe why this is useful 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Graph decomposition
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Describe solving strongly connected components invidiually (not really a
+ degenerate case but OK)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+- describe preprocessing algorithms: SCC decomposition
 \end_layout
 
 \begin_layout Plain Layout
@@ -2402,12 +2678,12 @@ Small Progress Measures
 \begin_layout Standard
 Small Progress Measures is a relatively simple, iterative algorithm for
  partially solving parity games.
- A game is solved partially in the sense that the winning set and optimal
+ A game is solved only partially in the sense that the winning set and optimal
  strategy for one player is determined.
  To solve a game completely, the algorithm must therefore be run twice,
- but fortunately for the second run the part of the game that has already
- been solved can be omitted, which typically greatly reduces the time required
- to solve the remaining part of the game.
+ but, fortunately, in the second pass the winning set of the first player
+ can be omitted from the game graph, which typically reduces the time required
+ to solve the remaining part of the game significantly.
 \end_layout
 
 \begin_layout Standard
@@ -2908,9 +3184,13 @@ status open
 
 \begin_layout Plain Layout
 - identify and label lemma's so I can refer to them more easily
-\begin_inset Newline newline
-\end_inset
+\end_layout
 
+\begin_layout Plain Layout
+- distinguish more clearly between previous work and stuff I came up with
+\end_layout
+
+\begin_layout Plain Layout
 - replace x by a different player variable? (Zielonka uses 
 \begin_inset Formula $\sigma$
 \end_inset
@@ -2919,11 +3199,11 @@ status open
 \begin_inset Newline newline
 \end_inset
 
-- label lemmas (if needed for proofs)
-\begin_inset Newline newline
-\end_inset
-
 - have I described everything I came up with?
+\end_layout
+
+\begin_layout Plain Layout
+- need many more references!
 \end_layout
 
 \end_inset
