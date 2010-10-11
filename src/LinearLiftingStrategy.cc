@@ -10,19 +10,22 @@
 #include "LinearLiftingStrategy.h"
 
 LinearLiftingStrategy::LinearLiftingStrategy(
-    const ParityGame &game, bool backward )
-    : LiftingStrategy(game), backward_(backward), failed_lifts_(0)
+    const ParityGame &game, bool backward, bool alternate )
+    : LiftingStrategy(game), backward_(backward), alternate_(alternate),
+      dir_(0), failed_lifts_(0)
 {
 }
 
 verti LinearLiftingStrategy::next(verti prev_vertex, bool prev_lifted)
 {
     const verti last_vertex = graph_.V() - 1;
+    if (last_vertex == 0) return 0;
 
     if (prev_vertex == NO_VERTEX)
     {
         /* First vertex; pick either first or last depending on direction. */
-        return backward_ ? last_vertex : 0;
+        dir_ = backward_;
+        return dir_ ? last_vertex : 0;
     }
 
     if (prev_lifted)
@@ -35,13 +38,19 @@ verti LinearLiftingStrategy::next(verti prev_vertex, bool prev_lifted)
         if (failed_lifts_ == graph_.V()) return NO_VERTEX;
     }
 
-    if (backward_)
+    if (dir_ == 0)  // forward
     {
-        return prev_vertex == 0 ? last_vertex : prev_vertex - 1;
+        if (prev_vertex != last_vertex) return prev_vertex + 1;
+        if (!alternate_) return 0;
+        dir_ = 1;
+        return last_vertex - 1;
     }
-    else
+    else  // backward
     {
-        return prev_vertex == last_vertex ? 0 : prev_vertex + 1;
+        if (prev_vertex != 0) return prev_vertex - 1;
+        if (!alternate_) return last_vertex;
+        dir_ = 0;
+        return 1;
     }
 }
 
@@ -49,5 +58,5 @@ LiftingStrategy *LinearLiftingStrategyFactory::create(
     const ParityGame &game, const SmallProgressMeasures &spm )
 {
     (void)spm;  // unused
-    return new LinearLiftingStrategy(game, backward_);
+    return new LinearLiftingStrategy(game, backward_, alternate_);
 }

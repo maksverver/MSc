@@ -2677,7 +2677,7 @@ Small Progress Measures
 
 \begin_layout Standard
 Small Progress Measures is a relatively simple, iterative algorithm for
- partially solving parity games.
+ partially solving parity games proposed my Marcin Jurdziński.
  A game is solved only partially in the sense that the winning set and optimal
  strategy for one player is determined.
  To solve a game completely, the algorithm must therefore be run twice,
@@ -2700,6 +2700,16 @@ y simple which allows it to be implemented easily and provides ample opportunity
 \end_inset
 
  space (in addition to space required to store the parity game itself).
+\end_layout
+
+\begin_layout Standard
+Oliver Friedmann proposed a variation of the algorithm that effectively
+ combines the two passes in one, solving both the game and its dual at the
+ same time.
+ This does not improve on the worst-case time bounds (and, in fact, may
+ require up to twice as much time and memory compared to the standard algorithm)
+, but in practice avoids many of the pitfalls that cause excessive runtimes
+ with the standard algorithm, which makes it a useful alternative in practice.
 \end_layout
 
 \begin_layout Section
@@ -3011,8 +3021,26 @@ W_{1}=\{v\in V:\;\rho(v)=\top\}\]
  to obtain an optimal strategy.)
 \end_layout
 
+\begin_layout Standard
+The top-level algorithm can now be describe very succinctly (and, unfortunately,
+ vaguely) as follows.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Pseudo-code
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Subsection
-[Choice of lifted vertex]
+Lifting Strategies
 \end_layout
 
 \begin_layout Standard
@@ -3023,8 +3051,7 @@ In the above description it has not been specified how we will select a
 
 ) when more than one choice of vertex is available.
  This is because, as part of the correctness proof for the algorithm, Jurdziński
- shows that the order in which vertices are lifted does not matter for the
- correctness or worst-case performance of the algorithm.
+ shows that the order in which vertices are lifted does not matter.
  Regardless of the strategy used, the algorithm will always arrive at the
  unique minimum fixed point, and the worst-case number of applications of
  the 
@@ -3072,8 +3099,459 @@ In a practical implementation, to find a vertex that can be lifted, one
 \end_inset
 
 .
- An inappropriate strategy may spend a relatively large amount of time looking
- at vertices which cannot be lifted.
+ If the lifting attempt fails, we have achieved nothing, an inappropriate
+ strategy may spend a relatively large amount of time on failed lifting
+ attempts.
+\end_layout
+
+\begin_layout Standard
+We will call the computation of 
+\begin_inset Formula $Lift(\rho,v)(v)$
+\end_inset
+
+ a 
+\emph on
+lifting attempt
+\emph default
+, which can either succeed (
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+
+\begin_inset Formula $Lift(\rho,v)(v)\ne\rho$
+\end_inset
+
+
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
+) or fail 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+
+\begin_inset Formula $Lift(\rho,v)(v)=\rho$
+\end_inset
+
+
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
+.
+ Depending on the implementation, a succesful lifting attempt may be more
+ costly than an unsuccesful attempt, but both have non-zero cost, so the
+ goal for an efficient implementation will be to minimize both of these
+ operations.
+\end_layout
+
+\begin_layout Standard
+If lifting a vertex 
+\begin_inset Formula $v$
+\end_inset
+
+ fails, we will call it (temporarily) stable for the current progress measure.
+ A vertex becomes stable indefinitely when it has reached its value in the
+ minimum fixed point.
+ We try to avoid lifting stable vertices (as this does not progress the
+ algorithm) but in many cases we cannot determine whether a vertex is stable
+ unless we try to lift it, similar to how we have to try and fail to lift
+ some vertices to determine that a minimum fixed point has been reached.
+\end_layout
+
+\begin_layout Standard
+We will assume in the following that the cost of a succesful lifting attempt
+ is constant regardless of the vertex being lifted.
+ In practice, the cost depends at least on the priority of the vertex and
+ how many successors it has 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+refer to actual implementation where this is clear
+\end_layout
+
+\end_inset
+
+, but since both the maximum priority and the average out-degree is typically
+ low, we might ignore this for sake of simplicity.
+ Similarly, we will assume that the cost of failed lifting attempts is constant
+ as well, and is no greater than that of a succesful lifting attempt, as
+ the same successors must be examined, except that no updates are performed.
+\end_layout
+
+\begin_layout Standard
+Ideally, the SPM algorithm performs succesful lifting attempts only and
+ then stops, minimizing the total cost required to arrive at a solution.
+ Unfortunately, there is no obvious way to select vertices to achieve this.
+ Moreover, after the minimal fixed point has been found, we may have to
+ perform additional (failing) lifting attempts just to verify that we have
+ indeed found a fixed point.
+ Unfortunately, there is no obvious way to select vertices in an optimal
+ fashion.
+ Therefore, lifting strategies are necessarily heuristical in nature, making
+ a best-effort attempt at selecting a sequence of vertices that minimizes
+ the cost.
+ 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+(But can we determine an optimal sequence with hindsight?)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+A 
+\emph on
+lifting strategy
+\emph default
+ is a heuristical algorithm that, depending on the structure of the graph,
+ the values of the progress measure vectors and/or the history of vertices
+ being lifted, determines which vertex is selected for the next lifting
+ attempt.
+ Most sensible strategies are 
+\emph on
+online algorithms
+\emph default
+ in the sense that they take the success of the previous lifting operation
+ into account to determine which vertex to lift next.
+ As a result, the strategies are stateful, and although sophisticated lifting
+ strategies may cause fewer work to be done in the SPM algorithm itself,
+ this comes at the cost of requiring more time and memory spent on keeping
+ state for the lifting strategy itself.
+ We will present results which quantify this overhead later.
+\end_layout
+
+\begin_layout Subsection
+Termination conditions
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+To write: which vertices do we need to lift to verify that we have found
+ a fixed point
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Pseudo-code for core algorithm, which calls lifting strategy to determine
+ both next vertex and when to stop.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Distributed implementation
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Partition graph, process independently, propagate changes at overlapping
+ vertices.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Linear Lifting Strategy
+\end_layout
+
+\begin_layout Standard
+Arguably the most basic lifting strategy is a strategy that simply picks
+ vertices in order of increasing indices, repeating the process as necessary,
+ until all vertices in the graph have failed to be lifted in succession.
+ Its advantages are that it is simple to implement, requires almost no additiona
+l memory, and takes very little time.
+ However, the main disadvantage is that it ends up spending a lot of time
+ attempting (and failing) to lift vertices in stable parts of the game graph.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+TODO: pseudo-code
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Weber and Van de Pol call this strategy s
+\emph on
+wiping
+\emph default
+ instead and it is one of the main strategies implemented in their multi-core
+ solver.
+\end_layout
+
+\begin_layout Standard
+One variation of the strategy is to iterate vertices from back to front.
+ This can be beneficial in cases where the graph has been constructed in
+ a forward fashion, so that a vertex tends to have a higher index than its
+ predecessors.
+ Since changes in the graph propagate from vertices to their predecessors,
+ iterating in reverse may cause many more vertices to be lifted, the pathologica
+l example being a graph which is a simple cycle, with edges 
+\begin_inset Formula $E=\{(v,w):\; w\equiv v+1\mod{\left|V\right|}$
+\end_inset
+
+.
+ Iterating in forward direction might cause only a single succesful lift
+ on every pass, while the reverse allows all vertices to be lifted.
+\end_layout
+
+\begin_layout Standard
+If we expect the edges of the graph to be predominantly oriented one way
+ or the other, but we do not know which way in advance, another variation
+ would be to alternate the direction of iteration on every pass, avoiding
+ the bad case mentioned above.
+ Even then we can construct cases which cause a lot of failed lifts, but
+ these may arise less frequently in practice.
+\end_layout
+
+\begin_layout Standard
+In addition to these variations, it is possible to try to reorder vertices
+ in the graph at the start, so that the dominant edge direction is optimal
+ for the linear lifting strategy.
+ 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+mention this as a preprocessing step for SPM
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Predecessor Lifting Strategy
+\end_layout
+
+\begin_layout Standard
+A more sophisticated lifting strategy takes into account the fact that a
+ known-stable vertex can only become unstable after the progress measure
+ vector of one of its successors has been updated.
+ After all, the value for one vertex depends only on the values for its
+ successors.
+ The predecessor lifting strategy uses a set datastructure to store potentially
+ unstable vertices, which is initialized to all vertices in the graph.
+ A vertex is arbitrarily removed from this set to be lifted, and if this
+ succeeds, its predecessors are inserted back into the set (if they were
+ not yet present).
+ All vertices not in the set are necessarily stable, so when the set becomes
+ empty, lifting is complete.
+\end_layout
+
+\begin_layout Standard
+The advantage of this strategy is that it prevents a lot of unnecessary
+ lifting that may occur with the linear lifting strategy.
+ In fact, the ratio of unsuccesful to succesful lifts is strictly limited
+ by the maximum indegree of a vertex in the graph.
+ Again, pathological cases can be constructed where this strategy performs
+ badly.
+ For example, when the game graph is complete (i.e.
+ 
+\begin_inset Formula $E=V\times V$
+\end_inset
+
+) all vertices remain in the set until the game is completely solved.
+ Fortunately, in practice parity game graphs tend to be sparse, making this
+ an unlikely scenario.
+\end_layout
+
+\begin_layout Standard
+The main disadvantage of the lifting strategy is that it requires maintaining
+ the set of unstable vertices, which requires 
+\begin_inset Formula $O(\left|V\right|)$
+\end_inset
+
+ extra memory.
+ In my solver, I choose to implement this set with a linear array of boolean
+ variables to indicate whether a vertex is in the set, and another array
+ which acts as a circular queue of vertices.
+ This implementation has the advantage of allowing constant time insertion
+ and deletion of vertices in the queue, though the time required to update
+ the queue is still linear in the number of predecessors of the last vertex
+ lifted.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+TODO: describe variations: forward/backward, queue/stack.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+TODO: pseudo-code
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Weber and Van de Pol call this the 
+\emph on
+work list approach
+\emph default
+, but reject it in their multi-core solver making two objections:
+\end_layout
+
+\begin_layout Enumerate
+It requires predecessors of vertices to be stored in addition to successors,
+ which requires additional memory.
+\end_layout
+
+\begin_layout Enumerate
+The overhead involved maintaining the set may be too large.
+\end_layout
+
+\begin_layout Standard
+However, in my experience graphs do not take a prohibitively large amount
+ of memory, and the non-blocking primitives required to implement the set
+ in a lock-free manner are readily available, and may well have been easier
+ to implement than the focus list approach described below.
+ 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+So this probably means I should try to implement it instead.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In PGSolver, which is limited to single-threaded operation only, the predecessor
+ lifting strategy is the only lifting strategy implemented.
+\end_layout
+
+\begin_layout Subsection
+Focus List Approach
+\end_layout
+
+\begin_layout Standard
+The 
+\emph on
+focus list approach
+\emph default
+ is a strategy designed by Weber and Van der Pol in order to avoid the main
+ disadvantage of the linear lifting strategy without introducing complicated
+ data structures.
+ It starts out iterating linearly over the vertices of the graph, putting
+ vertices which are succesfully lifted on a fixed-size work list.
+ When the work list is full, vertices on it are assigned a credit value
+ of 1 and are selected for lifting again.
+ When lifting a vertex succeeds, its credit is incremented linearly (adding
+ a constant); if it fails, it is decreased exponentially (dividing by a
+ constant).
+ A vertex whose credit drops to 0 is removed from the work list.
+ When the work list is empty the linear lifting strategy is resumed.
+\end_layout
+
+\begin_layout Standard
+The idea behind the focus list is that it is used to capture unstable parts
+ of the graph.
+ When working on the focus list, either lifting attempts will have a high
+ success rate, or the list will be cleared quickly, allowing new vertices
+ to be selected.
+ This could avoid many of the unsuccesful lifts occuring.
+ There is little emperical evidence available about its performance.
+\end_layout
+
+\begin_layout Subsection
+Maximum-Measure Propagation
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+- Description
+\end_layout
+
+\begin_layout Plain Layout
+- Pseudo-code
+\end_layout
+
+\begin_layout Plain Layout
+- Worst cases?
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Simple lifting
 \end_layout
 
 \begin_layout Standard
@@ -3083,14 +3561,34 @@ Additionally, the freedom to lift (or try to lift) vertices in any order
  at different locations can be lifted independently and in parallel.
 \end_layout
 
+\begin_layout Subsection
+Two-way SPM
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Describe Friedmann's implementation.
+\end_layout
+
+\begin_layout Plain Layout
+Note/prove upper bound of factor 2 on runtime and memory use.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Section
 Implementation
 \end_layout
 
 \begin_layout Standard
-To implement the algorithm described above, we work back from top to bottom.
- The top level algorithm is simple: start with all-zero progress measures,
- while a vertex can be found that can be lifted, lift it.
+To implement the Jurdziński's algorithm, we start with an all-zero progress
+ measures, and while a vertex can be found that can be lifted, we lift it.
  Jurdziński notes that finding a suitable vertex to lift takes at most 
 \begin_inset Formula $O(\left|V\right|)$
 \end_inset
@@ -3108,6 +3606,10 @@ status open
 
 \begin_layout Plain Layout
 - cite parallel implementation by Michael
+\end_layout
+
+\begin_layout Plain Layout
+
 \end_layout
 
 \begin_layout Plain Layout
@@ -3134,6 +3636,10 @@ status open
  which is why the dual method works well, and why it makes sense to try
  to pick the easiest player to solve for first, as the second run will be
  on a smaller graph and then run much faster.
+\end_layout
+
+\begin_layout Plain Layout
+- dual games
 \end_layout
 
 \end_inset
@@ -3204,6 +3710,10 @@ status open
 
 \begin_layout Plain Layout
 - need many more references!
+\end_layout
+
+\begin_layout Plain Layout
+- should I say `minimum' or `minimal' fixed point?
 \end_layout
 
 \end_inset

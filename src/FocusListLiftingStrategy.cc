@@ -18,9 +18,10 @@ static const unsigned credit_increase = 2;
 
 
 FocusListLiftingStrategy::FocusListLiftingStrategy(
-    const ParityGame &game, bool backward, size_t max_size )
+    const ParityGame &game, bool backward, bool alternate, size_t max_size )
     : LiftingStrategy(game), max_size_(max_size), pass_(1),
-      lls_(game, backward), last_vertex_(NO_VERTEX), last_lifted_(false),
+      lls_(game, backward, alternate),
+      last_vertex_(NO_VERTEX), last_lifted_(false),
       num_lift_attempts_(0), focus_list_(), focus_pos_(focus_list_.end())
 {
 }
@@ -138,5 +139,5 @@ LiftingStrategy *FocusListLiftingStrategyFactory::create(
     if (max_size == 0) max_size = 1;
     if (max_size >  V) max_size = V;
 
-    return new FocusListLiftingStrategy(game, backward_, max_size);
+    return new FocusListLiftingStrategy(game, backward_, alternate_, max_size);
 }

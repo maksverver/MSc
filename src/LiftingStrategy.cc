@@ -37,26 +37,29 @@ LiftingStrategyFactory *
     }
     parts.push_back(std::string(description, i, j));
 
-    if (strcasecmp(parts[0].c_str(), "linear") == 0)
+    if ( strcasecmp(parts[0].c_str(), "linear") == 0 ||
+         strcasecmp(parts[0].c_str(), "lin") == 0 )
     {
-        int backward = (parts.size() > 1 ? atoi(parts[1].c_str()) : 0);
-        return new LinearLiftingStrategyFactory(backward);
+        bool backward  = (parts.size() > 1 ? atoi(parts[1].c_str()) : 0);
+        bool alternate = (parts.size() > 2 ? atoi(parts[2].c_str()) : 0);
+        return new LinearLiftingStrategyFactory(backward, alternate);
     }
     else
     if ( strcasecmp(parts[0].c_str(), "predecessor") == 0 ||
          strcasecmp(parts[0].c_str(), "pred") == 0 )
     {
-        int backward = (parts.size() > 1 ? atoi(parts[1].c_str()) : 0);
-        int stack    = (parts.size() > 2 ? atoi(parts[2].c_str()) : 0);
+        bool backward = (parts.size() > 1 ? atoi(parts[1].c_str()) : 0);
+        bool stack    = (parts.size() > 2 ? atoi(parts[2].c_str()) : 0);
         return new PredecessorLiftingStrategyFactory(backward, stack);
     }
     else
     if ( strcasecmp(parts[0].c_str(), "focuslist") == 0 ||
          strcasecmp(parts[0].c_str(), "focus") == 0 )
     {
-        int backward = (parts.size() > 1 ? atoi(parts[1].c_str()) : 0);
-        double ratio = (parts.size() > 2 ? atof(parts[2].c_str()) : 0);
-        return new FocusListLiftingStrategyFactory(backward, ratio);
+        bool backward  = (parts.size() > 1 ? atoi(parts[1].c_str()) : 0);
+        bool alternate = (parts.size() > 2 ? atoi(parts[2].c_str()) : 0);
+        double ratio   = (parts.size() > 3 ? atof(parts[3].c_str()) : 0);
+        return new FocusListLiftingStrategyFactory(backward, alternate, ratio);
     }
     else
     if (strcasecmp(parts[0].c_str(), "maxmeasure") == 0)

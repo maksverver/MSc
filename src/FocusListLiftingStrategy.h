@@ -29,17 +29,13 @@
     algorithm switches to pass 2.
 
     TODO: improve performance by using a fixed size list instead of a std::list
-
-    TODO: instead of restarting pass 1 at the beginning, it may make sense to
-          restart at the end, although this makes it slightly more tricky to
-          determine when we are done.
 */
 
 class FocusListLiftingStrategy : public LiftingStrategy
 {
 public:
     FocusListLiftingStrategy( const ParityGame &game,
-                              bool backward, size_t max_size );
+                              bool backward, bool alternate, size_t max_size );
     verti next(verti prev_vertex, bool prev_lifted);
     size_t memory_use() const;
     bool backward() const { return lls_.backward(); }
@@ -70,15 +66,16 @@ private:
 class FocusListLiftingStrategyFactory : public LiftingStrategyFactory
 {
 public:
-    FocusListLiftingStrategyFactory(bool backward, double ratio)
-        : backward_(backward), ratio_(ratio > 0 ? ratio : 0.1) { };
+    FocusListLiftingStrategyFactory(bool backward, bool alternate, double ratio)
+        : backward_(backward), alternate_(alternate),
+          ratio_(ratio > 0 ? ratio : 0.1) { };
 
     LiftingStrategy *create( const ParityGame &game,
                              const SmallProgressMeasures &spm );
 
 private:
-    const bool      backward_;
-    const double    ratio_;
+    const bool   backward_, alternate_;
+    const double ratio_;
 };
 
 #endif /* ndef FOCUS_LIST_LIFTING_STRATEGY_H_INCLUDED */

@@ -21,13 +21,16 @@
 class LinearLiftingStrategy : public LiftingStrategy
 {
 public:
-    LinearLiftingStrategy(const ParityGame &game, bool backward);
+    LinearLiftingStrategy(const ParityGame &game, bool backward, bool alternate);
     verti next(verti prev_vertex, bool prev_lifted);
 
     bool backward() const { return backward_; }
+    bool alternate() const { return alternate_; }
 
 private:
-    const bool backward_;       //!< indicates the direction to move
+    const bool backward_;       //!< initial direction of iteration
+    const bool alternate_;      //!< alternate direction after each pass
+    bool dir_;                  //!< current direction of iteration
     verti failed_lifts_;        //!< number of consecutive failed lift attempts
 };
 
@@ -35,14 +38,14 @@ private:
 class LinearLiftingStrategyFactory : public LiftingStrategyFactory
 {
 public:
-    LinearLiftingStrategyFactory(bool backward = false)
-        : backward_(backward) { };
+    LinearLiftingStrategyFactory(bool backward = false, bool alternate = false)
+        : backward_(backward), alternate_(alternate) { };
 
     LiftingStrategy *create( const ParityGame &game,
                              const SmallProgressMeasures &spm );
 
 private:
-    const bool backward_;
+    const bool backward_, alternate_;
 };
 
 #endif /* ndef LINEAR_LIFTING_STRATEGY_H_INCLUDED */
