@@ -120,6 +120,7 @@ private:
     verti get_max_succ(verti v);
 
     // Allow selected lifting strategies to access the SPM  internals:
+    friend class PredecessorLiftingStrategy;
     friend class MaxMeasureLiftingStrategy;
     friend class OldMaxMeasureLiftingStrategy;
 

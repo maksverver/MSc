@@ -38,8 +38,15 @@ protected:
     /*! Swaps the elements at indices i and j in the heap. */
     void swap(verti i, verti j);
 
-    /*! Pushes the vertex into the queue. */
+    /*! Pushes the vertex into the queue, or restores the heap property after
+        vertex v has been modified. */
     void push(verti v);
+
+    /*! Removes the vertex from the queue, if it is present. */
+    void remove(verti v);
+
+    /*! Returns the top element in the heap. */
+    verti top() { return pq_[0]; }
 
     /*! Pops the top element from the heap and restores the heap property */
     void pop();

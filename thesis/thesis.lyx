@@ -43,7 +43,7 @@
 \begin_body
 
 \begin_layout Title
-Title goes here
+fiTitle goes here
 \end_layout
 
 \begin_layout Chapter
@@ -3203,7 +3203,7 @@ refer to actual implementation where this is clear
 Ideally, the SPM algorithm performs succesful lifting attempts only and
  then stops, minimizing the total cost required to arrive at a solution.
  Unfortunately, there is no obvious way to select vertices to achieve this.
- Moreover, after the minimal fixed point has been found, we may have to
+ Moreover, after the minimum fixed point has been found, we may have to
  perform additional (failing) lifting attempts just to verify that we have
  indeed found a fixed point.
  Unfortunately, there is no obvious way to select vertices in an optimal
@@ -3243,7 +3243,8 @@ online algorithms
  strategies may cause fewer work to be done in the SPM algorithm itself,
  this comes at the cost of requiring more time and memory spent on keeping
  state for the lifting strategy itself.
- We will present results which quantify this overhead later.
+ We will present results which quantify this overhead for various possible
+ strategies later.
 \end_layout
 
 \begin_layout Subsection
@@ -3271,6 +3272,93 @@ status open
 \begin_layout Plain Layout
 Pseudo-code for core algorithm, which calls lifting strategy to determine
  both next vertex and when to stop.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Core Algorithm Implementation
+\end_layout
+
+\begin_layout Standard
+To implement the Jurdziński's algorithm, we start with an all-zero progress
+ measures, and while a vertex can be found that can be lifted, we lift it.
+ Jurdziński notes that finding a suitable vertex to lift takes at most 
+\begin_inset Formula $O(\left|V\right|)$
+\end_inset
+
+ time (by considering each vertex in succession).
+ In practice we can do better, at least on average, with a suitable lifting
+ strategy.
+\end_layout
+
+\begin_layout Standard
+The small progress measure vectors themselves are stored simply in a contiguous
+ array of length 
+\begin_inset Formula $\left|V\right|\times\left\lfloor \frac{d}{2}\right\rfloor $
+\end_inset
+
+ (where 
+\begin_inset Formula $d$
+\end_inset
+
+ is one larger than the maximum priority occuring in the game graph), since
+ each vector consists of 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+
+\begin_inset Formula $\left\lfloor \frac{d}{2}\right\rfloor $
+\end_inset
+
+ components.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+- Insert pseudo-code
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+- Mention vertex mapping? (This should be described somewhere else, as it's
+ part of the global framework, not just SPM)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Graph Preprocessing
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+TODO: describe preprocessing operations performed (self-cycle removal).
 \end_layout
 
 \end_inset
@@ -3431,19 +3519,6 @@ The main disadvantage of the lifting strategy is that it requires maintaining
 status open
 
 \begin_layout Plain Layout
-TODO: describe variations: forward/backward, queue/stack.
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
 TODO: pseudo-code
 \end_layout
 
@@ -3492,6 +3567,33 @@ In PGSolver, which is limited to single-threaded operation only, the predecessor
  lifting strategy is the only lifting strategy implemented.
 \end_layout
 
+\begin_layout Standard
+There is some freedom of implementation when deciding which vertex from
+ the set of potentially unstable vertices to lift next.
+ The maximum measure lifting strategy (described later) uses the current
+ progress measures vectors to select a vertex.
+ My implementation uses no external information, but can be configured to
+ extract vertices from the queue in a first in, first out (FIFO) or last
+ in, last out (LIFO) manner, in which case the queue works like a stack.
+ Additionally, the vertices can initially be inserted in forward or in reverse
+ order, for similar reasons as the linear lifting strategy can change directions.
+ This gives a total of four different variations, which perform differently
+ depending on the test case.
+ Extracting vertices in LIFO order may have the benefit of providing better
+ cache locality, even when it doesn't reduce the number of lifts.
+ 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+but I have no practical results that show this clearly
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Subsection
 Focus List Approach
 \end_layout
@@ -3501,17 +3603,18 @@ The
 \emph on
 focus list approach
 \emph default
- is a strategy designed by Weber and Van der Pol in order to avoid the main
- disadvantage of the linear lifting strategy without introducing complicated
- data structures.
+ is a strategy designed by Weber and van de Pol in order to avoid the disadvanta
+ges of the linear lifting strategy (mainly that it performs a lot of unnecessary
+ failed lifting attempts) without introducing complicated data structures.
  It starts out iterating linearly over the vertices of the graph, putting
  vertices which are succesfully lifted on a fixed-size work list.
- When the work list is full, vertices on it are assigned a credit value
- of 1 and are selected for lifting again.
+ When the work list is full, vertices on it are assigned an initial credit
+ value of 1 and are selected for lifting again.
  When lifting a vertex succeeds, its credit is incremented linearly (adding
  a constant); if it fails, it is decreased exponentially (dividing by a
  constant).
- A vertex whose credit drops to 0 is removed from the work list.
+ A vertex whose credit drops below a certain threshold is removed from the
+ work list.
  When the work list is empty the linear lifting strategy is resumed.
 \end_layout
 
@@ -3522,7 +3625,8 @@ The idea behind the focus list is that it is used to capture unstable parts
  success rate, or the list will be cleared quickly, allowing new vertices
  to be selected.
  This could avoid many of the unsuccesful lifts occuring.
- There is little emperical evidence available about its performance.
+ Since Weber and van de Pol are the only ones to implement this strategy,
+ there is little emperical evidence available about its performance.
 \end_layout
 
 \begin_layout Subsection
@@ -3530,19 +3634,79 @@ Maximum-Measure Propagation
 \end_layout
 
 \begin_layout Standard
+The maximum-measure propagation strategy is a variant of the predecessor
+ lifting strategy that at each iteration attempts to lift a vertex with
+ a successor that has a maximal progress measure vector assigned to it.
+ The rationale behind this strategy is the observation that since we increase
+ the progress measure vector for at most one vertex every iteration, and
+ since the final progress measure for this vertex does not depend on the
+ order of lifting, then in order to perform as few (succesful) lifts as
+ possible, it makes sense to try to lift vertices with the largest increments
+ possible.
+\end_layout
+
+\begin_layout Standard
+Pathological examples can be constructed in which this order of lifting
+ provides obvious benefit.
+ Specifically, whenever a vertex is known to be won by player Odd (when
+ it is assigned top value) all vertices in its attractor set will be set
+ to top too, before any other vertices are lifted, since top is the maximal
+ value in the graph.
+ With the normal predecessor lifting strategy, these vertices might have
+ been lifted multiple times before inevitably finally reaching top value.
+\end_layout
+
+\begin_layout Standard
+In practice, maximum-measure propagation is not always strictly better than
+ the general simple predecessor lifting strategy described above, as will
+ be shown later.
+ However, in many cases it does cause fewer (succesful as well as total)
+ lifting attempts.
+ Its main disadvantage lies in the considerable amount of overhead in the
+ implementation of the strategy itself.
+ In order to keep track of vertices with high progress measures, it is necessary
+ to implement some sort of priority queue structure.
+ Additionally, it must be possible to move queued vertices in the queue
+ when the value for their successor changes.
+\end_layout
+
+\begin_layout Standard
+In my implementation, the successors (not the vertices themselves) are kept
+ in a complete binary heap structure ordered by their progress measure vectors,
+ stored in an array of size equal to 
+\begin_inset Formula $\left|V\right|$
+\end_inset
+
+.
+ In order to be able to move vertices up in the heap whenever they are lifted,
+ another array of size 
+\begin_inset Formula $\left|V\right|$
+\end_inset
+
+ keeps track of the position of vertices in the heap.
+ (Since progress measure vectors are only ever increased, never decreased,
+ moving down is not necessary).
+ Finally, for each predecessor in the heap I store whether or not it is
+ queued in a boolean array of size 
+\begin_inset Formula $\left|V\right|$
+\end_inset
+
+.
+ Whenever a vertex is succesfully lifted, I mark all of its predecessors
+ that have not yet been assigned top value as queued.
+ If there are any, then the vertex itself is inserted into the heap or moved
+ up from its current position if it is already present.
+ If there are none, then the successor vertex is removed.
+\end_layout
+
+\begin_layout Standard
 \begin_inset Note Note
 status open
 
 \begin_layout Plain Layout
-- Description
-\end_layout
-
-\begin_layout Plain Layout
-- Pseudo-code
-\end_layout
-
-\begin_layout Plain Layout
-- Worst cases?
+CHECKME: why did I implement it like this, instead of storing the queued
+ vertices in the heap directly? I believe there was a good reason, but I
+ can't recall what it was.
 \end_layout
 
 \end_inset
@@ -3550,15 +3714,61 @@ status open
 
 \end_layout
 
-\begin_layout Subsubsection
-Simple lifting
+\begin_layout Standard
+Now, to select the next vertex to be lifted, the highest vertex in the heap
+ is consulted, and if any of its predecessors are still marked as queued,
+ it is returned.
+ If there are no predecessors to be lifted, the vertex is removed from the
+ heap, and we repeat the process.
+ When the heap is empty, no more vertices are queued and the solution is
+ complete.
+ Note that for each vertex, on average, we insert one vertex in the heap,
+ remove one vertex on the heap, and look up a number of vertices equal to
+ half of the in-degree of vertices in the graph.
+ Insertion and removal in a binary heap takes at most 
+\begin_inset Formula $O(\log\left|V\right|)$
+\end_inset
+
+ time.
+ Since we assume the game graph to be sparse, this is also the average overhead
+ per 
+\emph on
+succesful
+\emph default
+ lift for this strategy.
+ Although this overhead is still small, it is considerably more than the
+ 
+\begin_inset Formula $O(1)$
+\end_inset
+
+ overhead of data structures described previously.
+ Like the predecessor lifting strategy, the memory overhead is limited to
+ 
+\begin_inset Formula $O(\left|V\right|)$
+\end_inset
+
+, though with a larger constant factor.
 \end_layout
 
 \begin_layout Standard
-Additionally, the freedom to lift (or try to lift) vertices in any order
- enables implementors to write parallel implementations in which the game
- graph is partitioned and distributed over multiple processors, and vertices
- at different locations can be lifted independently and in parallel.
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+- Pseudo-code
+\end_layout
+
+\begin_layout Plain Layout
+- Worst cases, if different from predecessor lifting?
+\end_layout
+
+\begin_layout Plain Layout
+- Note that biggest-steps algorithm is possible too! (How?)
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection
@@ -3580,20 +3790,6 @@ Note/prove upper bound of factor 2 on runtime and memory use.
 \end_inset
 
 
-\end_layout
-
-\begin_layout Section
-Implementation
-\end_layout
-
-\begin_layout Standard
-To implement the Jurdziński's algorithm, we start with an all-zero progress
- measures, and while a vertex can be found that can be lifted, we lift it.
- Jurdziński notes that finding a suitable vertex to lift takes at most 
-\begin_inset Formula $O(\left|V\right|)$
-\end_inset
-
- time.
 \end_layout
 
 \begin_layout Standard

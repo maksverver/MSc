@@ -41,6 +41,7 @@ public:
         in forward order instead of in reverse).
     */
     PredecessorLiftingStrategy( const ParityGame &game,
+                                const SmallProgressMeasures &spm,
                                 bool backward, bool stack );
     ~PredecessorLiftingStrategy();
     verti next(verti prev_vertex, bool prev_lifted);
@@ -50,6 +51,7 @@ public:
     bool stack() const { return stack_; }
 
 private:
+    const SmallProgressMeasures &spm_;
     const bool backward_;
     const bool stack_;
     bool *queued_;

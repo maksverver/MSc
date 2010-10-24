@@ -11,8 +11,9 @@
 #include "assert.h"
 
 PredecessorLiftingStrategy::PredecessorLiftingStrategy(
-    const ParityGame &game, bool backward, bool stack )
-    : LiftingStrategy(game), backward_(backward),stack_(stack)
+    const ParityGame &game, const SmallProgressMeasures &spm,
+    bool backward, bool stack )
+    : LiftingStrategy(game), spm_(spm), backward_(backward), stack_(stack)
 {
     assert(game.graph().edge_dir() & StaticGraph::EDGE_PREDECESSOR);
 
@@ -42,7 +43,7 @@ verti PredecessorLiftingStrategy::next(verti prev_vertex, bool prev_lifted)
         for ( StaticGraph::const_iterator it = graph.pred_begin(prev_vertex);
               it != graph.pred_end(prev_vertex); ++it )
         {
-            if (!queued_[*it])
+            if (!queued_[*it] && !spm_.is_top(*it))
             {
                 // Add predecessor to the queue
                 queued_[*it] = true;
@@ -83,7 +84,5 @@ size_t PredecessorLiftingStrategy::memory_use() const
 LiftingStrategy *PredecessorLiftingStrategyFactory::create(
     const ParityGame &game, const SmallProgressMeasures &spm )
 {
-    (void)spm;  // unused
-
-    return new PredecessorLiftingStrategy(game, backward_, stack_);
+    return new PredecessorLiftingStrategy(game, spm, backward_, stack_);
 }

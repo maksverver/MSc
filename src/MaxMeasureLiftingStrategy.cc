@@ -117,13 +117,31 @@ void MaxMeasureLiftingStrategy::push(verti v)
     move_up(i);
 }
 
+void MaxMeasureLiftingStrategy::remove(verti v)
+{
+    verti i = pq_pos_[v];
+    if (i != (verti)-1)
+    {
+        pq_pos_[v] = (verti)-1;
+        if (i < --pq_size_)
+        {
+            pq_[i] = pq_[pq_size_];
+            pq_pos_[pq_[i]] = i;
+            move_down(i);
+        }
+    }
+}
+
 void MaxMeasureLiftingStrategy::pop()
 {
     assert(pq_size_ > 0);
     pq_pos_[pq_[0]] = (verti)-1;
-    pq_[0] = pq_[--pq_size_];
-    pq_pos_[pq_[0]] = 0;
-    move_down(0);
+    if (0 < --pq_size_)
+    {
+        pq_[0] = pq_[pq_size_];
+        pq_pos_[pq_[0]] = 0;
+        move_down(0);
+    }
 }
 
 int MaxMeasureLiftingStrategy::cmp(verti i, verti j)
@@ -175,21 +193,35 @@ verti MaxMeasureLiftingStrategy::next(verti prev_vertex, bool prev_lifted)
 
     if (prev_lifted)
     {
-        // Add to (or move up in) queue
-        push(prev_vertex);
+        bool queued_any = false;
 
-        // Mark predecessors as queued
+        // Queue predecessors with measure less than top:
         for (StaticGraph::const_iterator it = graph_.pred_begin(prev_vertex);
              it != graph_.pred_end(prev_vertex); ++it)
         {
-            queued_[*it] = true;
+            if (!spm_.is_top(*it))
+            {
+                queued_any = true;
+                queued_[*it] = true;
+            }
+        }
+
+        if (queued_any)
+        {
+            // Add to (or move up in) queue
+            push(prev_vertex);
+        }
+        else
+        {
+            // No eligible predecessors, remove from queue:
+            remove(prev_vertex);
         }
     }
 
     // Find a predecessor to lift
     while (pq_size_ > 0)
     {
-        verti w = pq_[0];
+        verti w = top();
         for (StaticGraph::const_iterator it = graph_.pred_begin(w);
              it != graph_.pred_end(w); ++it)
         {
