@@ -22,6 +22,34 @@ typedef compat_uint32_t edgei;    //!< type used to number edges
 
 #define NO_VERTEX ((verti)-1)
 
+class StaticGraph;
+
+//! A not-completely-standard-compliant class to iterate over a graph's edges.
+class EdgeIterator
+{
+public:
+    EdgeIterator() { }
+    EdgeIterator(const EdgeIterator &ei) : g(ei.g), v(ei.v), e(ei.e) { }
+    inline EdgeIterator &operator=(const EdgeIterator &ei);
+    inline std::pair<verti, verti> operator*();
+    inline std::pair<verti, verti> operator++();
+    inline std::pair<verti, verti> operator++(int);
+
+    typedef edgei Distance;
+    Distance operator-(const EdgeIterator &ei) { return e - ei.e; }
+
+protected:
+    EdgeIterator(const StaticGraph *g, verti v, edgei e) : g(g), v(v), e(e) { }
+
+private:
+    const StaticGraph *g;  //! underlying graph whose edges are being iterated
+    verti v;               //! current vertex index
+    edgei e;               //! current edge index
+
+    friend class StaticGraph;
+};
+
+
 /*! A static graph consists of V vertices (numbered from 0 to V, exclusive)
     and E edges, and can store either edge successors, predecessors, or both. */
 class StaticGraph
@@ -29,6 +57,9 @@ class StaticGraph
 public:
     /*! Iterator used to iterate over predecessor/successor vertices. */
     typedef const verti *const_iterator;
+
+    /*! Iterator used to iterate over edges. */
+    typedef EdgeIterator const_edge_iterator;
 
     /*! A list of edges */
     typedef std::vector<std::pair<verti, verti> > edge_list;
@@ -59,6 +90,12 @@ public:
 
     /*! Reset the graph based on the given edge structure. */
     void assign(edge_list edges, EdgeDirection edge_dir);
+
+    /*! Reset the graph to the subgraph induced by the given vertex set: */
+    template<class ForwardIterator>
+    void make_subgraph( const StaticGraph &graph,
+                        ForwardIterator vertices_begin,
+                        ForwardIterator vertices_end );
 
     /*! Write raw graph data to output stream */
     void write_raw(std::ostream &os) const;
@@ -120,12 +157,27 @@ public:
         return pred_end(v) - pred_begin(v);
     }
 
+    /*! Returns an edge iterator starting at the given vertex.
+        Currently, this requires the graph to store successors. */
+    const_edge_iterator edges_begin(verti v = 0) const {
+        return EdgeIterator(this, v, successor_index_[v]);
+    }
+
+    /*! Returns an edge iterator pointing to the end of the edge list.
+        Currently, this requires the graph to store successors. */
+    const_edge_iterator edges_end() const {
+        return EdgeIterator(this, V_, E_);
+    }
+
+
 protected:
     /*! Frees allocated memory and then reallocates memory to store a graph
         with `V` vertices and `E` edges. */
     void reset(verti V, edgei E, EdgeDirection edge_dir);
 
 private:
+    typedef HASH_MAP(verti, verti) vertex_map_t;
+
     explicit StaticGraph(const StaticGraph &graph);
     StaticGraph &operator=(const StaticGraph &graph);
 
@@ -151,6 +203,10 @@ private:
     /* This is a bit of a hack to allow the small progress measures code to
        do a preprocessing pass for nodes with self-loops. */
     friend class SmallProgressMeasures;
+
+    friend class EdgeIterator;
 };
+
+#include "Graph_impl.h"
 
 #endif /* ndef GRAPH_H_INCLUDED */

@@ -80,35 +80,18 @@ public:
     void make_random( verti V, unsigned out_deg,
                       StaticGraph::EdgeDirection edge_dir, int d );
 
-#if 0  // FIXME: remove this permanently if I don't need it anymore
-
     /*! Create a subgame containing only the given vertices from the original
-        game. Vertices are renumbered to be in range [0..num_vertices) and
-        two dummy nodes are added, won by the even or odd player respectively.
-        Edges going out of the vertex subset specified by `vertices' are mapped
-        to these dummy nodes instead, depending on whether the winner of the
-        outgoing node is even or odd (specified by `strategy').
-
-        \sa make_subgame(const ParityGame &, const verti *, verti)
-
-    */
-    void make_subgame( const ParityGame &game,
-                       const verti *vertices, verti num_vertices,
-                       const Strategy &strategy );
-
-#endif
-
-    /*! Create a subgame containing only the given vertices from the original
-        game. Vertices are renumbered to be in range [0..num_vertices) and
-        two dummy nodes are added, won by the even or odd player respectively.
+        game. Vertices are renumbered to be in range [0..num_vertices).
         Edges going out of the vertex subset specified by `vertices' are
         removed, so every vertex must have at least one outgoing edge that stays
         within the vertex subset, or the result is not a valid parity game.
 
         \sa make_subgame(const ParityGame &, const verti *, verti, const Strategy &)
     */
+    template<class ForwardIterator>
     void make_subgame( const ParityGame &game,
-                       const verti *vertices, verti num_vertices );
+                       ForwardIterator vertices_begin,
+                       ForwardIterator vertices_end );
 
     /*! Replaces the current game by its dual game, which uses the same game
         graph, but swaps players and changes priorities, such that the solution
@@ -218,5 +201,7 @@ private:
 #ifdef WITH_MCRL2
 #include "ParityGame_pbes.h"
 #endif
+
+#include "ParityGame_impl.h"
 
 #endif /* ndef PARITY_GAME_H_INCLUDED */

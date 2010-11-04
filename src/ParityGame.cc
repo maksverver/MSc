@@ -12,9 +12,6 @@
 #include <algorithm>
 #include <stdlib.h>
 #include <assert.h>
-#include <assert.h>
-
-typedef HASH_MAP(verti, verti) vertex_map_t;
 
 ParityGame::ParityGame()
     : d_(0), vertex_(NULL), cardinality_(NULL)
@@ -57,91 +54,6 @@ void ParityGame::make_random( verti V, unsigned out_deg,
         vertex_[v].priority = rand()%d;
     }
     recalculate_cardinalities(V);
-}
-
-#if 0  // FIXME: remove this permanently if I don't need it anymore
-void ParityGame::make_subgame( const ParityGame &game,
-                               const verti *vertices, verti num_vertices,
-                               const Strategy &strategy )
-{
-    const StaticGraph &graph = game.graph();
-    reset(num_vertices + 2, game.d());
-
-    // Create dummy vertex won by even
-    const verti v_even = num_vertices + 0;
-    vertex_[v_even].player   = PLAYER_EVEN;
-    vertex_[v_even].priority = 0;
-
-    // Create dummy vertex won by odd
-    const verti v_odd  = num_vertices + 1;
-    vertex_[v_odd].player   = PLAYER_ODD;
-    vertex_[v_odd].priority = 1;
-
-    // Create a map of old->new vertex indices
-    vertex_map_t vertex_map;
-    for (verti n = 0; n < num_vertices; ++n)
-    {
-        vertex_[n] = game.vertex_[vertices[n]];
-        vertex_map[vertices[n]] = n;
-    }
-
-    // Create new edge list
-    StaticGraph::edge_list edges;
-    for (verti v = 0; v < num_vertices; ++v)
-    {
-        for ( StaticGraph::const_iterator it = graph.succ_begin(vertices[v]);
-              it != graph.succ_end(vertices[v]); ++it )
-        {
-            verti w;
-            vertex_map_t::const_iterator map_it = vertex_map.find(*it);
-            if (map_it != vertex_map.end())
-            {
-                w = map_it->second;
-            }
-            else
-            {
-                w = (winner(strategy, *it) == PLAYER_EVEN) ? v_even : v_odd;
-            }
-            edges.push_back(std::make_pair(v, w));
-        }
-    }
-    edges.push_back(std::make_pair(v_even, v_even));
-    edges.push_back(std::make_pair(v_odd,  v_odd));
-    graph_.assign(edges, graph.edge_dir());
-    recalculate_cardinalities(num_vertices + 2);
-}
-#endif
-
-void ParityGame::make_subgame( const ParityGame &game,
-                               const verti *vertices, verti num_vertices )
-{
-    const StaticGraph &graph = game.graph();
-    reset(num_vertices, game.d());
-
-    // Create a map of old->new vertex indices
-    vertex_map_t vertex_map;
-    for (verti n = 0; n < num_vertices; ++n)
-    {
-        vertex_[n] = game.vertex_[vertices[n]];
-        vertex_map[vertices[n]] = n;
-    }
-
-    // Create new edge list
-    StaticGraph::edge_list edges;
-    for (verti v = 0; v < num_vertices; ++v)
-    {
-        for ( StaticGraph::const_iterator it = graph.succ_begin(vertices[v]);
-              it != graph.succ_end(vertices[v]); ++it )
-        {
-            vertex_map_t::const_iterator map_it = vertex_map.find(*it);
-            if (map_it != vertex_map.end())
-            {
-                edges.push_back(std::make_pair(v, map_it->second));
-            }
-        }
-    }
-    graph_.assign(edges, graph.edge_dir());
-    recalculate_cardinalities(num_vertices);
 }
 
 void ParityGame::make_dual()

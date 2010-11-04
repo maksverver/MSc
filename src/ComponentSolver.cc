@@ -63,7 +63,7 @@ int ComponentSolver::operator()(const verti *vertices, size_t num_vertices)
     info( "(ComponentSolver) Constructing subgame with %d vertices...",
           (int)unsolved.size() );
     ParityGame subgame;
-    subgame.make_subgame(game_, &unsolved[0], unsolved.size());
+    subgame.make_subgame(game_, unsolved.begin(), unsolved.end());
 
     /* N.B. if unsolved.size() < num_vertices then we run the SCC decomposition
        algorithm again (because removing vertices in attractor sets of winning

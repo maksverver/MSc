@@ -178,7 +178,7 @@ ParityGame::Strategy SmallProgressMeasures::solve()
         // Make a dual subgame of the vertices won by player Odd
         ParityGame subgame;
         info("Constructing subgame to solve for opponent...");
-        subgame.make_subgame(game_, &won_by_odd[0], (verti)won_by_odd.size());
+        subgame.make_subgame(game_, won_by_odd.begin(), won_by_odd.end());
         info("Making subgame dual to the main game...");
         subgame.make_dual();
 

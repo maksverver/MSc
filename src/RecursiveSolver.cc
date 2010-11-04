@@ -104,7 +104,7 @@ ParityGame::Strategy RecursiveSolver::solve(const ParityGame &game, int min_prio
 
         // Create subgame with unsolved vertices:
         ParityGame subgame;
-        subgame.make_subgame(game, &unsolved[0], unsolved.size());
+        subgame.make_subgame(game, unsolved.begin(), unsolved.end());
         ParityGame::Strategy substrat = solve(subgame, min_prio + 1);
 
         // Check if solving failed (or was aborted):
@@ -145,7 +145,7 @@ ParityGame::Strategy RecursiveSolver::solve(const ParityGame &game, int min_prio
         // Construct subgame without vertices lost to opponent:
         std::vector<verti> unsolved = get_complement(V, lost_attr);
         ParityGame subgame;
-        subgame.make_subgame(game, &unsolved[0], unsolved.size());
+        subgame.make_subgame(game, unsolved.begin(), unsolved.end());
         ParityGame::Strategy substrat = solve(subgame, min_prio);
 
         // Check if solving failed (or was aborted):
