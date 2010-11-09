@@ -1490,10 +1490,8 @@ proper subgame
 \end_inset
 
  (in other words, if 
-
 \begin_inset Formula $\Gamma|U$
 \end_inset
-
 
  is a proper game as described above).
 \end_layout
@@ -2252,10 +2250,8 @@ Assuming these hold, then
 \end_inset
 
  is a proper subgame of 
-
 \begin_inset Formula $\Gamma$
 \end_inset
-
 
 , and precisely those plays in the original game consistent with strategy
  
@@ -2820,10 +2816,6 @@ Describe solving strongly connected components invidiually (not really a
 status open
 
 \begin_layout Plain Layout
-- describe preprocessing algorithms: SCC decomposition
-\end_layout
-
-\begin_layout Plain Layout
 - browse code for stuff I didn't cover yet
 \end_layout
 
@@ -2868,9 +2860,34 @@ Oliver Friedmann proposed a variation of the algorithm that effectively
  combines the two passes in one, solving both the game and its dual at the
  same time.
  This does not improve on the worst-case time bounds (and, in fact, may
- require up to twice as much time and memory compared to the standard algorithm)
-, but in practice avoids many of the pitfalls that cause excessive runtimes
+ require around twice as much time and memory compared to the standard algorithm
+), but in practice avoids many of the pitfalls that cause excessive runtimes
  with the standard algorithm, which makes it a useful alternative in practice.
+\end_layout
+
+\begin_layout Standard
+Small progress measures was previously implemented by Martin Lange and Olivier
+ Friedmann in PGSolver (both the regular and two-way algorithm).
+ A lock-free concurrent version was implemented by Weber and Van de Pol
+ which works on shared-memory systems that do not reorder memory store operation
+s.
+ A concurrent implementation for the Playstation 3 (taking advantage of
+ the capabilities of the multi-core Cell processor) was written by Jorne
+ Kandziora and later improved upon by Freark van der Berg.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Add references for all of these.
+ Note the contribution of my implementation: better heuristics.
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
@@ -3515,11 +3532,77 @@ Graph Preprocessing
 \end_layout
 
 \begin_layout Standard
+One peculiarity of the Small Progress Measures algorithm is that it may
+ spend a lot of time lifting vertices with high priority values which lie
+ on a cycle.
+ The most typical example of this is a vertex which is controlled by player
+ Odd, has a high, odd priority and its only edge is a loop (an edge from
+ the vertex back to itself).
+ The final progress measure for such a vertex will obviously be 
+\begin_inset Formula $\top$
+\end_inset
+
+ (since Odd will keep the token at this vertex indefinitely), but its high
+ priority ensures that it is only lifted in very small increments.
+\end_layout
+
+\begin_layout Standard
 \begin_inset Note Note
 status open
 
 \begin_layout Plain Layout
-TODO: describe preprocessing operations performed (self-cycle removal).
+TODO: some example pictures? for example, one with a cycle without a loop.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+To avoid the overhead of lifting such vertices, all known implementations
+ of Small Progress Measures do some form of preprocessing, where such cases
+ are detected and the progress measures of vertices won by Odd are set to
+ 
+\begin_inset Formula $\top$
+\end_inset
+
+ before running the main algorithm.
+ The simplest preprocessing step, one that is implemented by all implementations
+, is this: if a vertex has odd priority and a loop, and either it is controlled
+ by Odd or it has no other outgoing edges, then its progress measure is
+ initialized to 
+\begin_inset Formula $\top$
+\end_inset
+
+ (and its edges removed).
+\end_layout
+
+\begin_layout Standard
+Freark van der Berg used a more sophisticated approach, by detecting cycles
+ of vertices controlled by Odd with odd parity.
+ He tries to find these cycles with a simple depth-limited depth-first-search,
+ and as a result, is limited to finding small cycles only.
+ Despite this, his benchmark results show that this already provides significant
+ benefits over the removal of loops only, at least when testing on random
+ games.
+\end_layout
+
+\begin_layout Standard
+His approach can be generalized in several ways.
+ First, we would like to find cycles of any size, not just small ones.
+ Second, we do not need to limit ourselves to cycles of equal parity.
+ If the dominant priority for the cycle matches the controlling player,
+ the priorities for the other vertices do not matter.
+ To find such cycles, a simple depth-first search no longer suffices.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+TODO: describe how to do this!
 \end_layout
 
 \end_inset
@@ -3937,20 +4020,150 @@ Two-way SPM
 \end_layout
 
 \begin_layout Standard
+A noteworthy variant of the Small Progress Measures algorithm was implemented
+ by Olivier Friedmann in PGSolver.
+ 
 \begin_inset Note Note
 status open
 
 \begin_layout Plain Layout
-Describe Friedmann's implementation.
-\end_layout
-
-\begin_layout Plain Layout
-Note/prove upper bound of factor 2 on runtime and memory use.
+Add citation or mention that this variant is unpublished.
 \end_layout
 
 \end_inset
 
+ In this case, the algorithm is not run for one player at a time, but for
+ both players at once.
+ In Friedmann's implementation this means that a single vertex is selected,
+ and it is lifted both in the normal game and its dual, and if either lift
+ succeeds, the predecessor vertices are queued.
+ Effectively, the queue is shared between the two games.
+ Conceivably, the two games could be processed independently, even in parallel
+ on separate machines.
+\end_layout
 
+\begin_layout Standard
+Periodically (in the current implementation after every 
+\begin_inset Formula $\left|V\right|$
+\end_inset
+
+ lifting attempts) information about winning vertices is exchanged between
+ the games, by conservatively identifying vertices in one game that are
+ won by the player for which we are computing the strategy, and setting
+ the progress measures of these vertices to 
+\begin_inset Formula $\top$
+\end_inset
+
+ in the corresponding dual game being solved for its opponent.
+ These vertices are identified as follows.
+\end_layout
+
+\begin_layout Standard
+Without loss of generality, assume we are computing the strategy for player
+ Even.
+ First, all vertices in the graph are marked to indicate that they might
+ be winning for Even.
+ Then, if any of the following is true for a vertex, its mark is removed:
+\end_layout
+
+\begin_layout Enumerate
+Its progress measure is 
+\begin_inset Formula $\top$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+The vertex is controlled by Even and either:
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+has no marked successors; or
+\end_layout
+
+\begin_layout Enumerate
+its progress measure is less than the minimum of its marked successors
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+The vertex is controlled by Odd and either:
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+has at least one unmarked successor; or
+\end_layout
+
+\begin_layout Enumerate
+its progress measure is less than the maximum of its successors
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+Here, 
+\begin_inset Quotes eld
+\end_inset
+
+less
+\begin_inset Quotes erd
+\end_inset
+
+ means less with respect to the priority of the current vertex.
+ Eventually, the only vertices that remain marked are those with progress
+ measures less than 
+\begin_inset Formula $\top$
+\end_inset
+
+ which are guaranteed to be stable indefinitely and thus are known to be
+ won by Even.
+ As a result, we can set the progress measures for these vertices in the
+ dual game being solved for Odd to 
+\begin_inset Formula $\top$
+\end_inset
+
+, avoiding the need to lift these vertices in the dual game to arrive at
+ 
+\begin_inset Formula $\top$
+\end_inset
+
+ value.
+ The process is then is repeated for player Odd.
+\end_layout
+
+\begin_layout Standard
+To compute the final set of marked vertices, a similar approach as in the
+ main SPM algorithm is used: all vertices are queued, checked against the
+ properties mentioned above, and whenever a mark is removed from a vertex,
+ its predecessors must be re-examined, so they are queued again.
+ The difference with the main SPM algorithm is that a mark can be removed
+ only once, which bounds the total processing time to the number of edges
+ in the graph.
+\end_layout
+
+\begin_layout Standard
+If we assume that we tend to examine vertices with average outdegree then
+ the main algorithm examines about 
+\begin_inset Formula $\left|E\right|$
+\end_inset
+
+ vertices before updating the progress measures for both players, which
+ ensures the time required to solve a game increases at worst by a constant
+ factor (about two or three, presumably).
+ Additionally, the algorithm requires up to twice as much memory, because
+ progress measures for both players must be kept.
+\end_layout
+
+\begin_layout Standard
+This may seem like a lot of overhead, but the benefits tend to outweigh
+ the additional costs in practice, especially on problems that contain parts
+ which are hard to solve from the perspective of one player but easy from
+ its opponent's perspective.
+ For example, the hard games designed by Jurdziński to require exponential
+ time can be solved efficiently this way.
+ 
 \end_layout
 
 \begin_layout Standard
@@ -3958,15 +4171,7 @@ Note/prove upper bound of factor 2 on runtime and memory use.
 status open
 
 \begin_layout Plain Layout
-- describe nondetermenistic parts (lifting strategy)
-\end_layout
-
-\begin_layout Plain Layout
 - cite parallel implementation by Michael
-\end_layout
-
-\begin_layout Plain Layout
-
 \end_layout
 
 \begin_layout Plain Layout
@@ -3997,6 +4202,10 @@ status open
 
 \begin_layout Plain Layout
 - dual games
+\end_layout
+
+\begin_layout Plain Layout
+- describe priority propagation
 \end_layout
 
 \end_inset
