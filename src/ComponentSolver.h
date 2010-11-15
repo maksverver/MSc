@@ -21,8 +21,8 @@
 class ComponentSolver : public ParityGameSolver, public virtual Logger
 {
 public:
-    ComponentSolver( const ParityGame &game,
-                     ParityGameSolverFactory &pgsf );
+    ComponentSolver( const ParityGame &game, ParityGameSolverFactory &pgsf,
+                     const verti *vmap = 0, verti vmap_size = 0 );
     ~ComponentSolver();
 
     ParityGame::Strategy solve();
@@ -33,16 +33,19 @@ private:
     friend class SCC<ComponentSolver>;
 
 protected:
-    ParityGameSolverFactory &pgsf_;     //!< Solver factory to use
-    ParityGame::Strategy    strategy_;  //!< The resulting strategy
-    std::vector<bool>       solved_;    //!< Which vertices are solved?
+    ParityGameSolverFactory &pgsf_;      //!< Solver factory to use
+    const verti             *vmap_;      //!< Current vertex map
+    const verti             vmap_size_;  //!< Size of vertex map
+    ParityGame::Strategy    strategy_;   //!< The resulting strategy
+    std::vector<bool>       solved_;     //!< Which vertices are solved?
 };
 
 class ComponentSolverFactory : public ParityGameSolverFactory
 {
 public:
     ComponentSolverFactory(ParityGameSolverFactory &pgsf)
-        : pgsf_(pgsf) { };
+        : pgsf_(pgsf) { pgsf_.ref(); }
+    ~ComponentSolverFactory() { pgsf_.deref(); }
 
     ParityGameSolver *create( const ParityGame &game,
         const verti *vertex_map, verti vertex_map_size );

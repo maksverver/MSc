@@ -73,6 +73,7 @@ public:
         but this requires more memory. */
     enum EdgeDirection
     {
+        EDGE_NONE           = 0,  /* for internal use only! */
         EDGE_SUCCESSOR      = 1,
         EDGE_PREDECESSOR    = 2,
         EDGE_BIDIRECTIONAL  = 3
@@ -80,6 +81,9 @@ public:
 
     StaticGraph();          /*!< Construct an empty static graph. */
     ~StaticGraph();         /*!< Destroy the static graph. */
+
+    /*! Reset to an empty graph. */
+    void clear();
 
     /*! Generate a random graph with `V` vertices and an average out-degree of
         `out_deg` (minimum out degree is 1). This replaces any old data stored.

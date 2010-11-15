@@ -18,7 +18,7 @@ StaticGraph::StaticGraph()
     : successors_(NULL), predecessors_(NULL),
       successor_index_(NULL), predecessor_index_(NULL)
 {
-    reset(0, 0, EDGE_SUCCESSOR);
+    reset(0, 0, EDGE_NONE);
 }
 
 StaticGraph::~StaticGraph()
@@ -27,6 +27,11 @@ StaticGraph::~StaticGraph()
     delete[] predecessors_;
     delete[] successor_index_;
     delete[] predecessor_index_;
+}
+
+void StaticGraph::clear()
+{
+    reset(0, 0, EDGE_NONE);
 }
 
 void StaticGraph::reset(verti V, edgei E, EdgeDirection edge_dir)

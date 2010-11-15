@@ -8,6 +8,8 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #include "SmallProgressMeasures.h"
+#include "attractor.h"
+#include "SCC.h"
 #include <algorithm>
 #include <memory>
 #include <assert.h>
@@ -142,8 +144,13 @@ bool SmallProgressMeasures::lift(verti v)
 
 ParityGame::Strategy SmallProgressMeasures::solve()
 {
+#if 0
     // Preprocess the graph to speed up some corner cases.
     preprocess_graph();
+#endif
+
+    // If preprocessing removed a large part of the game, it might make sense to
+    // construct a subgame here with the remaining non-top vertices. (FIXME?)
 
     verti vertex = NO_VERTEX;
     bool lifted = false;
@@ -151,6 +158,7 @@ ParityGame::Strategy SmallProgressMeasures::solve()
     std::auto_ptr<LiftingStrategy> ls(lsf_.create(game(), *this));
     assert(ls.get() != NULL);
 
+    info("Computing minimal fixed point...");
     while ((vertex = ls->next(vertex, lifted)) != NO_VERTEX)
     {
         lifted = lift(vertex);
@@ -159,6 +167,7 @@ ParityGame::Strategy SmallProgressMeasures::solve()
     }
 
     // Construct strategy for player even:
+    info("Constructing partial strategy...");
     ParityGame::Strategy strategy(game_.graph().V(), NO_VERTEX);
     std::vector<verti> won_by_odd;
     for (verti v = 0; v < game_.graph().V(); ++v)
@@ -177,7 +186,8 @@ ParityGame::Strategy SmallProgressMeasures::solve()
     {
         // Make a dual subgame of the vertices won by player Odd
         ParityGame subgame;
-        info("Constructing subgame to solve for opponent...");
+        info("Constructing subgame of size %ld to solve for opponent...",
+             (long)won_by_odd.size());
         subgame.make_subgame(game_, won_by_odd.begin(), won_by_odd.end());
         info("Making subgame dual to the main game...");
         subgame.make_dual();
@@ -187,31 +197,33 @@ ParityGame::Strategy SmallProgressMeasures::solve()
 
         // Solve the subgame with SPM:
         std::auto_ptr<SmallProgressMeasures> subsolver;
-
         if (stats_ == NULL)
         {
+            /* Vertex map is only used for statistics: */
             subsolver.reset(new SmallProgressMeasures(subgame, lsf_));
         }
         else
         {
             if (vmap_size_ > 0)
             {
-                submap.assign(won_by_odd.begin(), won_by_odd.end());
-                for (std::vector<verti>::iterator it = submap.begin();
-                     it != submap.end(); ++it) *it = map_vertex(*it);
-
-                subsolver.reset(new SmallProgressMeasures(
-                    subgame, lsf_, stats_, &submap[0], submap.size() ));
+                std::vector<verti> submap = won_by_odd;
+                merge_vertex_maps( submap.begin(), submap.end(),
+                                   vmap_, vmap_size_ );
+                subsolver.reset(new SmallProgressMeasures( subgame, lsf_,
+                    stats_, &submap[0], submap.size() ));
             }
             else
             {
-                subsolver.reset(new SmallProgressMeasures(
-                    subgame, lsf_, stats_, &won_by_odd[0], won_by_odd.size() ));
+                subsolver.reset(new SmallProgressMeasures( subgame, lsf_,
+                    stats_, &won_by_odd[0], won_by_odd.size() ));
             }
         }
+        /* N.B. in the above, odd-cycle removal has been disabled, since the
+                subgame is won by Even entirely, so they cannot occur. */
 
         ParityGame::Strategy substrat = subsolver->solve();
         if (substrat.empty()) return ParityGame::Strategy();
+        info("Merging strategies...");
         merge_strategies(strategy, substrat, won_by_odd);
 
         // Account for memory used by submap & subsolver:
@@ -220,6 +232,7 @@ ParityGame::Strategy SmallProgressMeasures::solve()
     }
 
     update_memory_use(mem);
+    assert(verify_solution());
 
     return strategy;
 }
@@ -311,6 +324,7 @@ bool SmallProgressMeasures::verify_solution()
     return true;
 }
 
+#if 0
 void SmallProgressMeasures::preprocess_graph()
 {
     /* Preprocess the graph for more efficient processing of nodes with self-
@@ -381,6 +395,7 @@ void SmallProgressMeasures::preprocess_graph()
 
     graph.E_ = pos;  // hack! avoids unreachable edges being counted
 }
+#endif
 
 ParityGameSolver *SmallProgressMeasuresFactory::create(
     const ParityGame &game, const verti *vmap, verti vmap_size )

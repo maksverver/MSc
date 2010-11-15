@@ -12,6 +12,7 @@
 
 #include "ParityGame.h"
 #include "Abortable.h"
+#include "RefCounted.h"
 #include <vector>
 
 /*! Merges a substrategy into a main strategy, overwriting the existing strategy
@@ -20,10 +21,16 @@ void merge_strategies( std::vector<verti> &strategy,
                        const std::vector<verti> &substrat,
                        const std::vector<verti> &vertex_map );
 
+/*! Merges two vertex maps, by translating the indices from begin to end using
+    old_map, such that new_map[i] == old_map[new_map[i]] or NO_VERTEX if
+    new_map[i] >= old_map_size. */
+template<class ForwardIterator>
+void merge_vertex_maps( ForwardIterator begin, ForwardIterator end,
+                        const verti *old_map, verti old_map_size );
 
 /*! Abstract base class for parity game solvers: classes that encapsulate
     algorithms to compute the winning set and optimal strategies in a game. */
-class ParityGameSolver : public Abortable
+class ParityGameSolver : public Abortable, RefCounted
 {
 public:
     ParityGameSolver(const ParityGame &game)
@@ -50,7 +57,7 @@ protected:
 };
 
 /*! Abstract base class for parity game solver factories. */
-class ParityGameSolverFactory
+class ParityGameSolverFactory : public RefCounted
 {
 public:
     virtual ~ParityGameSolverFactory() { };
@@ -63,5 +70,7 @@ public:
     virtual ParityGameSolver *create( const ParityGame &game,
         const verti *vertex_map = NULL, verti vertex_map_size = 0 ) = 0;
 };
+
+#include "ParityGameSolver_impl.h"
 
 #endif /* ndef PARITY_GAME_SOLVER */

@@ -71,9 +71,12 @@ public:
     bool verify_solution();
 
 protected:
-
+#if 0
     /*! Preprocess the graph to speed up processing of some specific parts. */
     void preprocess_graph();
+#endif
+    /*! Pre-solve odd cycles in the graph to speed up the main algorithm: */
+    void solve_odd_cycles();
 
     /*! Attempt to lift a vertex (and return whether this succeeded). */
     bool lift(verti v);

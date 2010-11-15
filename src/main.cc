@@ -12,6 +12,7 @@
 #endif
 
 #include "ComponentSolver.h"
+#include "DecycleSolver.h"
 #include "GraphOrdering.h"
 #include "Logger.h"
 #include "ParityGame.h"
@@ -57,6 +58,7 @@ static std::string  arg_winners_file          = "";
 static std::string  arg_strategy_file         = "";
 static std::string  arg_debug_file            = "";
 static std::string  arg_spm_lifting_strategy  = "";
+static bool         arg_decycle               = false;
 static bool         arg_scc_decomposition     = false;
 static bool         arg_solve_dual            = false;
 static Reordering   arg_reordering            = REORDER_NONE;
@@ -112,6 +114,7 @@ static void print_usage()
 "  --pgsolver/-p <file>   write parity game in PGSolver format to <file>\n"
 "  --raw/-r <file>        write parity game in raw format to <file>\n"
 "  --winners/-w <file>    write compact winners specification to <file>\n"
+"  --decycle              detect cycles won and controlled by a single player\n"
 "  --scc                  solve strongly connected components individually\n"
 "  --dual                 solve the dual game\n"
 "  --reorder/-e (bfs|dfs) reorder vertices\n"
@@ -138,8 +141,9 @@ static void parse_args(int argc, char *argv[])
         { "raw",        1, NULL, 'r' },
         { "winners",    1, NULL, 'w' },
         { "strategy",   1, NULL, 's' },
-        { "scc",        0, NULL,  5  },
-        { "dual",       0, NULL,  6  },
+        { "decycle",    0, NULL,  5  },
+        { "scc",        0, NULL,  6  },
+        { "dual",       0, NULL,  7  },
         { "reorder",    1, NULL, 'e' },
         { "timeout",    1, NULL, 't' },
         { "verify",     0, NULL, 'V' },
@@ -235,11 +239,15 @@ static void parse_args(int argc, char *argv[])
             arg_strategy_file = optarg;
             break;
 
-        case 5:     /* decompose into strongly connected components */
+        case 5:     /* remove p-controlled i-cycles when p == i%2 */
+            arg_decycle = true;
+            break;
+
+        case 6:     /* decompose into strongly connected components */
             arg_scc_decomposition = true;
             break;
 
-        case 6:     /* solve dual game */
+        case 7:     /* solve dual game */
             arg_solve_dual = true;
             break;
 
@@ -623,20 +631,26 @@ int main(int argc, char *argv[])
 
         if (arg_timeout > 0) set_timeout(arg_timeout);
 
+        // Wrap component solver, if solving by components requested:
+        if (arg_scc_decomposition)
+        {
+            solver_factory.reset(
+                new ComponentSolverFactory(*solver_factory.release()) );
+        }
+
+        // Wrap decycler, if requested:
+        if (arg_decycle)
+        {
+            solver_factory.reset(
+                new DecycleSolverFactory(*solver_factory.release()) );
+        }
+
         Timer timer;
         Logger::info("Starting solve...");
 
         // Create solver instance:
         assert(solver_factory.get() != NULL);
-        std::auto_ptr<ParityGameSolver> solver;
-        if (arg_scc_decomposition)
-        {
-            solver.reset(new ComponentSolver(game, *solver_factory));
-        }
-        else
-        {
-            solver.reset(solver_factory->create(game));
-        }
+        std::auto_ptr<ParityGameSolver> solver(solver_factory->create(game));
 
         // Now solve the game:
         ParityGame::Strategy strategy = solver->solve();
@@ -660,13 +674,13 @@ int main(int argc, char *argv[])
         Logger::message("Current memory use:          %10.3f MB", get_vmsize());
         size_t total_memory_use = game.memory_use() + solver->memory_use();
         Logger::message( "Memory required to solve:    %10.3f MB",
-                      total_memory_use /MB );
+                         total_memory_use /MB );
         Logger::message( " .. used by parity game:     %10.3f MB",
-                      game.memory_use()/MB );
+                         game.memory_use()/MB );
         Logger::message( "     .. used by graph:       %10.3f MB",
-                      game.graph().memory_use()/MB );
+                         game.graph().memory_use()/MB );
         Logger::message( " .. used by solver:          %10.3f MB",
-                      solver->memory_use()/MB );
+                         solver->memory_use()/MB );
 
         if (stats.get() != NULL)
         {
@@ -675,13 +689,13 @@ int main(int argc, char *argv[])
             long long lifts_failed      = lifts_total - lifts_successful;
 
             Logger::message( "Lifting attempts failed:      %12lld",
-                           lifts_failed );
+                             lifts_failed );
             Logger::message( "Lifting attempts succeeded:   %12lld",
-                           lifts_successful );
+                             lifts_successful );
             Logger::message( "Total lifting attempts:       %12lld",
-                           lifts_total );
+                             lifts_total );
             Logger::message( "Minimum lifts required:    %12lld",
-                           0LL);  // TODO
+                             0LL);  // TODO
         }
 
         if (!failed && arg_verify)
@@ -691,12 +705,12 @@ int main(int argc, char *argv[])
             Logger::info("Starting verification...");
             if (game.verify(strategy))
             {
-                Logger::info("Verification succeeded.");
+                Logger::message("Verification succeeded.");
             }
             else
             {
                 failed = true;
-                Logger::info("Verification failed!");
+                Logger::error("Verification failed!");
             }
             Logger::message( "Time used to verify:         %10.3f s",
                              timer.elapsed() );
@@ -707,5 +721,5 @@ int main(int argc, char *argv[])
 
     Logger::info("Exiting.");
 
-    exit(failed ? EXIT_FAILURE : EXIT_SUCCESS);
+    return failed ? EXIT_FAILURE : EXIT_SUCCESS;
 }

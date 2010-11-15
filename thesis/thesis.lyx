@@ -2794,6 +2794,27 @@ Finally, using the original vertex identifier array, strategies and winning
 \end_layout
 
 \begin_layout Subsection
+Attractor set computation
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Describe how attractor sets may be implemented such that core algorithms
+ that time linear in the size of the attractor set.
+ (Although the current implementation uses a simple set, so it requires
+ O(E log V) where E and V are limited to the subgraph induced by the attractor
+ set.)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
 Graph decomposition
 \end_layout
 
@@ -3591,10 +3612,84 @@ Freark van der Berg used a more sophisticated approach, by detecting cycles
 \begin_layout Standard
 His approach can be generalized in several ways.
  First, we would like to find cycles of any size, not just small ones.
- Second, we do not need to limit ourselves to cycles of equal parity.
- If the dominant priority for the cycle matches the controlling player,
- the priorities for the other vertices do not matter.
+ Second, we do not need to limit ourselves to cycles of equal parity: if
+ the dominant priority for the cycle matches the controlling player, the
+ priorities for the other vertices do not matter.
  To find such cycles, a simple depth-first search no longer suffices.
+ Third, we can remove such cycles for both players, not just Odd.
+\end_layout
+
+\begin_layout Standard
+To remove all 
+\begin_inset Formula $i$
+\end_inset
+
+-cycles controlled by player 
+\begin_inset Formula $p$
+\end_inset
+
+ (where 
+\begin_inset Formula $p\equiv i\mod{2})$
+\end_inset
+
+ in the graph, an approach similar to that used to verify strategies can
+ be applied.
+ Construct a subgraph of all vertices controlled by 
+\begin_inset Formula $i\mod{2}$
+\end_inset
+
+ (or with outdegree equal to one) with priority greater than or equal to
+ 
+\begin_inset Formula $i$
+\end_inset
+
+.
+ Decompose the graph into strongly connected components.
+ Vertices with priority 
+\begin_inset Formula $i$
+\end_inset
+
+ that occur in a connected component with at least one edge (i.e.
+ either the component contains two vertices or the vertex has an edge to
+ itself) are part of a cycle with dominant priority 
+\begin_inset Formula $i$
+\end_inset
+
+.
+ If we collect one vertex from each component (if we can find one) and then
+ compute the attractor set for these vertices, we have identified all vertices
+ which either lie on an 
+\begin_inset Formula $p$
+\end_inset
+
+-controlled 
+\begin_inset Formula $i$
+\end_inset
+
+-cycle or which can be reached from there.
+ The progress measure vector for these vertices is set to 
+\begin_inset Formula $\top$
+\end_inset
+
+ and the process is repeated with the remaining vertices for other values
+ of 
+\begin_inset Formula $p$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+This preprocessing step can be used to construct strategies too: from a
+ vertex with priority 
+\begin_inset Formula $p$
+\end_inset
+
+ any successor inside the component may be chosen, and the rest of the strategy
+ can be constructed during computation of the attractor set, as discussed
+ earlier.
+ Any vertices solved in this way can be removed from the game.
+ This process is repeated for every priority in the game.
 \end_layout
 
 \begin_layout Standard
@@ -3602,7 +3697,8 @@ His approach can be generalized in several ways.
 status open
 
 \begin_layout Plain Layout
-TODO: describe how to do this!
+TODO: analyze and describe time complexity (depends on attractor set computation
+, subgame construction)
 \end_layout
 
 \end_inset

@@ -13,30 +13,25 @@
 #include <assert.h>
 #include <memory>
 
-ComponentSolver::ComponentSolver( const ParityGame &game,
-                                  ParityGameSolverFactory &pgsf )
-    : ParityGameSolver(game), pgsf_(pgsf)
+ComponentSolver::ComponentSolver(
+    const ParityGame &game, ParityGameSolverFactory &pgsf,
+    const verti *vmap, verti vmap_size )
+    : ParityGameSolver(game), pgsf_(pgsf), vmap_(vmap), vmap_size_(vmap_size)
 {
+    pgsf_.ref();
 }
 
 ComponentSolver::~ComponentSolver()
 {
+    pgsf_.deref();
 }
 
 ParityGame::Strategy ComponentSolver::solve()
 {
     if (strategy_.empty())
     {
-        {
-            ParityGame::Strategy init_strategy(game_.graph().V(), NO_VERTEX);
-            init_strategy.swap(strategy_);
-        }
-
-        {
-            std::vector<bool> init_solved(game_.graph().V());
-            init_solved.swap(solved_);
-        }
-
+        strategy_.assign(game_.graph().V(), NO_VERTEX);
+        solved_.assign(game_.graph().V(), false);
         if (decompose_graph(game_.graph(), *this) != 0) strategy_.clear();
         solved_.clear();
     }
@@ -92,8 +87,20 @@ int ComponentSolver::operator()(const verti *vertices, size_t num_vertices)
 
         // Solve the subgame
         info("(ComponentSolver) Solving subgame...");
-        std::auto_ptr<ParityGameSolver> subsolver(
-            pgsf_.create(subgame, &unsolved[0], unsolved.size()) );
+        std::vector<verti> submap;  // declared here so it survives subsolver
+        std::auto_ptr<ParityGameSolver> subsolver;
+        if (vmap_size_ > 0)
+        {
+            submap = unsolved;
+            merge_vertex_maps(submap.begin(), submap.end(), vmap_, vmap_size_);
+            subsolver.reset(
+                pgsf_.create(subgame, &submap[0], submap.size()) );
+        }
+        else
+        {
+            subsolver.reset(
+                pgsf_.create(subgame, &unsolved[0], unsolved.size()) );
+        }
         ParityGame::Strategy substrat = subsolver->solve();
 
         // Update (peak) memory use
@@ -140,8 +147,5 @@ int ComponentSolver::operator()(const verti *vertices, size_t num_vertices)
 ParityGameSolver *ComponentSolverFactory::create( const ParityGame &game,
         const verti *vertex_map, verti vertex_map_size )
 {
-    // the component solver is intended to be used as a top-level solver only:
-    if (vertex_map || vertex_map_size) return NULL;
-
-    return new ComponentSolver(game, pgsf_);
+    return new ComponentSolver(game, pgsf_, vertex_map, vertex_map_size);
 }

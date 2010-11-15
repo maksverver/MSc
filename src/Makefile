@@ -5,6 +5,7 @@ OBJS= \
 	Abortable.o \
 	compatibility.o \
 	ComponentSolver.o \
+	DecycleSolver.o \
 	FocusListLiftingStrategy.o \
 	Graph.o \
 	GraphOrdering.o \

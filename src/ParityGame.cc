@@ -24,6 +24,16 @@ ParityGame::~ParityGame()
     delete[] cardinality_;
 }
 
+void ParityGame::clear()
+{
+    delete[] vertex_;
+    delete[] cardinality_;
+
+    d_ = 0;
+    vertex_ = NULL;
+    cardinality_ = NULL;
+}
+
 void ParityGame::reset(verti V, int d)
 {
     delete[] vertex_;

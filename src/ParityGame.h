@@ -73,6 +73,9 @@ public:
     /*! Destroy a parity game */
     ~ParityGame();
 
+    /*! Reset to an empty game. */
+    void clear();
+
     /*! Generate a random parity game, with vertices assigned uniformly at
         random to players, and priority assigned uniformly between 0 and d-1.
         \sa void StaticGraph::make_random()
