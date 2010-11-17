@@ -33,9 +33,9 @@ endif
 ifdef WITH_MCRL2
 CFLAGS:=$(CFLAGS) -DWITH_MCRL2=$(WITH_MCRL2) \
 	-I../../mcrl2/include \
-	-I../../mcrl2/include/mcrl2/aterm \
+	-I../../mcrl2/include/aterm \
 	-I../../mcrl2/include/mcrl2/atermpp
-LDLIBS:=$(LDLIBS) -L../../mcrl2/lib/mcrl2 -lmcrl2
+LDLIBS:=$(LDLIBS) -L../../mcrl2/lib/mcrl2 -lmcrl2_core -lmcrl2_data
 endif
 
 CXXFLAGS:=$(CFLAGS)
