@@ -23,7 +23,7 @@ OBJS= \
 	SmallProgressMeasures.o \
 	timing.o
 
-CFLAGS=-Wall -O2
+CFLAGS=-Wall -O0
 LDLIBS=-lrt
 
 ifndef WITH_MCRL2

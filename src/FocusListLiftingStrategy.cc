@@ -17,12 +17,12 @@ static const unsigned initial_credit  = 2;
 static const unsigned credit_increase = 2;
 
 
-FocusListLiftingStrategy::FocusListLiftingStrategy(
-    const ParityGame &game, bool backward, bool alternate, size_t max_size )
-    : LiftingStrategy(game), max_size_(max_size), pass_(1),
-      lls_(game, backward, alternate),
-      last_vertex_(NO_VERTEX), last_lifted_(false),
-      num_lift_attempts_(0), focus_list_(), focus_pos_(focus_list_.end())
+FocusListLiftingStrategy::FocusListLiftingStrategy( const ParityGame &game,
+    bool backward, bool alternate, verti max_size, verti max_lifts )
+    : LiftingStrategy(game), max_size_(max_size), max_lifts_(max_lifts),
+      pass_(1), lls_(game, backward, alternate),
+      last_vertex_(NO_VERTEX), last_lifted_(false), num_lift_attempts_(0),
+      focus_list_(), focus_list_size_(0), focus_pos_(focus_list_.end())
 {
 }
 
@@ -57,14 +57,22 @@ verti FocusListLiftingStrategy::pass1(verti prev_vertex, bool prev_lifted)
     {
         // Put successfully lifted vertex on the focus list
         assert(prev_vertex != NO_VERTEX);
-        focus_list_.push_back(std::make_pair(prev_vertex, initial_credit));
+        // FIXME: random factor is crucial! document this.
+        // also test whether it even helps? maybe ask Michael.
+        if (rand()%2)
+        {
+            focus_list_.push_back(std::make_pair(prev_vertex, initial_credit));
+            ++focus_list_size_;
+        }
     }
 
-    if ( focus_list_.size() == max_size_ ||
-         num_lift_attempts_ == game_.graph().V() )
+    if ( focus_list_size_ == max_size_ ||
+         ( focus_list_size_ > 0 && num_lift_attempts_ >= game_.graph().V() ) )
     {
         // Switch to pass 2
+        info("Switching to focus list of size %d.", focus_list_size_);
         pass_ = 2;
+        num_lift_attempts_ = 0;
         return pass2(NO_VERTEX, false);
     }
 
@@ -90,30 +98,48 @@ verti FocusListLiftingStrategy::pass2(verti prev_vertex, bool prev_lifted)
             old_pos->second += credit_increase;
         }
         else
+        if (old_pos->second == 0)
+        {
+            focus_list_.erase(old_pos);
+            --focus_list_size_;
+        }
+        else
         {
             old_pos->second /= 2;
-            if (old_pos->second == 0)
-            {
-                focus_list_.erase(old_pos);
-            }
         }
     }
 
     // Check if we've reached the end of the focus list
     if (focus_pos_ == focus_list_.end())
     {
-        if (focus_list_.empty())
+        if (focus_list_size_ == 0)
         {
-            // Focus list exhausted; move back to pass 1
+            // Back to phase 1:
+            assert(focus_list_.empty());
+            info("Focus list exhausted.");
             pass_ = 1;
             num_lift_attempts_ = 0;
             return pass1(last_vertex_, last_lifted_);
         }
         else
         {
-            // Restart at beginning of the list
+            // Restart at the beginning:
+            assert(!focus_list_.empty());
             focus_pos_ = focus_list_.begin();
         }
+    }
+
+    num_lift_attempts_ += 1;
+    if (num_lift_attempts_ >= max_lifts_)
+    {
+        // Clear focus list and move back to phase 1:
+        focus_list_.clear();
+        focus_list_size_  = 0;
+        focus_pos_ = focus_list_.end();
+        info("Maximum lift attempts (%d) on focus list reached.", max_lifts_);
+        pass_ = 1;
+        num_lift_attempts_ = 0;
+        return pass1(last_vertex_, last_lifted_);
     }
 
     // Return current item on the focus list
@@ -132,12 +158,12 @@ LiftingStrategy *FocusListLiftingStrategyFactory::create(
 
     /* Ratio is absolute value if >1, or a fraction of the size of the game's
        vertex set if <= 1. */
-    size_t V = game.graph().V();
-    size_t max_size = (size_t)(ratio_ > 1 ? ratio_ : ratio_*V);
-
-    // Fix rounding errors:
+    verti V = game.graph().V();
+    verti max_size  = (size_ratio_ > 1) ? size_ratio_ : size_ratio_*V;
     if (max_size == 0) max_size = 1;
     if (max_size >  V) max_size = V;
+    verti max_lifts = (verti)(lift_ratio_ * max_size);
 
-    return new FocusListLiftingStrategy(game, backward_, alternate_, max_size);
+    return new FocusListLiftingStrategy(
+        game, backward_, alternate_, max_size, max_lifts );
 }

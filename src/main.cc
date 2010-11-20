@@ -59,6 +59,7 @@ static std::string  arg_strategy_file         = "";
 static std::string  arg_debug_file            = "";
 static std::string  arg_spm_lifting_strategy  = "";
 static bool         arg_decycle               = false;
+static bool         arg_deloop                = false;
 static bool         arg_scc_decomposition     = false;
 static bool         arg_solve_dual            = false;
 static Reordering   arg_reordering            = REORDER_NONE;
@@ -115,6 +116,7 @@ static void print_usage()
 "  --raw/-r <file>        write parity game in raw format to <file>\n"
 "  --winners/-w <file>    write compact winners specification to <file>\n"
 "  --decycle              detect cycles won and controlled by a single player\n"
+"  --deloop               SPM: preprocess vertices with loops\n"
 "  --scc                  solve strongly connected components individually\n"
 "  --dual                 solve the dual game\n"
 "  --reorder/-e (bfs|dfs) reorder vertices\n"
@@ -142,8 +144,9 @@ static void parse_args(int argc, char *argv[])
         { "winners",    1, NULL, 'w' },
         { "strategy",   1, NULL, 's' },
         { "decycle",    0, NULL,  5  },
-        { "scc",        0, NULL,  6  },
-        { "dual",       0, NULL,  7  },
+        { "deloop",     0, NULL,  6  },
+        { "scc",        0, NULL,  7  },
+        { "dual",       0, NULL,  8  },
         { "reorder",    1, NULL, 'e' },
         { "timeout",    1, NULL, 't' },
         { "verify",     0, NULL, 'V' },
@@ -243,11 +246,15 @@ static void parse_args(int argc, char *argv[])
             arg_decycle = true;
             break;
 
-        case 6:     /* decompose into strongly connected components */
+        case 6:     /* preprocess vertices with loops */
+            arg_deloop = true;
+            break;
+
+        case 7:     /* decompose into strongly connected components */
             arg_scc_decomposition = true;
             break;
 
-        case 7:     /* solve dual game */
+        case 8:     /* solve dual game */
             arg_solve_dual = true;
             break;
 
@@ -619,8 +626,19 @@ int main(int argc, char *argv[])
             stats.reset(
                 new LiftingStatistics(game) );
 
+            if (!arg_deloop && !arg_decycle)
+            {
+                Logger::warn( "Neither --deloop nor --decycle given! "
+                    "Solving will be very slow!" );
+            }
+            if (arg_deloop && arg_decycle)
+            {
+                Logger::warn( "Option --deloop is useless when combined "
+                    "with --decycle!" );
+            }
             solver_factory.reset(
-                new SmallProgressMeasuresFactory(*spm_strategy, stats.get()) );
+                new SmallProgressMeasuresFactory(
+                    *spm_strategy, arg_deloop, stats.get()) );
         }
 
         // Create recursive solver factory if requested:
@@ -694,8 +712,10 @@ int main(int argc, char *argv[])
                              lifts_successful );
             Logger::message( "Total lifting attempts:       %12lld",
                              lifts_total );
-            Logger::message( "Minimum lifts required:    %12lld",
+            /*
+            Logger::message( "Minimum lifts required:       %12lld",
                              0LL);  // TODO
+            */
         }
 
         if (!failed && arg_verify)

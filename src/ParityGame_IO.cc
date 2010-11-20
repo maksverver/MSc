@@ -19,16 +19,23 @@
 void ParityGame::read_pgsolver( std::istream &is,
                                 StaticGraph::EdgeDirection edge_dir )
 {
+    int max_prio = 0;
+    std::vector<ParityGameVertex> vertices;
+    StaticGraph::edge_list edges;
+
     // Read header line (if present)
     char ch = 0;
     is.get(ch);
-    if (isdigit(ch))
+    is.putback(ch);
+    if (!isdigit(ch))
     {
-        // No header; put character back to parse later
-        is.putback(ch);
-    }
-    else
-    {
+        std::string parity;
+        verti max_vertex;
+
+        if (!(is >> parity >> max_vertex)) return;
+        if (parity != "parity") return;
+        vertices.reserve(max_vertex + 1);
+
         // Skip to terminating semicolon
         while (is.get(ch) && ch != ';') ch = 0;
     }
@@ -36,9 +43,6 @@ void ParityGame::read_pgsolver( std::istream &is,
     // Invalid vertex (used to mark uninitialized vertices)
     ParityGameVertex invalid = { (unsigned char)-1, (unsigned char)-1 };
 
-    int max_prio = 0;
-    std::vector<ParityGameVertex> vertices;
-    StaticGraph::edge_list edges;
 
     // Read vertex specs
     while (is)

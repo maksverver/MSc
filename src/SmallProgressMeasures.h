@@ -57,12 +57,17 @@ class SmallProgressMeasures : public ParityGameSolver, public virtual Logger
 public:
     SmallProgressMeasures( const ParityGame &game,
                            LiftingStrategyFactory &lsf,
+                           bool deloop,
                            LiftingStatistics *stats = 0,
                            const verti *vertex_map = 0,
                            verti vertex_map_size = 0 );
     ~SmallProgressMeasures();
 
     ParityGame::Strategy solve();
+
+    /*! Initialize the small progress measures to handle vertices with loops
+        efficiently. Winner-controlled cycle removal makes this obsolete. */
+    verti preprocess_loops();
 
     /*! For debugging: print current state to stdout */
     void debug_print();
@@ -71,12 +76,6 @@ public:
     bool verify_solution();
 
 protected:
-#if 0
-    /*! Preprocess the graph to speed up processing of some specific parts. */
-    void preprocess_graph();
-#endif
-    /*! Pre-solve odd cycles in the graph to speed up the main algorithm: */
-    void solve_odd_cycles();
 
     /*! Attempt to lift a vertex (and return whether this succeeded). */
     bool lift(verti v);
@@ -129,6 +128,7 @@ private:
 
 protected:
     LiftingStrategyFactory &lsf_;   //!< factory used to create lifting strategy
+    bool deloop_;                   //!< whether to remove loops before solving
     int len_;                       //!< length of SPM vectors
     verti *M_;                      //!< bounds on the SPM vector components
     verti *spm_;                    //!< array storing the SPM vector data
@@ -142,8 +142,9 @@ class SmallProgressMeasuresFactory : public ParityGameSolverFactory
 {
 public:
     SmallProgressMeasuresFactory( LiftingStrategyFactory &lsf,
+                                  bool deloop,
                                   LiftingStatistics *stats = 0 )
-        : lsf_(lsf), stats_(stats) { };
+        : lsf_(lsf), deloop_(deloop), stats_(stats) { };
 
     ParityGameSolver *create( const ParityGame &game,
                               const verti *vertex_map,
@@ -151,6 +152,7 @@ public:
 
 private:
     LiftingStrategyFactory  &lsf_;
+    bool                    deloop_;
     LiftingStatistics       *stats_;
 };
 

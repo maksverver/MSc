@@ -56,10 +56,12 @@ LiftingStrategyFactory *
     if ( strcasecmp(parts[0].c_str(), "focuslist") == 0 ||
          strcasecmp(parts[0].c_str(), "focus") == 0 )
     {
-        bool backward  = (parts.size() > 1 ? atoi(parts[1].c_str()) : 0);
-        bool alternate = (parts.size() > 2 ? atoi(parts[2].c_str()) : 0);
-        double ratio   = (parts.size() > 3 ? atof(parts[3].c_str()) : 0);
-        return new FocusListLiftingStrategyFactory(backward, alternate, ratio);
+        bool backward     = (parts.size() > 1 ? atoi(parts[1].c_str()) : 0);
+        bool alternate    = (parts.size() > 2 ? atoi(parts[2].c_str()) : 0);
+        double size_ratio = (parts.size() > 3 ? atof(parts[3].c_str()) : 0);
+        double lift_ratio = (parts.size() > 4 ? atof(parts[4].c_str()) : 0);
+        return new FocusListLiftingStrategyFactory(
+            backward, alternate, size_ratio, lift_ratio );
     }
     else
     if (strcasecmp(parts[0].c_str(), "maxmeasure") == 0)

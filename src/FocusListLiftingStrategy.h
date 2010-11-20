@@ -31,11 +31,11 @@
     TODO: improve performance by using a fixed size list instead of a std::list
 */
 
-class FocusListLiftingStrategy : public LiftingStrategy
+class FocusListLiftingStrategy : public LiftingStrategy, Logger
 {
 public:
     FocusListLiftingStrategy( const ParityGame &game,
-                              bool backward, bool alternate, size_t max_size );
+        bool backward, bool alternate, verti max_size, verti max_lifts );
     verti next(verti prev_vertex, bool prev_lifted);
     size_t memory_use() const;
     bool backward() const { return lls_.backward(); }
@@ -48,7 +48,8 @@ protected:
 private:
     typedef std::list<std::pair<verti, unsigned> > focus_list;
 
-    const size_t max_size_;             //!< maximum allowed focus list size
+    verti max_size_;                    //!< maximum allowed focus list size
+    verti max_lifts_;                   //!< maximum lift attempts per list
     int pass_;                          //!< current pass
 
     // For pass 1:
@@ -59,6 +60,7 @@ private:
 
     // For pass 2:
     focus_list focus_list_;             //!< nodes on the focus list
+    verti focus_list_size_;             //!< number of nodes on the focus list
     focus_list::iterator focus_pos_;    //!< current position in the focus list
 };
 
@@ -66,16 +68,18 @@ private:
 class FocusListLiftingStrategyFactory : public LiftingStrategyFactory
 {
 public:
-    FocusListLiftingStrategyFactory(bool backward, bool alternate, double ratio)
+    FocusListLiftingStrategyFactory(
+        bool backward, bool alternate, double size_ratio, double lift_ratio )
         : backward_(backward), alternate_(alternate),
-          ratio_(ratio > 0 ? ratio : 0.1) { };
+          size_ratio_(size_ratio > 0 ? size_ratio :  0.1),
+          lift_ratio_(lift_ratio > 0 ? lift_ratio : 10.0) { };
 
     LiftingStrategy *create( const ParityGame &game,
                              const SmallProgressMeasures &spm );
 
 private:
     const bool   backward_, alternate_;
-    const double ratio_;
+    const double size_ratio_, lift_ratio_;
 };
 
 #endif /* ndef FOCUS_LIST_LIFTING_STRATEGY_H_INCLUDED */

@@ -50,9 +50,9 @@ void LiftingStatistics::merge( const LiftingStatistics &other,
 #endif
 
 SmallProgressMeasures::SmallProgressMeasures(
-    const ParityGame &game, LiftingStrategyFactory &lsf,
+    const ParityGame &game, LiftingStrategyFactory &lsf, bool deloop,
     LiftingStatistics *stats, const verti *vmap, const verti vmap_size )
-        : ParityGameSolver(game), lsf_(lsf), len_(game.d()/2),
+        : ParityGameSolver(game), lsf_(lsf), deloop_(deloop), len_(game.d()/2),
           stats_(stats), vmap_(vmap), vmap_size_(vmap_size)
 {
     // Initialize SPM vector bounds
@@ -144,13 +144,13 @@ bool SmallProgressMeasures::lift(verti v)
 
 ParityGame::Strategy SmallProgressMeasures::solve()
 {
-#if 0
-    // Preprocess the graph to speed up some corner cases.
-    preprocess_graph();
-#endif
-
-    // If preprocessing removed a large part of the game, it might make sense to
-    // construct a subgame here with the remaining non-top vertices. (FIXME?)
+   if (deloop_) {
+       info("Preprocessing vertices with loops...");
+       verti cnt = preprocess_loops();
+       if (cnt > 0) info("Set %d vertices to top.", cnt);
+       // Possible FIXME: if this removed a large part of the game, it might
+       // make sense to construct a subgame with the remaining non-top vertices.
+   }
 
     verti vertex = NO_VERTEX;
     bool lifted = false;
@@ -200,7 +200,7 @@ ParityGame::Strategy SmallProgressMeasures::solve()
         if (stats_ == NULL)
         {
             /* Vertex map is only used for statistics: */
-            subsolver.reset(new SmallProgressMeasures(subgame, lsf_));
+            subsolver.reset(new SmallProgressMeasures(subgame, lsf_, deloop_));
         }
         else
         {
@@ -209,13 +209,13 @@ ParityGame::Strategy SmallProgressMeasures::solve()
                 std::vector<verti> submap = won_by_odd;
                 merge_vertex_maps( submap.begin(), submap.end(),
                                    vmap_, vmap_size_ );
-                subsolver.reset(new SmallProgressMeasures( subgame, lsf_,
-                    stats_, &submap[0], submap.size() ));
+                subsolver.reset(new SmallProgressMeasures( subgame,
+                    lsf_, deloop_, stats_, &submap[0], submap.size() ));
             }
             else
             {
-                subsolver.reset(new SmallProgressMeasures( subgame, lsf_,
-                    stats_, &won_by_odd[0], won_by_odd.size() ));
+                subsolver.reset(new SmallProgressMeasures( subgame,
+                    lsf_, deloop_, stats_, &won_by_odd[0], won_by_odd.size() ));
             }
         }
         /* N.B. in the above, odd-cycle removal has been disabled, since the
@@ -237,6 +237,25 @@ ParityGame::Strategy SmallProgressMeasures::solve()
     return strategy;
 }
 
+verti SmallProgressMeasures::preprocess_loops()
+{
+    const ParityGame &game = this->game();
+    StaticGraph &graph = const_cast<StaticGraph&>(game.graph());
+
+    verti cnt = 0;
+    for (verti v = 0; v < graph.V_; ++v)
+    {
+        if ( game.priority(v)%2 == 1 &&
+             ( game.player(v) == ParityGame::PLAYER_ODD ||
+               graph.outdegree(v) < 2 ) &&
+             graph.has_succ(v, v) )
+        {
+            set_top(v);
+            ++cnt;
+        }
+    }
+    return cnt;
+}
 
 #include <stdio.h>  /* debug */
 
@@ -324,81 +343,10 @@ bool SmallProgressMeasures::verify_solution()
     return true;
 }
 
-#if 0
-void SmallProgressMeasures::preprocess_graph()
-{
-    /* Preprocess the graph for more efficient processing of nodes with self-
-       edges. This can speed up things considerably.
-
-       Note that we currently only remove successor edges, not predecessor
-       edges!
-    */
-
-    const ParityGame &game = this->game();
-    StaticGraph &graph = const_cast<StaticGraph&>(game.graph());
-
-    edgei pos = 0;
-    for (verti v = 0; v < graph.V_; ++v)
-    {
-        verti *begin = &graph.successors_[graph.successor_index_[v]],
-              *end   = &graph.successors_[graph.successor_index_[v + 1]];
-
-        graph.successor_index_[v] = pos;
-
-        bool remove_self_edge   = false,
-             remove_other_edges = false;
-
-        // Search for a self-edge
-        for (verti *it = begin; it != end; ++it)
-        {
-            if (*it == v)
-            {
-                // Determine if we can fix the value for this node
-                if ( game.priority(v)%2 == 1 &&
-                     ( game.player(v) == ParityGame::PLAYER_ODD ||
-                       end - begin == 1 ) )
-                {
-                    // Taking self-edge is bad for Even, and he cannot avoid it
-                    set_top(v);
-                }
-
-                // Decide what to do with the edges
-                if (game.priority(v)%2 == (int)game.player(v))
-                {
-                    // Self-edge is beneficial
-                    remove_other_edges = true;
-                }
-                else
-                if (end - begin > 1)
-                {
-                    // Self-edge is detrimental; remove it
-                    remove_self_edge = true;
-                }
-            }
-        }
-
-        // Copy subset of edges
-        for (verti *it = begin; it != end; ++it)
-        {
-            if ( (*it == v && !remove_self_edge) ||
-                 (*it != v && !remove_other_edges) )
-            {
-                graph.successors_[pos++] = *it;
-            }
-        }
-    }
-
-    // Set end of successor edges
-    graph.successor_index_[graph.V_] = pos;
-
-    info("SPM preprocessing removed %d of %d edges", graph.E_ - pos, graph.E_);
-
-    graph.E_ = pos;  // hack! avoids unreachable edges being counted
-}
-#endif
 
 ParityGameSolver *SmallProgressMeasuresFactory::create(
     const ParityGame &game, const verti *vmap, verti vmap_size )
 {
-    return new SmallProgressMeasures(game, lsf_, stats_, vmap,vmap_size);
+    return new SmallProgressMeasures(
+        game, lsf_, deloop_, stats_, vmap, vmap_size );
 }
