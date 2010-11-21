@@ -9,6 +9,7 @@
 
 // Don't include this directly; include Graph.h instead!
 
+#include "DenseMap.h"
 #include <algorithm>
 #include <iterator>
 #include <assert.h>
@@ -60,13 +61,31 @@ void StaticGraph::make_subgraph( const StaticGraph &graph,
                                  ForwardIterator vertices_begin,
                                  ForwardIterator vertices_end )
 {
+    // FIXME: determine which cut-off value works best:
+    if (std::distance(vertices_begin, vertices_end) < graph.V()/3)
+    {
+        return make_subgraph( graph, vertices_begin, vertices_end,
+                HASH_MAP(verti, verti)() );
+    }
+    else
+    {
+        return make_subgraph( graph, vertices_begin, vertices_end,
+                DenseMap<verti, verti>(0, graph.V()) );
+    }
+}
+
+template<class ForwardIterator, class VertexMapT>
+void StaticGraph::make_subgraph( const StaticGraph &graph,
+                                 ForwardIterator vertices_begin,
+                                 ForwardIterator vertices_end,
+                                 VertexMapT vertex_map )
+{
     assert(this != &graph);
 
     verti num_vertices = 0;
     edgei num_edges = 0;
 
     // Create a map of old->new vertex indices, while counting vertices:
-    vertex_map_t vertex_map;
     for (ForwardIterator it = vertices_begin; it != vertices_end; ++it)
     {
         vertex_map[*it] = num_vertices++;
@@ -105,8 +124,8 @@ void StaticGraph::make_subgraph( const StaticGraph &graph,
                                 succ_end = graph.succ_end(*it);
                  succ_it != succ_end; ++succ_it)
             {
-                vertex_map_t::const_iterator it = vertex_map.find(*succ_it);
-                if (it != vertex_map.end()) successors_[e++] = it->second;
+                typename VertexMapT::const_iterator it(vertex_map.find(*succ_it));
+                if (it != vertex_map.end()) successors_[e++] = (*it).second;
             }
             verti *end = &successors_[e];
             if (!is_sorted(begin, end, std::less<verti>()))
@@ -131,7 +150,7 @@ void StaticGraph::make_subgraph( const StaticGraph &graph,
                                 pred_end = graph.pred_end(*it);
                  pred_it != pred_end; ++pred_it)
             {
-                vertex_map_t::const_iterator it = vertex_map.find(*pred_it);
+                typename VertexMapT::const_iterator it(vertex_map.find(*pred_it));
                 if (it != vertex_map.end()) predecessors_[e++] = it->second;
             }
             verti *end = &predecessors_[e];

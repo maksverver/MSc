@@ -11,6 +11,7 @@
 #define DECYCLE_SOLVER_H_INCLUDED
 
 #include "SmallProgressMeasures.h"
+#include "DenseSet.h"
 #include "Logger.h"
 #include "SCC.h"
 #include <string>
@@ -42,7 +43,7 @@ protected:
     int                    prio_;        //!< current selected priority
     std::vector<verti>     mapping_;     //!< current priority induced vertex set
     StaticGraph            graph_;       //!< current priority induced subgraph
-    HASH_SET(verti)        winning_;     //!< current winning vertices
+    DenseSet<verti>        winning_;     //!< current winning vertices
     ParityGame::Strategy   strategy_;    //!< current winning strategy
 };
 

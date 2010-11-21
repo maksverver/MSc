@@ -101,6 +101,12 @@ public:
                         ForwardIterator vertices_begin,
                         ForwardIterator vertices_end );
 
+    template<class ForwardIterator, class VertexMapT>
+    void make_subgraph( const StaticGraph &graph,
+                        ForwardIterator vertices_begin,
+                        ForwardIterator vertices_end,
+                        VertexMapT vertex_map = VertexMapT() );
+
     /*! Write raw graph data to output stream */
     void write_raw(std::ostream &os) const;
 
@@ -180,8 +186,6 @@ protected:
     void reset(verti V, edgei E, EdgeDirection edge_dir);
 
 private:
-    typedef HASH_MAP(verti, verti) vertex_map_t;
-
     explicit StaticGraph(const StaticGraph &graph);
     StaticGraph &operator=(const StaticGraph &graph);
 

@@ -15,7 +15,8 @@
 DecycleSolver::DecycleSolver(
     const ParityGame &game, ParityGameSolverFactory &pgsf,
     const verti *vmap, verti vmap_size )
-    : ParityGameSolver(game), pgsf_(pgsf), vmap_(vmap), vmap_size_(vmap_size)
+    : ParityGameSolver(game), pgsf_(pgsf), vmap_(vmap), vmap_size_(vmap_size),
+      winning_(0, game.graph().V())
 {
     pgsf_.ref();
 }
@@ -95,8 +96,8 @@ ParityGame::Strategy DecycleSolver::solve()
                 make_attractor_set( game_, (ParityGame::Player)(prio_%2),
                                     winning_, &strategy_ );
 
-                for ( HASH_SET(verti)::const_iterator it = winning_.begin();
-                    it != winning_.end(); ++it )
+                for ( DenseSet<verti>::const_iterator it = winning_.begin();
+                      it != winning_.end(); ++it )
                 {
                     verti v = *it;
                     if (!solved[v]) ++num_solved;

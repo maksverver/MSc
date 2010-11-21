@@ -14,9 +14,16 @@ template<class SetT>
 void make_attractor_set( const ParityGame &game, ParityGame::Player player,
                          SetT &vertices, ParityGame::Strategy *strategy )
 {
+    std::deque<verti> todo(vertices.begin(), vertices.end());
+    return make_attractor_set(game, player, vertices, todo, strategy);
+}
+
+template<class SetT, class DequeT>
+void make_attractor_set( const ParityGame &game, ParityGame::Player player,
+    SetT &vertices, DequeT &todo, ParityGame::Strategy *strategy )
+{
     const StaticGraph &graph = game.graph();
 
-    std::deque<verti> todo(vertices.begin(), vertices.end());
     while (!todo.empty())
     {
         const verti w = todo.front();

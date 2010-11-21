@@ -19,6 +19,11 @@ template<class SetT>
 void make_attractor_set( const ParityGame &game, ParityGame::Player player,
                          SetT &vertices, ParityGame::Strategy *strategy );
 
+template<class SetT, class DequeT>
+void make_attractor_set( const ParityGame &game, ParityGame::Player player,
+    SetT &vertices, DequeT &todo, ParityGame::Strategy *strategy )
+
+
 #include "attractor_impl.h"
 
 #endif /* ndef ATTRACTOR_H_INCLUDED */
