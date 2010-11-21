@@ -64,6 +64,7 @@ public:
         }
     };
 
+    typedef size_t size_type;
     typedef Key value_type;
     typedef Iterator iterator;
     typedef Iterator const_iterator;
@@ -73,7 +74,7 @@ public:
           range_size_(range_end - range_begin), alloc_(alloc),
           used_(alloc_.allocate(range_size_ + 1)), num_used_(0)
     {
-        for (size_t i = 0; i < range_size_; ++i) used_[i] = false;
+        for (size_type i = 0; i < range_size_; ++i) used_[i] = false;
         used_[range_size_] = true;  // marks end of data
     }
 
@@ -82,14 +83,21 @@ public:
         alloc_.deallocate(used_, range_size_ + 1);
     }
 
-    size_t size() const { return num_used_; }
-    bool empty() const { return num_used_ == 0; }
+    size_type size() const
+    {
+        return num_used_;
+    }
+
+    bool empty() const
+    {
+        return num_used_ == 0;
+    }
 
     void clear()
     {
         if (num_used_ > 0)
         {
-            for (size_t i = 0; i < range_size_; ++i) used_[i] = false;
+            for (size_type i = 0; i < range_size_; ++i) used_[i] = false;
             num_used_ = 0;
         }
     }
@@ -133,6 +141,11 @@ public:
         return const_iterator(const_cast<DenseSet*>(this)->find(k));  // HACK
     }
 
+    size_type count(const Key &k) const
+    {
+        return used_[k - range_begin];
+    }
+
     std::pair<iterator, bool> insert(const Key &k)
     {
         bool &u = used_[k - range_begin];
@@ -148,14 +161,16 @@ public:
         }
     }
 
+    size_t memory_use() { return sizeof(*used_)*range_size_ + sizeof(*this); }
+
 public:
     const Key range_begin, range_end;
 
 private:
-    const size_t range_size_;
-    Alloc        alloc_;
-    bool         *used_;
-    size_t       num_used_;
+    const size_type range_size_;
+    Alloc           alloc_;
+    bool            *used_;
+    size_t          num_used_;
 
     friend class Iterator;
 };

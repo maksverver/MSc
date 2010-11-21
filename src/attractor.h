@@ -19,9 +19,11 @@ template<class SetT>
 void make_attractor_set( const ParityGame &game, ParityGame::Player player,
                          SetT &vertices, ParityGame::Strategy *strategy );
 
+/* Variant that takes an explicit queue of initial vertices. This queue must
+    be initialized to `vertices' or a subset thereof. */
 template<class SetT, class DequeT>
 void make_attractor_set( const ParityGame &game, ParityGame::Player player,
-    SetT &vertices, DequeT &todo, ParityGame::Strategy *strategy )
+    SetT &vertices, DequeT &todo, ParityGame::Strategy *strategy );
 
 
 #include "attractor_impl.h"
