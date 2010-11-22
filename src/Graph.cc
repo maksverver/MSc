@@ -166,6 +166,78 @@ void StaticGraph::assign(edge_list edges, EdgeDirection edge_dir)
     }
 }
 
+void StaticGraph::remove_edges(StaticGraph::edge_list &edges)
+{
+    // Add end-of-list marker:
+    edges.push_back(std::make_pair(V_, V_));
+
+    if (edge_dir_ & EDGE_SUCCESSOR)
+    {
+        // Sort edges by predecessor first, successor second
+        if (!is_sorted(edges.begin(), edges.end(), edge_cmp_forward))
+        {
+            std::sort(edges.begin(), edges.end(), edge_cmp_forward);
+        }
+
+        // Loop over existing edges and remove those listed in `edges':
+        StaticGraph::edge_list::const_iterator it = edges.begin();
+        const verti *p = successors_;
+        verti v = 0;
+        edgei e = 0;
+        while (v < V_)
+        {
+            if (p == successors_ + successor_index_[v + 1])
+            {
+                successor_index_[++v] = e;
+                continue;
+            }
+            std::pair<verti, verti> edge(v, *p++);
+            while (edge_cmp_forward(*it, edge)) ++it;
+            if (*it == edge) ++it; else successors_[e++] = edge.second;
+        }
+    }
+
+    if (edge_dir_ & EDGE_PREDECESSOR)
+    {
+        // Sort edges by successor first, predecessor second
+        std::sort(edges.begin(), edges.end(), edge_cmp_backward);
+
+        // Loop over existing edges and remove those listed in `edges':
+        StaticGraph::edge_list::const_iterator it = edges.begin();
+        const verti *p = predecessors_;
+        verti v = 0;
+        edgei e = 0;
+        while (v < V_)
+        {
+            if (p == predecessors_ + predecessor_index_[v + 1])
+            {
+                predecessor_index_[++v] = e;
+                continue;
+            }
+            std::pair<verti, verti> edge(*p++, v);
+            while (edge_cmp_backward(*it, edge)) ++it;
+            if (*it == edge) ++it; else predecessors_[e++] = edge.first;
+        }
+    }
+
+    // Remove end-of-list marker:
+    edges.pop_back();
+
+    // Update edge count
+    if (edge_dir_ & EDGE_SUCCESSOR)
+    {
+        if (edge_dir_ & EDGE_PREDECESSOR)
+        {
+            assert(successor_index_[V_] == predecessor_index_[V_]);
+        }
+        E_ = successor_index_[V_];
+    }
+    else
+    {
+        assert(edge_dir_ & EDGE_PREDECESSOR);
+        E_ = predecessor_index_[V_];
+    }
+}
 
 void StaticGraph::write_raw(std::ostream &os) const
 {

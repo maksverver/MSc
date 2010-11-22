@@ -101,11 +101,16 @@ public:
                         ForwardIterator vertices_begin,
                         ForwardIterator vertices_end );
 
+    // Variant that takes an explicit vertex map to be used:
     template<class ForwardIterator, class VertexMapT>
     void make_subgraph( const StaticGraph &graph,
                         ForwardIterator vertices_begin,
                         ForwardIterator vertices_end,
                         VertexMapT vertex_map = VertexMapT() );
+
+    /*! Removes the given edges from the graph. The contents of the edge list
+        may be reordered by this function! */
+    void remove_edges(edge_list &edges);
 
     /*! Write raw graph data to output stream */
     void write_raw(std::ostream &os) const;

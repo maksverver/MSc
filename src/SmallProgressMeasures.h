@@ -66,7 +66,8 @@ public:
     ParityGame::Strategy solve();
 
     /*! Initialize the small progress measures to handle vertices with loops
-        efficiently. Winner-controlled cycle removal makes this obsolete. */
+        efficiently. Winner-controlled cycle removal makes this obsolete. The
+        number of progress measure vectors initialized to Top is returned. */
     verti preprocess_loops();
 
     /*! For debugging: print current state to stdout */

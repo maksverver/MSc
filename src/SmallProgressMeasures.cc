@@ -146,10 +146,12 @@ ParityGame::Strategy SmallProgressMeasures::solve()
 {
    if (deloop_) {
        info("Preprocessing vertices with loops...");
-       verti cnt = preprocess_loops();
-       if (cnt > 0) info("Set %d vertices to top.", cnt);
-       // Possible FIXME: if this removed a large part of the game, it might
-       // make sense to construct a subgame with the remaining non-top vertices.
+       edgei old_edges = game_.graph().E();
+       verti top_cnt   = preprocess_loops();
+       edgei rem_edges = old_edges - game_.graph().E();
+       info( "Set %d %s to top and removed %d %s.",
+             top_cnt, top_cnt == 1 ? "vertex" : "vertices",
+             rem_edges, rem_edges == 1 ? " edge" : "edges" );
    }
 
     verti vertex = NO_VERTEX;
@@ -200,7 +202,7 @@ ParityGame::Strategy SmallProgressMeasures::solve()
         if (stats_ == NULL)
         {
             /* Vertex map is only used for statistics: */
-            subsolver.reset(new SmallProgressMeasures(subgame, lsf_, deloop_));
+            subsolver.reset(new SmallProgressMeasures(subgame, lsf_, false));
         }
         else
         {
@@ -210,12 +212,12 @@ ParityGame::Strategy SmallProgressMeasures::solve()
                 merge_vertex_maps( submap.begin(), submap.end(),
                                    vmap_, vmap_size_ );
                 subsolver.reset(new SmallProgressMeasures( subgame,
-                    lsf_, deloop_, stats_, &submap[0], submap.size() ));
+                    lsf_, false, stats_, &submap[0], submap.size() ));
             }
             else
             {
                 subsolver.reset(new SmallProgressMeasures( subgame,
-                    lsf_, deloop_, stats_, &won_by_odd[0], won_by_odd.size() ));
+                    lsf_, false, stats_, &won_by_odd[0], won_by_odd.size() ));
             }
         }
         /* N.B. in the above, odd-cycle removal has been disabled, since the
@@ -237,23 +239,55 @@ ParityGame::Strategy SmallProgressMeasures::solve()
     return strategy;
 }
 
+// N.B. this function modifies the edges of the graph! This isn't very nice, but
+//      it's not easy to prevent this without a performnace hit in the typical
+//      case where only a few edges are removed.
 verti SmallProgressMeasures::preprocess_loops()
 {
+    verti cnt = 0;  // count of vertices set to top
     const ParityGame &game = this->game();
-    StaticGraph &graph = const_cast<StaticGraph&>(game.graph());
+    const StaticGraph &graph = game.graph();
+    StaticGraph::edge_list obsolete_edges;
 
-    verti cnt = 0;
     for (verti v = 0; v < graph.V_; ++v)
     {
-        if ( game.priority(v)%2 == 1 &&
-             ( game.player(v) == ParityGame::PLAYER_ODD ||
-               graph.outdegree(v) < 2 ) &&
-             graph.has_succ(v, v) )
+        if (graph.has_succ(v, v))
         {
-            set_top(v);
-            ++cnt;
+            // Check who controls this vertex:
+            if ( game.priority(v)%2 == 1 &&
+                 ( game.player(v) == ParityGame::PLAYER_ODD ||
+                   graph.outdegree(v) == 1 ) )
+            {
+                // This vertex is won by odd.
+                set_top(v);
+                ++cnt;
+            }
+
+            // Decide what to do with the edges:
+            if ((int)game.priority(v)%2 == (int)game.player(v))
+            {
+                // Self-edge is beneficial; remove other edges
+                for ( StaticGraph::const_iterator it = graph.succ_begin(v);
+                      it != graph.succ_end(v); ++it )
+                {
+                    if (*it != v)
+                    {
+                        obsolete_edges.push_back(std::make_pair(v, *it));
+                    }
+                }
+            }
+            else
+            if (graph.outdegree(v) > 1)
+            {
+                // Self-edge is detrimental; remove it
+                obsolete_edges.push_back(std::make_pair(v, v));
+            }
         }
     }
+
+    // HACK: update the graph in-place!
+    const_cast<StaticGraph&>(graph).remove_edges(obsolete_edges);
+
     return cnt;
 }
 

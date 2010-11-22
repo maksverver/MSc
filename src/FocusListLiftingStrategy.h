@@ -31,7 +31,7 @@
     TODO: improve performance by using a fixed size list instead of a std::list
 */
 
-class FocusListLiftingStrategy : public LiftingStrategy, Logger
+class FocusListLiftingStrategy : public LiftingStrategy, public virtual Logger
 {
 public:
     FocusListLiftingStrategy( const ParityGame &game,
