@@ -76,9 +76,9 @@ ParityGame::Strategy DecycleSolver::solve()
         for (verti v = 0; v < V; ++v)
         {
             if ( solved.count(v) == 0 &&
-                    game_.priority(v) >= prio_ &&
-                    ( game_.player(v) == prio_%2 ||
-                    game_.graph().outdegree(v) == 1 ) )
+                 game_.priority(v) >= prio_ &&
+                 ( game_.player(v) == prio_%2 ||
+                   game_.graph().outdegree(v) == 1 ) )
             {
                 mapping_.push_back(v);
             }

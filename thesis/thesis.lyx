@@ -1,4 +1,4 @@
-#LyX 1.6.7 created this file. For more info see http://www.lyx.org/
+#LyX 1.6.8 created this file. For more info see http://www.lyx.org/
 \lyxformat 345
 \begin_document
 \begin_header
@@ -1696,6 +1696,23 @@ converges to
  add no more vertices to it, and then we are done.
 \end_layout
 
+\begin_layout Standard
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+Using an appropriate data structure (for example, a hash table) attractor
+ sets can be computed in time linear in the number of edges incident to
+ vertices in the resulting attractor set.
+ With typical sparse graphs, this is linear in the size of the attractor
+ set as well.
+\end_layout
+
 \begin_layout Subsubsection
 Attractor strategies
 \end_layout
@@ -2008,7 +2025,7 @@ To solve the game, we iteratively identify an even cycle
 \noun off
 \color none
 and then solving the smaller subgame 
-\begin_inset Formula $\Gamma|V\setminus Attr^{x}(\Gamma,\{v_{1}\ldots v_{n})$
+\begin_inset Formula $\Gamma|V\setminus Attr^{x}(\Gamma,\{v_{1}\ldots v_{n}\})$
 \end_inset
 
  in the same manner.
@@ -3568,45 +3585,366 @@ One peculiarity of the Small Progress Measures algorithm is that it may
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-TODO: some example pictures? for example, one with a cycle without a loop.
-\end_layout
-
+Something similar occurs for vertices of odd priority which are controlled
+ by Even.
+ Although these cannot be initialized to 
+\begin_inset Formula $\top$
 \end_inset
 
+ (they may still be won by Even) we can and should discard the loop edge,
+ to speed up propagation of values from successor vertices through this
+ vertex.
+\end_layout
 
+\begin_layout Subsubsection
+Loop removal
 \end_layout
 
 \begin_layout Standard
-To avoid the overhead of lifting such vertices, all known implementations
- of Small Progress Measures do some form of preprocessing, where such cases
- are detected and the progress measures of vertices won by Odd are set to
- 
+All known implementations of Small Progress Measures do some form of preprocessi
+ng, where such cases are detected and the progress measures of vertices
+ won by Odd are set to 
 \begin_inset Formula $\top$
 \end_inset
 
  before running the main algorithm.
- The simplest preprocessing step, one that is implemented by all implementations
-, is this: if a vertex has odd priority and a loop, and either it is controlled
- by Odd or it has no other outgoing edges, then its progress measure is
- initialized to 
-\begin_inset Formula $\top$
+ The preprocessing performed by my solver for vertices with loops is summarized
+ in Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:SPM-preprocessing"
+
 \end_inset
 
- (and its edges removed).
+:
 \end_layout
 
 \begin_layout Standard
-Freark van der Berg used a more sophisticated approach, by detecting cycles
- of vertices controlled by Odd with odd parity.
- He tries to find these cycles with a simple depth-limited depth-first-search,
- and as a result, is limited to finding small cycles only.
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="5" columns="5">
+<features>
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Player
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Priority
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Value
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Loop edge
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Other edges
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Even
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+even
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $0$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+kept
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+removed
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Even
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+odd
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $0$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+removed
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+kept
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Odd
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+even
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $0$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+removed
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+kept
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Odd
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+odd
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\top$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+kept
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+removed
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Preprocessing of vertices with loops
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:SPM-preprocessing"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+With an important note: when a vertex has only a loop and no other edges,
+ then its player is considered to be the player corresponding to the parity
+ of its priority and a consequence a single loop is never removed, which
+ maintains the property that every vertex has an outgoing edge.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+TODO: example pictures for the four cases above?
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Winner-controlled cycle removal
+\end_layout
+
+\begin_layout Standard
+In his solver, Freark van der Berg introduced a slightly more sophisticated
+ version of the loop removal process described above.
+ He searches for cycles of vertices controlled by Odd with odd priority.
+ Since he uses a simple depth-limited depth-first-search, he is limited
+ to finding small cycles only.
  Despite this, his benchmark results show that this already provides significant
- benefits over the removal of loops only, at least when testing on random
- games.
+ benefits over the removal of loops only, at least in some random games.
 \end_layout
 
 \begin_layout Standard
@@ -3616,7 +3954,15 @@ His approach can be generalized in several ways.
  the dominant priority for the cycle matches the controlling player, the
  priorities for the other vertices do not matter.
  To find such cycles, a simple depth-first search no longer suffices.
- Third, we can remove such cycles for both players, not just Odd.
+ Third, as with loop removal, we would like to remove cycles for both players,
+ not just for Odd.
+ The general process is called 
+\emph on
+winner controlled cycle removal
+\emph default
+; i.e.
+ removal of all cycles consisting of vertices for which the winner is equal
+ to the controlling player.
 \end_layout
 
 \begin_layout Standard
@@ -3635,11 +3981,14 @@ To remove all
  in the graph, an approach similar to that used to verify strategies can
  be applied.
  Construct a subgraph of all vertices controlled by 
-\begin_inset Formula $i\mod{2}$
+\begin_inset Formula $p$
 \end_inset
 
- (or with outdegree equal to one) with priority greater than or equal to
- 
+ (including vertices controlled by 
+\begin_inset Formula $1-p$
+\end_inset
+
+ with outdegree 1) with priority greater than or equal to 
 \begin_inset Formula $i$
 \end_inset
 
@@ -3656,9 +4005,9 @@ To remove all
 \end_inset
 
 .
- If we collect one vertex from each component (if we can find one) and then
- compute the attractor set for these vertices, we have identified all vertices
- which either lie on an 
+ If we collect one such vertex per component (if one exists) and then compute
+ the attractor set for these vertices, we have identified all vertices which
+ either lie on an 
 \begin_inset Formula $p$
 \end_inset
 
@@ -3667,21 +4016,11 @@ To remove all
 \end_inset
 
 -cycle or which can be reached from there.
- The progress measure vector for these vertices is set to 
-\begin_inset Formula $\top$
-\end_inset
-
- and the process is repeated with the remaining vertices for other values
- of 
-\begin_inset Formula $p$
-\end_inset
-
-.
 \end_layout
 
 \begin_layout Standard
-This preprocessing step can be used to construct strategies too: from a
- vertex with priority 
+Strategies for these vertices can be constructed as follows: from a vertex
+ with priority 
 \begin_inset Formula $p$
 \end_inset
 
@@ -3690,20 +4029,19 @@ This preprocessing step can be used to construct strategies too: from a
  earlier.
  Any vertices solved in this way can be removed from the game.
  This process is repeated for every priority in the game.
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-TODO: analyze and describe time complexity (depends on attractor set computation
-, subgame construction)
-\end_layout
-
+ Every iteration requires constructing a subgraph with the appropriate vertices,
+ decomposing it into strongly connected component, computing the attractor
+ set in the original game, and then computing a subgame with the remaining
+ vertices.
+ Using appropriate data structures, each of these operations take at most
+ time linear in the number of the edges in the graph, for a total runtime
+ complexity of 
+\begin_inset Formula $O(dE)$
 \end_inset
 
-
+.
+ Although this is considerably more than simple preprocessing on vertices
+ with loops only, the potential benefits are larger too.
 \end_layout
 
 \begin_layout Subsection
@@ -3946,27 +4284,80 @@ focus list approach
  is a strategy designed by Weber and van de Pol in order to avoid the disadvanta
 ges of the linear lifting strategy (mainly that it performs a lot of unnecessary
  failed lifting attempts) without introducing complicated data structures.
- It starts out iterating linearly over the vertices of the graph, putting
+ Solving occurs by alternation of two phases of operation.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+mention randomization of work list (vertices are put on work list with p=0.5)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+First, the algorithm iterates linearly over the vertices of the graph, putting
  vertices which are succesfully lifted on a fixed-size work list.
- When the work list is full, vertices on it are assigned an initial credit
- value of 1 and are selected for lifting again.
+ When the work list is full, the second phase begins: vertices on the work
+ list are assigned an initial credit value and are selected for lifting
+ again.
  When lifting a vertex succeeds, its credit is incremented linearly (adding
  a constant); if it fails, it is decreased exponentially (dividing by a
  constant).
  A vertex whose credit drops below a certain threshold is removed from the
  work list.
- When the work list is empty the linear lifting strategy is resumed.
+ When the work list is empty or a predetermined amount of lifting attempts
+ have been performed, the work list is cleared and the first phase is resumed.
 \end_layout
 
 \begin_layout Standard
-The idea behind the focus list is that it is used to capture unstable parts
- of the graph.
- When working on the focus list, either lifting attempts will have a high
+The idea behind the work list is that it captures unstable parts of the
+ graph.
+ When processing the work list, either lifting attempts will have a high
  success rate, or the list will be cleared quickly, allowing new vertices
  to be selected.
- This could avoid many of the unsuccesful lifts occuring.
- Since Weber and van de Pol are the only ones to implement this strategy,
- there is little emperical evidence available about its performance.
+ Limiting the number of attempts at this time ensures that if little progress
+ is made in one part of the game (i.e.
+ despite high lifting success rate, vertices do not stabilize) work will
+ soon continue on some other part of the game.
+\end_layout
+
+\begin_layout Standard
+Since Weber and van de Pol are the only ones to implement this strategy,
+ there is little emperical evidence available about its performance, though
+ it seems to perform much better than linear lifting in some cases, and
+ not much worse in most other cases, which suggests it meets its design
+ goals.
+ Compared to the predecessor lifting strategy, it has the advantage of being
+ able to postpone difficult parts of the game, which may help in some hard
+ cases.
+\end_layout
+
+\begin_layout Standard
+The main downside of the strategy is that it depends on various constants
+ (work list size, initial credit, credit increment, credit divisor) to work
+ well.
+ In Weber's implementation these are emperically derived while testing on
+ random games, but it is unclear if and how these values should change for
+ other types of games.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Mention constants used?
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection
@@ -4314,19 +4705,322 @@ Zielonka's Recursive Algorithm
 \end_layout
 
 \begin_layout Standard
+An entirely different approach to solving parity games arises from a constructiv
+e proof of the existince of memoryless strategies by Wiesław Zielonka in
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "zielonka1998igf"
+
+\end_inset
+
+.
+ It is presented solely as a proof, not as an efficient algorithm, but it
+ was discovered 
 \begin_inset Note Note
 status open
 
 \begin_layout Plain Layout
-- describe how it works
+by whom?
+\end_layout
+
+\end_inset
+
+ that it works well as an actual solver too.
+ It is a proof by induction on the number of different priorities: when
+ there is a single priority, the game is trivially solved (this is the basis
+ for the induction).
+ Then, assuming that we can solve any game with 
+\begin_inset Formula $d$
+\end_inset
+
+ priorities, we can solve any game with 
+\begin_inset Formula $d+1$
+\end_inset
+
+ priorities as follows.
+\end_layout
+
+\begin_layout Standard
+Without loss of generality (using priority compression if necessary) suppose
+ we start with a game 
+\begin_inset Formula $\Gamma$
+\end_inset
+
+ in wich some vertices have priority 0.
+ Then, we can compute the attractor set of these vertices for player Even
+ (
+\begin_inset Formula $U=Attr^{0}(\Gamma,\{v:\,\phi(v)=0\}$
+\end_inset
+
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+)
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
+ and its complement 
+\begin_inset Formula $V'$
+\end_inset
+
+ (
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+
+\begin_inset Formula $V'=V\setminus U)$
+\end_inset
+
+
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
+ and call the induced subgame
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+ 
+\begin_inset Formula $\Gamma'$
+\end_inset
+
+ (
+\begin_inset Formula $\Gamma'=\Gamma|V'$
+\end_inset
+
+).
+ 
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
+Since there are no vertices with priority 
+\begin_inset Formula $0$
+\end_inset
+
+ in 
+\begin_inset Formula $\Gamma$
+\end_inset
+
+'
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+ left, it has at most 
+\begin_inset Formula $d$
+\end_inset
+
+ different priorities and
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
+ we can invoke the induction hypothesis to solve 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+
+\begin_inset Formula $\Gamma'$
+\end_inset
+
+, yielding winning sets 
+\begin_inset Formula $W'_{0}$
+\end_inset
+
+ and 
+\begin_inset Formula $W'_{1}$
+\end_inset
+
+ and associated strategies.
+\end_layout
+
+\begin_layout Standard
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+At this point, we know that 
+\begin_inset Formula $W'_{1}\subseteq W_{1}$
+\end_inset
+
+ because 
+\begin_inset Formula $V'$
+\end_inset
+
+ is a trap for Even in 
+\begin_inset Formula $\Gamma$
+\end_inset
+
+ and therefore any strategy which works for Odd in 
+\begin_inset Formula $\Gamma'$
+\end_inset
+
+ is winning in 
+\begin_inset Formula $\Gamma$
+\end_inset
+
+ too.
+ The same does not apply to 
+\begin_inset Formula $W_{0}$
+\end_inset
+
+, because it is possible that Odd can escape from 
+\begin_inset Formula $W_{0}$
+\end_inset
+
+ into 
+\begin_inset Formula $U$
+\end_inset
+
+ as 
+\begin_inset Formula $V'$
+\end_inset
+
+ is not a trap for Odd.
+ Let 
+\begin_inset Formula $U'=Attr^{1}(\Gamma,W'_{1})$
+\end_inset
+
+ then since 
+\begin_inset Formula $V\setminus U'$
+\end_inset
+
+ is a trap for Odd, we can solve the subgame 
+\begin_inset Formula $\Gamma|(V\setminus U')$
+\end_inset
+
+ independently to determine the remainder of the winning sets.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+TODO: picture!
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We thus repeat the process to solve increasingly smaller subgames, until
+ 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+either 
+\begin_inset Formula $U=\emptyset$
+\end_inset
+
+ (i.e.
+ no vertices with priority 0 remain and we we can invoke the induction hypothesi
+s to solve it) or 
+\begin_inset Formula $U'=\emptyset$
+\end_inset
+
+ (i.e.
+ all remaining vertices are won by Even).
+ Winning strategies can be constructed along the way by combing the strategies
+ obtained recursively with those found by computing attractor sets.
+\end_layout
+
+\begin_layout Standard
+From the above, it is clear that to solve a game with 
+\begin_inset Formula $d$
+\end_inset
+
+ priorities, we must recursively call the solver at most 
+\begin_inset Formula $V$
+\end_inset
+
+ times for a worst-case runtime of 
+\begin_inset Formula $O(V^{d})$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+TODO:
 \end_layout
 
 \begin_layout Plain Layout
-- note that it's a constructive proof
+real worst case is smaller; need to figure out how small, and if possible
+ construct a worst-case example.
 \end_layout
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
 \begin_layout Plain Layout
-- note that it's derived from McNaughton
+- note that McNaughton proposed something similar (when/where?)
 \end_layout
 
 \begin_layout Plain Layout

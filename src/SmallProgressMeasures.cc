@@ -208,7 +208,7 @@ ParityGame::Strategy SmallProgressMeasures::solve()
         {
             if (vmap_size_ > 0)
             {
-                std::vector<verti> submap = won_by_odd;
+                submap = won_by_odd;
                 merge_vertex_maps( submap.begin(), submap.end(),
                                    vmap_, vmap_size_ );
                 subsolver.reset(new SmallProgressMeasures( subgame,
