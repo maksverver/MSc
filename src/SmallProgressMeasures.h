@@ -44,35 +44,20 @@ private:
     std::vector<std::pair<long long, long long> > vertex_stats_;
 };
 
-
-/*! A parity game solver based on Marcin Jurdzinski's small progress measures
-    algorithm, with pluggable lifting heuristics.
-
-    For each node, we need to keep an SPM vector of length game->d().
-    However, since all components with even indices (zero-based) are fixed at 0,
-    we only store values for the odd indices.
-*/
-class SmallProgressMeasures : public ParityGameSolver, public virtual Logger
+/* Implementation of Jurdziński's Small Progress Measures algorithm. */
+class SmallProgressMeasures : public Abortable, public virtual Logger
 {
 public:
-    SmallProgressMeasures( const ParityGame &game,
-                           LiftingStrategyFactory &lsf,
-                           LiftingStatistics *stats = 0,
-                           const verti *vertex_map = 0,
-                           verti vertex_map_size = 0 );
+    SmallProgressMeasures(const ParityGame &game);
     ~SmallProgressMeasures();
 
-    ParityGame::Strategy solve();
+    ParityGame::Strategy solve( LiftingStrategy &ls,
+        std::vector<verti> *won_by_odd = 0, LiftingStatistics *stats = 0,
+        const verti *vertex_map = 0, verti vertex_map_size = 0 );
 
-    /*! Preprocess the game so that vertices with loops either have the loop
-        removed, or have all other edges removed. In the latter case, the vertex
-        is necessarily won by the player corresponding with its parity.
-
-        This preprocessing operation speeds up solving with small progress
-        measures considerably, though it is superseded by the DecycleSolver
-        which does more general preprocessing. */
-    static void preprocess_game(ParityGame &game);
-
+    /*! Return peak memory use (excludes lifting strategy!) */
+    size_t memory_use();
+    
     /*! For debugging: print current state to stdout */
     void debug_print();
 
@@ -80,7 +65,6 @@ public:
     bool verify_solution();
 
 protected:
-
     /*! Attempt to lift a vertex (and return whether this succeeded). */
     bool lift(verti v);
 
@@ -99,11 +83,6 @@ protected:
 
     /*! Set the SPM vector for vertex `v` to top value. */
     void set_top(verti v) { vec(v)[0] = (verti)-1; }
-
-    /*! Translate local into global vertex index: */
-    verti map_vertex(verti v) {
-        return vmap_ ? (v < vmap_size_ ? vmap_[v] : NO_VERTEX) : v;
-    }
 
 private:
     SmallProgressMeasures(const SmallProgressMeasures &);
@@ -131,21 +110,59 @@ private:
     friend class OldMaxMeasureLiftingStrategy;
 
 protected:
-    LiftingStrategyFactory &lsf_;   //!< factory used to create lifting strategy
+    const ParityGame &game_;        //!< the game being solved
     int len_;                       //!< length of SPM vectors
     verti *M_;                      //!< bounds on the SPM vector components
     verti *spm_;                    //!< array storing the SPM vector data
+};
+
+
+/*! A parity game solver based on Marcin Jurdzinski's small progress measures
+    algorithm, with pluggable lifting heuristics.
+
+    For each node, we need to keep an SPM vector of length game->d().
+    However, since all components with even indices (zero-based) are fixed at 0,
+    we only store values for the odd indices.
+*/
+class SmallProgressMeasuresSolver
+    : public ParityGameSolver, public virtual Logger
+{
+public:
+    SmallProgressMeasuresSolver( const ParityGame &game,
+                                 LiftingStrategyFactory &lsf,
+                                 LiftingStatistics *stats = 0,
+                                 const verti *vertex_map = 0,
+                                 verti vertex_map_size = 0 );
+    ~SmallProgressMeasuresSolver();
+
+    ParityGame::Strategy solve();
+
+    /*! Preprocess the game so that vertices with loops either have the loop
+        removed, or have all other edges removed. In the latter case, the vertex
+        is necessarily won by the player corresponding with its parity.
+
+        This preprocessing operation speeds up solving with small progress
+        measures considerably, though it is superseded by the DecycleSolver
+        which does more general preprocessing. */
+    static void preprocess_game(ParityGame &game);
+
+private:
+    SmallProgressMeasuresSolver(const SmallProgressMeasuresSolver&);
+    SmallProgressMeasuresSolver &operator=(const SmallProgressMeasuresSolver&);
+
+protected:
+    LiftingStrategyFactory &lsf_;   //!< factory used to create lifting strategy
     LiftingStatistics *stats_;      //!< object to record lifting statistics
     const verti *vmap_;             //!< current vertex map
     const verti vmap_size_;         //!< size of vertex map
 };
 
 
-class SmallProgressMeasuresFactory : public ParityGameSolverFactory
+class SmallProgressMeasuresSolverFactory : public ParityGameSolverFactory
 {
 public:
-    SmallProgressMeasuresFactory( LiftingStrategyFactory &lsf,
-                                  LiftingStatistics *stats = 0 )
+    SmallProgressMeasuresSolverFactory( LiftingStrategyFactory &lsf,
+                                        LiftingStatistics *stats = 0 )
         : lsf_(lsf), stats_(stats) { };
 
     ParityGameSolver *create( const ParityGame &game,

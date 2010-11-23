@@ -627,8 +627,8 @@ int main(int argc, char *argv[])
             stats.reset(
                 new LiftingStatistics(game) );
 
-            solver_factory.reset(
-                new SmallProgressMeasuresFactory( *spm_strategy, stats.get()) );
+            solver_factory.reset(new SmallProgressMeasuresSolverFactory(
+                    *spm_strategy, stats.get() ));
         }
 
         // Create recursive solver factory if requested:
@@ -649,7 +649,7 @@ int main(int argc, char *argv[])
             // Shouldn't this count towards solving time?
             Logger::info("Preprocessing graph...");
             edgei old_edges = game.graph().E();
-            SmallProgressMeasures::preprocess_game(game);
+            SmallProgressMeasuresSolver::preprocess_game(game);
             edgei rem_edges = old_edges - game.graph().E();
             Logger::info( "Removed %d edge%s...",
                           rem_edges, rem_edges == 1 ? "" : "s" );
