@@ -6,6 +6,7 @@ OBJS= \
 	compatibility.o \
 	ComponentSolver.o \
 	DecycleSolver.o \
+	DeloopSolver.o \
 	FocusListLiftingStrategy.o \
 	Graph.o \
 	GraphOrdering.o \

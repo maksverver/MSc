@@ -3608,8 +3608,8 @@ ng, where such cases are detected and the progress measures of vertices
 \end_inset
 
  before running the main algorithm.
- The preprocessing performed by my solver for vertices with loops is summarized
- in Table 
+ Four cases can be distinguished based on the controller and parity of a
+ vertex, as summarized in Table 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "tab:SPM-preprocessing"
@@ -3628,8 +3628,9 @@ status open
 \begin_layout Plain Layout
 \align center
 \begin_inset Tabular
-<lyxtabular version="3" rows="5" columns="5">
+<lyxtabular version="3" rows="5" columns="6">
 <features>
+<column alignment="center" valignment="top" width="0">
 <column alignment="center" valignment="top" width="0">
 <column alignment="center" valignment="top" width="0">
 <column alignment="center" valignment="top" width="0">
@@ -3650,6 +3651,15 @@ Player
 
 \begin_layout Plain Layout
 Priority
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Winner
 \end_layout
 
 \end_inset
@@ -3705,6 +3715,15 @@ even
 \begin_inset Text
 
 \begin_layout Plain Layout
+Even
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
 \begin_inset Formula $0$
 \end_inset
 
@@ -3747,6 +3766,15 @@ Even
 
 \begin_layout Plain Layout
 odd
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+undecided
 \end_layout
 
 \end_inset
@@ -3805,6 +3833,15 @@ even
 \begin_inset Text
 
 \begin_layout Plain Layout
+undecided
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
 \begin_inset Formula $0$
 \end_inset
 
@@ -3847,6 +3884,15 @@ Odd
 
 \begin_layout Plain Layout
 odd
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Odd
 \end_layout
 
 \end_inset
@@ -3914,10 +3960,27 @@ name "tab:SPM-preprocessing"
 \end_layout
 
 \begin_layout Standard
-With an important note: when a vertex has only a loop and no other edges,
- then its player is considered to be the player corresponding to the parity
- of its priority and a consequence a single loop is never removed, which
- maintains the property that every vertex has an outgoing edge.
+(Note that when a vertex has only one outgoing edge, then it can be considered
+ to belong to either player; in this case it's most beneficial to assign
+ it to the player corresponding to the parity of its priority.) There are
+ different ways to use this information.
+ The simplest is to remove some of the vertices and initialize the progress
+ measure vector to 
+\begin_inset Formula $\top$
+\end_inset
+
+ in the fourth case, and solve the rest of the game as usual.
+ This is the approach used by the existing solvers.
+\end_layout
+
+\begin_layout Standard
+It should be noted that in two of the four cases, it is known to which winning
+ set the vertex belongs, and the associated strategy is to use the loop
+ back to the vertex.
+ A simple extension is then to collect sets of these vertices for each player,
+ and extend these to their attractor sets, to obtain a larger subset of
+ vertices that are completely solved and can be removed from the game entirely.
+ The resulting game graph then has no more loops.
 \end_layout
 
 \begin_layout Standard

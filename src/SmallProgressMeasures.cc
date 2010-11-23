@@ -131,7 +131,9 @@ ParityGame::Strategy SmallProgressMeasures::solve()
 {
     // Initialize vertices won by odd to Top. This is designed to work
     // in conjunction with preprocess_game() which should have removed the
-    // non-loop outgoing edges for such vertices:
+    // non-loop outgoing edges for such vertices.
+    // N.B. The DecycleSolver and DeloopSolver make this obsolete, so if we
+    //      always use those, this code may well be removed!
     verti top_cnt = 0;
     for (verti v = 0; v < game_.graph().V(); ++v)
     {
@@ -347,7 +349,6 @@ bool SmallProgressMeasures::verify_solution()
     }
     return true;
 }
-
 
 ParityGameSolver *SmallProgressMeasuresFactory::create(
     const ParityGame &game, const verti *vmap, verti vmap_size )

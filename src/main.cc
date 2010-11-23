@@ -13,6 +13,7 @@
 
 #include "ComponentSolver.h"
 #include "DecycleSolver.h"
+#include "DeloopSolver.h"
 #include "GraphOrdering.h"
 #include "Logger.h"
 #include "ParityGame.h"
@@ -638,30 +639,26 @@ int main(int argc, char *argv[])
 
         if (arg_timeout > 0) set_timeout(arg_timeout);
 
-        // Wrap decycler, if requested:
         if (arg_decycle)
         {
             solver_factory.reset(
                 new DecycleSolverFactory(*solver_factory.release()) );
         }
         else
-        if (arg_deloop)
         {
-            // Technically, shouldn't this count towards solving time?
+            // Shouldn't this count towards solving time?
             Logger::info("Preprocessing graph...");
             edgei old_edges = game.graph().E();
             SmallProgressMeasures::preprocess_game(game);
             edgei rem_edges = old_edges - game.graph().E();
             Logger::info( "Removed %d edge%s...",
                           rem_edges, rem_edges == 1 ? "" : "s" );
+            if (arg_deloop)
+            {
+                solver_factory.reset(
+                    new DeloopSolverFactory(*solver_factory.release()) );
+            }
         }
-        else
-        {
-            Logger::warn(
-                "Neither --deloop nor --decycle given! "
-                "Solving will be very slow!" );
-        }
-
 
         // Wrap component solver, if solving by components requested:
         if (arg_scc_decomposition)
