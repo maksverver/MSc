@@ -34,25 +34,10 @@ void LiftingStatistics::record_lift(verti v, bool success)
     }
 }
 
-#if 0  // Commented out because this isn't necessary anymore
-void LiftingStatistics::merge( const LiftingStatistics &other,
-                               const verti *mapping )
-{
-    for (size_t v = 0; v < other.vertex_stats_.size(); ++v)
-    {
-        size_t w = mapping ? mapping[v] : v;
-        vertex_stats_[w].first  += other.vertex_stats_[v].first;
-        vertex_stats_[w].second += other.vertex_stats_[v].second;
-    }
-    lifts_attempted_ += other.lifts_attempted_;
-    lifts_succeeded_ += other.lifts_succeeded_;
-}
-#endif
-
 SmallProgressMeasures::SmallProgressMeasures(
-    const ParityGame &game, LiftingStrategyFactory &lsf, bool deloop,
+    const ParityGame &game, LiftingStrategyFactory &lsf,
     LiftingStatistics *stats, const verti *vmap, const verti vmap_size )
-        : ParityGameSolver(game), lsf_(lsf), deloop_(deloop), len_(game.d()/2),
+        : ParityGameSolver(game), lsf_(lsf), len_(game.d()/2),
           stats_(stats), vmap_(vmap), vmap_size_(vmap_size)
 {
     // Initialize SPM vector bounds
@@ -144,23 +129,28 @@ bool SmallProgressMeasures::lift(verti v)
 
 ParityGame::Strategy SmallProgressMeasures::solve()
 {
-   if (deloop_) {
-       info("Preprocessing vertices with loops...");
-       edgei old_edges = game_.graph().E();
-       verti top_cnt   = preprocess_loops();
-       edgei rem_edges = old_edges - game_.graph().E();
-       info( "Set %d %s to top and removed %d %s.",
-             top_cnt, top_cnt == 1 ? "vertex" : "vertices",
-             rem_edges, rem_edges == 1 ? " edge" : "edges" );
-   }
-
-    verti vertex = NO_VERTEX;
-    bool lifted = false;
+    // Initialize vertices won by odd to Top. This is designed to work
+    // in conjunction with preprocess_game() which should have removed the
+    // non-loop outgoing edges for such vertices:
+    verti top_cnt = 0;
+    for (verti v = 0; v < game_.graph().V(); ++v)
+    {
+        if ( game_.priority(v)%2 == 1 &&
+             game_.graph().outdegree(v) == 1 &&
+             *game_.graph().succ_begin(v) == v )
+        {
+            set_top(v);
+            ++top_cnt;
+        }
+    }
+    info("Initialized %d vert%s to top.", top_cnt, top_cnt == 1 ? "ex" : "ices");
 
     std::auto_ptr<LiftingStrategy> ls(lsf_.create(game(), *this));
     assert(ls.get() != NULL);
 
     info("Computing minimal fixed point...");
+    verti vertex = NO_VERTEX;
+    bool lifted = false;
     while ((vertex = ls->next(vertex, lifted)) != NO_VERTEX)
     {
         lifted = lift(vertex);
@@ -202,7 +192,7 @@ ParityGame::Strategy SmallProgressMeasures::solve()
         if (stats_ == NULL)
         {
             /* Vertex map is only used for statistics: */
-            subsolver.reset(new SmallProgressMeasures(subgame, lsf_, false));
+            subsolver.reset(new SmallProgressMeasures(subgame, lsf_));
         }
         else
         {
@@ -212,12 +202,12 @@ ParityGame::Strategy SmallProgressMeasures::solve()
                 merge_vertex_maps( submap.begin(), submap.end(),
                                    vmap_, vmap_size_ );
                 subsolver.reset(new SmallProgressMeasures( subgame,
-                    lsf_, false, stats_, &submap[0], submap.size() ));
+                    lsf_, stats_, &submap[0], submap.size() ));
             }
             else
             {
                 subsolver.reset(new SmallProgressMeasures( subgame,
-                    lsf_, false, stats_, &won_by_odd[0], won_by_odd.size() ));
+                    lsf_, stats_, &won_by_odd[0], won_by_odd.size() ));
             }
         }
         /* N.B. in the above, odd-cycle removal has been disabled, since the
@@ -239,30 +229,15 @@ ParityGame::Strategy SmallProgressMeasures::solve()
     return strategy;
 }
 
-// N.B. this function modifies the edges of the graph! This isn't very nice, but
-//      it's not easy to prevent this without a performnace hit in the typical
-//      case where only a few edges are removed.
-verti SmallProgressMeasures::preprocess_loops()
+void SmallProgressMeasures::preprocess_game(ParityGame &game)
 {
-    verti cnt = 0;  // count of vertices set to top
-    const ParityGame &game = this->game();
-    const StaticGraph &graph = game.graph();
+    StaticGraph &graph = const_cast<StaticGraph&>(game.graph());  // HACK
     StaticGraph::edge_list obsolete_edges;
 
     for (verti v = 0; v < graph.V_; ++v)
     {
         if (graph.has_succ(v, v))
         {
-            // Check who controls this vertex:
-            if ( game.priority(v)%2 == 1 &&
-                 ( game.player(v) == ParityGame::PLAYER_ODD ||
-                   graph.outdegree(v) == 1 ) )
-            {
-                // This vertex is won by odd.
-                set_top(v);
-                ++cnt;
-            }
-
             // Decide what to do with the edges:
             if ((int)game.priority(v)%2 == (int)game.player(v))
             {
@@ -284,11 +259,7 @@ verti SmallProgressMeasures::preprocess_loops()
             }
         }
     }
-
-    // HACK: update the graph in-place!
-    const_cast<StaticGraph&>(graph).remove_edges(obsolete_edges);
-
-    return cnt;
+    graph.remove_edges(obsolete_edges);
 }
 
 #include <stdio.h>  /* debug */
@@ -382,5 +353,5 @@ ParityGameSolver *SmallProgressMeasuresFactory::create(
     const ParityGame &game, const verti *vmap, verti vmap_size )
 {
     return new SmallProgressMeasures(
-        game, lsf_, deloop_, stats_, vmap, vmap_size );
+        game, lsf_, stats_, vmap, vmap_size );
 }

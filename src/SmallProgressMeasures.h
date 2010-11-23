@@ -57,7 +57,6 @@ class SmallProgressMeasures : public ParityGameSolver, public virtual Logger
 public:
     SmallProgressMeasures( const ParityGame &game,
                            LiftingStrategyFactory &lsf,
-                           bool deloop,
                            LiftingStatistics *stats = 0,
                            const verti *vertex_map = 0,
                            verti vertex_map_size = 0 );
@@ -65,10 +64,14 @@ public:
 
     ParityGame::Strategy solve();
 
-    /*! Initialize the small progress measures to handle vertices with loops
-        efficiently. Winner-controlled cycle removal makes this obsolete. The
-        number of progress measure vectors initialized to Top is returned. */
-    verti preprocess_loops();
+    /*! Preprocess the game so that vertices with loops either have the loop
+        removed, or have all other edges removed. In the latter case, the vertex
+        is necessarily won by the player corresponding with its parity.
+
+        This preprocessing operation speeds up solving with small progress
+        measures considerably, though it is superseded by the DecycleSolver
+        which does more general preprocessing. */
+    static void preprocess_game(ParityGame &game);
 
     /*! For debugging: print current state to stdout */
     void debug_print();
@@ -122,14 +125,13 @@ private:
     /*! Returns the maximum successor for vertex `v`. */
     verti get_max_succ(verti v);
 
-    // Allow selected lifting strategies to access the SPM  internals:
+    // Allow selected lifting strategies to access the SPM internals:
     friend class PredecessorLiftingStrategy;
     friend class MaxMeasureLiftingStrategy;
     friend class OldMaxMeasureLiftingStrategy;
 
 protected:
     LiftingStrategyFactory &lsf_;   //!< factory used to create lifting strategy
-    bool deloop_;                   //!< whether to remove loops before solving
     int len_;                       //!< length of SPM vectors
     verti *M_;                      //!< bounds on the SPM vector components
     verti *spm_;                    //!< array storing the SPM vector data
@@ -143,9 +145,8 @@ class SmallProgressMeasuresFactory : public ParityGameSolverFactory
 {
 public:
     SmallProgressMeasuresFactory( LiftingStrategyFactory &lsf,
-                                  bool deloop,
                                   LiftingStatistics *stats = 0 )
-        : lsf_(lsf), deloop_(deloop), stats_(stats) { };
+        : lsf_(lsf), stats_(stats) { };
 
     ParityGameSolver *create( const ParityGame &game,
                               const verti *vertex_map,
@@ -153,7 +154,6 @@ public:
 
 private:
     LiftingStrategyFactory  &lsf_;
-    bool                    deloop_;
     LiftingStatistics       *stats_;
 };
 

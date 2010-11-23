@@ -626,19 +626,8 @@ int main(int argc, char *argv[])
             stats.reset(
                 new LiftingStatistics(game) );
 
-            if (!arg_deloop && !arg_decycle)
-            {
-                Logger::warn( "Neither --deloop nor --decycle given! "
-                    "Solving will be very slow!" );
-            }
-            if (arg_deloop && arg_decycle)
-            {
-                Logger::warn( "Option --deloop is useless when combined "
-                    "with --decycle!" );
-            }
             solver_factory.reset(
-                new SmallProgressMeasuresFactory(
-                    *spm_strategy, arg_deloop, stats.get()) );
+                new SmallProgressMeasuresFactory( *spm_strategy, stats.get()) );
         }
 
         // Create recursive solver factory if requested:
@@ -649,18 +638,36 @@ int main(int argc, char *argv[])
 
         if (arg_timeout > 0) set_timeout(arg_timeout);
 
-        // Wrap component solver, if solving by components requested:
-        if (arg_scc_decomposition)
-        {
-            solver_factory.reset(
-                new ComponentSolverFactory(*solver_factory.release()) );
-        }
-
         // Wrap decycler, if requested:
         if (arg_decycle)
         {
             solver_factory.reset(
                 new DecycleSolverFactory(*solver_factory.release()) );
+        }
+        else
+        if (arg_deloop)
+        {
+            // Technically, shouldn't this count towards solving time?
+            Logger::info("Preprocessing graph...");
+            edgei old_edges = game.graph().E();
+            SmallProgressMeasures::preprocess_game(game);
+            edgei rem_edges = old_edges - game.graph().E();
+            Logger::info( "Removed %d edge%s...",
+                          rem_edges, rem_edges == 1 ? "" : "s" );
+        }
+        else
+        {
+            Logger::warn(
+                "Neither --deloop nor --decycle given! "
+                "Solving will be very slow!" );
+        }
+
+
+        // Wrap component solver, if solving by components requested:
+        if (arg_scc_decomposition)
+        {
+            solver_factory.reset(
+                new ComponentSolverFactory(*solver_factory.release()) );
         }
 
         Timer timer;
