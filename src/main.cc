@@ -734,7 +734,12 @@ int main(int argc, char *argv[])
             else
             {
                 failed = true;
-                Logger::error("Verification failed!");
+                // Complain loudly so this message gets noticed:
+                Logger::error("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                Logger::error("!!                                    !!");
+                Logger::error("!!        Verification failed!        !!");
+                Logger::error("!!                                    !!");
+                Logger::error("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             }
             Logger::message( "Time used to verify:         %10.3f s",
                              timer.elapsed() );

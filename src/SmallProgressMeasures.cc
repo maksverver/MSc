@@ -36,20 +36,23 @@ void LiftingStatistics::record_lift(verti v, bool success)
 }
 
 
-SmallProgressMeasures::SmallProgressMeasures(const ParityGame &game)
-    : game_(game)
+SmallProgressMeasures::SmallProgressMeasures( const ParityGame &game,
+                                              ParityGame::Player player )
+    : game_(game), p_((int)player)
 {
+    assert(p_ == 0 || p_ == 1);
+
     // Initialize SPM vector bounds
-    len_ = game.d()/2;
+    len_ = (game.d() + p_)/2;
     M_ = new verti[len_];
-    for (int n = 0; n < len_; ++n) M_[n] = game_.cardinality(2*n + 1) + 1;
+    for (int n = 0; n < len_; ++n) M_[n] = game_.cardinality(2*n + 1 - p_) + 1;
 
     // Initialize SPM vector data
     size_t n = (size_t)len_*game.graph().V();
     spm_ = new verti[n];
     std::fill_n(spm_, n, 0);
 
-    // Initialize vertices won by odd to Top. This is designed to work
+    // Initialize vertices won by the opponent to Top. This is designed to work
     // in conjunction with preprocess_game() which should have removed the
     // non-loop outgoing edges for such vertices.
     // N.B. The DecycleSolver and DeloopSolver make this obsolete, so if we
@@ -57,7 +60,7 @@ SmallProgressMeasures::SmallProgressMeasures(const ParityGame &game)
     verti cnt = 0;
     for (verti v = 0; v < game_.graph().V(); ++v)
     {
-        if ( game_.priority(v)%2 == 1 &&
+        if ( game_.priority(v)%2 == 1 - p_ &&
              game_.graph().outdegree(v) == 1 &&
              *game_.graph().succ_begin(v) == v )
         {
@@ -75,7 +78,7 @@ SmallProgressMeasures::~SmallProgressMeasures()
 }
 
 ParityGame::Strategy SmallProgressMeasures::solve( LiftingStrategy &ls,
-    std::vector<verti> *won_by_odd, LiftingStatistics *stats,
+    std::vector<verti> *won_by_opponent, LiftingStatistics *stats,
     const verti *vmap, verti vmap_size )
 {
     ParityGame::Strategy result;
@@ -93,17 +96,16 @@ ParityGame::Strategy SmallProgressMeasures::solve( LiftingStrategy &ls,
     }
     if (!aborted())
     {
-        // Construct strategy for player even:
         info("Constructing partial strategy...");
         result.assign(game_.graph().V(), NO_VERTEX);
         for (verti v = 0; v < game_.graph().V(); ++v)
         {
             if (is_top(v))
             {
-                if (won_by_odd) won_by_odd->push_back(v);
+                if (won_by_opponent) won_by_opponent->push_back(v);
             }
             else
-            if (game_.player(v) == ParityGame::PLAYER_EVEN)
+            if (game_.player(v) == p_)
             {
                 result[v] = get_min_succ(v);
             }
@@ -120,29 +122,12 @@ size_t SmallProgressMeasures::memory_use()
         + sizeof(verti)*game_.graph().V();            // strategy
 }
 
-inline verti SmallProgressMeasures::get_ext_succ(verti v, bool take_max)
-{
-    const verti *it  = game_.graph().succ_begin(v),
-                *end = game_.graph().succ_end(v);
-
-    assert(it != end);  /* assume we have at least one successor */
-
-    int N = len(v);
-    verti res = *it++;
-    for ( ; it != end; ++it)
-    {
-        int d = vector_cmp(*it, res, N);
-        if (take_max ? d > 0 : d < 0) res = *it;
-    }
-    return res;
-}
-
-verti SmallProgressMeasures::get_min_succ(verti v)
+verti SmallProgressMeasures::get_min_succ(verti v) const
 {
     return get_ext_succ(v, false);
 }
 
-verti SmallProgressMeasures::get_max_succ(verti v)
+verti SmallProgressMeasures::get_max_succ(verti v) const
 {
     return get_ext_succ(v, true);
 }
@@ -151,33 +136,19 @@ bool SmallProgressMeasures::lift(verti v)
 {
     if (is_top(v)) return false;
 
-    bool player_even = game_.player(v) == ParityGame::PLAYER_EVEN;
-    bool priority_even = game_.priority(v)%2 == 0;
-
     /* Find relevant successor */
-    verti w = player_even ? get_min_succ(v) : get_max_succ(v);
+    verti w = ((int)game_.player(v) == p_) ? get_min_succ(v) : get_max_succ(v);
 
-    /* Successor is larger than current node; we must lift it. */
     if (is_top(w))
     {
         set_top(v);
         return true;
     }
 
-    /* See if lifting is required */
+    /* Check if lifting is required */
     int d = vector_cmp(v, w, len(v));
-
-    bool carry;
-    if (priority_even)
-    {
-        if (d >= 0) return false;
-        carry = false;
-    }
-    else /* !priority_even */
-    {
-        if (d > 0) return false;
-        carry = true;
-    }
+    bool carry = game_.priority(v)%2 != p_;
+    if (d >= carry) return false;
 
     /* Assign successor */
     for (int n = len(v) - 1; n >= 0; --n)
@@ -187,23 +158,23 @@ bool SmallProgressMeasures::lift(verti v)
         if (carry) vec(v)[n] = 0;
     }
     if (carry) set_top(v);
-
     return true;
 }
 
-void SmallProgressMeasures::debug_print()
+void SmallProgressMeasures::debug_print(bool verify)
 {
     printf("M =");
     for (int p = 0; p < game_.d(); ++p)
     {
-        printf(" %d", (p%2 == 0) ? 0 : M_[p/2]);
+        printf(" %d", (p%2 == p_) ? 0 : M_[p/2]);
     }
     printf("\n");
 
     for (verti v = 0; v < game_.graph().V(); ++v)
     {
         printf ( "%6d %c p=%d:", (int)v,
-                 game_.player(v) == ParityGame::PLAYER_EVEN ? 'E' : 'O',
+                 game_.player(v) == ParityGame::PLAYER_EVEN ? 'E' :
+                 game_.player(v) == ParityGame::PLAYER_ODD  ? 'O' : '?',
                  (int)game_.priority(v) );
         if (is_top(v))
         {
@@ -213,13 +184,17 @@ void SmallProgressMeasures::debug_print()
         {
             for (int p = 0; p < game_.d(); ++p)
             {
-                printf(" %d", p%2 == 0 ? 0 : vec(v)[p/2]);
+                printf(" %d", (p%2 == p_) ? 0 : vec(v)[p/2]);
             }
         }
         printf("\n");
     }
 
-    printf("Verification %s\n", verify_solution() ? "succeeded." : "failed!");
+    if (verify)
+    {
+        printf( "Internal verification %s\n",
+                verify_solution() ? "succeeded." : "failed!" );
+    }
 }
 
 bool SmallProgressMeasures::verify_solution()
@@ -232,7 +207,7 @@ bool SmallProgressMeasures::verify_solution()
         {
             for (int p = 0; p < game_.d(); ++p)
             {
-                if (p%2 == 0) continue; /* no even components stored */
+                if (p%2 == p_) continue; /* this component is not stored */
 
                 /* Ensure vector values satisfy bounds */
                 if (vec(v)[p/2] >= M_[p/2])
@@ -251,24 +226,22 @@ bool SmallProgressMeasures::verify_solution()
             }
         }
 
-        bool player_even = game_.player(v) == ParityGame::PLAYER_EVEN;
-        bool priority_even = game_.priority(v)%2 == 0;
-
         bool all_ok = true, one_ok = false;
         for ( StaticGraph::const_iterator it = graph.succ_begin(v);
               it != graph.succ_end(v); ++it )
         {
             int d = vector_cmp(v, *it, len(v));
-            bool ok = priority_even ? d >= 0 : (d > 0 || is_top(v));
+            bool ok = is_top(v) || d >= (game_.priority(v)%2 == p_ ? 0 : 1);
             one_ok = one_ok || ok;
             all_ok = all_ok && ok;
         }
 
-        if (!(player_even ? one_ok : all_ok))
+        if (!(game_.player(v) == p_ ? one_ok : all_ok))
         {
             printf( "order constraint not satisfied for vertex %d with "
                     "priority %d and player %s!\n", v, game_.priority(v),
-                    player_even ? "even" : "odd" );
+                game_.player(v) == ParityGame::PLAYER_EVEN ? "even" :
+                game_.player(v) == ParityGame::PLAYER_ODD  ? "odd"  : "???" );
             return false;
         }
     }
@@ -294,7 +267,7 @@ ParityGame::Strategy SmallProgressMeasuresSolver::solve()
 
     // First pass; solve game for player Even.
     {
-        SmallProgressMeasures spm(game());
+        SmallProgressMeasures spm(game(), ParityGame::PLAYER_EVEN);
         std::auto_ptr<LiftingStrategy> ls(lsf_.create(game(), spm));
         strategy = spm.solve(*ls.get(), &won_by_odd, stats_, vmap_, vmap_size_);
         update_memory_use( spm.memory_use() + ls->memory_use() +
@@ -312,8 +285,7 @@ ParityGame::Strategy SmallProgressMeasuresSolver::solve()
         info("Constructing subgame of size %ld to solve for opponent...",
              (long)won_by_odd.size());
         subgame.make_subgame(game_, won_by_odd.begin(), won_by_odd.end());
-        info("Making subgame dual to the main game...");
-        subgame.make_dual();
+        subgame.compress_priorities();
 
         // Create vertex map to use:
         std::vector<verti> submap;
@@ -327,7 +299,7 @@ ParityGame::Strategy SmallProgressMeasuresSolver::solve()
         }
 
         // Phase 2: solve subgame of vertices won by Odd:
-        SmallProgressMeasures spm(subgame);
+        SmallProgressMeasures spm(subgame, ParityGame::PLAYER_ODD);
         std::auto_ptr<LiftingStrategy> ls(lsf_.create(subgame, spm));
         ParityGame::Strategy substrat =
             spm.solve(*ls.get(), NULL, stats_, vmap_, vmap_size);

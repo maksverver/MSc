@@ -17,6 +17,7 @@
 
 #include "compatibility.h"
 
+// Note: these should be unsigned types; some algorithms depend on it!
 typedef compat_uint32_t verti;    //!< type used to number vertices
 typedef compat_uint32_t edgei;    //!< type used to number edges
 

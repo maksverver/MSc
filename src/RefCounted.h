@@ -11,6 +11,7 @@
 #define REFCOUNTED
 
 #include <assert.h>
+#include <stdio.h>
 
 /*! A simple reference counting base class. */
 class RefCounted

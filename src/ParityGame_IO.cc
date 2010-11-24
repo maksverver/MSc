@@ -43,7 +43,6 @@ void ParityGame::read_pgsolver( std::istream &is,
     // Invalid vertex (used to mark uninitialized vertices)
     ParityGameVertex invalid = { (unsigned char)-1, (unsigned char)-1 };
 
-
     // Read vertex specs
     while (is)
     {
@@ -88,6 +87,31 @@ void ParityGame::read_pgsolver( std::istream &is,
 
     // Ensure max_prio is even, so max_prio - p preserves parity:
     if (max_prio%2 == 1) ++max_prio;
+
+    // Look for unused vertex indices:
+    std::vector<verti> vertex_map(vertices.size(), NO_VERTEX);
+    verti used = 0;
+    for (verti v = 0; v < (verti)vertices.size(); ++v)
+    {
+        if (vertices[v] != invalid) {
+            vertices[used] = vertices[v];
+            vertex_map[v] = used++;
+        }
+    }
+    if (used < (verti)vertices.size())
+    {
+        // Remove unused vertices:
+        vertices.erase(vertices.begin() + used, vertices.end());
+
+        // Remap edges to new vertex indices:
+        for ( StaticGraph::edge_list::iterator it = edges.begin();
+              it != edges.end(); ++it )
+        {
+            it->first  = vertex_map[it->first];
+            it->second = vertex_map[it->second];
+            assert(it->first != NO_VERTEX && it->second != NO_VERTEX);
+        }
+    }
 
     // Assign vertex info and recount cardinalities
     reset((verti)vertices.size(), max_prio + 1);

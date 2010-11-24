@@ -48,18 +48,18 @@ private:
 class SmallProgressMeasures : public Abortable, public virtual Logger
 {
 public:
-    SmallProgressMeasures(const ParityGame &game);
+    SmallProgressMeasures(const ParityGame &game, ParityGame::Player player);
     ~SmallProgressMeasures();
 
     ParityGame::Strategy solve( LiftingStrategy &ls,
-        std::vector<verti> *won_by_odd = 0, LiftingStatistics *stats = 0,
+        std::vector<verti> *won_by_opponent = 0, LiftingStatistics *stats = 0,
         const verti *vertex_map = 0, verti vertex_map_size = 0 );
 
     /*! Return peak memory use (excludes lifting strategy!) */
     size_t memory_use();
-    
+
     /*! For debugging: print current state to stdout */
-    void debug_print();
+    void debug_print(bool verify = true);
 
     /*! For debugging: verify that the current state describes a valid SPM */
     bool verify_solution();
@@ -69,20 +69,20 @@ protected:
     bool lift(verti v);
 
     /*! Return the SPM vector for vertex `v`.
-        This array contains only the components with odd indices of the vertex
-        (since the reset is fixed at zero). */
+        This array contains only the components with odd (for Even) or even
+        (for Odd) indices of the vector (since the reset is fixed at zero). */
     verti *vec(verti v) { return &spm_[(size_t)len_*v]; }
     const verti *vec(verti v) const { return &spm_[(size_t)len_*v]; }
 
     /*! Return the number of odd priorities less than or equal to the
         priority of v. This is the length of the SPM vector for `v`. */
-    int len(verti v) const { return (game_.priority(v) + 1)/2; }
+    int len(verti v) const { return (game_.priority(v) + 1 + p_)/2; }
 
     /*! Return whether the SPM vector for vertex `v` has top value. */
-    bool is_top(verti v) const { return vec(v)[0] == (verti)-1; }
+    bool is_top(verti v) const { return vec(v)[0] == NO_VERTEX; }
 
     /*! Set the SPM vector for vertex `v` to top value. */
-    void set_top(verti v) { vec(v)[0] = (verti)-1; }
+    void set_top(verti v) { vec(v)[0] = NO_VERTEX; }
 
 private:
     SmallProgressMeasures(const SmallProgressMeasures &);
@@ -95,14 +95,14 @@ private:
     inline int vector_cmp(verti v, verti w, int N) const;
 
     /*! Returns the minimum or maximum successor for vertex `v`,
-        depending on whether take_max is false or true (vertex_map_size_respectively). */
-    verti get_ext_succ(verti v, bool take_max);
+        depending on whether take_max is false or true (respectively). */
+    inline verti get_ext_succ(verti v, bool take_max) const;
 
     /*! Returns the minimum successor for vertex `v`. */
-    verti get_min_succ(verti v);
+    verti get_min_succ(verti v) const;
 
     /*! Returns the maximum successor for vertex `v`. */
-    verti get_max_succ(verti v);
+    verti get_max_succ(verti v) const;
 
     // Allow selected lifting strategies to access the SPM internals:
     friend class PredecessorLiftingStrategy;
@@ -111,6 +111,7 @@ private:
 
 protected:
     const ParityGame &game_;        //!< the game being solved
+    const int p_;                   //!< the player to solve for
     int len_;                       //!< length of SPM vectors
     verti *M_;                      //!< bounds on the SPM vector components
     verti *spm_;                    //!< array storing the SPM vector data
@@ -174,19 +175,6 @@ private:
     LiftingStatistics       *stats_;
 };
 
-
-int SmallProgressMeasures::vector_cmp(verti v, verti w, int N) const
-{
-    if (is_top(v)) return is_top(w) ? 0 : +1;   // v is top
-    if (is_top(w)) return -1;                   // w is top, but v isn't
-
-    for (int n = 0; n < N; ++n)
-    {
-        if (vec(v)[n] < vec(w)[n]) return -1;
-        if (vec(v)[n] > vec(w)[n]) return +1;
-    }
-
-    return 0;
-}
+#include "SmallProgressMeasures_impl.h"
 
 #endif /* ndef SMALL_PROGRESS_MEASURES_H_INCLUDED */
