@@ -12,8 +12,8 @@
 
 #include "SmallProgressMeasures.h"
 #include "LinearLiftingStrategy.h"
-#include <list>
 #include <utility>
+#include <vector>
 
 /*! This is an implementation of the "Focus List Approach" described in the
     Multi-Core Solver for Parity Games paper.
@@ -39,16 +39,15 @@ public:
     verti next(verti prev_vertex, bool prev_lifted);
     size_t memory_use() const;
     bool backward() const { return lls_.backward(); }
-    bool max_size() const { return max_size_; }
+    bool max_size() const { return focus_list_.capacity(); }
 
 protected:
     verti pass1(verti prev_vertex, bool prev_lifted);
     verti pass2(verti prev_vertex, bool prev_lifted);
 
 private:
-    typedef std::list<std::pair<verti, unsigned> > focus_list;
+    typedef std::vector<std::pair<verti, unsigned> > focus_list;
 
-    verti max_size_;                    //!< maximum allowed focus list size
     verti max_lifts_;                   //!< maximum lift attempts per list
     int pass_;                          //!< current pass
 
@@ -60,8 +59,8 @@ private:
 
     // For pass 2:
     focus_list focus_list_;             //!< nodes on the focus list
-    verti focus_list_size_;             //!< number of nodes on the focus list
-    focus_list::iterator focus_pos_;    //!< current position in the focus list
+    focus_list::iterator read_pos_;     //!< current position in the focus list
+    focus_list::iterator write_pos_;    //!< current position in the focus list
 };
 
 
