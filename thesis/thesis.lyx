@@ -4621,9 +4621,8 @@ Periodically (in the current implementation after every
 \begin_layout Standard
 Without loss of generality, assume we are computing the strategy for player
  Even.
- First, all vertices in the graph are marked to indicate that they might
- be winning for Even.
- Then, if any of the following is true for a vertex, its mark is removed:
+ Then, we add a mark to every vertex for which any of the following conditions
+ apply:
 \end_layout
 
 \begin_layout Enumerate
@@ -4640,11 +4639,12 @@ The vertex is controlled by Even and either:
 
 \begin_deeper
 \begin_layout Enumerate
-has no marked successors; or
+all of its successors are marked; or
 \end_layout
 
 \begin_layout Enumerate
-its progress measure is less than the minimum of its marked successors
+its progress measure is less than (or equal to, if the vertex priority is
+ odd) all of its unmarked successors
 \end_layout
 
 \end_deeper
@@ -4654,11 +4654,12 @@ The vertex is controlled by Odd and either:
 
 \begin_deeper
 \begin_layout Enumerate
-has at least one unmarked successor; or
+one of its successors is marked; or
 \end_layout
 
 \begin_layout Enumerate
-its progress measure is less than the maximum of its successors
+its progress measure is less than (or equal to, if the vertex priority is
+ odd) one of its successors
 \end_layout
 
 \end_deeper
@@ -4672,33 +4673,32 @@ less
 \end_inset
 
  means less with respect to the priority of the current vertex.
- Eventually, the only vertices that remain marked are those with progress
- measures less than 
-\begin_inset Formula $\top$
-\end_inset
-
- which are guaranteed to be stable indefinitely and thus are known to be
- won by Even.
- As a result, we can set the progress measures for these vertices in the
- dual game being solved for Odd to 
-\begin_inset Formula $\top$
-\end_inset
-
-, avoiding the need to lift these vertices in the dual game to arrive at
+ Note that these conditions are consistent with the usual criteria when
+ vertices can be lifted, where the marked vertices are considered to be
+ set to top.
+ The interpretation of the marks is that marked vertices may be won by Odd,
+ and unmarked vertices are known to be won by Even.
+ The unmarked vertices therefore are a subset of the winning set of Even,
+ and the corresponding vertices in the dual game solved for Odd can be set
  
 \begin_inset Formula $\top$
 \end_inset
 
- value.
- The process is then is repeated for player Odd.
+.
+ The same process can, of course, be applied for Odd in the dual game to
+ get vertices which should be set to 
+\begin_inset Formula $\top$
+\end_inset
+
+ in the main game.
 \end_layout
 
 \begin_layout Standard
-To compute the final set of marked vertices, a similar approach as in the
+To compute a maximal set of marked vertices, a similar approach as in the
  main SPM algorithm is used: all vertices are queued, checked against the
- properties mentioned above, and whenever a mark is removed from a vertex,
- its predecessors must be re-examined, so they are queued again.
- The difference with the main SPM algorithm is that a mark can be removed
+ properties mentioned above, and whenever a mark is add to a vertex, its
+ predecessors must be re-examined, so they are queued again.
+ The difference with the main SPM algorithm is that a mark can be added
  only once, which bounds the total processing time to the number of edges
  in the graph.
 \end_layout

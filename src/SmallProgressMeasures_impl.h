@@ -9,6 +9,9 @@
 
 // Don't include this file directly! Include SmallProgressMeasures.h instead.
 
+#include <vector>
+#include <deque>
+
 inline int SmallProgressMeasures::vector_cmp(verti v, verti w, int N) const
 {
     if (is_top(v)) return is_top(w) ? 0 : +1;   // v is top
@@ -44,14 +47,91 @@ template<class OutputIterator>
 void SmallProgressMeasures::get_winning_set( ParityGame::Player player,
                                              OutputIterator result )
 {
+    const StaticGraph &graph = game_.graph();
+    const verti V = graph.V();
+
     if (player == p_)
     {
-        assert(0);  // TODO!
+        // Conservatively estimate vertices won by player.
+        std::vector<char> marked(V, 0);
+        std::vector<char> queued(V, 0);
+        std::deque<int> dirty;
+        for (verti v = 0; v < V; ++v)
+        {
+            if (is_top(v))
+            {
+                marked[v] = true;
+            }
+            else
+            {
+                queued[v] = true;
+                dirty.push_back(v);
+            }
+        }
+        while (!dirty.empty())
+        {
+            const verti v = dirty.front();
+            dirty.pop_front();
+            assert(queued[v] && !marked[v]);
+            queued[v] = false;
+            if ((int)game_.player(v) == p_)
+            {
+                // Look for an unmarked successor with a progress value
+                // less than (or equal to, if priority is even) that of v:
+                bool mark = true;
+                for ( StaticGraph::const_iterator it = graph.succ_begin(v);
+                      it != graph.succ_end(v); ++it )
+                {
+                    if ( !marked[*it] && vector_cmp(v, *it, len(v))
+                            >= (game_.priority(v)%2 != p_) )
+                    {
+                        mark = false;
+                        break;
+                    }
+                }
+                marked[v] = mark;
+            }
+            else  // v is controlled by opponent
+            {
+                // Look for a marked successor, or an unmarked one with a
+                // progress value less than (or equal to, if priority is
+                // even) that of v:
+                for ( StaticGraph::const_iterator it = graph.succ_begin(v);
+                      it != graph.succ_end(v); ++it )
+                {
+                    const verti w = *it;
+                    if ( marked[*it] || vector_cmp(v, w, len(v))
+                            < (game_.priority(v)%2 != p_) )
+                    {
+                        marked[v] = true;
+                        break;
+                    }
+                }
+            }
+            if (marked[v])
+            {
+                // Mark possibly losing vertex and queue its predecessors:
+                for ( StaticGraph::const_iterator it = graph.pred_begin(v);
+                      it != graph.pred_end(v); ++it )
+                {
+                    if (!marked[*it] && !queued[*it])
+                    {
+                        queued[*it] = true;
+                        dirty.push_back(*it);
+                    }
+                }
+            }
+        }
+        // Now collect guaranteed winning vertices:
+        for (verti v = 0; v < V; ++v)
+        {
+            if (!marked[v]) *result++ = v;
+        }
     }
     else
     {
         // All vertices with Top progress measures are won by opponent:
-        for (verti v = 0; v < game_.graph().V(); ++v)
+        for (verti v = 0; v < V; ++v)
         {
             if (is_top(v)) *result++ = v;
         }

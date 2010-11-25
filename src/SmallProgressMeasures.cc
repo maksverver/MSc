@@ -229,8 +229,8 @@ bool SmallProgressMeasures::verify_solution()
         for ( StaticGraph::const_iterator it = graph.succ_begin(v);
               it != graph.succ_end(v); ++it )
         {
-            int d = vector_cmp(v, *it, len(v));
-            bool ok = is_top(v) || d >= (game_.priority(v)%2 == p_ ? 0 : 1);
+            bool ok = is_top(v) ||
+                vector_cmp(v, *it, len(v)) >= (game_.priority(v)%2 != p_);
             one_ok = one_ok || ok;
             all_ok = all_ok && ok;
         }
