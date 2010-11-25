@@ -4566,7 +4566,17 @@ status open
 \end_layout
 
 \begin_layout Subsection
-Two-way SPM
+Two-way SPM 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Needs a better name?
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard

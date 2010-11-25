@@ -39,3 +39,21 @@ inline verti SmallProgressMeasures::get_ext_succ(verti v, bool take_max) const
     }
     return res;
 }
+
+template<class OutputIterator>
+void SmallProgressMeasures::get_winning_set( ParityGame::Player player,
+                                             OutputIterator result )
+{
+    if (player == p_)
+    {
+        assert(0);  // TODO!
+    }
+    else
+    {
+        // All vertices with Top progress measures are won by opponent:
+        for (verti v = 0; v < game_.graph().V(); ++v)
+        {
+            if (is_top(v)) *result++ = v;
+        }
+    }
+}

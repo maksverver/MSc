@@ -59,6 +59,7 @@ static std::string  arg_winners_file          = "";
 static std::string  arg_strategy_file         = "";
 static std::string  arg_debug_file            = "";
 static std::string  arg_spm_lifting_strategy  = "";
+static bool         arg_alternate             = false;
 static bool         arg_decycle               = false;
 static bool         arg_deloop                = false;
 static bool         arg_scc_decomposition     = false;
@@ -112,12 +113,13 @@ static void print_usage()
 "  --priorities <int>     number of priorities in randomly generated game\n"
 "  --seed <int>           random seed\n"
 "  --lifting/-l <desc>    Small Progress Measures lifting strategy\n"
+"  --alternate/-a         SPM: use Friedmann's alternate solving approach\n"
 "  --dot/-d <file>        write parity game in GraphViz dot format to <file>\n"
 "  --pgsolver/-p <file>   write parity game in PGSolver format to <file>\n"
 "  --raw/-r <file>        write parity game in raw format to <file>\n"
 "  --winners/-w <file>    write compact winners specification to <file>\n"
 "  --decycle              detect cycles won and controlled by a single player\n"
-"  --deloop               SPM: preprocess vertices with loops\n"
+"  --deloop               detect vertices with loops won by a single player\n"
 "  --scc                  solve strongly connected components individually\n"
 "  --dual                 solve the dual game\n"
 "  --reorder/-e (bfs|dfs) reorder vertices\n"
@@ -139,6 +141,7 @@ static void parse_args(int argc, char *argv[])
         { "priorities", 1, NULL,  3  },
         { "seed",       1, NULL,  4  },
         { "lifting",    1, NULL, 'l' },
+        { "alternate",  1, NULL, 'a' },
         { "dot",        1, NULL, 'd' },
         { "pgsolver",   1, NULL, 'p' },
         { "raw",        1, NULL, 'r' },
@@ -157,7 +160,7 @@ static void parse_args(int argc, char *argv[])
         { "debug",      1, NULL, 'D' },
         { NULL,         0, NULL,  0  } };
 
-    static const char *short_options = "hi:l:d:p:r:w:s:e:t:Vzv:qD:";
+    static const char *short_options = "hi:l:ad:p:r:w:s:e:t:Vzv:qD:";
 
     for (;;)
     {
@@ -221,6 +224,10 @@ static void parse_args(int argc, char *argv[])
 
         case 'l':   /* Small Progress Measures lifting strategy */
             arg_spm_lifting_strategy = optarg;
+            break;
+
+        case 'a':  /* Alternate SPM solver */
+            arg_alternate = true;
             break;
 
         case 'd':   /* dot output file */
@@ -628,7 +635,7 @@ int main(int argc, char *argv[])
                 new LiftingStatistics(game) );
 
             solver_factory.reset(new SmallProgressMeasuresSolverFactory(
-                    *spm_strategy, stats.get() ));
+                    *spm_strategy, arg_alternate, stats.get() ));
         }
 
         // Create recursive solver factory if requested:

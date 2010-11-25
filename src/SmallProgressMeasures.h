@@ -48,12 +48,32 @@ private:
 class SmallProgressMeasures : public Abortable, public virtual Logger
 {
 public:
-    SmallProgressMeasures(const ParityGame &game, ParityGame::Player player);
+    SmallProgressMeasures( const ParityGame &game, ParityGame::Player player,
+        LiftingStatistics *stats = 0, const verti *vertex_map = 0,
+        verti vertex_map_size = 0 );
+
     ~SmallProgressMeasures();
 
-    ParityGame::Strategy solve( LiftingStrategy &ls,
-        std::vector<verti> *won_by_opponent = 0, LiftingStatistics *stats = 0,
-        const verti *vertex_map = 0, verti vertex_map_size = 0 );
+    /*! Solves the current game for one player using the given lifting strategy
+        and returns whether the game was completely solved (in particular, the
+        game is not solved if the solver is aborted). */
+    bool solve(LiftingStrategy &ls);
+
+    /*! Solves part of the game by doing attemping at most `max_attempts' lifts
+        using the given lifting strategy. Returns how many lifting attempts
+        were actually performed, which will be less than `max_attempts' when
+        the game is solved. */
+    long long solve_part(LiftingStrategy &ls, long long max_attempts);
+
+    /*! Takes an initialized strategy vector and updates it for the current
+        player. The result is valid only if the game is completely solved. */
+    void get_strategy(ParityGame::Strategy &strat) const;
+
+    /*! Returns the winning set for the given player by assigning the vertices
+        in the set to the given output iterator. If the game is not completely
+        solved yet, then this returns a subset of the winning set. */
+    template<class OutputIterator>
+    void get_winning_set(ParityGame::Player player, OutputIterator result);
 
     /*! Return peak memory use (excludes lifting strategy!) */
     size_t memory_use();
@@ -112,9 +132,14 @@ private:
 protected:
     const ParityGame &game_;        //!< the game being solved
     const int p_;                   //!< the player to solve for
+    LiftingStatistics *stats_;      //!< statistics object to record lifts
+    const verti *vmap_;             //!< active vertex map (if any)
+    verti vmap_size_;               //!< size of vertex map
     int len_;                       //!< length of SPM vectors
     verti *M_;                      //!< bounds on the SPM vector components
     verti *spm_;                    //!< array storing the SPM vector data
+    verti prev_vertex_;             //!< previous vertex we tried to lift
+    bool prev_lifted_;              //!< whether previous vertex was lifted
 };
 
 
@@ -131,12 +156,25 @@ class SmallProgressMeasuresSolver
 public:
     SmallProgressMeasuresSolver( const ParityGame &game,
                                  LiftingStrategyFactory &lsf,
+                                 bool alternate = false,
                                  LiftingStatistics *stats = 0,
                                  const verti *vertex_map = 0,
                                  verti vertex_map_size = 0 );
     ~SmallProgressMeasuresSolver();
 
     ParityGame::Strategy solve();
+
+    /*! Solves the game by applying Jurdziński's proposed algorithm that solves
+        the game for one player only, and then solves a subgame with the
+        remaining vertices. This algorithm is most efficient when the original
+        game is easier to solve than its dual. */
+    ParityGame::Strategy solve_normal();
+
+    /*! Solves the game using Friedmann's alternate strategy. This allocates
+        solving algorithms for both the normal game and its dual at once, and
+        alternates working on each, exchanging information about solved vertices
+        in the process. */
+    ParityGame::Strategy solve_alternate();
 
     /*! Preprocess the game so that vertices with loops either have the loop
         removed, or have all other edges removed. In the latter case, the vertex
@@ -153,6 +191,7 @@ private:
 
 protected:
     LiftingStrategyFactory &lsf_;   //!< factory used to create lifting strategy
+    bool alternate_;                //!< whether to use the alternate algorithm
     LiftingStatistics *stats_;      //!< object to record lifting statistics
     const verti *vmap_;             //!< current vertex map
     const verti vmap_size_;         //!< size of vertex map
@@ -163,8 +202,8 @@ class SmallProgressMeasuresSolverFactory : public ParityGameSolverFactory
 {
 public:
     SmallProgressMeasuresSolverFactory( LiftingStrategyFactory &lsf,
-                                        LiftingStatistics *stats = 0 )
-        : lsf_(lsf), stats_(stats) { };
+        bool alt = false, LiftingStatistics *stats = 0 )
+            : lsf_(lsf), alt_(alt), stats_(stats) { };
 
     ParityGameSolver *create( const ParityGame &game,
                               const verti *vertex_map,
@@ -172,6 +211,7 @@ public:
 
 private:
     LiftingStrategyFactory  &lsf_;
+    bool                    alt_;
     LiftingStatistics       *stats_;
 };
 
