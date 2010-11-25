@@ -137,3 +137,10 @@ void SmallProgressMeasures::get_winning_set( ParityGame::Player player,
         }
     }
 }
+
+bool SmallProgressMeasures::lift_to_top(verti v)
+{
+    if (is_top(v)) return false;
+    set_top(v);
+    return true;
+}

@@ -28,18 +28,19 @@ public:
     /*! Destroy the strategy */
     virtual ~LiftingStrategy() { };
 
-    /*! Select the next vertex to lift.
+    /*! Record that the given vertex was lifted: */
+    virtual void lifted(verti vertex) = 0;
 
-        This method is called repeatedly by the SPM solver; the return value
-        indicates which vertex to attempt to lift next. If lifting succeeds,
-        the vertex will have a greater progress measure vector assigned to it.
-        When no more vertices can be lifted, NO_VERTEX should be returned.
+    /*! Select the next vertex to lift. This method is called repeatedly by the
+        SPM solver until it returns NO_VERTEX to indicate the solution is
+        complete.
 
+        \see lifted(verti vertex);
         \param prev_vertex Index of the vertex returned by the previous call
                            (or NO_VERTEX for the first call).
         \param prev_lifted Indicates wheter the vertex could be lifted.
     */
-    virtual verti next(verti prev_vertex, bool prev_lifted) = 0;
+    virtual verti next() = 0;
 
     /*! Returns an estimation of the peak memory use for this strategy. */
     virtual size_t memory_use() const { return 0; }
@@ -60,9 +61,11 @@ public:
 
         String descriptions are as follows:
 
-            linear:backward
+            linear:backward:alternate
                 Use a linear lifting strategy (swiping).
                 If backward is non-zero, scan vertices backward.
+                If alternate is non-zero, then the direction switches between
+                forward and backward when the end of the list is reached.
                 Default: linear:0
 
             predecessor:backward:stack
@@ -71,13 +74,16 @@ public:
                 If stack is non-zero, use a stack instead of a queue.
                 Default: predecessor:0:0
 
-            focuslist:backward:max_size
+            focuslist:backward:max_size:lift_ratio
                 Use a lifting strategy with a focus list.
                 If backward is non-zero, scan vertices backward.
                 max_size specificies the maximum size of the focus list, either
                 as an absolute size greater than 1, or as a ratio between zero
                 and 1, relative to the total number of vertices in the graph.
-                Default: focuslist:0:0.1
+                lift_ratio specifies the maximum number of lifting attempts
+                before switching from the focus list back to swiping, as a
+                ratio of the maximum focus list size.
+                Default: focuslist:0:0.1:10.0
 
             maxmeasure
                 Variant on the predecessor lifting strategy that prefers to

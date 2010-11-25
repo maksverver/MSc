@@ -33,6 +33,17 @@ MaxMeasureLiftingStrategy::MaxMeasureLiftingStrategy(
         : LiftingStrategy(game), spm_(spm), queued_(new bool[graph_.V()]),
           pq_pos_(new verti[graph_.V()]), pq_(new verti[graph_.V()])
 {
+    // Initialize queue
+    pq_size_ = 0;
+    for (verti v = 0; v < graph_.V(); ++v)
+    {
+        queued_[v] = true;
+        pq_pos_[v] = (verti)-1;
+        push(v);
+    }
+    /* FIXME: pushing everything takes O(V log V) time; we can sort the
+              queue array faster than that by using our knowledge that
+              all progress measures are either zero or top. */
 }
 
 MaxMeasureLiftingStrategy::~MaxMeasureLiftingStrategy()
@@ -172,51 +183,36 @@ bool MaxMeasureLiftingStrategy::check()
     return true;
 }
 
-verti MaxMeasureLiftingStrategy::next(verti prev_vertex, bool prev_lifted)
+void MaxMeasureLiftingStrategy::lifted(verti v)
 {
-    if (prev_vertex == NO_VERTEX)
+    bool queued_any = false;
+
+    // Queue predecessors with measure less than top:
+    for ( StaticGraph::const_iterator it = graph_.pred_begin(v);
+          it != graph_.pred_end(v); ++it )
     {
-        // Initialize queue
-        pq_size_ = 0;
-        for (verti v = 0; v < graph_.V(); ++v)
+        if (!spm_.is_top(*it))
         {
-            queued_[v] = true;
-            pq_pos_[v] = (verti)-1;
-            push(v);
+            queued_any = true;
+            queued_[*it] = true;
         }
-        /* FIXME: pushing everything takes O(V log V) time; we can sort the 
-                  queue array faster than that by using our knowledge that
-                  all progress measures are either zero or top. */
     }
 
+    if (queued_any)
+    {
+        // Add to (or move up in) queue
+        push(v);
+    }
+    else
+    {
+        // No eligible predecessors, remove from queue:
+        remove(v);
+    }
+}
+
+verti MaxMeasureLiftingStrategy::next()
+{
     // assert(check());  // debug
-
-    if (prev_lifted)
-    {
-        bool queued_any = false;
-
-        // Queue predecessors with measure less than top:
-        for (StaticGraph::const_iterator it = graph_.pred_begin(prev_vertex);
-             it != graph_.pred_end(prev_vertex); ++it)
-        {
-            if (!spm_.is_top(*it))
-            {
-                queued_any = true;
-                queued_[*it] = true;
-            }
-        }
-
-        if (queued_any)
-        {
-            // Add to (or move up in) queue
-            push(prev_vertex);
-        }
-        else
-        {
-            // No eligible predecessors, remove from queue:
-            remove(prev_vertex);
-        }
-    }
 
     // Find a predecessor to lift
     while (pq_size_ > 0)

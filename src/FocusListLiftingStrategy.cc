@@ -18,81 +18,69 @@ static const unsigned credit_increase = 2;
 
 
 FocusListLiftingStrategy::FocusListLiftingStrategy( const ParityGame &game,
-    bool backward, bool alternate, verti max_size, verti max_lifts )
-    : LiftingStrategy(game), max_lifts_(max_lifts),
-      pass_(1), lls_(game, backward, alternate),
-      last_vertex_(NO_VERTEX), last_lifted_(false), num_lift_attempts_(0)
+    bool backward, bool alternate, verti max_size, long long max_lifts )
+    : LiftingStrategy(game), max_lift_attempts_(max_lifts),
+      phase_(1), num_lift_attempts_(0), lls_(game, backward, alternate)
 {
     focus_list_.reserve(max_size);
 }
 
-verti FocusListLiftingStrategy::next(verti prev_vertex, bool prev_lifted)
+void FocusListLiftingStrategy::lifted(verti vertex)
 {
-    verti res;
-    switch (pass_)
+    if (phase_ == 1)
     {
-    case 1:
-        res = pass1(prev_vertex, prev_lifted);
-        break;
-
-    case 2:
-        res = pass2(prev_vertex, prev_lifted);
-        break;
-
-    default:
-        res = NO_VERTEX;
-        assert(0);
-        break;
-    }
-    return res;
-}
-
-verti FocusListLiftingStrategy::pass1(verti prev_vertex, bool prev_lifted)
-{
-    last_vertex_ = prev_vertex;
-    last_lifted_ = prev_lifted;
-
-    /* Check if last vertex was successfully lifted */
-    if (prev_lifted)
-    {
-        // Put successfully lifted vertex on the focus list
-        assert(prev_vertex != NO_VERTEX);
-        // FIXME: is this random factor necessary? If so, document this in
-        // thesis.
+        lls_.lifted(vertex);
+        // FIXME: is this random factor necessary? If so, document in thesis.
         if (rand()%2)
         {
-            focus_list_.push_back(std::make_pair(prev_vertex, initial_credit));
+            focus_list_.push_back(std::make_pair(vertex, initial_credit));
+            if (focus_list_.size() == focus_list_.capacity())
+            {
+                switch_to_phase(2);
+            }
         }
     }
-
-    if ( focus_list_.size() == focus_list_.capacity() ||
-         (!focus_list_.empty() && num_lift_attempts_ >= game_.graph().V()) )
+    else /* phase_ == 2 */
     {
-        // Switch to pass 2
-        info("Switching to focus list of size %d.", (int)focus_list_.size());
-        pass_ = 2;
-        num_lift_attempts_ = 0;
-        return pass2(NO_VERTEX, false);
+        if (vertex == read_pos_->first)
+        {
+            prev_lifted_ = true;
+        }
     }
-
-    num_lift_attempts_ += 1;
-    return lls_.next(last_vertex_, last_lifted_);
 }
 
-verti FocusListLiftingStrategy::pass2(verti prev_vertex, bool prev_lifted)
+void FocusListLiftingStrategy::switch_to_phase(int new_phase)
 {
-    if (prev_vertex == NO_VERTEX)
+    num_lift_attempts_ = 0;
+    if (new_phase == 2)
     {
-        // Position at start of the focus list
-        assert(!focus_list_.empty());
+        info("Switching to focus list of size %d.", (int)focus_list_.size());
         read_pos_ = write_pos_ = focus_list_.begin();
     }
-    else
+    phase_ = new_phase;
+}
+
+verti FocusListLiftingStrategy::next()
+{
+    return phase_ == 1 ? phase1() : phase2();
+}
+
+verti FocusListLiftingStrategy::phase1()
+{
+    if (++num_lift_attempts_ >= game_.graph().V() && !focus_list_.empty())
+    {
+        switch_to_phase(2);
+    }
+    return lls_.next();
+}
+
+verti FocusListLiftingStrategy::phase2()
+{
+    if (num_lift_attempts_ > 0)
     {
         // Adjust previous vertex credit and move to next position
         focus_list::value_type prev = *read_pos_++;
-        assert(prev.first == prev_vertex);
-        if (prev_lifted)
+        if (prev_lifted_)
         {
             prev.second += credit_increase;
             *write_pos_++ = prev;
@@ -103,6 +91,7 @@ verti FocusListLiftingStrategy::pass2(verti prev_vertex, bool prev_lifted)
             prev.second /= 2;
             *write_pos_++ = prev;
         }
+        // else, drop from list.
     }
 
     // Check if we've reached the end of the focus list
@@ -112,11 +101,9 @@ verti FocusListLiftingStrategy::pass2(verti prev_vertex, bool prev_lifted)
         if (focus_list_.empty())
         {
             // Back to phase 1:
-            assert(focus_list_.empty());
             info("Focus list exhausted.");
-            pass_ = 1;
-            num_lift_attempts_ = 0;
-            return pass1(last_vertex_, last_lifted_);
+            switch_to_phase(1);
+            return phase1();
         }
         else
         {
@@ -125,18 +112,18 @@ verti FocusListLiftingStrategy::pass2(verti prev_vertex, bool prev_lifted)
         }
     }
 
-    num_lift_attempts_ += 1;
-    if (num_lift_attempts_ >= max_lifts_)
+    if (++num_lift_attempts_ >= max_lift_attempts_)
     {
         // Clear focus list and move back to phase 1:
         focus_list_.clear();
-        info("Maximum lift attempts (%d) on focus list reached.", max_lifts_);
-        pass_ = 1;
-        num_lift_attempts_ = 0;
-        return pass1(last_vertex_, last_lifted_);
+        info( "Maximum lift attempts (%lld) on focus list reached.",
+              max_lift_attempts_ );
+        switch_to_phase(1);
+        return phase1();
     }
 
     // Return current item on the focus list
+    prev_lifted_ = false;
     return read_pos_->first;
 }
 
@@ -157,7 +144,6 @@ LiftingStrategy *FocusListLiftingStrategyFactory::create(
     if (max_size == 0) max_size = 1;
     if (max_size >  V) max_size = V;
     verti max_lifts = (verti)(lift_ratio_ * max_size);
-
     return new FocusListLiftingStrategy(
         game, backward_, alternate_, max_size, max_lifts );
 }

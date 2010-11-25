@@ -33,28 +33,26 @@ PredecessorLiftingStrategy::~PredecessorLiftingStrategy()
     delete[] queue_;
 }
 
-verti PredecessorLiftingStrategy::next(verti prev_vertex, bool prev_lifted)
+void PredecessorLiftingStrategy::lifted(verti v)
 {
     const StaticGraph &graph = game_.graph();
-
-    if (prev_lifted)
+    for ( StaticGraph::const_iterator it = graph.pred_begin(v);
+          it != graph.pred_end(v); ++it )
     {
-        // prev_vertex was lifted; add its predecessors to the queue
-        for ( StaticGraph::const_iterator it = graph.pred_begin(prev_vertex);
-              it != graph.pred_end(prev_vertex); ++it )
+        if (!queued_[*it] && !spm_.is_top(*it))
         {
-            if (!queued_[*it] && !spm_.is_top(*it))
-            {
-                // Add predecessor to the queue
-                queued_[*it] = true;
-                queue_[queue_end_++] = *it;
-                if (queue_end_ == queue_capacity_) queue_end_ = 0;
-                ++queue_size_;
-                assert(queue_size_ <= queue_capacity_);
-            }
+            // Add predecessor to the queue
+            queued_[*it] = true;
+            queue_[queue_end_++] = *it;
+            if (queue_end_ == queue_capacity_) queue_end_ = 0;
+            ++queue_size_;
+            assert(queue_size_ <= queue_capacity_);
         }
     }
+}
 
+verti PredecessorLiftingStrategy::next()
+{
     if (queue_size_ == 0) return NO_VERTEX;
 
     // Remove an element from the queue

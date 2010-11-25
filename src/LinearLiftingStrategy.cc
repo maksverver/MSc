@@ -12,46 +12,72 @@
 LinearLiftingStrategy::LinearLiftingStrategy(
     const ParityGame &game, bool backward, bool alternate )
     : LiftingStrategy(game), backward_(backward), alternate_(alternate),
-      dir_(0), failed_lifts_(0)
+      dir_(0), vertex_(NO_VERTEX), failed_lifts_(0)
 {
+    max_failed_ = game.graph().V();
+    if (alternate_) max_failed_ += max_failed_ - 1;
 }
 
-verti LinearLiftingStrategy::next(verti prev_vertex, bool prev_lifted)
+void LinearLiftingStrategy::lifted(verti v)
 {
+    (void)v;  // unused
+    failed_lifts_ = 0;
+}
+
+verti LinearLiftingStrategy::next()
+{
+    if (failed_lifts_ >= max_failed_)
+    {
+        vertex_ = NO_VERTEX;
+        return NO_VERTEX;
+    }
+    ++ failed_lifts_;
+
     const verti last_vertex = graph_.V() - 1;
     if (last_vertex == 0) return 0;
 
-    if (prev_vertex == NO_VERTEX)
+    if (vertex_ == NO_VERTEX)
     {
-        /* First vertex; pick either first or last depending on direction. */
+        // First vertex; pick either first or last depending on direction.
         dir_ = backward_;
-        return dir_ ? last_vertex : 0;
-    }
-
-    if (prev_lifted)
-    {
-        failed_lifts_ = 0;
+        vertex_ = dir_ ? last_vertex : 0;
     }
     else
-    {
-        failed_lifts_ += 1;
-        if (failed_lifts_ == graph_.V()) return NO_VERTEX;
-    }
-
     if (dir_ == 0)  // forward
     {
-        if (prev_vertex != last_vertex) return prev_vertex + 1;
-        if (!alternate_) return 0;
-        dir_ = 1;
-        return last_vertex - 1;
+        if (vertex_ < last_vertex)
+        {
+            ++vertex_;
+        }
+        else
+        if (!alternate_)
+        {
+            vertex_ = 0;
+        }
+        else
+        {
+            dir_ = 1;
+            --vertex_;
+        }
     }
     else  // backward
     {
-        if (prev_vertex != 0) return prev_vertex - 1;
-        if (!alternate_) return last_vertex;
-        dir_ = 0;
-        return 1;
+        if (vertex_ > 0)
+        {
+            --vertex_;
+        }
+        else
+        if (!alternate_)
+        {
+            vertex_ = last_vertex;
+        }
+        else
+        {
+            dir_ = 0;
+            vertex_ = 1;
+        }
     }
+    return vertex_;
 }
 
 LiftingStrategy *LinearLiftingStrategyFactory::create(

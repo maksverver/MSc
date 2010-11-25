@@ -113,7 +113,7 @@ static void print_usage()
 "  --priorities <int>     number of priorities in randomly generated game\n"
 "  --seed <int>           random seed\n"
 "  --lifting/-l <desc>    Small Progress Measures lifting strategy\n"
-"  --alternate/-a         SPM: use Friedmann's alternate solving approach\n"
+"  --alternate/-a         SPM: use Friedmann's alternating solving approach\n"
 "  --dot/-d <file>        write parity game in GraphViz dot format to <file>\n"
 "  --pgsolver/-p <file>   write parity game in PGSolver format to <file>\n"
 "  --raw/-r <file>        write parity game in raw format to <file>\n"

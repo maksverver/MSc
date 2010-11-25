@@ -22,7 +22,8 @@ public:
                                   const SmallProgressMeasures &spm );
     ~OldMaxMeasureLiftingStrategy();
 
-    verti next(verti prev_vertex, bool prev_lifted);
+    void lifted(verti v);
+    verti next();
     size_t memory_use() const;
 
 protected:

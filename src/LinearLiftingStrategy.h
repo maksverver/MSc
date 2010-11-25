@@ -22,7 +22,8 @@ class LinearLiftingStrategy : public LiftingStrategy
 {
 public:
     LinearLiftingStrategy(const ParityGame &game, bool backward, bool alternate);
-    verti next(verti prev_vertex, bool prev_lifted);
+    void lifted(verti v);
+    verti next();
 
     bool backward() const { return backward_; }
     bool alternate() const { return alternate_; }
@@ -31,7 +32,9 @@ private:
     const bool backward_;       //!< initial direction of iteration
     const bool alternate_;      //!< alternate direction after each pass
     bool dir_;                  //!< current direction of iteration
+    verti vertex_;              //!< next vertex to lift
     verti failed_lifts_;        //!< number of consecutive failed lift attempts
+    verti max_failed_;          //!< max. failures possible in unsolved game
 };
 
 

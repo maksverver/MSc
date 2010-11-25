@@ -44,7 +44,8 @@ public:
                                 const SmallProgressMeasures &spm,
                                 bool backward, bool stack );
     ~PredecessorLiftingStrategy();
-    verti next(verti prev_vertex, bool prev_lifted);
+    void lifted(verti v);
+    verti next();
     size_t memory_use() const;
 
     bool backward() const { return backward_; }

@@ -35,29 +35,30 @@ class FocusListLiftingStrategy : public LiftingStrategy, public virtual Logger
 {
 public:
     FocusListLiftingStrategy( const ParityGame &game,
-        bool backward, bool alternate, verti max_size, verti max_lifts );
-    verti next(verti prev_vertex, bool prev_lifted);
+        bool backward, bool alternate, verti max_size, long long max_lifts );
+    void lifted(verti vertex);
+    verti next();
     size_t memory_use() const;
     bool backward() const { return lls_.backward(); }
     bool max_size() const { return focus_list_.capacity(); }
 
 protected:
-    verti pass1(verti prev_vertex, bool prev_lifted);
-    verti pass2(verti prev_vertex, bool prev_lifted);
+    void switch_to_phase(int new_phase);
+    verti phase1();
+    verti phase2();
 
 private:
     typedef std::vector<std::pair<verti, unsigned> > focus_list;
 
-    verti max_lifts_;                   //!< maximum lift attempts per list
-    int pass_;                          //!< current pass
+    long long max_lift_attempts_;       //!< maximum lift attempts per list
+    int phase_;                         //!< current phase
+    long long num_lift_attempts_;       //!< number of consecutive lift attempts
+    bool prev_lifted_;                  //!< whether previous vertex was lifted
 
-    // For pass 1:
+    // For phase 1:
     LinearLiftingStrategy lls_;         //!< strategy for pass 1
-    verti last_vertex_;                 //!< last vertex selected in pass 1
-    bool last_lifted_;                  //!< was last vertex lifted?
-    verti num_lift_attempts_;           //!< number of consecutive lift attempts
 
-    // For pass 2:
+    // For phase 2:
     focus_list focus_list_;             //!< nodes on the focus list
     focus_list::iterator read_pos_;     //!< current position in the focus list
     focus_list::iterator write_pos_;    //!< current position in the focus list

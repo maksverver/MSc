@@ -78,6 +78,10 @@ public:
     /*! Return peak memory use (excludes lifting strategy!) */
     size_t memory_use();
 
+    /*! Sets the given vertex's progress measure to top, if it isn't already,
+        and returns whether it changed: */
+    inline bool lift_to_top(verti v);
+
     /*! For debugging: print current state to stdout */
     void debug_print(bool verify = true);
 
@@ -138,8 +142,6 @@ protected:
     int len_;                       //!< length of SPM vectors
     verti *M_;                      //!< bounds on the SPM vector components
     verti *spm_;                    //!< array storing the SPM vector data
-    verti prev_vertex_;             //!< previous vertex we tried to lift
-    bool prev_lifted_;              //!< whether previous vertex was lifted
 };
 
 

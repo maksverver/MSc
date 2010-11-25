@@ -39,7 +39,7 @@ SmallProgressMeasures::SmallProgressMeasures(
     const ParityGame &game, ParityGame::Player player,
     LiftingStatistics *stats, const verti *vmap, verti vmap_size  )
         : game_(game), p_((int)player), stats_(stats), vmap_(vmap),
-          vmap_size_(vmap_size), prev_vertex_(NO_VERTEX), prev_lifted_(false)
+          vmap_size_(vmap_size)
 {
     assert(p_ == 0 || p_ == 1);
 
@@ -90,14 +90,15 @@ long long SmallProgressMeasures::solve_part( LiftingStrategy &ls,
     long long num_attempts;
     for (num_attempts = 0; num_attempts < max_attempts; ++num_attempts)
     {
-        prev_vertex_ = ls.next(prev_vertex_, prev_lifted_);
-        if (prev_vertex_ == NO_VERTEX) break;
-        prev_lifted_ = lift(prev_vertex_);
+        verti vertex = ls.next();
+        if (vertex == NO_VERTEX) break;
+        bool lifted = lift(vertex);
+        if(lifted) ls.lifted(vertex);
         if (stats_ != NULL)
         {
-            verti v = prev_vertex_;
-            if (vmap_ && prev_vertex_ < vmap_size_) v = vmap_[prev_vertex_];
-            if (stats_) stats_->record_lift(v, prev_lifted_);
+            verti v = vertex;
+            if (vmap_ && vertex < vmap_size_) v = vmap_[vertex];
+            if (stats_) stats_->record_lift(v, lifted);
         }
     }
     return num_attempts;
@@ -327,6 +328,23 @@ ParityGame::Strategy SmallProgressMeasuresSolver::solve_normal()
     return strategy;
 }
 
+/* Helper class thats is an OutputIterator that sets vertices assigned through
+   it to top in the given SPM solver and corresponding lifting strategy. */
+struct SetToTopIterator
+{
+    SmallProgressMeasures &spm;
+    LiftingStrategy &ls;
+
+    SetToTopIterator& operator++() { return *this; }
+    SetToTopIterator& operator++(int) { return *this; }
+    SetToTopIterator& operator*() { return *this; }
+    SetToTopIterator& operator=(verti v)
+    {
+        if (spm.lift_to_top(v)) ls.lifted(v);
+        return *this;
+    }
+};
+
 ParityGame::Strategy SmallProgressMeasuresSolver::solve_alternate()
 {
     // Create two SPM and two lifting strategy instances:
@@ -339,14 +357,24 @@ ParityGame::Strategy SmallProgressMeasuresSolver::solve_alternate()
     ls[0].reset(lsf_.create(game_, *spm[0]));
     ls[1].reset(lsf_.create(game_, *spm[1]));
 
-    // Compute strategies:
-    if ( !spm[0]->solve(*ls[0]) ||
-         !spm[1]->solve(*ls[1]) )
-    {
-        return ParityGame::Strategy();
-    }
-    // TODO: implement alternating between games and propagating changes!
+    // Solve games alternatingly:
+    int player = 0;
+    long long max_lifts = game_.graph().V(), num_lifts = 0;
+    do {
+        info("Switching to %s game...", player == 0 ? "normal" : "dual");
+        num_lifts = spm[player]->solve_part(*ls[player], max_lifts);
+        if (aborted()) return ParityGame::Strategy();
 
+        info("Propagating solved vertices to other game...");
+        SetToTopIterator it = { *spm[1 - player], *ls[1 - player] };
+        spm[player]->get_winning_set((ParityGame::Player)player, it);
+        player = 1 - player;
+    } while (num_lifts == max_lifts);
+    // One game is solved; solve other game completely too:
+    info("Finishing %s game...", player == 0 ? "normal" : "dual");
+    if (!spm[player]->solve(*ls[player])) return ParityGame::Strategy();
+
+    // Retrieve combined strategies:
     ParityGame::Strategy strategy(game_.graph().V(), NO_VERTEX);
     spm[0]->get_strategy(strategy);
     spm[1]->get_strategy(strategy);
