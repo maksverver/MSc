@@ -35,6 +35,7 @@
 #include <vector>
 #include <stack>
 #include <queue>
+#include <set>
 #include <memory>
 
 #ifdef POSIX
@@ -57,8 +58,10 @@ static std::string  arg_pgsolver_file         = "";
 static std::string  arg_raw_file              = "";
 static std::string  arg_winners_file          = "";
 static std::string  arg_strategy_file         = "";
+static std::string  arg_hot_vertices_file     = "";
 static std::string  arg_debug_file            = "";
 static std::string  arg_spm_lifting_strategy  = "";
+static bool         arg_collect_stats         = false;
 static bool         arg_alternate             = false;
 static bool         arg_decycle               = false;
 static bool         arg_deloop                = false;
@@ -118,6 +121,8 @@ static void print_usage()
 "  --pgsolver/-p <file>   write parity game in PGSolver format to <file>\n"
 "  --raw/-r <file>        write parity game in raw format to <file>\n"
 "  --winners/-w <file>    write compact winners specification to <file>\n"
+"  --strategy/-s <file>   write optimal strategy for both players to <file>\n"
+"  --stats/-S             collect lifting statistics during SPM solving\n"
 "  --decycle              detect cycles won and controlled by a single player\n"
 "  --deloop               detect vertices with loops won by a single player\n"
 "  --scc                  solve strongly connected components individually\n"
@@ -128,7 +133,8 @@ static void print_usage()
 "  --zielonka/-z          use Zielonka's recursive algorithm\n"
 "  --verbosity/-v         message verbosity (0-6; default: 4)\n"
 "  --quiet/-q             no messages (equivalent to -v0)\n"
-"  --debug/-D             write solution in debug format to <file>\n");
+"  --hot/-H <file>        write 'hot' vertices in GraphViz format to <file>\n"
+"  --debug/-D <file>      write solution in debug format to <file>\n");
 }
 
 static void parse_args(int argc, char *argv[])
@@ -147,6 +153,7 @@ static void parse_args(int argc, char *argv[])
         { "raw",        1, NULL, 'r' },
         { "winners",    1, NULL, 'w' },
         { "strategy",   1, NULL, 's' },
+        { "stats",      0, NULL, 'S' },
         { "decycle",    0, NULL,  5  },
         { "deloop",     0, NULL,  6  },
         { "scc",        0, NULL,  7  },
@@ -157,10 +164,11 @@ static void parse_args(int argc, char *argv[])
         { "zielonka",   0, NULL, 'z' },
         { "verbosity",  1, NULL, 'v' },
         { "quiet",      0, NULL, 'q' },
+        { "hot",        1, NULL, 'H' },
         { "debug",      1, NULL, 'D' },
         { NULL,         0, NULL,  0  } };
 
-    static const char *short_options = "hi:l:ad:p:r:w:s:e:t:Vzv:qD:";
+    static const char *short_options = "hi:l:ad:p:r:w:s:Se:t:Vzv:qH:D:";
 
     for (;;)
     {
@@ -250,6 +258,10 @@ static void parse_args(int argc, char *argv[])
             arg_strategy_file = optarg;
             break;
 
+        case 'S':   /* collect lifting statistics*/
+            arg_collect_stats = true;
+            break;
+
         case 5:     /* remove p-controlled i-cycles when p == i%2 */
             arg_decycle = true;
             break;
@@ -307,6 +319,10 @@ static void parse_args(int argc, char *argv[])
             Logger::severity(Logger::LOG_NONE);
             break;
 
+        case 'H':   /* debug hot vertices file */
+            arg_hot_vertices_file = optarg;
+            break;
+
         case 'D':   /* debug output file */
             arg_debug_file = optarg;
             break;
@@ -361,6 +377,60 @@ static void write_strategy( std::ostream &os,
     }
 }
 
+
+/*! Write a subgraph containing hot vertices (vertices that were lifted at
+   least `threshold' times) in GraphViz format to given output stream. */
+static void write_hot_vertices( std::ostream &os, const ParityGame &game,
+    const LiftingStatistics &stats, long long threshold )
+{
+    const StaticGraph &graph = game.graph();
+    std::set<std::pair<verti, verti> > edges;
+    std::set<verti> vertices, hot;
+    for (verti v = 0; v < graph.V(); ++v)
+    {
+        if (stats.lifts_succeeded(v) >= threshold)
+        {
+            hot.insert(v);
+            vertices.insert(v);
+            for ( StaticGraph::const_iterator it = graph.succ_begin(v);
+                    it != graph.succ_end(v); ++it )
+            {
+                vertices.insert(*it);
+                edges.insert(std::make_pair(v, *it));
+            }
+            for ( StaticGraph::const_iterator it = graph.pred_begin(v);
+                    it != graph.pred_end(v); ++it )
+            {
+                vertices.insert(*it);
+                edges.insert(std::make_pair(*it, v));
+            }
+        }
+    }
+    os << "digraph {\n";
+    for ( std::set<verti>::const_iterator it = vertices.begin();
+            it != vertices.end(); ++it )
+    {
+        os << *it << " [shape=" << (game.player(*it) ? "box": "diamond")
+            << ", label=\"" << game.priority(*it) << "\\n(" << *it << ")\"";
+        if (hot.count(*it)) os << ", style=\"filled\"";
+        os << "]\n";
+    }
+    for ( std::set<verti>::const_iterator it = hot.begin();
+            it != hot.end(); ++it )
+    {
+        os << *it << "->l" << *it << " [arrowhead=none];\n"
+           << "l" << *it << " [shape=plaintext, label=\""
+           << stats.lifts_succeeded(*it) << " /\\n"
+           << stats.lifts_attempted(*it) << "\"]\n";
+    }
+    for ( std::set<std::pair<verti, verti> >::const_iterator
+            it = edges.begin(); it != edges.end(); ++it )
+    {
+        os << it->first << "->" << it->second << ";\n";
+    }
+    os << "}\n";
+}
+
 bool read_input(ParityGame &game)
 {
     switch (arg_input_format)
@@ -400,7 +470,8 @@ bool read_input(ParityGame &game)
 }
 
 void write_output( const ParityGame &game,
-    const ParityGame::Strategy &strategy = ParityGame::Strategy() )
+    const ParityGame::Strategy &strategy = ParityGame::Strategy(),
+    LiftingStatistics *stats = NULL )
 {
     /* Write dot file */
     if (!arg_dot_file.empty())
@@ -486,6 +557,25 @@ void write_output( const ParityGame &game,
                           arg_strategy_file.c_str() );
             std::ofstream ofs(arg_strategy_file.c_str());
             write_strategy(ofs, strategy);
+            if (!ofs) Logger::error("Writing failed!");
+        }
+    }
+
+    /* Write hot vertices file */
+    if (stats != NULL && !arg_hot_vertices_file.empty())
+    {
+        // FIXME: make this a parameter?
+        long long threshold = stats.lifts_succeeded()/1000;
+        if (arg_hot_vertices_file == "-")
+        {
+            write_hot_vertices(std::cout, game, *stats, threshold);
+        }
+        else
+        {
+            Logger::info( "Writing hot vertices to file %s...",
+                          arg_hot_vertices_file.c_str() );
+            std::ofstream ofs(arg_hot_vertices_file.c_str());
+            write_hot_vertices(ofs, game, *stats, threshold);
             if (!ofs) Logger::error("Writing failed!");
         }
     }
@@ -631,8 +721,7 @@ int main(int argc, char *argv[])
         // Create SPM solver facory if requested:
         if (spm_strategy.get() != NULL)
         {
-            stats.reset(
-                new LiftingStatistics(game) );
+            if (arg_collect_stats) stats.reset(new LiftingStatistics(game));
 
             solver_factory.reset(new SmallProgressMeasuresSolverFactory(
                     *spm_strategy, arg_alternate, stats.get() ));
@@ -752,7 +841,7 @@ int main(int argc, char *argv[])
                              timer.elapsed() );
         }
 
-        write_output(game, strategy);
+        write_output(game, strategy, stats.get());
     }
 
     Logger::info("Exiting.");
