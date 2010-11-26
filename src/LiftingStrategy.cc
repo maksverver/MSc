@@ -13,6 +13,7 @@
 #include "FocusListLiftingStrategy.h"
 #include "MaxMeasureLiftingStrategy.h"
 #include "OldMaxMeasureLiftingStrategy.h"
+#include "LinPredLiftingStrategy.h"
 
 #include <stdlib.h>
 
@@ -72,6 +73,11 @@ LiftingStrategyFactory *
     if (strcasecmp(parts[0].c_str(), "oldmaxmeasure") == 0)
     {
         return new OldMaxMeasureLiftingStrategyFactory();
+    }
+    else
+    if (strcasecmp(parts[0].c_str(), "linpred") == 0)
+    {
+        return new LinPredLiftingStrategyFactory();
     }
     else
     {

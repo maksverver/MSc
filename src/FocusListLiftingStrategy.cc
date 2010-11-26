@@ -67,7 +67,7 @@ verti FocusListLiftingStrategy::next()
 
 verti FocusListLiftingStrategy::phase1()
 {
-    if (++num_lift_attempts_ >= game_.graph().V() && !focus_list_.empty())
+    if (++num_lift_attempts_ >= graph_.V() && !focus_list_.empty())
     {
         switch_to_phase(2);
     }

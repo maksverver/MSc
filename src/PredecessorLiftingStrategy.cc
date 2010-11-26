@@ -15,7 +15,7 @@ PredecessorLiftingStrategy::PredecessorLiftingStrategy(
     bool backward, bool stack )
     : LiftingStrategy(game), spm_(spm), backward_(backward), stack_(stack)
 {
-    assert(game.graph().edge_dir() & StaticGraph::EDGE_PREDECESSOR);
+    assert(graph_.edge_dir() & StaticGraph::EDGE_PREDECESSOR);
 
     // Initialize data
     verti V = game.graph().V();
@@ -35,9 +35,8 @@ PredecessorLiftingStrategy::~PredecessorLiftingStrategy()
 
 void PredecessorLiftingStrategy::lifted(verti v)
 {
-    const StaticGraph &graph = game_.graph();
-    for ( StaticGraph::const_iterator it = graph.pred_begin(v);
-          it != graph.pred_end(v); ++it )
+    for ( StaticGraph::const_iterator it = graph_.pred_begin(v);
+          it != graph_.pred_end(v); ++it )
     {
         if (!queued_[*it] && !spm_.is_top(*it))
         {

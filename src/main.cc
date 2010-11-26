@@ -565,7 +565,7 @@ void write_output( const ParityGame &game,
     if (stats != NULL && !arg_hot_vertices_file.empty())
     {
         // FIXME: make this a parameter?
-        long long threshold = stats.lifts_succeeded()/1000;
+        long long threshold = stats->lifts_succeeded()/1000;
         if (arg_hot_vertices_file == "-")
         {
             write_hot_vertices(std::cout, game, *stats, threshold);
