@@ -30,6 +30,7 @@ public:
                             const SmallProgressMeasures &spm )
         : LiftingStrategy(game)
     {
+        (void)spm;  // unused
         cur_queue.reserve(graph_.V());
         for (verti v = 0; v < graph_.V(); ++v) cur_queue.push_back(v);
         pos = cur_queue.begin();
@@ -46,7 +47,7 @@ public:
         if (pos == cur_queue.end())
         {
             std::sort(next_queue.begin(), next_queue.end());
-            next_queue.erase( std::uniq(next_queue.begin(), next_queue.end()),
+            next_queue.erase( std::unique(next_queue.begin(), next_queue.end()),
                               next_queue.end() );
             cur_queue.clear();
             cur_queue.swap(next_queue);

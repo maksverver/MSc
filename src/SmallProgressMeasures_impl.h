@@ -144,3 +144,10 @@ bool SmallProgressMeasures::lift_to_top(verti v)
     set_top(v);
     return true;
 }
+
+void SmallProgressMeasures::set_top(verti v)
+{
+    assert(!is_top(v));
+    vec(v)[0] = NO_VERTEX;
+    if (game_.priority(v)%2 != p_) --M_[game_.priority(v)/2];
+}

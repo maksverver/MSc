@@ -44,7 +44,7 @@ SmallProgressMeasures::SmallProgressMeasures(
     assert(p_ == 0 || p_ == 1);
 
     // Initialize SPM vector bounds
-    len_ = (game.d() + p_)/2;
+    len_ = (game_.d() + p_)/2;
     M_ = new verti[len_];
     for (int n = 0; n < len_; ++n) M_[n] = game_.cardinality(2*n + 1 - p_) + 1;
 
@@ -78,7 +78,7 @@ SmallProgressMeasures::~SmallProgressMeasures()
     delete[] M_;
 }
 
-bool SmallProgressMeasures::solve( LiftingStrategy &ls )
+bool SmallProgressMeasures::solve(LiftingStrategy &ls)
 {
     while (solve_part(ls, 1000000) == 1000000) if (aborted()) return false;
     return true;
@@ -154,7 +154,7 @@ bool SmallProgressMeasures::lift(verti v)
     for (int n = len(v) - 1; n >= 0; --n)
     {
         vec(v)[n] = vec(w)[n] + carry;
-        carry = (vec(v)[n] == M_[n]);
+        carry = (vec(v)[n] >= M_[n]);
         if (carry) vec(v)[n] = 0;
     }
     if (carry) set_top(v);

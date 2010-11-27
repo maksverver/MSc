@@ -106,7 +106,7 @@ protected:
     bool is_top(verti v) const { return vec(v)[0] == NO_VERTEX; }
 
     /*! Set the SPM vector for vertex `v` to top value. */
-    void set_top(verti v) { vec(v)[0] = NO_VERTEX; }
+    inline void set_top(verti v);
 
 private:
     SmallProgressMeasures(const SmallProgressMeasures &);
