@@ -31,7 +31,7 @@ void FocusListLiftingStrategy::lifted(verti vertex)
     {
         lls_.lifted(vertex);
         // FIXME: is this random factor necessary? If so, document in thesis.
-        if (rand()%2)
+        // if (rand()%2)
         {
             focus_list_.push_back(std::make_pair(vertex, initial_credit));
             if (focus_list_.size() == focus_list_.capacity())

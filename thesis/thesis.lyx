@@ -2899,8 +2899,8 @@ Oliver Friedmann proposed a variation of the algorithm that effectively
  same time.
  This does not improve on the worst-case time bounds (and, in fact, may
  require around twice as much time and memory compared to the standard algorithm
-), but in practice avoids many of the pitfalls that cause excessive runtimes
- with the standard algorithm, which makes it a useful alternative in practice.
+), but can avoid some of the pitfalls that cause excessive runtimes with
+ the standard algorithm, which makes it a useful alternative in practice.
 \end_layout
 
 \begin_layout Standard
@@ -2979,7 +2979,7 @@ Here I will outline SPM as described by Jurdziński.
 \begin_inset Formula \[
 M_{i}=\begin{cases}
 \{0\} & \mbox{if \ensuremath{i\equiv0\mod{2}}}\\
-\{0..\left|\{v\in V:\phi(v)=i\}\right|\} & \mbox{if \ensuremath{i\equiv1\mod{2}}}\end{cases}\]
+\{0..\left|\{v\in V:\phi(v)=i\}-1\right|\} & \mbox{if \ensuremath{i\equiv1\mod{2}}}\end{cases}\]
 
 \end_inset
 
@@ -4494,18 +4494,17 @@ In my implementation, the successors (not the vertices themselves) are kept
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-CHECKME: why did I implement it like this, instead of storing the queued
- vertices in the heap directly? I believe there was a good reason, but I
- can't recall what it was.
-\end_layout
-
-\end_inset
-
-
+One might ask why it is necessary to store successors rather than the vertices
+ themselves in the heap.
+ The reason is that we want to keep vertices ordered not by their own progress
+ measure vector, but by the maximum of their successors.
+ If we would store vertices directly, then when one vertex is lifted, this
+ could cause multiple of its predecessors in the heap to violate the ordering
+ in the heap.
+ This is hard to fix efficiently.
+ However, if we store the successor only, then after each lifting, at most
+ one vertex (the one just lifted) can violate the heap property and this
+ can be resolved easily by moving the vertex up in the heap if necessary.
 \end_layout
 
 \begin_layout Standard
@@ -4716,14 +4715,142 @@ If we assume that we tend to examine vertices with average outdegree then
  progress measures for both players must be kept.
 \end_layout
 
+\begin_layout Subsubsection
+Advantages & Disadvantages
+\end_layout
+
 \begin_layout Standard
-This may seem like a lot of overhead, but the benefits tend to outweigh
- the additional costs in practice, especially on problems that contain parts
- which are hard to solve from the perspective of one player but easy from
- its opponent's perspective.
- For example, the hard games designed by Jurdziński to require exponential
- time can be solved efficiently this way.
+In practice, a game and its dual are often not of the same difficulty.
+ In that case, it makes sense to try to solve them both, in order to discover
+ the solution to the easiest one, and then use the information gained to
+ construct a subgame with the remaining unsolved vertices in the dual game,
+ which is then usually much easier to solve.
+ The extra amount of work done in this case is at most equal to the amount
+ of work done for the easiest game, but with the benefit that we do not
+ have to know or guess in advance which of two players is easier to solve
+ for.
+ The worst case occurs when a game and its dual are of comparable difficulty;
+ in that case up to twice as much work may be done when solving in parallel
+ rather than sequentially.
+\end_layout
+
+\begin_layout Standard
+Friedmann's two-sided approach has as the benefit that this approach is
+ not applied just on the game level, but also on parts of the games, which
+ is beneficial in cases where games contain different parts which are hard
+ to solve for different players.
+ In those cases, the two-sided approach can result in both sides being solved
+ in less time than would be possible starting from either side.
+\end_layout
+
+\begin_layout Standard
+Unfortunately, the implementation in PGSolver is flawed.
+ It foregoes construction of the subgame entirely, even after one of the
+ sides is completely solved.
+ When a subgame is constructed this reduces the size of the progress measure
+ vector space, which can significantly reduce the solving time for a game.
+ Therefore, PGSolver suffers from regressions where some games require orders
+ of magnitudes more lifting attempts to be performed compared to the original
+ approach, rather than being bound by a factor two as expected.
+ A simple solution would be to reset the unsolved game to the appropriate
+ subgame after its easier dual is solved, but then some of the work done
+ is lost.
+ I have implemented a different way to address this issue, as will be described
+ later.
+\end_layout
+
+\begin_layout Standard
+Finally, a limitation of the implementation in PGSolver is that it always
+ attempts to lift the same vertex in both the normal and dual game.
+ There does not seem to be a particular reason to restrict lifting attempts
+ in this way.
+ On the contrary, it seems plausible that the sets of liftable vertices
+ in the normal and dual game will diverge, so it seems more natural to apply
+ separate lifting strategies to both games, especially since there seems
+ to be little to be gained by synchronizing the vertices selected for lifting,
+ except some memory savings (from maintaining one lifting strategy instance
+ instead of two) and some cache benefits (when progress measure vectors
+ for two games are stored interleaved as is the case in PGSolver).
+\end_layout
+
+\begin_layout Subsubsection
+Implementation
+\end_layout
+
+\begin_layout Standard
+My solver tool implements Friedmann's variation of Small Progress Measures
+ with three changes which are intended to mitigate the disadvantages outlined
+ above.
+\end_layout
+
+\begin_layout Enumerate
+Whenever a vertex is lifted to 
+\begin_inset Formula $\top$
+\end_inset
+
+, the vector space bounds are adjusted as if the vertex had been removed
+ from the game.
+ This means for example that if we are solving for Even and a vertex with
+ priority 1 is lifted to 
+\begin_inset Formula $\top$
+\end_inset
+
+, then the first dimension of the vector space is reduced by one.
  
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+mention that this means existing vectors may temporarily contain values
+ that exceed bounds!
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Separate lifting strategies are created for the two games, to increase the
+ probability of succesful lifting.
+\end_layout
+
+\begin_layout Enumerate
+Instead of attempting 
+\begin_inset Formula $\left|V\right|$
+\end_inset
+
+ lifts in both games and then exchanging information between the two games,
+ my implementation attempts 
+\begin_inset Formula $\left|V\right|$
+\end_inset
+
+ lifts in one game, propagates information to the dual game, and then switches
+ to that game.
+ This is possible because lifting strategies for the two games are independent,
+ and ensures that information is exchanged earlier (after every 
+\begin_inset Formula $\left|V\right|$
+\end_inset
+
+ rather than 
+\begin_inset Formula $2\left|V\right|$
+\end_inset
+
+ lifting attempts).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+#1 probably needs a proof that it does not change the correctness of the
+ algorithm? (also note that #1 helps also for the normal algorithm)
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -4740,32 +4867,16 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-- describe dual version as implemented by Olivier Friedman
-\end_layout
-
-\begin_layout Plain Layout
-- describe preprocessing passses: removing cycles of odd players/odd priority
- and setting measure to top (partially implemented) + what else?
-\end_layout
-
-\begin_layout Plain Layout
-(re: removing odd cycles: cite PGSolver&Michael for loops on vertices, credit
- Freark for coming up with a very limited version applied to longer cycles)
-\end_layout
-
-\begin_layout Plain Layout
 - note that solving time for the two players is usually highly asymmetric,
  which is why the dual method works well, and why it makes sense to try
  to pick the easiest player to solve for first, as the second run will be
  on a smaller graph and then run much faster.
+ (this doesn't seem to be true so much anymore, since I implemented reducing
+ the bounds when lifting to top)
 \end_layout
 
 \begin_layout Plain Layout
-- dual games
-\end_layout
-
-\begin_layout Plain Layout
-- describe priority propagation
+- mention priority propagation (not implemented)
 \end_layout
 
 \end_inset
