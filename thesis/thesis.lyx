@@ -83,9 +83,10 @@ sideways false
 status open
 
 \begin_layout Plain Layout
+\align center
 \begin_inset Graphics
 	filename illustrations/introduction-example.svg
-	width 10cm
+	scale 50
 
 \end_inset
 
@@ -146,7 +147,7 @@ reference "fig:introduction-example"
 \end_layout
 
 \begin_layout Standard
-A parity game can be described by a four-tuple 
+A parity game can be described as a quadruple 
 \begin_inset Formula $\Gamma=(V_{\text{0}},V_{\text{1}},E,\phi)$
 \end_inset
 
@@ -171,7 +172,7 @@ A parity game can be described by a four-tuple
 \begin_inset Formula $V=V_{0}\cup V_{1}$
 \end_inset
 
- of the graph into vertices belonging to 
+ of the graph into vertices controlled by
 \family default
 \series default
 \shape default
@@ -180,7 +181,7 @@ A parity game can be described by a four-tuple
 \bar default
 \noun default
 \color inherit
-Even and Odd respectively.
+ Even and Odd respectively.
  
 \begin_inset Formula $E$
 \end_inset
@@ -294,22 +295,53 @@ A parity game is played by placing a token on some initial vertex.
  When the token lands on a vertex without any outgoing edges, the game ends.
  However, it is more common for a game to continue indefinitely, causing
  an infinite sequence of moves.
- This sequence of moves on the graph is called a 
+ The sequence of moves on the graph is called a 
 \emph on
 play
 \emph default
  and it can be described as the sequence of vertices visited by the token.
- Formally, 
+ Formally, a sequence 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+
+\begin_inset Formula $\pi=v_{1}v_{2}\ldots v_{n}$
+\end_inset
+
+ is a finite play if and only if 
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
+
+\begin_inset Formula $\forall i<n\; v_{i}v_{i+1}\in E$
+\end_inset
+
+ and 
+\begin_inset Formula $v_{n}$
+\end_inset
+
+ has no outgoing edges.
+ Similarly, an infinite sequence 
 \begin_inset Formula $\pi=v_{1}v_{2}\ldots$
 \end_inset
 
- is a play if 
+ is an infinite play if and only if 
 \begin_inset Formula $\forall i\in\mathbb{N}\; v_{i}v_{i+1}\in E$
 \end_inset
 
 .
- A finite subsequence of a play that ends on a vertex with outgoing edges
- is called a 
+ A subsequence of a play that ends on a vertex with outgoing edges is called
+ a 
 \emph on
 partial play
 \emph default
@@ -365,7 +397,7 @@ A play is won by player Even if the dominant priority for the play is even,
 It should be noted that there is no consensus in literature on how priorities
  should be ordered.
  Throughout this report I will use the convention of lower priority values
- having precedence over higher values, thus 
+ taking precedence over higher values, thus 
 \begin_inset Formula $0$
 \end_inset
 
@@ -408,14 +440,20 @@ A strategy for player
 \noun off
 \color none
  such that if 
+
+\begin_inset Formula $v_{1}\ldots v_{n}$
+\end_inset
+
+ is a partial play, then
+ 
 \begin_inset Formula $\dot{\sigma}_{x}(v_{1}\ldots v_{n})=v_{n+1}$
 \end_inset
 
- then 
+ and 
 \begin_inset Formula $v_{1}\ldots v_{n+1}$
 \end_inset
 
- is a partial play.
+ is a (partial) play too.
  A play 
 \begin_inset Formula $\pi=v_{1}v_{2}\ldots$
 \end_inset
@@ -530,17 +568,7 @@ determined
 \emph default
 , i.e.
  for every starting vertex either player Even or player Odd has a winning
- strategy 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-TODO: cite proof; Borel determinacy
-\end_layout
-
-\end_inset
-
-.
+ strategy.
  Thus, for these games, we can partition the vertex set 
 \begin_inset Formula $V$
 \end_inset
@@ -609,7 +637,7 @@ In many practical applications, determination of winning sets is enough
  wether a particular vertex in a game graph is won by player Even or Odd.
  In this case it would suffice to determine which player wins from this
  particular vertex without computing strategies and even without fully determini
-ng winning sets.
+ng winning sets for either player.
 \end_layout
 
 \begin_layout Standard
@@ -620,9 +648,9 @@ An objection against determining winning sets without associated strategies
 why
 \emph default
  a particular vertex is won by a particular player.
- Strategies can be useful to understand the outcome of the games.
- In the application of model checking, strategies can be used to generate
- counter-examples to a desired property when it turns out it doesn't hold.
+ Strategies are useful to understand the outcome of the games.
+ In the application of model checking, strategies can be used to show why
+ a certain property holds, or generate counter-examples if it doesn't.
  Moreover, if we have not just a winning set, but also associated strategies,
  we can readily verify their correctness (as will be described in detail
  later).
@@ -773,7 +801,7 @@ but not in
 \end_inset
 
  has no winning move, and therefore any adjacent vertex can be selected
- without consequences for the rest of the strategy.
+ without affecting the optimality of the strategy.
  Even if we leave out these vertices for which the controlling player has
  no winning move, optimal strategies are not (necessarily) uniquely defined,
  unlike winning sets.
@@ -798,14 +826,6 @@ Sometimes we want to refer to the combined strategies of both players,
 \begin_layout Standard
 It turns out that for all games of finite order optimal memoryless strategies
  exist.
- Zielonka
-\begin_inset CommandInset citation
-LatexCommand cite
-key "zielonka1998igf"
-
-\end_inset
-
- gives two proofs of this property.
  Research on finite-order games typically focuses on finding memoryless
  strategies for both players, which can be described succinctly by simply
  listing an optimal move for every vertex, which is especially practical
@@ -813,44 +833,6 @@ key "zielonka1998igf"
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-A consequence of both players following memoryless strategies on a finite
- graph (as pointed out by Jurdziński 
-\begin_inset CommandInset citation
-LatexCommand cite
-key "jurdzinski2000spm"
-
-\end_inset
-
-) is that play will eventually become periodic.
- In other words, for every play 
-\begin_inset Formula $v_{1}v_{2}\ldots$
-\end_inset
-
- there is some starting point 
-\begin_inset Formula $k$
-\end_inset
-
- and a period 
-\begin_inset Formula $n$
-\end_inset
-
- such that 
-\begin_inset Formula $v_{i}=v_{i+n}$
-\end_inset
-
- for all 
-\begin_inset Formula $i\geq k$
-\end_inset
-
-.)
-\end_layout
-
-\end_inset
-
 Since this report is about finding optimal strategies to finite parity games,
  the term 
 \emph on
@@ -878,8 +860,10 @@ sideways false
 status open
 
 \begin_layout Plain Layout
+\align center
 \begin_inset Graphics
 	filename illustrations/introduction-example-solved.svg
+	scale 50
 
 \end_inset
 
@@ -927,27 +911,64 @@ Computational Complexity
 \end_layout
 
 \begin_layout Standard
+The computational complexity of parity games as a decision problem (i.e.
+ asking whether a particular vertex is won by a particular player) is not
+ yet known.
+ Assuming that a polynomial-time algorithm to verify the optimality of a
+ pair of winning strategies exists (and indeed it does; one will be presented
+ later on) then we can solve the more general problem of determining winning
+ sets as well as strategies by nondeterministically guessing the winner
+ and an optimal move for each vertex, which puts the problem in NP (the
+ set of problems decidable by a non-deterministic Turing machine and verifiable
+ by a deterministic Turing machine in polynomial time), where the strategies
+ are certificates for the solution.
+\end_layout
+
+\begin_layout Standard
+The problem of determining winning sets alone is in UP.
+ From the symmetry of the problem (winning sets complement each other) it
+ follows that the problem is in co-NP and co-UP as well, simply by reversing
+ the roles of the players.
+\end_layout
+
+\begin_layout Standard
+It is not known whether or not solving parity games is an NP-complete problem.
+ The fact that it is in both NP and co-NP suggests that it is not, for otherwise
+ it would be co-NP-complete as well, and NP and co-NP would be equal, which
+ current evidence suggests is not the case, unless P equals NP (and consequently
+ co-NP) as well.
+ Therefore, it is suspected that it should be possible to solve parity games
+ in polynomial time only.
+ However, no proof of this property exist.
+ The known algorithms are exponential in the order of the game.
+\end_layout
+
+\begin_layout Standard
+The best known time complexity bound on the problem is that of Jurdziński's
+ Small Progress Measures algorithm which has an upper bound of 
+\begin_inset Formula $O\left(d\left|E\right|\left(\frac{\left|V\right|}{\left\lfloor d/2\right\rfloor }\right)^{\left\lfloor d/2\right\rfloor }\right)$
+\end_inset
+
+ where 
+\begin_inset Formula $d$
+\end_inset
+
+ is the order of the game, and this bound is tight for particular known
+ instances.
+ Fortunately, many instances arising in practice can be solved much more
+ quickly than the worst-case complexity, making parity game algorithms feasible
+ in graphs with dozens of different priorities and thousands to billions
+ of vertices.
+\end_layout
+
+\begin_layout Standard
 \begin_inset Note Note
 status open
 
 \begin_layout Plain Layout
-To write: something about known time complexity in NP and Co-NP (how?) and
- therefore likely to be in P (because otherwise NP=co-NP, which is unlikely).
- Note that the decision problem is 
-\begin_inset Quotes eld
-\end_inset
-
-does player x win starting from vertex v?
-\begin_inset Quotes erd
-\end_inset
-
- and the resulting strategy acts as a certificate, because strategies can
- be verified in polynomial time.
- Best known complexity of algorithms.
- At least mention Zielonka, SPM and strategy improvement.
- Maybe add section about reduction to other (NP-complete of course) problems.
- Mention that solving games in practice usually takes considerably less
- time than the worst-case complexity suggests.
+Add citation for proof of complexity bounds (probably below to related work).
+ Add complexity of Zielonka, SPM and strategy improvement? Maybe add section
+ about reduction to other (NP-complete of course) problems?
 \end_layout
 
 \end_inset
@@ -974,17 +995,65 @@ To write.
 \end_layout
 
 \begin_layout Section
-Related Work
+Related work
 \end_layout
 
 \begin_layout Standard
-Zielonka describes strategies for a more general class of games played on
- infinite (or finite) graphs, using colouring of vertices with colours from
- a finite set instead of simple integers, and with more complex winning
- conditions.
- The class of games he describes cannot generally be solved by memoryless
- strategies, but many of the concepts he mentions are applicable to parity
- games.
+A considerably amount of literature is available on parity games specifically
+ and on more general perfect-information games played on infinite graphs
+ and trees, as well as their relationship to computing automata and the
+ application to model checking.
+ The majority of this work is theorethical in nature.
+\end_layout
+
+\begin_layout Standard
+A proof of determinacy for Borel games, of which parity games are a specializati
+on, was given by Donald A.
+ Martin in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "martin1975borel"
+
+\end_inset
+
+.
+ Additionally, Klarlund proves in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "klarlund1994progress"
+
+\end_inset
+
+, that memoryless strategies exist for players in Borel games when using
+ a Rabin winning condition, of which the parity condition is a special case.
+ Both of these results are more general than needed for parity games.
+ Zielonka gives two direct proofs for the memoryless determinacy of parity
+ games specifically in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "zielonka1998igf"
+
+\end_inset
+
+.
+ Jurdziński points out in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "jurdzinski2000spm"
+
+\end_inset
+
+ that a consequence of both players following memoryless strategies on a
+ finite graph is that plays will eventually become periodic.
+\end_layout
+
+\begin_layout Standard
+Zielonka also summarizes and improves many previous results on more general
+ classes of games played on infinite labaled graphs, with winning conditions
+ that are more complex than the parity condition.
+ These games cannot generally be solved by memoryless strategies, but many
+ of the concepts he mentions are still applicable to parity games, which
+ is why some of his terminology will be used in this report.
 \end_layout
 
 \begin_layout Standard
@@ -992,16 +1061,12 @@ Zielonka describes strategies for a more general class of games played on
 status open
 
 \begin_layout Plain Layout
-Describe where Parity Games lie in the Borel hierarchy.
-\end_layout
-
-\begin_layout Plain Layout
-Describe previous solvers?
-\end_layout
-
-\begin_layout Plain Layout
 Describe other algorithms not described in this paper (strategy improvement,
  others implemented in PGSolver).
+\end_layout
+
+\begin_layout Plain Layout
+Describe previous solvers (notably, PGSolver, but also stuff done at UT)
 \end_layout
 
 \end_inset
@@ -1010,13 +1075,36 @@ Describe other algorithms not described in this paper (strategy improvement,
 \end_layout
 
 \begin_layout Chapter
-[Detailed description]
+Building blocks for parity game solvers
 \end_layout
 
 \begin_layout Standard
-[The goal of this part is to describe common restrictions and terminology
- which will be used in later descriptions and analysis of algorithms.
- Nothing new is introduced here.]
+Before discussing algorithms used to solve parity games, it is important
+ to have a clear view of which type of games can and cannot be solved, and
+ to have established common terminology to identify the components used
+ in parity game solvers, as well as known properties of these components.
+ Many of these preliminary definitions have been introduced in previous
+ work, but unfortunately the terminology varies subtly (and sometimes fundamenta
+lly) which makes it hard to continue here without establishing precisely
+ what is meant by a number of common terms and concepts.
+ 
+\end_layout
+
+\begin_layout Standard
+The purpose of this section of the report is to introduce a number of restrictio
+ns and definitions that will apply to the rest of the report.
+ Firstly, a number of restrictions on the game structure will be given,
+ that simplify the definition and discussion of the algorithms and datastructure
+s that follows.
+ Secondly, a number of useful properties of parity games will be presented;
+ none of these are new, but they will be defined in a manner consistent
+ with the preceding definitions.
+ Thirdly, a number of notable special cases of parity games will be discussed;
+ these deserve to be mentioned but are otherwise outside the scope of this
+ report.
+ Finally, a polynomial-time algorithm for the verification of parity game
+ algorithms will be presented, which is used to guarantee the correctness
+ of the reported results.
 \end_layout
 
 \begin_layout Section
@@ -1031,6 +1119,7 @@ For convenience, I will assume some restrictions on the structure of the
  Of these, the first two properties are simplifications that do not limit
  the classes of games that can be analyzed in general.
  Only the third restriction is a true restriction in a theoretical sense.
+ These restrictions are as follows:
 \end_layout
 
 \begin_layout Enumerate
@@ -1067,26 +1156,15 @@ proper game
  and add an edge from the vertex back to itself.
  In the modified graph every vertex has an outgoing edge, yet it has the
  same solution and winning strategies as the original graph.
- 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-Does this need proof?
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Standard
 The second property does not restrict the classes of games that can be solved
  either.
  During a play, the token never leaves the (weakly) connected component
- of the graph that it starts in, so for any unconnected graph, we can decompose
- the graph into weakly connected components, analyze these components individual
-ly, and combine the results.
+ of the graph that it starts in, so for any unconnected graph, we can trivially
+ decompose the graph into weakly connected components, analyze these components
+ individually, and combine the results.
 \end_layout
 
 \begin_layout Standard
@@ -1099,7 +1177,7 @@ The final property is a true restriction because it makes it impossible
  From a theoretical point of view, a finite vertex set allows for algorithms
  and proofs that do not generalize to infinite graphs.
  In particular, the winner of any play can be decided, because the order
- of the graph is finite.
+ of the graph is finite, as has been established in the preceding.
 \end_layout
 
 \begin_layout Section
@@ -1980,7 +2058,6 @@ tion, which makes it worthwhile to implement a verification routine to validate
  the emperical results.
  The verification algorithm depends on the correct solution of single-player
  games, for which a polynomial time algorithm will be presented.
- The verification algorithm runs 
 \end_layout
 
 \begin_layout Subsection
@@ -2024,7 +2101,7 @@ To solve the game, we iteratively identify an even cycle
 \bar no
 \noun off
 \color none
-and then solving the smaller subgame 
+and then solve the smaller subgame 
 \begin_inset Formula $\Gamma|V\setminus Attr^{x}(\Gamma,\{v_{1}\ldots v_{n}\})$
 \end_inset
 
@@ -2102,7 +2179,7 @@ i
 \end_layout
 
 \begin_layout Standard
-To find an even cycle, we simply try to find an 
+To find an even cycle, then, it suffices to try to find an 
 \begin_inset Formula $i$
 \end_inset
 
@@ -2110,54 +2187,62 @@ To find an even cycle, we simply try to find an
 \begin_inset Formula $i$
 \end_inset
 
-.
- When a component containing an 
+, and for each value construct a graph with edges incident only to vertices
+ of priority 
 \begin_inset Formula $i$
 \end_inset
 
--cycle is found, backtracking can be used to find the cycle itself.
- Since strongly connected components can be found in linear time using Tarjan's
- algorithm
+ or higher, which is then decomposed into strongly connected components.
+ If a vertex with priority 
+\begin_inset Formula $i$
+\end_inset
+
+ exists in a component which contains at least one edge, then a cycle can
+ be found with a backtracking search within the component, which will visited
+ every edge at most once.
+\end_layout
+
+\begin_layout Standard
+Because identifying strongly connected components takes at least 
+\begin_inset Formula $O(E)$
+\end_inset
+
+ time (for example, using Tarjan's algorithm, described in 
 \begin_inset CommandInset citation
 LatexCommand cite
 key "tarjan1971depth"
 
 \end_inset
 
-, we need 
+) and subgame construction typically takes 
+\begin_inset Formula $O(E)$
+\end_inset
+
+ time as well, it would not be very efficient to remove attractor sets one
+ cycle at a time.
+ Instead, after decomposing the graph for priority 
+\begin_inset Formula $i$
+\end_inset
+
+, we can search for one cycle per component and compute the attractor set
+ of all these cycles combined in order to remove all 
+\begin_inset Formula $i$
+\end_inset
+
+-cycles from the game at once.
+ This way, the algorithm requires at most 
+\series bold
+
+\begin_inset Formula $O(d)$
+\end_inset
+
+
+\series default
+ iterations and in the worst case 
 \begin_inset Formula $O(d\left|E\right|)$
 \end_inset
 
- time worst-case to find a cycle when trying all values of 
-\begin_inset Formula $i$
-\end_inset
-
-, but since it makes sense to try non-decreasing values of 
-\begin_inset Formula $i$
-\end_inset
-
- over the course of the global algorithm, which requires at most 
-\begin_inset Formula $\left|V\right|\geq d$
-\end_inset
-
- iterations, the total algorithm requires 
-\begin_inset Formula $O(\left|V\right|\left|E\right|)$
-\end_inset
-
-, assuming subgames can be constructed in 
-\begin_inset Formula $O(\left|E\right|)$
-\end_inset
-
-
-\family roman
-\series medium
-\shape up
-\size normal
-\emph off
-\bar no
-\noun off
-\color none
- as well.
+ total time.
 \end_layout
 
 \begin_layout Standard
@@ -2181,8 +2266,9 @@ Verification of strategies
 Altough it is hard to compute the optimal strategies for the players in
  a parity game, it is much easier to verify that a pair of a winning sets
  and associated strategies are sound.
- To verify winning sets, it would suffice to solve a parity game with a
- known-good algorithm and then compare if the result is equal.
+ To verify winning sets, it would suffice to solve the parity game with
+ a known-good algorithm and then verify that it produced the same winning
+ sets.
  This isn't possible for strategies, which are generally not unique, so
  even if we obtain an optimal strategy, this does not imply that different
  strategies are invalid.
@@ -2330,22 +2416,22 @@ maybe expand a bit on the proof?
 \end_layout
 
 \begin_layout Standard
-Verifying the first two properties described above takes time linear in
- the number of vertices.
- Since we only need to run part of the single-player solving algorithm (because
- we can stop as soon as we find one cycle won by player 
-\begin_inset Formula $1-x$
-\end_inset
-
-, which is a suitable counter-example to the soundness of 
-\begin_inset Formula $\sigma_{x}$
-\end_inset
-
-), 
+The time required for the last step is bounded by 
 \begin_inset Formula $O(d\left|E\right|)$
 \end_inset
 
- time is required for the last step.
+ as before, where 
+\begin_inset Formula $d$
+\end_inset
+
+ is the order of the game.
+ Since 
+\begin_inset Formula $d\leq\left|V\right|$
+\end_inset
+
+ the verification algorithm is indeed polynomial in time.
+ It is fast in practice when the game graph is sparse and the number of
+ distinct priorities is low, which is often the case.
 \end_layout
 
 \begin_layout Chapter
@@ -2840,8 +2926,7 @@ Graph decomposition
 status open
 
 \begin_layout Plain Layout
-Describe solving strongly connected components invidiually (not really a
- degenerate case but OK)
+Describe solving strongly connected components invidiually
 \end_layout
 
 \end_inset
