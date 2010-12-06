@@ -440,12 +440,10 @@ A strategy for player
 \noun off
 \color none
  such that if 
-
 \begin_inset Formula $v_{1}\ldots v_{n}$
 \end_inset
 
- is a partial play, then
- 
+ is a partial play, then 
 \begin_inset Formula $\dot{\sigma}_{x}(v_{1}\ldots v_{n})=v_{n+1}$
 \end_inset
 
@@ -1921,6 +1919,25 @@ This property is important because it means that if we start with a proper
  in order.
 \end_layout
 
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+need to describe that attractor sets of winning sets can be removed from
+ a game! (+ explain why)
+\end_layout
+
+\begin_layout Plain Layout
+this is used on many occasions to break down games to be solved into smaller
+ parts.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Section
 Degenerate cases
 \end_layout
@@ -2025,6 +2042,61 @@ In extremely rare cases the game is played on a cycle graph and neither
  player has a choice.
  In that case, strategies are trivial and whichever player has the dominant
  priority on the cycle wins from any vertex in the game.
+\end_layout
+
+\begin_layout Subsection
+Graphs of multiple components
+\end_layout
+
+\begin_layout Standard
+Some game graphs are not completely connected, in the sense that there may
+ be pairs of vertices where there exists no path from one vertex to the
+ other.
+ These graphs can be solved more efficiently by solving strongly connected
+ components separately and combining the results.
+ There are two main approaches to implementing this.
+\end_layout
+
+\begin_layout Standard
+The first approach is to solving components in reverse topological order.
+ Before solving the subgame induced by a component, we add edges to dummy
+ vertices (one won by Even and one won by Odd) for any existing edges that
+ have a target outside the current component, depending on which winning
+ set contains their target.
+ Because of the order in which components are solved, these winning sets
+ are well-defined for vertices outside but reachable from the current component.
+ The main advantage of this approach is that it requires running the decompositi
+on algorithm only once, although creating temporary vertices and edges complicat
+es the implementation somewhat.
+\end_layout
+
+\begin_layout Standard
+A slightly more advanced approach was introduced in PGSolver and implemented
+ in my solver as well.
+ Here, we look only for a single leaf component (a component with no outgoing
+ edges) and solve its induced subgame (which is necessarily a proper subgame).
+ Then, we extend the winning sets for both players to their attractor sets
+ in the main game.
+ The main game is then replaced by a subgame induced by the complement of
+ the original graph with these attractor sets removed, and the process is
+ repeated until a single component remains.
+ Because we remove attractor sets of winning sets only, the constructed
+ subgames remain proper subgames.
+\end_layout
+
+\begin_layout Standard
+In the second approach, we must decompose the graph and constructing a (typicall
+y large) subgame once for every subcomponent that is found.
+ This seems less efficient thatn the first approach, but it has advantages
+ as well, mainly stemming from the fact that the attractor sets of winning
+ sets may extend far into the main game, removing solved parts of the graph
+ which are much larger than the component which was last solved, and creating
+ more separate components in the unsolved part of the graph than were present
+ initially.
+ In cases where the initial game graph consists of a single component, the
+ decomposition algorithm is run only once, and no subgame needs to be constructe
+d, so the overhead is limited (and comparable to that of the first approach)
+ in these cases.
 \end_layout
 
 \begin_layout Standard
@@ -2840,7 +2912,7 @@ Note that the choice of the minimum successor for vertices which are lost
 \end_layout
 
 \begin_layout Subsection
-Solving subgames
+Subgame construction
 \end_layout
 
 \begin_layout Standard
@@ -2856,44 +2928,72 @@ Many algorithms require subgames to be constructed.
 \end_inset
 
  while the ordering of the elements determines the new identifiers of the
- vertices.
+ vertices in the subgraph.
 \end_layout
 
 \begin_layout Standard
-If the order of vertices in the subgame is maintained (in other words, if
- the input array contains nondecreasing identifiers) then constructing the
- subgame takes time linear in the number of edges of the new game.
- Since the algorithms that create subgames typically do not care about any
- particular vertex ordering, this is the common case.
- In the general case, reordering of successors or predecessors may be required,
- though this can be done on a per-vertex basis, which means the sorting
- overhead is small for typical games where edge in the graph have small
- outdegree.
-\end_layout
-
-\begin_layout Standard
-The efficiency of subgame construction is important because it is a large
- part of the Zielonka's recursive algorithm and of decomposition in strongly
- connected components.
+The main cost in constructing a subgame comes from the construction the
+ successor and/or predecessor arrays of the subgraph, which is done by iterating
+ over all successors (or predecessors, as the case may be) of vertices in
  
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-I should probably quantify this
-\end_layout
-
+\begin_inset Formula $U$
 \end_inset
 
+, filtering out vertices which are outside of 
+\begin_inset Formula $U$
+\end_inset
 
+, and possibly sorting the remapped vertices.
+ To filter vertex efficiently, either a hashtable or a boolean array is
+ used to represent 
+\begin_inset Formula $U$
+\end_inset
+
+, depending on the size of 
+\begin_inset Formula $U$
+\end_inset
+
+ relative to 
+\begin_inset Formula $V$
+\end_inset
+
+: for small subsets the mapping is sparse and a hashtable is more efficient.
 \end_layout
 
 \begin_layout Standard
-Finally, using the original vertex identifier array, strategies and winning
- sets computed for a subgame can be trivially converted to its original.
- This is useful to propagate solution information back to the main game
- in order to e.g.
- compute attractor sets.
+The exact time complexity depends on the outdegree for vertices in 
+\begin_inset Formula $U$
+\end_inset
+
+.
+ If we assume the graph to be very sparse (i.e.
+ the outdegree is 
+\begin_inset Formula $O(1)$
+\end_inset
+
+) then subgame construction takes 
+\begin_inset Formula $O(\left|U\right|)$
+\end_inset
+
+ space.
+ Even if the graph is not sparse, subgame construction takes time linear
+ in the number of edges of the resulting subgraph, as long as the outdegree
+ of the subgame is comparable to that of the vertices in the original graph.
+\end_layout
+
+\begin_layout Standard
+This is the assumption that will be used in this report to analyze the complexit
+y of algorithms that rely on subgame construction, which includes Zielonka's
+ algorithm, as well as many preprocessing operations.
+ Finally, it should be noted that when constructing subgames, the array
+ 
+\begin_inset Formula $U$
+\end_inset
+
+ is kept around in order to map the vertex indentifiers in the subgame back
+ to the original game, which is necesssary to propagate solution and strategy
+ information back to the main game, and for gathering of global statistics
+ and debugging information.
 \end_layout
 
 \begin_layout Subsection
@@ -2901,20 +3001,90 @@ Attractor set computation
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
+In my implementation, attractor sets are computed straightforwardly using
+ a queue and a set, where both data structures are assumed to have 
+\begin_inset Formula $O(1)$
+\end_inset
 
-\begin_layout Plain Layout
-Describe how attractor sets may be implemented such that core algorithms
- that time linear in the size of the attractor set.
- (Although the current implementation uses a simple set, so it requires
- O(E log V) where E and V are limited to the subgraph induced by the attractor
- set.)
+ performance for the relevant operations (for example, a deque and a hash
+ table satisfy these requirements).
+ The queue is initialized to the attractor set.
+ Every iteration, a vertex is extracted from the queue and its predecessors
+ are examined.
+ Any predecessor which is controlled by the player for whom we are computing
+ the attractor set, or which is controlled by his opponent but has no successors
+ outside the attractor set, is added to the queue and the attractor set,
+ and (optionally) the strategy for the new vertex is updated.
+ Because the attractor set computation is analogous to a breadth-first search,
+ the strategy reflects the shortest path from vertices in the extended attractor
+ set to vertices in the initial set.
 \end_layout
 
+\begin_layout Standard
+Computing attractor sets requires both predecessor and successor information
+ be stored in the graph, and the resulting algorithm is reasonably efficient
+ for sufficiently sparse graphs.
+ However, the worst-case complexity is as high as 
+\begin_inset Formula $O(ev)$
+\end_inset
+
+ where 
+\begin_inset Formula $v$
+\end_inset
+
+ is the size of the resulting set and 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+
+\begin_inset Formula $e$
 \end_inset
 
 
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
+ is the number of edges incident to vertices in the set.
+ This complexity arises from the fact that when a predecessor is controlled
+ by the opponent of the player for whom the attractor set is computed, then
+ all successors of this vertex must be evaluated to see if an edge to a
+ vertex outside the attractor set exists; in a worst-case scenario, all
+ vertices currently in the attractor set could be reachable before a successor
+ outside it is found.
+\end_layout
+
+\begin_layout Standard
+The complexity can be reduced to 
+\begin_inset Formula $O(e)$
+\end_inset
+
+ by keeping track of the last successor evaluated for every vertex outside
+ the vertex set, so that we can restart the search there (knowing that the
+ preceding successors are already known to lie inside the attractor set),
+ which limits the number of times an edge is examined to 
+\begin_inset Formula $3e$
+\end_inset
+
+.
+ In typical sparse graphs, the overhead of maintaining an additional data
+ structure may outweigh the benefit of a lower worst-case complexity bound,
+ which is why this optimization is currently not implemented.
+ However, for sake of computing the complexity of other algorithms, the
+ theoretical bound of 
+\begin_inset Formula $O(e)$
+\end_inset
+
+ is used.
 \end_layout
 
 \begin_layout Subsection
@@ -2922,16 +3092,53 @@ Graph decomposition
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-Describe solving strongly connected components invidiually
-\end_layout
+To compute strongly connected components, Tarjan's algorithm from 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "tarjan1971depth"
 
 \end_inset
 
+ is used, which enumerates all strongly connected components in reverse
+ topological order (components are found in order such that each component
+ has only edges within itself or going into components found before).
+ It requires 
+\begin_inset Formula $O(\left|E\right|)$
+\end_inset
 
+ time and 
+\begin_inset Formula $O(\left|V\right|)$
+\end_inset
+
+ space, even if the algorithm is aborted before all components have been
+ found.
+\end_layout
+
+\begin_layout Standard
+The algorithm as described by Tarjan is based on a depth-first search of
+ the graph, labeling vertices as they are visited.
+ Depth-first search is typically implemented as a recursive procedure, but
+ this is impractical for very large graphs, where high recursion depth may
+ exhaust the available stack space.
+ Therefore, the implementation uses an iterative approach, with an explicit
+ stack data structure which is stored in the heap.
+ In addition to removing the limitations on recursion depth, this has the
+ additional benefit of being a relative compact representation compared
+ to the stack frames that would typically be created in a recursive procedure.
+\end_layout
+
+\begin_layout Standard
+Components are passed to a callback function as an array of indices of vertices
+ in the original graph.
+ Such an array can be used to construct a subgame for the component, as
+ described above, though it should be noted that the subgame induces by
+ a strongly connected component of the game graph is not typically a proper
+ subgame itself, unless there are no edges going out of the current component.
+\end_layout
+
+\begin_layout Standard
+The decomposition algorithm is used to implement solving of individual component
+s, removal of owner-controlled cycles and verification of games.
 \end_layout
 
 \begin_layout Standard
@@ -2939,7 +3146,7 @@ Describe solving strongly connected components invidiually
 status open
 
 \begin_layout Plain Layout
-- browse code for stuff I didn't cover yet
+TODO: browse code for stuff I didn't cover yet
 \end_layout
 
 \end_inset
