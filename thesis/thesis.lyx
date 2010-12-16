@@ -18,7 +18,17 @@
 \graphics default
 \paperfontsize default
 \spacing single
-\use_hyperref false
+\use_hyperref true
+\pdf_author "Maks Verver"
+\pdf_bookmarks false
+\pdf_bookmarksnumbered false
+\pdf_bookmarksopen false
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks false
+\pdf_pdfborder true
+\pdf_colorlinks false
+\pdf_backref false
+\pdf_pdfusetitle true
 \papersize a4paper
 \use_geometry false
 \use_amsmath 1
@@ -44,6 +54,15 @@
 
 \begin_layout Title
 Title goes here
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Chapter
@@ -3529,24 +3548,6 @@ W_{1}=\{v\in V:\;\rho(v)=\top\}\]
  to obtain an optimal strategy.)
 \end_layout
 
-\begin_layout Standard
-The top-level algorithm can now be describe very succinctly (and, unfortunately,
- vaguely) as follows.
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-Pseudo-code
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
 \begin_layout Subsection
 Lifting Strategies
 \end_layout
@@ -3673,17 +3674,19 @@ lifting attempt
 \end_layout
 
 \begin_layout Standard
-If lifting a vertex 
+When a lifting attempt at a vertex 
 \begin_inset Formula $v$
 \end_inset
 
- fails, we will call it (temporarily) stable for the current progress measure.
- A vertex becomes stable indefinitely when it has reached its value in the
- minimum fixed point.
- We try to avoid lifting stable vertices (as this does not progress the
- algorithm) but in many cases we cannot determine whether a vertex is stable
- unless we try to lift it, similar to how we have to try and fail to lift
- some vertices to determine that a minimum fixed point has been reached.
+ does not change its progress measure vector, then we call the vertex (temporari
+ly) stable.
+ Eventually, all vertices in the graph become stable when the minimum fixed
+ point has been reached.
+ In general, we want to avoid trying to lift stable vertices as this doesn't
+ progress the algorithm, but in many cases we do not know whether a vertex
+ is stable or not unless we try to lift it.
+ Typically, we cannot avoid at least one unsuccesful lifting attempt for
+ each vertex in order to prove all progress measures have stabilized.
 \end_layout
 
 \begin_layout Standard
@@ -3760,31 +3763,38 @@ Termination conditions
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-To write: which vertices do we need to lift to verify that we have found
- a fixed point
+As has been mentioned, the decision to terminate the algorithm is made by
+ the lifting strategy.
+ The reason for this is to keep the main algorithm as simple as possible,
+ which is useful because the lifting strategy already keeps track of potentially
+ unstable vertices.
+ A sufficient condition for termination is to verify that there are no 
+\emph on
+dirty
+\emph default
+ vertices, where a vertex is considered dirty if:
 \end_layout
 
-\end_inset
+\begin_layout Enumerate
+it was never selected for lifting, or
+\end_layout
 
+\begin_layout Enumerate
+its last lifting attempt succeeded, or
+\end_layout
 
+\begin_layout Enumerate
+since its last lifting attempt, one of its successors was succesfully lifted.
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-Pseudo-code for core algorithm, which calls lifting strategy to determine
- both next vertex and when to stop.
-\end_layout
-
-\end_inset
-
-
+If the lifting strategy is notified whenever a vertex is lifted, it is easy
+ to keep track of the set of dirty vertices, but usually lifting strategies
+ have enough contextual information to determine when to terminate without
+ maintaining additional data.
+ This is also the reason this functionality is implemented in the lifting
+ strategy rather than the core algorithm, which is oblivious of the implementati
+on details of the various lifting strategies.
 \end_layout
 
 \begin_layout Subsection
@@ -3831,11 +3841,88 @@ The small progress measure vectors themselves are stored simply in a contiguous
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
+The top-level algorithm can now be describe very succinctly as in Algorithm
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "alg:Small-Progress-Measures"
+
+\end_inset
+
+.
+ This algorithm depends entirely on the lifting strategy, both to select
+ a vertex to be lifted, and to determine when the solution is completed.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+wide false
+sideways false
 status open
 
 \begin_layout Plain Layout
-- Insert pseudo-code
+\begin_inset listings
+lstparams "language={C++}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+solve(LiftingStrategy ls) {
+\end_layout
+
+\begin_layout Plain Layout
+
+	while (v = ls.next()) != NO_VERTEX {
+\end_layout
+
+\begin_layout Plain Layout
+
+		if lift(vertex) {
+\end_layout
+
+\begin_layout Plain Layout
+
+			ls.lifted(vertex)
+\end_layout
+
+\begin_layout Plain Layout
+
+		}
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Small Progress Measures 
+\begin_inset CommandInset label
+LatexCommand label
+name "alg:Small-Progress-Measures"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \end_inset
@@ -4429,14 +4516,125 @@ Arguably the most basic lifting strategy is a strategy that simply picks
 l memory, and takes very little time.
  However, the main disadvantage is that it ends up spending a lot of time
  attempting (and failing) to lift vertices in stable parts of the game graph.
+ Algorithm 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "alg:Linear-Lifting-Strategy"
+
+\end_inset
+
+ gives pseudo-code for a simple implementation of this algorithm.
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
+\begin_inset Float algorithm
+wide false
+sideways false
 status open
 
 \begin_layout Plain Layout
-TODO: pseudo-code
+\begin_inset listings
+lstparams "language={C++}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+num_failed = 0
+\end_layout
+
+\begin_layout Plain Layout
+
+next_vertex = 0
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+lifted(Vertex v) {
+\end_layout
+
+\begin_layout Plain Layout
+
+	num_failed = 0
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Vertex next() {
+\end_layout
+
+\begin_layout Plain Layout
+
+	if num_failed >= V {
+\end_layout
+
+\begin_layout Plain Layout
+
+		return NO_VERTEX
+\end_layout
+
+\begin_layout Plain Layout
+
+	} else {
+\end_layout
+
+\begin_layout Plain Layout
+
+		num_failed = num_failed + 1
+\end_layout
+
+\begin_layout Plain Layout
+
+		next_vertex = (next_vertex + 1) mod V
+\end_layout
+
+\begin_layout Plain Layout
+
+		return next_vertex
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Linear Lifting Strategy 
+\begin_inset CommandInset label
+LatexCommand label
+name "alg:Linear-Lifting-Strategy"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \end_inset
@@ -4548,19 +4746,6 @@ The main disadvantage of the lifting strategy is that it requires maintaining
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-TODO: pseudo-code
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
 Weber and Van de Pol call this the 
 \emph on
 work list approach
@@ -4598,6 +4783,192 @@ So this probably means I should try to implement it instead.
 \begin_layout Standard
 In PGSolver, which is limited to single-threaded operation only, the predecessor
  lifting strategy is the only lifting strategy implemented.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "basicstyle={\ttfamily},language={C++}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+queued = Vector<bool>(V)
+\end_layout
+
+\begin_layout Plain Layout
+
+queue = Queue<Vertex>()
+\end_layout
+
+\begin_layout Plain Layout
+
+for 0 <= v < V {
+\end_layout
+
+\begin_layout Plain Layout
+
+	queued[v] = true
+\end_layout
+
+\begin_layout Plain Layout
+
+	queue.push(v)
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+lifted(Vertex v) {
+\end_layout
+
+\begin_layout Plain Layout
+
+	for w in predecessors(v) {
+\end_layout
+
+\begin_layout Plain Layout
+
+		if !queued[w] {
+\end_layout
+
+\begin_layout Plain Layout
+
+			queued[w] = true
+\end_layout
+
+\begin_layout Plain Layout
+
+			queue.push(w)
+\end_layout
+
+\begin_layout Plain Layout
+
+		}
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Vertex next() {
+\end_layout
+
+\begin_layout Plain Layout
+
+	if queue.empty() {
+\end_layout
+
+\begin_layout Plain Layout
+
+		return NO_VERTEX
+\end_layout
+
+\begin_layout Plain Layout
+
+	} else {
+\end_layout
+
+\begin_layout Plain Layout
+
+		v = queue.pop()
+\end_layout
+
+\begin_layout Plain Layout
+
+		queued[v] = false
+\end_layout
+
+\begin_layout Plain Layout
+
+		return v
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Predecessor Lifting Strategy 
+\begin_inset CommandInset label
+LatexCommand label
+name "alg:Predecessor-Lifting-Strategy"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The pseudo-code for the predecessor lifting strategy is given in Algorithm
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "alg:Predecessor-Lifting-Strategy"
+
+\end_inset
+
+ which shows that the main datastructure used is a queue.
+ Crucial to the implementation is that every vertex is queued at most once,
+ which prevents attempted lifting of vertices which are not dirty, and additiona
+lly allows the queue to be implemented as a fixed-length array.
+ Aan invariant is that at any point precisely those vertices are queued
+ which are considered dirty (as described earlier); 
+\begin_inset Formula $\texttt{next()}$
+\end_inset
+
+ simply returns a dirty vertex until the queue becomes empty, at which point
+ all vertices are necessarily stable.
 \end_layout
 
 \begin_layout Standard
@@ -4715,6 +5086,52 @@ Mention constants used?
 
 \end_layout
 
+\begin_layout Standard
+\begin_inset Float algorithm
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "basicstyle={\ttfamily},language={C++}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+TODO -- this is hard to write down concisely
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Focus List Lifting Strategy 
+\begin_inset CommandInset label
+LatexCommand label
+name "alg:Focus-List-Lifting"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Subsection
 Maximum-Measure Propagation
 \end_layout
@@ -4735,9 +5152,16 @@ The maximum-measure propagation strategy is a variant of the predecessor
 Pathological examples can be constructed in which this order of lifting
  provides obvious benefit.
  Specifically, whenever a vertex is known to be won by player Odd (when
- it is assigned top value) all vertices in its attractor set will be set
- to top too, before any other vertices are lifted, since top is the maximal
- value in the graph.
+ it is assigned 
+\begin_inset Formula $\top$
+\end_inset
+
+) all vertices in its attractor set will be set to top too, before any other
+ vertices are lifted, since 
+\begin_inset Formula $\top$
+\end_inset
+
+ is the maximal value in the graph.
  With the normal predecessor lifting strategy, these vertices might have
  been lifted multiple times before inevitably finally reaching top value.
 \end_layout
@@ -4757,9 +5181,233 @@ In practice, maximum-measure propagation is not always strictly better than
 \end_layout
 
 \begin_layout Standard
-In my implementation, the successors (not the vertices themselves) are kept
- in a complete binary heap structure ordered by their progress measure vectors,
- stored in an array of size equal to 
+\begin_inset Float algorithm
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "basicstyle={\ttfamily},language={C++}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+queued = Vector<bool>(V)
+\end_layout
+
+\begin_layout Plain Layout
+
+queue = BinaryHeap<Vertex>()
+\end_layout
+
+\begin_layout Plain Layout
+
+for 0 <= v < V {
+\end_layout
+
+\begin_layout Plain Layout
+
+	queued[v] = true
+\end_layout
+
+\begin_layout Plain Layout
+
+	queue.push(v)
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+lifted(Vertex v) {
+\end_layout
+
+\begin_layout Plain Layout
+
+	queued_predecessors = false
+\end_layout
+
+\begin_layout Plain Layout
+
+	for u in predecessors(v) {
+\end_layout
+
+\begin_layout Plain Layout
+
+		if !is_top(spm[u]) {
+\end_layout
+
+\begin_layout Plain Layout
+
+			queued[u] = true
+\end_layout
+
+\begin_layout Plain Layout
+
+			queued_predecessors = true
+\end_layout
+
+\begin_layout Plain Layout
+
+		}
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+	if queued_predecessors {
+\end_layout
+
+\begin_layout Plain Layout
+
+		queue.push(v)
+\end_layout
+
+\begin_layout Plain Layout
+
+	} else {
+\end_layout
+
+\begin_layout Plain Layout
+
+		queue.pop(v)
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Vertex next() {
+\end_layout
+
+\begin_layout Plain Layout
+
+	while not queue.empty() {
+\end_layout
+
+\begin_layout Plain Layout
+
+		v = queue.top()
+\end_layout
+
+\begin_layout Plain Layout
+
+		for u in predecessors(v) {
+\end_layout
+
+\begin_layout Plain Layout
+
+			if queued[u] {
+\end_layout
+
+\begin_layout Plain Layout
+
+				queued[u] = false
+\end_layout
+
+\begin_layout Plain Layout
+
+				return u
+\end_layout
+
+\begin_layout Plain Layout
+
+			}
+\end_layout
+
+\begin_layout Plain Layout
+
+		}
+\end_layout
+
+\begin_layout Plain Layout
+
+		queue.pop(v)
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+	return NO_VERTEX
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Maximum Measure Lifting Strategy 
+\begin_inset CommandInset label
+LatexCommand label
+name "alg:Maximum-Measure-Lifting"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+An outline of the implementation is given in Algorithm 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "alg:Maximum-Measure-Lifting"
+
+\end_inset
+
+.
+ The successors of queued vertices (not the vertices themselves) are kept
+ in a binary heap structure, ordered by their progress measure vectors,
+ so that the vertex with the largest progress measure vector is at the top
+ of the heap.
+ The heap is stored in a vertex array of size 
 \begin_inset Formula $\left|V\right|$
 \end_inset
 
@@ -4772,17 +5420,29 @@ In my implementation, the successors (not the vertices themselves) are kept
  keeps track of the position of vertices in the heap.
  (Since progress measure vectors are only ever increased, never decreased,
  moving down is not necessary).
- Finally, for each predecessor in the heap I store whether or not it is
- queued in a boolean array of size 
-\begin_inset Formula $\left|V\right|$
+ Finally, for each predecessor in the heap the 
+\begin_inset Formula $\texttt{queued}$
 \end_inset
 
-.
- Whenever a vertex is succesfully lifted, I mark all of its predecessors
- that have not yet been assigned top value as queued.
+ array keeps track of whether it is queued.
+ Whenever a vertex is succesfully lifted, all of its predecessors that have
+ not yet been assigned top value are marked as queued.
  If there are any, then the vertex itself is inserted into the heap or moved
  up from its current position if it is already present.
- If there are none, then the successor vertex is removed.
+ If there are none, then the successor vertex is removed (at this point,
+ the vertex was on top of the heap).
+ It should be noted that the 
+\begin_inset Formula $\texttt{push()}$
+\end_inset
+
+ operation either inserts the vertex into the queue (if it did not exists)
+ or raises it (if it did exist, but its progress measure vector has changed)
+ but does not insert a vertex twice.
+ Similarly, 
+\begin_inset Formula $\texttt{pop()}$
+\end_inset
+
+only removes the vertex if it exists.
 \end_layout
 
 \begin_layout Standard
@@ -4836,12 +5496,20 @@ succesful
 \end_layout
 
 \begin_layout Standard
+As with the predecessor lifting strategies, the 
+\begin_inset Formula $\texttt{queued}$
+\end_inset
+
+ array corresponds with the set of dirty vertices.
+ Since a vertex is only marked as queued when one of its successors is added
+ to the heap, and a vertex is not removed from the heap until none of its
+ predecessors are marked as queued, it follows that if the heap is empty,
+ the dirty set is as well, and in this case the global algorithm terminates.
+\end_layout
+
+\begin_layout Standard
 \begin_inset Note Note
 status open
-
-\begin_layout Plain Layout
-- Pseudo-code
-\end_layout
 
 \begin_layout Plain Layout
 - Worst cases, if different from predecessor lifting?
@@ -4858,16 +5526,6 @@ status open
 
 \begin_layout Subsection
 Two-way SPM 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-Needs a better name?
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Standard

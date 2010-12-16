@@ -31,7 +31,7 @@ verti LinearLiftingStrategy::next()
         vertex_ = NO_VERTEX;
         return NO_VERTEX;
     }
-    ++ failed_lifts_;
+    ++failed_lifts_;
 
     const verti last_vertex = graph_.V() - 1;
     if (last_vertex == 0) return 0;
