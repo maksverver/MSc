@@ -4534,7 +4534,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset listings
-lstparams "language={C++}"
+lstparams "language={C++},tabsize=4"
 inline false
 status open
 
@@ -4793,7 +4793,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset listings
-lstparams "basicstyle={\ttfamily},language={C++}"
+lstparams "basicstyle={\ttfamily},language={C++},tabsize=4"
 inline false
 status open
 
@@ -5014,19 +5014,6 @@ ges of the linear lifting strategy (mainly that it performs a lot of unnecessary
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-mention randomization of work list (vertices are put on work list with p=0.5)
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
 First, the algorithm iterates linearly over the vertices of the graph, putting
  vertices which are succesfully lifted on a fixed-size work list.
  When the work list is full, the second phase begins: vertices on the work
@@ -5074,16 +5061,73 @@ The main downside of the strategy is that it depends on various constants
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-Mention constants used?
-\end_layout
+The implementation of the focus list lifting strategy is described in Algorithm
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "alg:Focus-List-Lifting"
 
 \end_inset
 
+.
+ For clarity, the algorithm is presented as if the strategy calls the 
+\begin_inset Formula $\texttt{lift()}$
+\end_inset
 
+ method directly, instead of being called from the core algorithm; this
+ is the inverse of how the strategy is implemented in reality.
+ (The interaction between the core algorithm and the lifting strategy would
+ best be implemented as a pair of coroutines, but unfortunately few programming
+ languages support coroutines properly.)
+\end_layout
+
+\begin_layout Standard
+Some of the parameters in this algorithm are fixed: the initial credit (here:
+ 2) assigned to vertices on the focus list; the linear increment when lifting
+ succeeds (again, 2); and the exponential decay when it doesn't (here: 
+\begin_inset Formula $\frac{1}{2}$
+\end_inset
+
+).
+ With these parameters, which were taken from Weber & van de Pol's implementatio
+n, a vertex is selected for lifting at least three times, but will stay
+ on the focus list longer if lifting succeeds occassionally (more precesily,
+ it needs to be succesfully lifted at least once every three attempts to
+ stay on the list).
+ The remaining two parameters are 
+\begin_inset Formula $\texttt{max\_size}$
+\end_inset
+
+ and 
+\begin_inset Formula $\texttt{max\_attempts}$
+\end_inset
+
+; the maximum size of the focus list and the maximum number of lifting attempts
+ performed in phase 2 before switching back to phase 1.
+ These parameters can vary, but are chosen as 
+\begin_inset Formula $\frac{\left|V\right|}{10}$
+\end_inset
+
+ and 
+\begin_inset Formula $\left|V\right|$
+\end_inset
+
+ (respectively) by default.
+\end_layout
+
+\begin_layout Standard
+In terms of overhead, the focus list implements a circular buffer with an
+ array of vertex/cost pairs.
+ The size of this array is equal to 
+\begin_inset Formula $\texttt{max\_size}$
+\end_inset
+
+ and this is the main factor in the memory used by the strategy.
+ Otherwise, the focus list lifting strategy has little overhead.
+ In particular, the runtime overhead is smaller than with the predecessor
+ lifting strategy.
+ When the focus list is small, the algorithm additionally benefits from
+ being able to keep the active parts of the game in cache memory.
 \end_layout
 
 \begin_layout Standard
@@ -5094,13 +5138,203 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset listings
-lstparams "basicstyle={\ttfamily},language={C++}"
+lstparams "basicstyle={\ttfamily},language={C++},tabsize=4"
 inline false
 status open
 
 \begin_layout Plain Layout
 
-TODO -- this is hard to write down concisely
+phase = 1
+\end_layout
+
+\begin_layout Plain Layout
+
+num_attempts = 0
+\end_layout
+
+\begin_layout Plain Layout
+
+num_failed = 0
+\end_layout
+
+\begin_layout Plain Layout
+
+next_vertex = 0
+\end_layout
+
+\begin_layout Plain Layout
+
+focus_list = Queue<Pair<Vertex, Int> >
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+while true {
+\end_layout
+
+\begin_layout Plain Layout
+
+	num_attempts = num_attempts + 1
+\end_layout
+
+\begin_layout Plain Layout
+
+	if (phase == 1) {
+\end_layout
+
+\begin_layout Plain Layout
+
+		if lift(next_vertex) {
+\end_layout
+
+\begin_layout Plain Layout
+
+			num_failed = 0
+\end_layout
+
+\begin_layout Plain Layout
+
+			focus_list.push(<next_vertex, 2>)
+\end_layout
+
+\begin_layout Plain Layout
+
+		} else {
+\end_layout
+
+\begin_layout Plain Layout
+
+			num_failed = num_failed + 1
+\end_layout
+
+\begin_layout Plain Layout
+
+		}
+\end_layout
+
+\begin_layout Plain Layout
+
+		next_vertex = (next_vertex + 1) mod V
+\end_layout
+
+\begin_layout Plain Layout
+
+		if num_failed == V {
+\end_layout
+
+\begin_layout Plain Layout
+
+			break
+\end_layout
+
+\begin_layout Plain Layout
+
+		}
+\end_layout
+
+\begin_layout Plain Layout
+
+		if num_attempts == V || focus_list.size() == max_size {
+\end_layout
+
+\begin_layout Plain Layout
+
+			/* N.B.
+ focus_list is non-empty because
+\end_layout
+
+\begin_layout Plain Layout
+
+			        num_failed < num_attempts */
+\end_layout
+
+\begin_layout Plain Layout
+
+			phase = 2
+\end_layout
+
+\begin_layout Plain Layout
+
+			num_attempts = 0
+\end_layout
+
+\begin_layout Plain Layout
+
+		}
+\end_layout
+
+\begin_layout Plain Layout
+
+	} else {  /* phase == 2 */
+\end_layout
+
+\begin_layout Plain Layout
+
+		v, credit = focus_list.pop()
+\end_layout
+
+\begin_layout Plain Layout
+
+		if lift(v) {
+\end_layout
+
+\begin_layout Plain Layout
+
+			focus_list.push(<v, credit + 2>)
+\end_layout
+
+\begin_layout Plain Layout
+
+		} else if (credit > 0) {
+\end_layout
+
+\begin_layout Plain Layout
+
+			focus_list.push(<v, credit / 2>)
+\end_layout
+
+\begin_layout Plain Layout
+
+		}
+\end_layout
+
+\begin_layout Plain Layout
+
+		if focus_list.empty() || num_attempts == max_attempts {
+\end_layout
+
+\begin_layout Plain Layout
+
+			focus_list.clear()
+\end_layout
+
+\begin_layout Plain Layout
+
+			phase = 1
+\end_layout
+
+\begin_layout Plain Layout
+
+			num_attempts = 0
+\end_layout
+
+\begin_layout Plain Layout
+
+		}
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+} 
 \end_layout
 
 \end_inset
@@ -5188,7 +5422,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset listings
-lstparams "basicstyle={\ttfamily},language={C++}"
+lstparams "basicstyle={\ttfamily},language={C++},tabsize=4"
 inline false
 status open
 
@@ -5404,9 +5638,9 @@ reference "alg:Maximum-Measure-Lifting"
 
 .
  The successors of queued vertices (not the vertices themselves) are kept
- in a binary heap structure, ordered by their progress measure vectors,
- so that the vertex with the largest progress measure vector is at the top
- of the heap.
+ in a complete binary heap structure, ordered by their progress measure
+ vectors, so that the vertex with the largest progress measure vector is
+ at the top of the heap.
  The heap is stored in a vertex array of size 
 \begin_inset Formula $\left|V\right|$
 \end_inset
@@ -5849,8 +6083,8 @@ key "zielonka1998igf"
 \end_inset
 
 .
- It is presented solely as a proof, not as an efficient algorithm, but it
- was discovered 
+ It is presented solelby as a proof, not as an efficient algorithm, but
+ it was discovered 
 \begin_inset Note Note
 status open
 

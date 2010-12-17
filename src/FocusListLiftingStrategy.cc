@@ -30,47 +30,44 @@ void FocusListLiftingStrategy::lifted(verti vertex)
     if (phase_ == 1)
     {
         lls_.lifted(vertex);
-        // FIXME: is this random factor necessary? If so, document in thesis.
-        // if (rand()%2)
+        if (focus_list_.size() < focus_list_.capacity())
         {
             focus_list_.push_back(std::make_pair(vertex, initial_credit));
-            if (focus_list_.size() == focus_list_.capacity())
-            {
-                switch_to_phase(2);
-            }
         }
     }
     else /* phase_ == 2 */
     {
-        if (vertex == read_pos_->first)
-        {
-            prev_lifted_ = true;
-        }
+        if (vertex == read_pos_->first) prev_lifted_ = true;
     }
-}
-
-void FocusListLiftingStrategy::switch_to_phase(int new_phase)
-{
-    num_lift_attempts_ = 0;
-    if (new_phase == 2)
-    {
-        info("Switching to focus list of size %d.", (int)focus_list_.size());
-        read_pos_ = write_pos_ = focus_list_.begin();
-    }
-    phase_ = new_phase;
 }
 
 verti FocusListLiftingStrategy::next()
 {
-    return phase_ == 1 ? phase1() : phase2();
+    verti res =  phase_ == 1 ? phase1() : phase2();
+    ++num_lift_attempts_;
+    return res;
 }
 
 verti FocusListLiftingStrategy::phase1()
 {
-    if (++num_lift_attempts_ >= graph_.V() && !focus_list_.empty())
+    if (focus_list_.size() == focus_list_.capacity() ||
+        num_lift_attempts_ >= graph_.V())
     {
-        switch_to_phase(2);
+        if (focus_list_.empty())
+        {
+            /* This can only happen if lls_.num_failed >= graph_.V() too */
+            assert(lls_.next() == NO_VERTEX);
+            return NO_VERTEX;
+        }
+
+        /* Switch to phase 2: */
+        phase_ = 2;
+        num_lift_attempts_ = 0;
+        read_pos_ = write_pos_ = focus_list_.begin();
+        info("Switching to focus list of size %d.", (int)focus_list_.size());
+        return phase2();
     }
+
     return lls_.next();
 }
 
@@ -94,31 +91,29 @@ verti FocusListLiftingStrategy::phase2()
         // else, drop from list.
     }
 
-    // Check if we've reached the end of the focus list
+    // Check if we've reached the end of the focus list; if so, restart:
     if (read_pos_ == focus_list_.end())
     {
         focus_list_.erase(write_pos_, focus_list_.end());
+        read_pos_ = write_pos_ = focus_list_.begin();
+    }
+
+    if (focus_list_.empty() || num_lift_attempts_ >= max_lift_attempts_)
+    {
         if (focus_list_.empty())
         {
-            // Back to phase 1:
             info("Focus list exhausted.");
-            switch_to_phase(1);
-            return phase1();
         }
         else
         {
-            // Restart at the beginning:
-            read_pos_ = write_pos_ = focus_list_.begin();
+            info( "Maximum lift attempts (%lld) on focus list reached.",
+                max_lift_attempts_ );
+            focus_list_.clear();
         }
-    }
 
-    if (++num_lift_attempts_ >= max_lift_attempts_)
-    {
-        // Clear focus list and move back to phase 1:
-        focus_list_.clear();
-        info( "Maximum lift attempts (%lld) on focus list reached.",
-              max_lift_attempts_ );
-        switch_to_phase(1);
+        /* Switch to phase 1 */
+        phase_ = 1;
+        num_lift_attempts_ = 0;
         return phase1();
     }
 

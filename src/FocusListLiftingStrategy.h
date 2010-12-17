@@ -43,7 +43,6 @@ public:
     bool max_size() const { return focus_list_.capacity(); }
 
 protected:
-    void switch_to_phase(int new_phase);
     verti phase1();
     verti phase2();
 
