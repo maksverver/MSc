@@ -35,7 +35,7 @@ LDLIBS=-lrt
 
 ifdef WITH_MPI
 CFLAGS:=$(CFLAGS) -DWITH_MPI
-OBJS:=$(OBJS) MpiRecursiveSolver.o
+OBJS:=$(OBJS) GamePartition.o MpiRecursiveSolver.o
 endif
 
 ifndef WITH_MCRL2
