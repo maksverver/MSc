@@ -666,6 +666,14 @@ int main(int argc, char *argv[])
 
     parse_args(argc, argv);
 
+    if (arg_mpi)
+    {
+        // Make stderr line-buffered to avoid interleaving of log output
+        // from different MPI processes.
+        static char stderr_buf[1024];
+        setvbuf(stderr, stderr_buf, _IOLBF, sizeof(stderr_buf));
+    }
+
     ParityGame game;
     if (!read_input(game))
     {
@@ -812,6 +820,15 @@ int main(int argc, char *argv[])
 
         // Now solve the game:
         ParityGame::Strategy strategy = solver->solve();
+
+#ifdef WITH_MPI
+        if (mpi_rank > 0)
+        {
+            // Join processes here, to avoid writing output multiple times.
+            MPI::Finalize();
+            return EXIT_SUCCESS;
+        }
+#endif
 
         failed = strategy.empty();
 

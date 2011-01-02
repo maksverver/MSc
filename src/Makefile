@@ -29,7 +29,8 @@ OBJS= \
 	SmallProgressMeasures.o \
 	timing.o
 
-CFLAGS=-Wall -O0  # DEBUG! was: -O2
+CFLAGS=-Wall -O2
+#CFLAGS:=$(CFLAGS) -O0 -D_GLIBCXX_DEBUG  # additional debug flags
 LDLIBS=-lrt
 
 ifdef WITH_MPI

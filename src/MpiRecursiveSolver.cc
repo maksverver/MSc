@@ -14,6 +14,9 @@
 #include <set>
 #include <utility>
 #include <vector>
+#include <sstream>  // debug
+
+// TODO: make GamePartition's members private
 
 /* A game partition is a subgame induced by a starting set of internal vertices
    extended with all vertices that share an edge with an internal vertex.
@@ -38,11 +41,11 @@ public:
         for (std::vector<verti>::const_iterator it = intern.begin();
              it != intern.end(); ++it)
         {
-            // Add successors of internal vertices
-            for (StaticGraph::const_iterator jt = old_game.graph().succ_begin(*it);
-                 jt != old_game.graph().succ_end(*it); ++jt) verts.push_back(*jt);
-
             // Add predecessors of internal vertices
+            for (StaticGraph::const_iterator jt = old_game.graph().pred_begin(*it);
+                 jt != old_game.graph().pred_end(*it); ++jt) verts.push_back(*jt);
+
+            // Add successors of internal vertices
             for (StaticGraph::const_iterator jt = old_game.graph().succ_begin(*it);
                  jt != old_game.graph().succ_end(*it); ++jt) verts.push_back(*jt);
         }
@@ -60,37 +63,73 @@ public:
         internal = intern;
         for ( std::vector<verti>::iterator it = internal.begin();
               it != internal.end(); ++it ) *it = local[*it];
+
+        // FIXME?  We are currently storing successor/predecessor edges for
+        //         external vertices too, but these are never used!
     }
 
     /*! Constructs a partition as the intersection of an existing partition with
         a vertex subset. */
     GamePartition(const GamePartition &part, const std::vector<verti> &verts)
     {
-        game.make_subgame(part.game, verts.begin(), verts.end());
-        global.resize(verts.size());
-        for (verti i = 0; i < (verti)verts.size(); ++i)
-        {
-            global[i] = part.global[verts[i]];
-            local[global[i]] = i;
-        }
-
-        // The tricky part: the internal vertex subset!
         std::set_intersection( verts.begin(), verts.end(),
                                part.internal.begin(), part.internal.end(),
                                std::back_inserter(internal) );
-        // Intersection works, but now we have to remap internal indices from
-        // the outer to the inner partition. The following works, but is a bit
-        // expensive: (FIXME: make more efficient without breaking it!)
+
+        // FIXME: we need to remove vertices that do not have any edges incident
+        //        to the internal vertex set, but this is a bit ugly:
+        const StaticGraph &g = part.game.graph();
+        HASH_SET(verti) used(internal.begin(), internal.end());
+        std::vector<verti> new_verts;
+        for (std::vector<verti>::const_iterator it = verts.begin();
+                it != verts.end(); ++it)
+        {
+            verti v = *it;
+            bool found = used.find(v) != used.end();
+            for (StaticGraph::const_iterator it = g.succ_begin(v);
+                    !found && it != g.succ_end(v); ++it)
+            {
+                if (used.find(*it) != used.end()) found = true;
+            }
+            for (StaticGraph::const_iterator it = g.pred_begin(v);
+                    !found && it != g.pred_end(v); ++it)
+            {
+                if (used.find(*it) != used.end()) found = true;
+            }
+            if (found) new_verts.push_back(v);
+        }
+
+        game.make_subgame(part.game, new_verts.begin(), new_verts.end());
+        global.resize(new_verts.size());
+        for (verti i = 0; i < (verti)new_verts.size(); ++i)
+        {
+            global[i] = part.global[new_verts[i]];
+            local[global[i]] = i;
+        }
+
+        // Map internal vertices to new local indices.
+        // FIXME: is there a more efficient way to do this?
         for ( std::vector<verti>::iterator it = internal.begin();
               it != internal.end(); ++it ) *it = local[part.global[*it]];
+
+        // DEBUG: check consistency of vertex index mapping
+        /*
+        for (verti i = 0; i < (verti)new_verts.size(); ++i)
+        {
+            assert(local[global[i]] == i);
+        }
+        for (HASH_MAP(verti, verti)::const_iterator it = local.begin();
+             it != local.end(); ++it)
+        {
+            assert(global[it->second] == it->first);
+        }
+        */
     }
 
     ParityGame game;                 //! Local subgame
     std::vector<verti> internal;     //! Local indices of internal vertex set
     std::vector<verti> global;       //! Local to global vertex index map
     HASH_MAP(verti, verti) local;    //! Global to local vertex index map
-
-private:
 };
 
 MpiRecursiveSolver::MpiRecursiveSolver(const ParityGame &game)
@@ -127,10 +166,30 @@ ParityGame::Strategy MpiRecursiveSolver::solve()
 
     if (mpi_rank == 0)
     {
-        // construct complete strategy -- TODO!
+        debug("Combining strategy...");
+        for (verti v = 0; v < V; ++v)
+        {
+            int i = worker(v);
+            if (i != mpi_rank)
+            {
+                int val = -1;
+                MPI::Status status;
+                MPI::COMM_WORLD.Recv(&val, 1, MPI_INT, i, 0, status);
+                strategy_[v] = (verti)val;
+            }
+        }
     }
     else
     {
+        for (verti v = 0; v < V; ++v)
+        {
+            if (worker(v) == mpi_rank)
+            {
+                int val = strategy_[v];
+                MPI::COMM_WORLD.Send(&val, 1, MPI_INT, 0, 0);
+            }
+        }
+
         // Clear strategy
         ParityGame::Strategy empty;
         strategy_.swap(empty);
@@ -149,13 +208,13 @@ static std::vector<verti> collect_complement(std::vector<char> &incl)
     return res;
 }
 
-/*! Calculates the size of a set represented as a binary vector (i.e. the number
-    of non-zero entries in the argument). Used mainly for debugging. */
-static size_t set_size(const std::vector<char> &incl)
+/*! Counts how many of the internal vertices of the given game partition are
+    in the set described by `incl' (a binary vector). Used for debugging. */
+static size_t set_size(const GamePartition &part, const std::vector<char> &incl)
 {
     size_t size = 0;
-    for ( std::vector<char>::const_iterator it = incl.begin();
-          it != incl.end(); ++it ) if (*it) ++size;
+    for (std::vector<verti>::const_iterator it = part.internal.begin();
+         it != part.internal.end(); ++it) if (incl[*it]) ++size;
     return size;
 }
 
@@ -177,8 +236,20 @@ void MpiRecursiveSolver::solve(const GamePartition &part, int min_prio)
 
     assert(min_prio < part.game.d());
 
+    //debug("enter V=%d min_prio=%d", mpi_sum((int)part.internal.size()), min_prio);
+
+    // Debug-print vertices in game partition:
+    /*
+    std::ostringstream oss_all;
+    std::ostringstream oss_intern;
+    for (verti v = 0; v < V; ++v) oss_all << ' ' << part.global[v];
+    for (std::vector<verti>::const_iterator it = part.internal.begin();
+         it != part.internal.end(); ++it) oss_intern << ' ' << part.global[*it];
+    debug("all: %s  internal: %s", oss_all.str().c_str(), oss_intern.str().c_str());
+    */
+
     // For debugging: sanity-check game partition:
-    // FIXME: be sure to comment this out later!
+    /*
     assert(part.game.graph().V() == part.global.size());
     for (verti v = 0; v < V; ++v)
     {
@@ -186,6 +257,7 @@ void MpiRecursiveSolver::solve(const GamePartition &part, int min_prio)
         assert(part.game.priority(v) == game_.priority(part.global[v]));
         assert(part.game.player(v)   == game_.player(part.global[v]));
     }
+    */
 
     if (part.game.d() - min_prio == 1)
     {
@@ -205,11 +277,9 @@ void MpiRecursiveSolver::solve(const GamePartition &part, int min_prio)
                 strategy_[v] = NO_VERTEX;
             }
         }
-        info("V=%d min_prio=%d", mpi_sum((int)part.internal.size()), min_prio);
+        //debug("leave1 V=%d min_prio=%d", mpi_sum((int)part.internal.size()), min_prio);
         return;
     }
-
-    info("enter V=%d min_prio=%d", mpi_sum((int)part.internal.size()), min_prio);
 
     // Find attractor set of vertices with minimum priority
     std::vector<char> min_prio_attr(V, 0);
@@ -223,15 +293,13 @@ void MpiRecursiveSolver::solve(const GamePartition &part, int min_prio)
             min_prio_attr_queue.push_back(*it);
         }
     }
-#if 0
     // TODO: Optimization: since priorities of external vertices are known
     // locally, we can add them to the set if necessary without exchanging
     // data with other processes (compare with lost_attr below) but this
     // requires a change to make_attractor_set() too.
-#endif
-    info("|min_prio|=%d", mpi_sum((int)min_prio_attr_queue.size()));
+    debug("|min_prio|=%d", mpi_sum((int)min_prio_attr_queue.size()));
     make_attractor_set(part, player, min_prio_attr, min_prio_attr_queue);
-    info("|min_prio_attr|=%d", mpi_sum((int)set_size(min_prio_attr)));
+    debug("|min_prio_attr|=%d", mpi_sum((int)set_size(part, min_prio_attr)));
 
     std::vector<verti> unsolved = collect_complement(min_prio_attr);
     if (mpi_sum(int(!unsolved.empty())) != 0)
@@ -248,7 +316,10 @@ void MpiRecursiveSolver::solve(const GamePartition &part, int min_prio)
         {
             if (game_.winner(strategy_, subpart.global[*it]) == opponent)
             {
-                verti v = unsolved[*it];
+                HASH_MAP(verti, verti)::const_iterator
+                    jt = part.local.find(subpart.global[*it]);
+                assert(jt != part.local.end());
+                verti v = jt->second;
                 lost_attr[v] = 1;
                 lost_attr_queue.push_back(v);
             }
@@ -258,9 +329,9 @@ void MpiRecursiveSolver::solve(const GamePartition &part, int min_prio)
         if (mpi_sum(int(!lost_attr_queue.empty())) != 0)
         {
             // Create subgame with vertices not yet lost to opponent:
-            info("|lost|=%d", mpi_sum((int)lost_attr_queue.size()));
+            debug("|lost|=%d", mpi_sum((int)lost_attr_queue.size()));
             make_attractor_set(part, opponent, lost_attr, lost_attr_queue);
-            info("|lost_attr|=%d", mpi_sum((int)set_size(lost_attr)));
+            debug("|lost_attr|=%d", mpi_sum((int)set_size(part, lost_attr)));
 
             std::vector<verti> not_lost = collect_complement(lost_attr);
             if (mpi_sum(int(!not_lost.empty())) != 0)
@@ -269,15 +340,13 @@ void MpiRecursiveSolver::solve(const GamePartition &part, int min_prio)
                 //       depth to game.d() and to reduce memory use.
                 GamePartition subpart(part, not_lost);
                 solve(subpart, min_prio);
-                Logger::info("leave1 V=%d min_prio=%d",
-                    mpi_sum((int)part.internal.size()), min_prio);
+                //debug("leave2 V=%d min_prio=%d", mpi_sum((int)part.internal.size()), min_prio);
                 return;
             }
             else
             {
                 // All vertices are lost. Don't recurse.
-                Logger::info("leave2 V=%d min_prio=%d",
-                    mpi_sum((int)part.internal.size()), min_prio);
+                //debug("leave3 V=%d min_prio=%d", mpi_sum((int)part.internal.size()), min_prio);
                 return;
             }
         }
@@ -311,15 +380,14 @@ void MpiRecursiveSolver::solve(const GamePartition &part, int min_prio)
         }
     }
 
-    Logger::info("leave3 V=%d min_prio=%d",
-        mpi_sum((int)part.internal.size()), min_prio);
+    //debug("leave4 V=%d min_prio=%d", mpi_sum((int)part.internal.size()), min_prio);
 }
 
 void MpiRecursiveSolver::mpi_exchange_queues(
     const GamePartition &part, const std::vector<verti> &queue,
     std::vector<char> &attr, std::vector<verti> &next_queue )
 {
-    // FIXME: this method can probably be optimized considerably.
+    // FIXME: this method can probably be optimized somehow.
 
     const StaticGraph &graph = part.game.graph();
     for (int i = 0; i < mpi_size; ++i)
@@ -333,14 +401,22 @@ void MpiRecursiveSolver::mpi_exchange_queues(
                      it != queue.end(); ++it)
                 {
                     assert(attr[*it]);
+                    bool found = false;
                     for (StaticGraph::const_iterator jt = graph.pred_begin(*it);
-                         jt != graph.pred_end(*it); ++jt)
+                         !found && jt != graph.pred_end(*it); ++jt)
                     {
-                        if (worker(*jt) == j)
-                        {
-                            int val = (int)part.global[*it];
-                            MPI::COMM_WORLD.Send(&val, 1, MPI_INT, j, 0);
-                        }
+                        if (worker(part.global[*jt]) == j) found = true;
+                    }
+                    for (StaticGraph::const_iterator jt = graph.succ_begin(*it);
+                         !found && jt != graph.succ_end(*it); ++jt)
+                    {
+                        if (worker(part.global[*jt]) == j) found = true;
+                    }
+                    if (found)
+                    {
+                        int val = (int)part.global[*it];
+                        MPI::COMM_WORLD.Send(&val, 1, MPI_INT, j, 0);
+                        //debug("sending %d to %d", val, j);
                     }
                 }
                 int val = -1;
@@ -356,6 +432,7 @@ void MpiRecursiveSolver::mpi_exchange_queues(
                     MPI::Status status;
                     MPI::COMM_WORLD.Recv(&val, 1, MPI_INT, i, 0, status);
                     if (val == -1) break;
+                    //debug("received %d from %d", val, i);
                     HASH_MAP(verti, verti)::const_iterator
                         it = part.local.find(val);
                     assert(it != part.local.end());
@@ -375,7 +452,6 @@ void MpiRecursiveSolver::make_attractor_set(
 {
     // Offset into `queue' where local entries (internal vertices) begin:
     size_t local_begin = 0;
-
     while (mpi_sum((int)queue.size()) > 0)
     {
         // Calculate maximal internal attractor set
@@ -393,7 +469,7 @@ void MpiRecursiveSolver::make_attractor_set(
                 // FIXME: this is a bit of a hack! The intent is to process
                 //        internal vertices only, but `part' doesn't store
                 //        any info to quickly decide this.
-                if (worker(v) != mpi_rank) continue;
+                if (worker(part.global[v]) != mpi_rank) continue;
 
                 if (part.game.player(v) == player)
                 {
@@ -412,24 +488,23 @@ void MpiRecursiveSolver::make_attractor_set(
                     // Store strategy for opponent-controlled vertex:
                     strategy_[part.global[v]] = NO_VERTEX;
                 }
-
-Logger::info("adding %d (player %d outdeg %d) because of %d", v, (int)part.game.player(v), (int)graph.outdegree(v), w);
-
                 // Add vertex v to the attractor set:
                 attr[v] = true;
                 queue.push_back(v);
+                //debug("added %d to attractor set", part.global[v]);
 
             skip_v:
                 continue;
             }
         }
-
         // Synchronize with other processes, obtaining a fresh queue of
         // external vertices that were added in parallel:
         queue.erase(queue.begin(), queue.begin() + local_begin);
+        //debug("queue size: %d", queue.size());
         std::vector<verti> next_queue;
         mpi_exchange_queues(part, queue, attr, next_queue);
         next_queue.swap(queue);
+        //debug("next queue size: %d", queue.size());
         local_begin = queue.size();
     }
 }
