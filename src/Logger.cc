@@ -23,6 +23,10 @@ void Logger::print_message(Severity severity, const char *fmt, va_list ap)
 #ifdef USE_TIMER
     fprintf(stderr, "[%7.3f] ", timer_.elapsed());
 #endif
+#ifdef WITH_MPI
+    extern int mpi_rank, mpi_size;
+    if (mpi_size > 1) fprintf(stderr, "(%d/%d) ", mpi_rank, mpi_size);
+#endif
     switch (severity)
     {
     case LOG_WARN:  fprintf(stderr, "WARNING: "); break;

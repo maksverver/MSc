@@ -40,6 +40,22 @@ typedef unsigned short          compat_uint16_t;
 typedef unsigned int            compat_uint32_t;
 typedef unsigned long long      compat_uint64_t;
 
+/* Integer limits, assuming 8-bit bytes and 4-byte integers. */
+#ifdef INT_MAX
+    #if INT_MAX - 0x7fffffff
+        #error "Unexpected value for MAX_INT!"
+    #endif
+#else
+    #define INT_MAX 0x7fffffff
+#endif
+#ifdef INT_MIN
+    #if INT_MIN - -0x800000000
+        #error "Unexpected value for MAX_INT!"
+    #endif
+#else
+    #define INT_MIN -0x800000000
+#endif
+
 /* Case-insensitive string comparison functions.
    redefined here to support non-POSIX platforms. */
 int compat_strcasecmp(const char *s1, const char *s2);

@@ -1,5 +1,10 @@
+# N.B. this Makefile uses gmake conditionals
+
 # set this to 1 to compile in support for mCRL2 (and link to mCRL2 libs)
 WITH_MCRL2=
+
+# set this to 1 to compile in support for MPI
+WITH_MPI=1
 
 OBJS= \
 	Abortable.o \
@@ -24,11 +29,16 @@ OBJS= \
 	SmallProgressMeasures.o \
 	timing.o
 
-CFLAGS=-Wall -O2
+CFLAGS=-Wall -O0  # DEBUG! was: -O2
 LDLIBS=-lrt
 
+ifdef WITH_MPI
+CFLAGS:=$(CFLAGS) -DWITH_MPI
+OBJS:=$(OBJS) MpiRecursiveSolver.o
+endif
+
 ifndef WITH_MCRL2
-CFLAGS:=$(CFLAGS) -Wextra -DUSE_TIMER
+CFLAGS:=$(CFLAGS) -Wextra -DUSE_TIMER 
 endif
 
 ifdef WITH_MCRL2
@@ -37,6 +47,11 @@ CFLAGS:=$(CFLAGS) -DWITH_MCRL2=$(WITH_MCRL2) \
 	-I../../mcrl2/include/aterm \
 	-I../../mcrl2/include/mcrl2/atermpp
 LDLIBS:=$(LDLIBS) -L../../mcrl2/lib/mcrl2 -lmcrl2_core -lmcrl2_data -laterm
+endif
+
+ifdef WITH_MPI
+CC=mpicc
+CXX=mpicxx
 endif
 
 CXXFLAGS:=$(CFLAGS)

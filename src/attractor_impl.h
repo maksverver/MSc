@@ -18,6 +18,8 @@ void make_attractor_set( const ParityGame &game, ParityGame::Player player,
     return make_attractor_set(game, player, vertices, todo, strategy);
 }
 
+#include "Logger.h"
+
 template<class SetT, class DequeT>
 void make_attractor_set( const ParityGame &game, ParityGame::Player player,
     SetT &vertices, DequeT &todo, ParityGame::Strategy *strategy )
@@ -43,7 +45,7 @@ void make_attractor_set( const ParityGame &game, ParityGame::Player player,
                 // Store strategy for player-controlled vertex:
                 if (strategy) (*strategy)[v] = w;
             }
-            else  // game.player(v) != player
+            else  // opponent controls vertex
             {
                 // Can the opponent keep the token out of the attractor set?
                 for (StaticGraph::const_iterator jt = graph.succ_begin(v);
@@ -52,7 +54,7 @@ void make_attractor_set( const ParityGame &game, ParityGame::Player player,
                     if (vertices.find(*jt) == vertices.end()) goto skip_v;
                 }
 
-                // Store strategy for owner-controlled vertex:
+                // Store strategy for opponent-controlled vertex:
                 if (strategy) (*strategy)[v] = NO_VERTEX;
             }
 

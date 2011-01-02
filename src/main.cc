@@ -43,6 +43,14 @@
 #include <signal.h>
 #endif
 
+#ifdef WITH_MPI
+#include <mpi.h>
+int mpi_rank;  //! rank of this process in the global MPI process group
+int mpi_size;  //! number of processes in the global MPI process group
+
+#include "MpiRecursiveSolver.h"
+#endif
+
 #define strcasecmp compat_strcasecmp
 
 
@@ -75,6 +83,7 @@ static int          arg_random_priorities     =      20;
 static int          arg_timeout               =       0;
 static bool         arg_verify                = false;
 static bool         arg_zielonka              = false;
+static bool         arg_mpi                   = false;
 
 static const double MB = 1048576.0;  // one megabyte
 
@@ -131,6 +140,7 @@ static void print_usage()
 "  --timeout/-t <t>       abort solving after <t> seconds\n"
 "  --verify/-V            verify solution after solving\n"
 "  --zielonka/-z          use Zielonka's recursive algorithm\n"
+"  --mpi                  solve in parallel using MPI\n"
 "  --verbosity/-v         message verbosity (0-6; default: 4)\n"
 "  --quiet/-q             no messages (equivalent to -v0)\n"
 "  --hot/-H <file>        write 'hot' vertices in GraphViz format to <file>\n"
@@ -162,6 +172,7 @@ static void parse_args(int argc, char *argv[])
         { "timeout",    1, NULL, 't' },
         { "verify",     0, NULL, 'V' },
         { "zielonka",   0, NULL, 'z' },
+        { "mpi",        0, NULL,  9  },
         { "verbosity",  1, NULL, 'v' },
         { "quiet",      0, NULL, 'q' },
         { "hot",        1, NULL, 'H' },
@@ -305,6 +316,10 @@ static void parse_args(int argc, char *argv[])
 
         case 'z':   /* use Zielonka's algorithm instead of SPM */
             arg_zielonka = true;
+            break;
+
+        case 9:     /* parallize solving with MPI */
+            arg_mpi = true;
             break;
 
         case 'v':   /* set logger severity to (NONE - verbosity) */
@@ -643,8 +658,13 @@ int main(int argc, char *argv[])
     MCRL2_ATERMPP_INIT(argc, argv);
 #endif
 
-    parse_args(argc, argv);
+#ifdef WITH_MPI
+    MPI::Init(argc, argv);
+    mpi_rank = MPI::COMM_WORLD.Get_rank();
+    mpi_size = MPI::COMM_WORLD.Get_size();
+#endif
 
+    parse_args(argc, argv);
 
     ParityGame game;
     if (!read_input(game))
@@ -703,6 +723,17 @@ int main(int argc, char *argv[])
     else
     {
         std::auto_ptr<LiftingStatistics> stats;
+        if (arg_mpi && !arg_zielonka)
+        {
+            Logger::fatal("Only Zielonka's algorithm supports MPI!");
+        }
+
+#ifndef WITH_MPI
+        if (!arg_mpi)
+        {
+            Logger::fatal("MPI support was not compiled in!");
+        }
+#endif
 
         // Allocate lifting strategy:
         std::auto_ptr<LiftingStrategyFactory> spm_strategy;
@@ -730,7 +761,16 @@ int main(int argc, char *argv[])
         // Create recursive solver factory if requested:
         if (arg_zielonka)
         {
-            solver_factory.reset(new RecursiveSolverFactory());
+            if (!arg_mpi)
+            {
+                solver_factory.reset(new RecursiveSolverFactory());
+            }
+#ifdef WITH_MPI
+            else
+            {
+                solver_factory.reset(new MpiRecursiveSolverFactory());
+            }
+#endif
         }
 
         if (arg_timeout > 0) set_timeout(arg_timeout);
@@ -845,6 +885,10 @@ int main(int argc, char *argv[])
     }
 
     Logger::info("Exiting.");
+
+#ifdef WITH_MPI
+    MPI::Finalize();
+#endif
 
     return failed ? EXIT_FAILURE : EXIT_SUCCESS;
 }

@@ -10,7 +10,7 @@
 #include "RecursiveSolver.h"
 #include "attractor.h"
 #include <set>
-#include "assert.h"
+#include <assert.h>
 
 template<class T>
 static size_t memory_use(const std::vector<T> &v)
@@ -56,6 +56,8 @@ ParityGame::Strategy RecursiveSolver::solve()
     return solve(game(), 0);
 }
 
+#include "Logger.h"  // for debug
+
 ParityGame::Strategy RecursiveSolver::solve(const ParityGame &game, int min_prio)
 {
     assert(min_prio < game.d());
@@ -75,8 +77,11 @@ ParityGame::Strategy RecursiveSolver::solve(const ParityGame &game, int min_prio
         {
             if (game.player(v) == player) strategy[v] = *graph.succ_begin(v);
         }
+        //Logger::info("V=%d min_prio=%d", (int)V, min_prio);
         return strategy;
     }
+
+    //Logger::info("enter V=%d min_prio=%d", (int)V, min_prio);
 
     // Degenerate case: no vertices with this priority exist:
     if (game.cardinality(min_prio) == 0) return solve(game, min_prio + 1);
@@ -90,8 +95,10 @@ ParityGame::Strategy RecursiveSolver::solve(const ParityGame &game, int min_prio
         assert(game.priority(v) >= min_prio);
         if (game.priority(v) == min_prio) min_prio_attr.insert(v);
     }
+    //Logger::info("|min_prio|=%d", (int)min_prio_attr.size());
     assert(!min_prio_attr.empty());
     make_attractor_set(game, player, min_prio_attr, &strategy);
+    //Logger::info("|min_prio_attr|=%d", (int)min_prio_attr.size());
 
     // Compute attractor set of vertices lost to the opponent:
     std::set<verti> lost_attr;
@@ -125,7 +132,9 @@ ParityGame::Strategy RecursiveSolver::solve(const ParityGame &game, int min_prio
                 lost_attr.insert(unsolved[v]);
             }
         }
+        //Logger::info("|lost|=%d", (int)lost_attr.size());
         make_attractor_set(game, opponent, lost_attr, &strategy);
+        //Logger::info("|lost_attr|=%d", (int)lost_attr.size());
     }
 
     if (lost_attr.empty())  // whole game won by current player!
@@ -159,6 +168,7 @@ ParityGame::Strategy RecursiveSolver::solve(const ParityGame &game, int min_prio
         merge_strategies(strategy, substrat, unsolved);
     }
 
+    //Logger::info("leave V=%d min_prio=%d", (int)V, min_prio);
     return strategy;
 }
 

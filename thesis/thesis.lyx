@@ -6405,12 +6405,65 @@ status open
 \end_layout
 
 \begin_layout Chapter
+Empirical Evaluation
+\end_layout
+
+\begin_layout Standard
+In 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "friedmann2009solving"
+
+\end_inset
+
+, Friedmann & Lange report on an emperical evaluation of their parity game
+ solver on a variety of problems.
+ They report the results for three major algorithms: Jurdziński's small
+ progress measures algorithm, Zielonka's recursive algorithm and Jurdziński
+ & Vöge's strategy improvement algorithm.
+ Their solver is written in OCaml and does not support concurrency.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Copy description of games from log (Sunday 19 December)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Chapter
 TODO LIST
 \end_layout
 
 \begin_layout Standard
 \begin_inset Note Note
 status open
+
+\begin_layout Plain Layout
+- replace 
+\begin_inset Quotes eld
+\end_inset
+
+degree
+\begin_inset Quotes erd
+\end_inset
+
+ (of a parity game) by 
+\begin_inset Quotes eld
+\end_inset
+
+index
+\begin_inset Quotes erd
+\end_inset
+
+, which is the term used by Piterman and by Lange
+\end_layout
 
 \begin_layout Plain Layout
 - identify and label lemma's so I can refer to them more easily
