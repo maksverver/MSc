@@ -15,9 +15,6 @@
 #include <set>
 #include <utility>
 #include <vector>
-#include <sstream>  // debug
-
-// TODO: make GamePartition's members private
 
 MpiRecursiveSolver::MpiRecursiveSolver(const ParityGame &game)
     : ParityGameSolver(game)
@@ -51,6 +48,13 @@ ParityGame::Strategy MpiRecursiveSolver::solve()
     GamePartition partition(game(), verts);
     solve(partition, 0);
 
+    ParityGame::Strategy result;
+    result.swap(strategy_);
+    if (aborted())
+    {
+        result.clear();
+    }
+    else
     if (mpi_rank == 0)
     {
         info("Combining strategy...");
@@ -62,26 +66,24 @@ ParityGame::Strategy MpiRecursiveSolver::solve()
                 int val = -1;
                 MPI::Status status;
                 MPI::COMM_WORLD.Recv(&val, 1, MPI_INT, i, 0, status);
-                strategy_[v] = (verti)val;
+                result[v] = (verti)val;
             }
         }
     }
-    else
+    else  // mpi_rank > 0
     {
         for (verti v = 0; v < V; ++v)
         {
             if (worker(v) == mpi_rank)
             {
-                int val = strategy_[v];
+                int val = result[v];
                 MPI::COMM_WORLD.Send(&val, 1, MPI_INT, 0, 0);
             }
         }
-
-        // Clear strategy
-        ParityGame::Strategy empty;
-        strategy_.swap(empty);
+        result.clear();
     }
-    return strategy_;
+
+    return result;
 }
 
 /*! Returns a list of indices at which `incl' is zero. */
@@ -117,9 +119,13 @@ static int mpi_sum(int local_value)
 
 void MpiRecursiveSolver::solve(const GamePartition &part, int min_prio)
 {
-    // TODO: support aborting
+    if (mpi_rank == 0 && aborted())
+    {
+        MPI::COMM_WORLD.Abort(1);
+        return;
+    }
 
-    const verti V = part.game().graph().V();
+    const verti V = part.total_size();
     const ParityGame::Player player   = (ParityGame::Player)(min_prio%2);
     const ParityGame::Player opponent = (ParityGame::Player)(1 - min_prio%2);
 
@@ -173,21 +179,16 @@ void MpiRecursiveSolver::solve(const GamePartition &part, int min_prio)
     // Find attractor set of vertices with minimum priority
     std::vector<char> min_prio_attr(V, 0);
     std::vector<verti> min_prio_attr_queue;
-    for ( GamePartition::const_iterator it = part.begin();
-          it != part.end(); ++it )
+    for (verti v = 0; v < V; ++v )
     {
-        if (part.game().priority(*it) == min_prio)
+        if (part.game().priority(v) == min_prio)
         {
-            min_prio_attr[*it] = 1;
-            min_prio_attr_queue.push_back(*it);
+            min_prio_attr[v] = 1;
+            min_prio_attr_queue.push_back(v);
         }
     }
-    // TODO: Optimization: since priorities of external vertices are known
-    // locally, we can add them to the set if necessary without exchanging
-    // data with other processes (compare with lost_attr below) but this
-    // requires a change to make_attractor_set() too.
     //debug("|min_prio|=%d", mpi_sum((int)min_prio_attr_queue.size()));
-    make_attractor_set(part, player, min_prio_attr, min_prio_attr_queue);
+    make_attractor_set(part, player, min_prio_attr, min_prio_attr_queue, true);
     //debug("|min_prio_attr|=%d", mpi_sum((int)set_size(part, min_prio_attr)));
 
     std::vector<verti> unsolved = collect_complement(min_prio_attr);
@@ -331,10 +332,11 @@ void MpiRecursiveSolver::mpi_exchange_queues(
 
 void MpiRecursiveSolver::make_attractor_set(
     const GamePartition &part, ParityGame::Player player,
-    std::vector<char> &attr, std::vector<verti> &queue )
+    std::vector<char> &attr, std::vector<verti> &queue,
+    bool quick_start )
 {
     // Offset into `queue' where local entries (internal vertices) begin:
-    size_t local_begin = 0;
+    size_t local_begin = quick_start ? queue.size() :  0;
     while (mpi_sum((int)queue.size()) > 0)
     {
         // Calculate maximal internal attractor set

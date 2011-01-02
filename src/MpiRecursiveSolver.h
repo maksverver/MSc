@@ -45,12 +45,17 @@ private:
         in the game partition `part'. Initially, `queue' must contain precisely
         those vertices marked in `attr'.
 
+        If `quick_start' is set to true, then `attr' should include all external
+        vertices that are in the `attr' in other worker processes. Otherwise,
+        `attr' initially only contains internal vertices.
+
         After returning, the set is extended to the attractor set for `player'
         and includes both internal and external vertices in the attractor set.
     */
     void make_attractor_set(
         const GamePartition &part, ParityGame::Player player,
-        std::vector<char> &attr, std::vector<verti> &queue );
+        std::vector<char> &attr, std::vector<verti> &queue,
+        bool quick_start = false);
 
     /*! Exchanges attractor set queues between MPI worker processes.
 
