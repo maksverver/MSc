@@ -288,3 +288,15 @@ size_t StaticGraph::memory_use() const
     if (edge_dir_ == EDGE_BIDIRECTIONAL) res *= 2;
     return res;
 }
+
+void StaticGraph::swap(StaticGraph &g)
+{
+    if (this == &g) return;
+    std::swap(V_, g.V_);
+    std::swap(E_, g.E_);
+    std::swap(successors_, g.successors_);
+    std::swap(predecessors_, g.predecessors_);
+    std::swap(successor_index_, g.successor_index_);
+    std::swap(predecessor_index_, g.predecessor_index_);
+    std::swap(edge_dir_, g.edge_dir_);
+}

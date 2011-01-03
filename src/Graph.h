@@ -122,6 +122,9 @@ public:
     /*! Returns the memory used to store the graph data. */
     size_t memory_use() const;
 
+    /*! Swaps the contents of this graph with another one. */
+    void swap(StaticGraph &g);
+
     verti V() const { return V_; }  /*!< Return number of vertices in the graph */
     edgei E() const { return E_; }  /*!< Return number of edges in the graph */
 
@@ -185,7 +188,6 @@ public:
         return EdgeIterator(this, V_, E_);
     }
 
-
 protected:
     /*! Frees allocated memory and then reallocates memory to store a graph
         with `V` vertices and `E` edges. */
@@ -220,6 +222,14 @@ private:
 
     friend class EdgeIterator;
 };
+
+namespace std
+{
+    template<> inline void swap<StaticGraph>(StaticGraph &a, StaticGraph &b)
+    {
+        a.swap(b);
+    }
+}
 
 #include "Graph_impl.h"
 

@@ -34,6 +34,11 @@ public:
         game partition. */
     GamePartition(const GamePartition &part, const std::vector<verti> &verts);
 
+    /*! Swaps the contents of this GamePartition with another one. */
+    void swap(GamePartition &gp);
+
+    /*! Returns the parity game associated for this partition, which describes
+        the vertices relevant to this partition. */
     const ParityGame &game() const { return game_; }
 
     /*! Returns the local index for a vertex given its global index.
@@ -78,6 +83,14 @@ private:
     std::vector<verti> global_;     //! Local to global vertex index map
     HASH_MAP(verti, verti) local_;  //! Global to local vertex index map
 };
+
+namespace std
+{
+    template<> inline void swap<GamePartition>(GamePartition &a, GamePartition &b)
+    {
+        a.swap(b);
+    }
+}
 
 #endif /* ndef GAME_PARTITION_H_INCLUDED */
 

@@ -168,6 +168,9 @@ public:
         both players. */
     bool verify(const Strategy &s) const;
 
+    /*! Swaps the contents of this parity game with another one. */
+    void swap(ParityGame &pg);
+
 #ifdef WITH_MCRL2
     /*! Generate a parity game from an mCRL2 PBES. */
     template <typename Container>
@@ -200,6 +203,14 @@ private:
         cardinality_[p] is equal to the number of vertices with priority p. */
     verti *cardinality_;
 };
+
+namespace std
+{
+    template<> inline void swap<ParityGame>(ParityGame &a, ParityGame &b)
+    {
+        a.swap(b);
+    }
+}
 
 #ifdef WITH_MCRL2
 #include "ParityGame_pbes.h"

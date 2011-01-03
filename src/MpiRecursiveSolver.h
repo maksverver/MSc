@@ -38,8 +38,12 @@ private:
         given that the minimum priority used in the game is `min_prio'.
 
         Updates `strategy_' so that it is valid for all global indices
-        corresponding with internal vertices of the partition. */
-    void solve(const GamePartition &part, int min_prio);
+        corresponding with internal vertices of the partition.
+
+        After returning, the game partition has been reduced to the winning set
+        for the player corresponding to the parity of min_prio.
+    */
+    void solve(GamePartition &part, int min_prio);
 
     /*! Extends the vertices marked in `attr' to the attractor set for `player'
         in the game partition `part'. Initially, `queue' must contain precisely

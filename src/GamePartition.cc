@@ -107,3 +107,12 @@ GamePartition::GamePartition( const GamePartition &part,
     }
     */
 }
+
+void GamePartition::swap(GamePartition &gp)
+{
+    std::swap(game_, gp.game_);
+    std::swap(internal_, gp.internal_);
+    std::swap(global_, gp.global_);
+    // N.B. std::swap() is not yet overloaded for hash maps in C++ TR1:
+    local_.swap(gp.local_);
+}

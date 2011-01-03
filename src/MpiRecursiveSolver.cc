@@ -37,17 +37,22 @@ ParityGame::Strategy MpiRecursiveSolver::solve()
     // Initialize stragegy
     strategy_ = ParityGame::Strategy(V, NO_VERTEX);
 
-    // Create my initial partition of the game graph:
-    std::vector<verti> verts;
-    verts.reserve((V + mpi_size - 1)/mpi_size);
-    for (verti v = mpi_rank; v < V; v += mpi_size)
     {
-        assert(worker(v) == mpi_rank);
-        verts.push_back(v);
-    }
-    GamePartition partition(game(), verts);
-    solve(partition, 0);
+        // Select vertices for my initial partition of the game graph:
+        std::vector<verti> verts;
+        verts.reserve((V + mpi_size - 1)/mpi_size);
+        for (verti v = mpi_rank; v < V; v += mpi_size)
+        {
+            assert(worker(v) == mpi_rank);
+            verts.push_back(v);
+        }
 
+        // Solve the game:
+        GamePartition partition(game(), verts);
+        solve(partition, 0);
+    }
+
+    // Collect resulting strategy
     ParityGame::Strategy result;
     result.swap(strategy_);
     if (aborted())
@@ -117,8 +122,10 @@ static int mpi_sum(int local_value)
     return global_sum;
 }
 
-void MpiRecursiveSolver::solve(const GamePartition &part, int min_prio)
+void MpiRecursiveSolver::solve(GamePartition &part, int min_prio)
 {
+start:
+
     if (mpi_rank == 0 && aborted())
     {
         MPI::COMM_WORLD.Abort(1);
@@ -205,12 +212,10 @@ void MpiRecursiveSolver::solve(const GamePartition &part, int min_prio)
               it != subpart.end(); ++it )
         {
             verti w = subpart.global(*it);
-            if (game_.winner(strategy_, w) == opponent)
-            {
-                verti v = part.local(w);
-                lost_attr[v] = 1;
-                lost_attr_queue.push_back(v);
-            }
+            assert(game_.winner(strategy_, w) == opponent);
+            verti v = part.local(w);
+            lost_attr[v] = 1;
+            lost_attr_queue.push_back(v);
         }
 
         // Check if opponent's winning set is non-empty:
@@ -222,21 +227,13 @@ void MpiRecursiveSolver::solve(const GamePartition &part, int min_prio)
             //debug("|lost_attr|=%d", (int)set_size(part, lost_attr));
 
             std::vector<verti> not_lost = collect_complement(lost_attr);
-            if (mpi_sum(int(!not_lost.empty())) != 0)
-            {
-                // TODO: implement tail recursion here, to limit the recursion
-                //       depth to game.d() and to reduce memory use.
-                GamePartition subpart(part, not_lost);
-                solve(subpart, min_prio);
-                //debug("leave2 V=%d min_prio=%d", mpi_sum((int)part.internal.size()), min_prio);
-                return;
-            }
-            else
-            {
-                // All vertices are lost. Don't recurse.
-                //debug("leave3 V=%d min_prio=%d", mpi_sum((int)part.internal.size()), min_prio);
-                return;
-            }
+            GamePartition subpart(part, not_lost);
+            //debug("leave2 V=%d min_prio=%d", mpi_sum((int)part.internal.size()), min_prio);
+            // Tail call optimization. This is intended to be equivalent to
+            // "return solve(subpart, min_prio)" but it depends on the
+            // caller not relying on the contents of the game upon return!
+            subpart.swap(part);
+            goto start;
         }
     }
 
@@ -267,7 +264,7 @@ void MpiRecursiveSolver::solve(const GamePartition &part, int min_prio)
         }
     }
 
-    //debug("leave4 V=%d min_prio=%d", mpi_sum((int)part.internal.size()), min_prio);
+    //debug("leave3 V=%d min_prio=%d", mpi_sum((int)part.internal.size()), min_prio);
 }
 
 void MpiRecursiveSolver::mpi_exchange_queues(
