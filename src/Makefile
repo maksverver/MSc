@@ -29,7 +29,8 @@ OBJS= \
 	SmallProgressMeasures.o \
 	timing.o
 
-CFLAGS=-Wall -O2
+#CFLAGS=-Wall -O2 -DNDEBUG  # for optimal performance
+CFLAGS=-Wall -O2 -g
 #CFLAGS:=$(CFLAGS) -O0 -D_GLIBCXX_DEBUG  # additional debug flags
 LDLIBS=-lrt
 
@@ -56,9 +57,6 @@ CXX=mpicxx
 endif
 
 CXXFLAGS:=$(CFLAGS)
-# For debugging:
-CXXFLAGS:=$(CFLAGS) -g
-#CXXFLAGS:=$(CFLAGS) -O0 -g -fmudflap -lmudflap
 
 all: main
 

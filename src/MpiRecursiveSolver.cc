@@ -16,6 +16,56 @@
 #include <utility>
 #include <vector>
 
+/*
+#include <sstream>
+
+// For debugging: returns the internal vertex set of the partition as a string.
+static std::string str(const GamePartition &part)
+{
+    std::ostringstream os;
+    os << "{ ";
+    for ( GamePartition::const_iterator it = part.begin();
+          it != part.end(); ++it )
+    {
+        if (it != part.begin()) os << ", ";
+        os << part.global(*it);
+    }
+    os << " }";
+    return os.str();
+}
+*/
+
+/*! Returns a list of indices at which `incl' is zero. */
+static std::vector<verti> collect_complement(std::vector<char> &incl)
+{
+    std::vector<verti> res;
+    for (size_t i = 0; i < incl.size(); ++i)
+    {
+        if (!incl[i]) res.push_back((verti)i);
+    }
+    return res;
+}
+
+//! Returns the sum of local values of all MPI processes:
+static int mpi_sum(int local_value)
+{
+    int global_sum = 0;
+    MPI::COMM_WORLD.Allreduce(&local_value, &global_sum, 1, MPI_INT, MPI_SUM);
+    return global_sum;
+}
+
+//! Returns whether `local_value' is true in any of the MPI processes:
+static bool mpi_or(bool local_value)
+{
+    return mpi_sum((int)local_value) != 0;
+}
+
+//! Returns whether `local_value' is true in all of the MPI processes:
+static bool mpi_and(bool local_value)
+{
+    return mpi_sum((int)!local_value) == 0;
+}
+
 MpiRecursiveSolver::MpiRecursiveSolver(const ParityGame &game)
     : ParityGameSolver(game)
 {
@@ -91,78 +141,17 @@ ParityGame::Strategy MpiRecursiveSolver::solve()
     return result;
 }
 
-/*! Returns a list of indices at which `incl' is zero. */
-static std::vector<verti> collect_complement(std::vector<char> &incl)
-{
-    std::vector<verti> res;
-    for (size_t i = 0; i < incl.size(); ++i)
-    {
-        if (!incl[i]) res.push_back((verti)i);
-    }
-    return res;
-}
-
-/*! Counts how many of the internal vertices of the given game partition are
-    in the set described by `incl' (a binary vector). Used for debugging. */
-static size_t set_size(const GamePartition &part, const std::vector<char> &incl)
-{
-    size_t size = 0;
-    for(GamePartition::const_iterator it = part.begin(); it != part.end(); ++it)
-    {
-        if (incl[*it]) ++size;
-    }
-    return size;
-}
-
-//! Returns the sum of local values of all MPI processes:
-static int mpi_sum(int local_value)
-{
-    int global_sum = 0;
-    MPI::COMM_WORLD.Allreduce(&local_value, &global_sum, 1, MPI_INT, MPI_SUM);
-    return global_sum;
-}
-
 void MpiRecursiveSolver::solve(GamePartition &part, int min_prio)
 {
-start:
-
-    if (mpi_rank == 0 && aborted())
-    {
-        MPI::COMM_WORLD.Abort(1);
-        return;
-    }
-
-    const verti V = part.total_size();
     const ParityGame::Player player   = (ParityGame::Player)(min_prio%2);
     const ParityGame::Player opponent = (ParityGame::Player)(1 - min_prio%2);
 
     assert(min_prio < part.game().d());
 
-    //debug("enter V=%d min_prio=%d", mpi_sum((int)part.internal_size()), min_prio);
-
-    // Debug-print vertices in game partition:
-    /*
-    std::ostringstream oss_all;
-    std::ostringstream oss_intern;
-    for (verti v = 0; v < V; ++v) oss_all << ' ' << part.global(v);
-    for (std::vector<verti>::const_iterator it = part.internal.begin();
-         it != part.internal.end(); ++it) oss_intern << ' ' << part.global(*it);
-    debug("all: %s  internal: %s", oss_all.str().c_str(), oss_intern.str().c_str());
-    */
-
-    // For debugging: sanity-check game partition:
-    /*
-    assert(part.game().graph().V() == part.global.size());
-    for (verti v = 0; v < V; ++v)
-    {
-        assert(part.game().priority(v) >= min_prio);
-        assert(part.game().priority(v) == game_.priority(part.global(v)));
-        assert(part.game().player(v)   == game_.player(part.global(v)));
-    }
-    */
-
     if (part.game().d() - min_prio == 1)
     {
+        //Logger::debug("part=%s min_prio=%d", str(part).c_str(), min_prio);
+
         // Only one priority left; construct trivial strategy.
         for ( GamePartition::const_iterator it = part.begin();
               it != part.end(); ++it )
@@ -179,28 +168,39 @@ start:
                 strategy_[v] = NO_VERTEX;
             }
         }
-        //debug("leave1 V=%d min_prio=%d", mpi_sum((int)part.internal.size()), min_prio);
         return;
     }
 
-    // Find attractor set of vertices with minimum priority
-    std::vector<char> min_prio_attr(V, 0);
-    std::vector<verti> min_prio_attr_queue;
-    for (verti v = 0; v < V; ++v )
+    do
     {
-        if (part.game().priority(v) == min_prio)
-        {
-            min_prio_attr[v] = 1;
-            min_prio_attr_queue.push_back(v);
-        }
-    }
-    //debug("|min_prio|=%d", mpi_sum((int)min_prio_attr_queue.size()));
-    make_attractor_set(part, player, min_prio_attr, min_prio_attr_queue, true);
-    //debug("|min_prio_attr|=%d", mpi_sum((int)set_size(part, min_prio_attr)));
+        //Logger::debug("part=%s min_prio=%d", str(part).c_str(), min_prio);
 
-    std::vector<verti> unsolved = collect_complement(min_prio_attr);
-    if (mpi_sum(int(!unsolved.empty())) != 0)
-    {
+        const verti V = part.total_size();
+        if (mpi_rank == 0 && aborted())
+        {
+            MPI::COMM_WORLD.Abort(1);
+            return;
+        }
+
+        // Find attractor set of vertices with minimum priority
+        std::vector<char> min_prio_attr(V, 0);
+        std::vector<verti> min_prio_attr_queue;
+        for (verti v = 0; v < V; ++v )
+        {
+            if (part.game().priority(v) == min_prio)
+            {
+                min_prio_attr[v] = 1;
+                min_prio_attr_queue.push_back(v);
+            }
+        }
+        //debug("|min_prio|=%d", mpi_sum((int)min_prio_attr_queue.size()));
+        make_attractor_set(part, player, min_prio_attr, min_prio_attr_queue, true);
+        //debug("|min_prio_attr|=%d", mpi_sum((int)set_size(part, min_prio_attr)));
+        std::vector<verti> unsolved = collect_complement(min_prio_attr);
+
+        // Check if attractor set covers the entire game:
+        if (mpi_and(unsolved.empty())) break;
+
         // Solve subgame with remaining vertices and fewer priorities:
         GamePartition subpart(part, unsolved);
         solve(subpart, min_prio + 1);
@@ -217,25 +217,19 @@ start:
             lost_attr[v] = 1;
             lost_attr_queue.push_back(v);
         }
+        //debug("|lost|=%d", (int)lost_attr_queue.size());
 
-        // Check if opponent's winning set is non-empty:
-        if (mpi_sum(int(!lost_attr_queue.empty())) != 0)
-        {
-            // Create subgame with vertices not yet lost to opponent:
-            //debug("|lost|=%d", (int)lost_attr_queue.size());
-            make_attractor_set(part, opponent, lost_attr, lost_attr_queue);
-            //debug("|lost_attr|=%d", (int)set_size(part, lost_attr));
+        // Check if opponent's winning set is empty:
+        if (mpi_and(lost_attr_queue.empty())) break;
 
-            std::vector<verti> not_lost = collect_complement(lost_attr);
-            GamePartition subpart(part, not_lost);
-            //debug("leave2 V=%d min_prio=%d", mpi_sum((int)part.internal.size()), min_prio);
-            // Tail call optimization. This is intended to be equivalent to
-            // "return solve(subpart, min_prio)" but it depends on the
-            // caller not relying on the contents of the game upon return!
-            subpart.swap(part);
-            goto start;
-        }
-    }
+        // Create subgame with vertices not yet lost to opponent:
+        make_attractor_set(part, opponent, lost_attr, lost_attr_queue);
+        //debug("|lost_attr|=%d", (int)set_size(part, lost_attr));
+
+        std::vector<verti> not_lost = collect_complement(lost_attr);
+        GamePartition(part, not_lost).swap(part);
+
+    } while (mpi_or(!part.empty()));
 
     // If we get here, then the opponent's winning set was empty; the strategy
     // for most vertices has already been initialized, except for those with
@@ -258,13 +252,10 @@ start:
         }
         else
         {
-            assert( game_.priority(v) >= min_prio );
-            assert( (game_.player(v) == player) ==
-                    (strategy_[v] != NO_VERTEX) );
+            assert(game_.priority(v) >= min_prio);
+            assert(game_.winner(strategy_, v) == player);
         }
     }
-
-    //debug("leave3 V=%d min_prio=%d", mpi_sum((int)part.internal.size()), min_prio);
 }
 
 void MpiRecursiveSolver::mpi_exchange_queues(
@@ -334,7 +325,7 @@ void MpiRecursiveSolver::make_attractor_set(
 {
     // Offset into `queue' where local entries (internal vertices) begin:
     size_t local_begin = quick_start ? queue.size() :  0;
-    while (mpi_sum((int)queue.size()) > 0)
+    while (mpi_or(!queue.empty()))
     {
         // Calculate maximal internal attractor set
         for (size_t pos = 0; pos < queue.size(); ++pos)

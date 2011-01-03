@@ -63,6 +63,7 @@ GamePartition::GamePartition( const GamePartition &part,
                 it != verts.end(); ++it)
         {
             verti v = *it;
+            assert(v < g.V());
             bool found = used.find(v) != used.end();
             for (StaticGraph::const_iterator it = g.succ_begin(v);
                     !found && it != g.succ_end(v); ++it)

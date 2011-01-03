@@ -77,6 +77,9 @@ public:
         partition. */
     verti total_size() const { return global_.size(); }
 
+    /*! Returns whether this is an empty partition (i.e. total_size() == 0) */
+    bool empty() const { return global_.empty(); }
+
 private:
     ParityGame game_;               //! Local subgame
     std::vector<verti> internal_;   //! Local indices of internal vertex set

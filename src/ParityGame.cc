@@ -171,7 +171,7 @@ ParityGame::Player ParityGame::winner(const Strategy &s, verti v) const
     return (s[v] != NO_VERTEX) ? player(v) : ParityGame::Player(1 - player(v));
 }
 
-    /*! Swaps the contents of this parity game with another one. */
+/*! Swaps the contents of this parity game with another one. */
 void ParityGame::swap(ParityGame &pg)
 {
     std::swap(d_, pg.d_);
