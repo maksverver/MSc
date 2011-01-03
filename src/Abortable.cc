@@ -7,3 +7,6 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#include "Abortable.h"
+
+volatile bool Abortable::global_abort_ = false;
