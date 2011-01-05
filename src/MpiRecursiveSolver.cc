@@ -119,8 +119,7 @@ ParityGame::Strategy MpiRecursiveSolver::solve()
             if (i != mpi_rank)
             {
                 int val = -1;
-                MPI::Status status;
-                MPI::COMM_WORLD.Recv(&val, 1, MPI_INT, i, 0, status);
+                MPI::COMM_WORLD.Recv(&val, 1, MPI_INT, i, 0);
                 result[v] = (verti)val;
             }
         }
@@ -304,8 +303,7 @@ void MpiRecursiveSolver::mpi_exchange_queues(
                 for (;;)
                 {
                     int val = -1;
-                    MPI::Status status;
-                    MPI::COMM_WORLD.Recv(&val, 1, MPI_INT, i, 0, status);
+                    MPI::COMM_WORLD.Recv(&val, 1, MPI_INT, i, 0);
                     if (val == -1) break;
                     //debug("received %d from %d", val, i);
                     const verti v = part.local((verti)val);
