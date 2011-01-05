@@ -59,8 +59,8 @@ GamePartition::GamePartition( const GamePartition &part,
                               const std::vector<verti> &verts )
 {
     std::set_intersection( verts.begin(), verts.end(),
-                        part.internal_.begin(), part.internal_.end(),
-                        std::back_inserter(internal_) );
+                           part.internal_.begin(), part.internal_.end(),
+                           std::back_inserter(internal_) );
 
     std::vector<verti> new_verts;
     // FIXME: we need to remove vertices that do not have any edges incident
