@@ -14,6 +14,7 @@
 
 class Substrategy;
 
+/*! Parity game solver implementing Zielonka's recursive algorithm. */
 class RecursiveSolver : public ParityGameSolver
 {
 public:

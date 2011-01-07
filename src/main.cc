@@ -83,6 +83,7 @@ static int          arg_random_priorities     =      20;
 static int          arg_timeout               =       0;
 static bool         arg_verify                = false;
 static bool         arg_zielonka              = false;
+static int          arg_zielonka_variant      = -1;
 static bool         arg_mpi                   = false;
 
 static const double MB = 1048576.0;  // one megabyte
@@ -140,8 +141,9 @@ static void print_usage()
 "  --timeout/-t <t>       abort solving after <t> seconds\n"
 "  --verify/-V            verify solution after solving\n"
 "  --zielonka/-z          use Zielonka's recursive algorithm\n"
+"  --zielonka=sync/-zsync (MPI only): use synchronized implementation\n"
 "  --mpi                  solve in parallel using MPI\n"
-"  --verbosity/-v         message verbosity (0-6; default: 4)\n"
+"  --verbosity/-v <level> message verbosity (0-6; default: 4)\n"
 "  --quiet/-q             no messages (equivalent to -v0)\n"
 "  --hot/-H <file>        write 'hot' vertices in GraphViz format to <file>\n"
 "  --debug/-D <file>      write solution in debug format to <file>\n");
@@ -150,36 +152,36 @@ static void print_usage()
 static void parse_args(int argc, char *argv[])
 {
     static struct option long_options[] = {
-        { "help",       0, NULL, 'h' },
-        { "input",      1, NULL, 'i' },
-        { "size",       1, NULL,  1  },
-        { "outdegree",  1, NULL,  2  },
-        { "priorities", 1, NULL,  3  },
-        { "seed",       1, NULL,  4  },
-        { "lifting",    1, NULL, 'l' },
-        { "alternate",  1, NULL, 'a' },
-        { "dot",        1, NULL, 'd' },
-        { "pgsolver",   1, NULL, 'p' },
-        { "raw",        1, NULL, 'r' },
-        { "winners",    1, NULL, 'w' },
-        { "strategy",   1, NULL, 's' },
-        { "stats",      0, NULL, 'S' },
-        { "decycle",    0, NULL,  5  },
-        { "deloop",     0, NULL,  6  },
-        { "scc",        0, NULL,  7  },
-        { "dual",       0, NULL,  8  },
-        { "reorder",    1, NULL, 'e' },
-        { "timeout",    1, NULL, 't' },
-        { "verify",     0, NULL, 'V' },
-        { "zielonka",   0, NULL, 'z' },
-        { "mpi",        0, NULL,  9  },
-        { "verbosity",  1, NULL, 'v' },
-        { "quiet",      0, NULL, 'q' },
-        { "hot",        1, NULL, 'H' },
-        { "debug",      1, NULL, 'D' },
-        { NULL,         0, NULL,  0  } };
+        { "help",       no_argument,       NULL, 'h' },
+        { "input",      required_argument, NULL, 'i' },
+        { "size",       required_argument, NULL,  1  },
+        { "outdegree",  required_argument, NULL,  2  },
+        { "priorities", required_argument, NULL,  3  },
+        { "seed",       required_argument, NULL,  4  },
+        { "lifting",    required_argument, NULL, 'l' },
+        { "alternate",  no_argument,       NULL, 'a' },
+        { "dot",        required_argument, NULL, 'd' },
+        { "pgsolver",   required_argument, NULL, 'p' },
+        { "raw",        required_argument, NULL, 'r' },
+        { "winners",    required_argument, NULL, 'w' },
+        { "strategy",   required_argument, NULL, 's' },
+        { "stats",      no_argument,       NULL, 'S' },
+        { "decycle",    no_argument,       NULL,  5  },
+        { "deloop",     no_argument,       NULL,  6  },
+        { "scc",        no_argument,       NULL,  7  },
+        { "dual",       no_argument,       NULL,  8  },
+        { "reorder",    required_argument, NULL, 'e' },
+        { "timeout",    required_argument, NULL, 't' },
+        { "verify",     no_argument,       NULL, 'V' },
+        { "zielonka",   optional_argument, NULL, 'z' },
+        { "mpi",        no_argument,       NULL,  9  },
+        { "verbosity",  required_argument, NULL, 'v' },
+        { "quiet",      no_argument,       NULL, 'q' },
+        { "hot",        required_argument, NULL, 'H' },
+        { "debug",      required_argument, NULL, 'D' },
+        { NULL,         no_argument,       NULL,  0  } };
 
-    static const char *short_options = "hi:l:ad:p:r:w:s:Se:t:Vzv:qH:D:";
+    static const char *short_options = "hi:l:ad:p:r:w:s:Se:t:Vz::v:qH:D:";
 
     for (;;)
     {
@@ -316,6 +318,24 @@ static void parse_args(int argc, char *argv[])
 
         case 'z':   /* use Zielonka's algorithm instead of SPM */
             arg_zielonka = true;
+            if (optarg != NULL)
+            {
+                if (strcmp(optarg, "async") == 0)
+                {
+                    arg_zielonka_variant = 1;
+                }
+                else
+                if (strcmp(optarg, "sync") == 0)
+                {
+                    arg_zielonka_variant = 0;
+                }
+                else
+                {
+                    printf( "Invalid variant for Zielonka's algorithm: %s\n",
+                            optarg );
+                    exit(EXIT_FAILURE);
+                }
+            }
             break;
 
         case 9:     /* parallize solving with MPI */
@@ -771,12 +791,19 @@ int main(int argc, char *argv[])
         {
             if (!arg_mpi)
             {
+                if (arg_zielonka_variant >= 0)
+                {
+                    Logger::fatal(
+                        "Specifying a variant for Zielonka's algorithm "
+                        "requires enabling MPI!" );
+                }
                 solver_factory.reset(new RecursiveSolverFactory());
             }
 #ifdef WITH_MPI
             else
             {
-                solver_factory.reset(new MpiRecursiveSolverFactory());
+                solver_factory.reset(
+                    new MpiRecursiveSolverFactory(arg_zielonka_variant != 0) );
             }
 #endif
         }

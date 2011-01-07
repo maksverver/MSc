@@ -14,11 +14,6 @@
 #include <set>
 #include <utility>
 
-//! MPI tags used to identify different types of messages exchanged through MPI.
-enum MpiTags {
-    TAG_VERTEX, TAG_PROBE, TAG_TERM
-};
-
 #if 0
 #include <sstream>
 
@@ -266,52 +261,7 @@ void MpiRecursiveSolver::solve(GamePartition &part, int min_prio)
     }
 }
 
-/*! Sends local vertex i to every worker that has a predecessor in its internal
-    vertex set (using the global vertex index), but only once per worker.
-    Afterwards, receives new vertices from other processes, ands add them to the
-    local queue. */
-void MpiRecursiveSolver::notify_others( const GamePartition &part, verti i,
-    std::deque<verti> &queue, std::vector<char> &attr,
-    MPI::Prequest &req, const verti &req_val,
-    int &num_send, int &num_recv )
-{
-    const StaticGraph &graph = part.game().graph();
-    verti v = part.global(i);
-    std::vector<bool> recipients(mpi_size);
-    for ( StaticGraph::const_iterator it = graph.pred_begin(i);
-            it != graph.pred_end(i); ++it )
-    {
-        recipients[worker(part.global(*it))] = true;
-    }
-    for ( StaticGraph::const_iterator it = graph.succ_begin(i);
-            it != graph.succ_end(i); ++it )
-    {
-        recipients[worker(part.global(*it))] = true;
-    }
-    for (int dest = 0; dest < mpi_size; ++dest)
-    {
-        if (recipients[dest] && dest != mpi_rank)
-        {
-            //debug("sending %d to %d", v, dest);
-            MPI::COMM_WORLD.Send(&v, 1, MPI_INT, dest, TAG_VERTEX);
-            ++num_send;
-        }
-    }
-
-    // Receive pending vertex updates:
-    while (req.Test())
-    {
-        //debug("received %d", req_val);
-        i = part.local(req_val);
-        assert(!attr[i]);
-        attr[i] = true;
-        queue.push_back(i);
-        ++num_recv;
-        req.Start();
-    }
-}
-
-void MpiRecursiveSolver::make_attractor_set(
+void AsyncMpiRecursiveSolver::make_attractor_set(
     const GamePartition &part, ParityGame::Player player,
     std::vector<char> &attr, std::deque<verti> &queue,
     bool quick_start )
@@ -498,11 +448,183 @@ terminated:
     //debug("return %s", str(part, attr).c_str());
 }
 
+/*! Sends local vertex i to every worker that has a predecessor in its internal
+    vertex set (using the global vertex index), but only once per worker.
+    Afterwards, receives new vertices from other processes, ands add them to the
+    local queue. */
+void AsyncMpiRecursiveSolver::notify_others( const GamePartition &part, verti i,
+    std::deque<verti> &queue, std::vector<char> &attr,
+    MPI::Prequest &req, const verti &req_val,
+    int &num_send, int &num_recv )
+{
+    const StaticGraph &graph = part.game().graph();
+    verti v = part.global(i);
+    std::vector<bool> recipients(mpi_size);
+    for ( StaticGraph::const_iterator it = graph.pred_begin(i);
+            it != graph.pred_end(i); ++it )
+    {
+        recipients[worker(part.global(*it))] = true;
+    }
+    for ( StaticGraph::const_iterator it = graph.succ_begin(i);
+            it != graph.succ_end(i); ++it )
+    {
+        recipients[worker(part.global(*it))] = true;
+    }
+    for (int dest = 0; dest < mpi_size; ++dest)
+    {
+        if (recipients[dest] && dest != mpi_rank)
+        {
+            //debug("sending %d to %d", v, dest);
+            MPI::COMM_WORLD.Send(&v, 1, MPI_INT, dest, TAG_VERTEX);
+            ++num_send;
+        }
+    }
+
+    // Receive pending vertex updates:
+    while (req.Test())
+    {
+        //debug("received %d", req_val);
+        i = part.local(req_val);
+        assert(!attr[i]);
+        attr[i] = true;
+        queue.push_back(i);
+        ++num_recv;
+        req.Start();
+    }
+}
+
+void SyncMpiRecursiveSolver::make_attractor_set(
+    const GamePartition &part, ParityGame::Player player,
+    std::vector<char> &attr, std::deque<verti> &queue,
+    bool quick_start )
+{
+    // Offset into `queue' where local entries (internal vertices) begin:
+    size_t local_begin = quick_start ? queue.size() :  0;
+    while (mpi_or(!queue.empty()))
+    {
+        // Calculate maximal internal attractor set
+        for (size_t pos = 0; pos < queue.size(); ++pos)
+        {
+            const StaticGraph &graph = part.game().graph();
+            const verti w = queue[pos];
+            for ( StaticGraph::const_iterator it = graph.pred_begin(w);
+                  it != graph.pred_end(w); ++it )
+            {
+                const verti v = *it;
+
+                if (attr[v]) continue;
+
+                // FIXME: this is a bit of a hack! The intent is to process
+                //        internal vertices only, but `part' doesn't store
+                //        any info to quickly decide this.
+                if (worker(part.global(v)) != mpi_rank) continue;
+
+                if (part.game().player(v) == player)
+                {
+                    // Store strategy for player-controlled vertex:
+                    strategy_[part.global(v)] = part.global(w);
+                }
+                else  // opponent-controlled vertex
+                {
+                    // Can the opponent keep the token out of the attractor set?
+                    for (StaticGraph::const_iterator jt = graph.succ_begin(v);
+                        jt != graph.succ_end(v); ++jt)
+                    {
+                        if (!attr[*jt]) goto skip_v;
+                    }
+
+                    // Store strategy for opponent-controlled vertex:
+                    strategy_[part.global(v)] = NO_VERTEX;
+                }
+                // Add vertex v to the attractor set:
+                attr[v] = true;
+                queue.push_back(v);
+                //debug("added %d to attractor set", part.global(v));
+
+            skip_v:
+                continue;
+            }
+        }
+        // Synchronize with other processes, obtaining a fresh queue of
+        // external vertices that were added in parallel:
+        queue.erase(queue.begin(), queue.begin() + local_begin);
+        //debug("queue size: %d", queue.size());
+        std::deque<verti> next_queue;
+        mpi_exchange_queues(part, queue, attr, next_queue);
+        next_queue.swap(queue);
+        //debug("next queue size: %d", queue.size());
+        local_begin = queue.size();
+    }
+}
+
+void SyncMpiRecursiveSolver::mpi_exchange_queues(
+    const GamePartition &part, const std::deque<verti> &queue,
+    std::vector<char> &attr, std::deque<verti> &next_queue )
+{
+    const StaticGraph &graph = part.game().graph();
+    for (int i = 0; i < mpi_size; ++i)
+    {
+        for (int j = 0; j < mpi_size; ++j)
+        {
+            if (i == mpi_rank && j != mpi_rank)
+            {
+                // Send relevant vertices to j'th process
+                for (std::deque<verti>::const_iterator it = queue.begin();
+                     it != queue.end(); ++it)
+                {
+                    assert(attr[*it]);
+                    bool found = false;
+                    for (StaticGraph::const_iterator jt = graph.pred_begin(*it);
+                         !found && jt != graph.pred_end(*it); ++jt)
+                    {
+                        if (worker(part.global(*jt)) == j) found = true;
+                    }
+                    for (StaticGraph::const_iterator jt = graph.succ_begin(*it);
+                         !found && jt != graph.succ_end(*it); ++jt)
+                    {
+                        if (worker(part.global(*jt)) == j) found = true;
+                    }
+                    if (found)
+                    {
+                        int val = (int)part.global(*it);
+                        MPI::COMM_WORLD.Send(&val, 1, MPI_INT, j, 0);
+                        //debug("sending %d to %d", val, j);
+                    }
+                }
+                int val = -1;
+                MPI::COMM_WORLD.Send(&val, 1, MPI_INT, j, 0);
+            }
+
+            if (i != mpi_rank && j == mpi_rank)
+            {
+                // Receive relevant vertices from i'th process
+                for (;;)
+                {
+                    int val = -1;
+                    MPI::COMM_WORLD.Recv(&val, 1, MPI_INT, i, 0);
+                    if (val == -1) break;
+                    //debug("received %d from %d", val, i);
+                    const verti v = part.local((verti)val);
+                    assert(!attr[v]);
+                    attr[v] = 1;
+                    next_queue.push_back(v);
+                }
+            }
+        }
+    }
+}
+
 ParityGameSolver *MpiRecursiveSolverFactory::create( const ParityGame &game,
         const verti *vertex_map, verti vertex_map_size )
 {
     (void)vertex_map;       // unused
     (void)vertex_map_size;  // unused
-
-    return new MpiRecursiveSolver(game);
+    if (async_)
+    {
+        return new AsyncMpiRecursiveSolver(game);
+    }
+    else
+    {
+        return new SyncMpiRecursiveSolver(game);
+    }
 }
