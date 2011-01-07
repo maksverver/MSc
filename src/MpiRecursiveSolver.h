@@ -13,6 +13,8 @@
 #include "ParityGameSolver.h"
 #include "Logger.h"
 #include <vector>
+#include <deque>
+#include <mpi.h>
 
 extern int mpi_rank, mpi_size;  // defined and initialized in main.cc
 
@@ -58,22 +60,17 @@ private:
     */
     void make_attractor_set(
         const GamePartition &part, ParityGame::Player player,
-        std::vector<char> &attr, std::vector<verti> &queue,
+        std::vector<char> &attr, std::deque<verti> &queue,
         bool quick_start = false);
 
-    /*! Exchanges attractor set queues between MPI worker processes.
-
-        For each worker, `queue' contains internal vertices added to `attr'
-        last iteration, which are sent to other workers controlling the
-        predecessors of these vertices. The vertices received this way are added
-        to `next_queue' and set in `attr'. Consequently, only external vertices
-        are added to `next_queue'.
-    */
-    void mpi_exchange_queues(
-        const GamePartition &part, const std::vector<verti> &queue,
-        std::vector<char> &attr, std::vector<verti> &next_queue );
-
-
+    /*! Helper function for make_attractor_set() that transmits `v' to relevant
+        other processes, and then receives any pending vertices from other
+        processes, which are then added to `queue' and `attr'. When messages
+        are sent or received, `num_send' and `num_recv' are incremented. */
+    void notify_others( const GamePartition &part, verti v,
+                        std::deque<verti> &queue, std::vector<char> &attr, 
+                        MPI::Prequest &req, const verti &req_val,
+                        int &num_send, int &num_recv );
 
     /*! Resulting strategy (only valid for my partition of the vertex set).
         Note that the strategy is global; it uses global indices for its indices
