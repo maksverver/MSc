@@ -7,37 +7,14 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#include "AsyncMpiAttractorAlgorithm.h"
+#include "SyncMpiAttractorAlgorithm.h"
 #include "MpiRecursiveSolver.h"
 #include "GamePartition.h"
 #include <assert.h>
 #include <algorithm>
 #include <set>
 #include <utility>
-
-#if 0
-#include <sstream>
-
-/* For debugging: returns the internal vertex set of the partition as a string,
-   or a subset of according to `sel' if it is non-empty. */
-static std::string str( const GamePartition &part,
-                        const std::vector<char> &sel = std::vector<char>() )
-{
-    std::ostringstream os;
-    bool first = true;
-    os << "{ ";
-    for ( GamePartition::const_iterator it = part.begin();
-          it != part.end(); ++it )
-    {
-        if (sel.empty() || sel[*it])
-        {
-            if (first) first = false; else os << ", ";
-            os << part.global(*it);
-        }
-    }
-    os << " }";
-    return os.str();
-}
-#endif
 
 /*! Returns a list of indices at which `incl' is zero. */
 static std::vector<verti> collect_complement(std::vector<char> &incl)
@@ -70,8 +47,9 @@ static bool mpi_and(bool local_value)
     return mpi_sum((int)!local_value) == 0;
 }
 
-MpiRecursiveSolver::MpiRecursiveSolver(const ParityGame &game)
-    : ParityGameSolver(game)
+MpiRecursiveSolver::MpiRecursiveSolver( const ParityGame &game,
+    const VertexPartition &vpart, MpiAttractorAlgorithm *attr_algo )
+    : ParityGameSolver(game), vpart_(vpart), attr_algo_(attr_algo)
 {
     // Ensure mpi_rank and mpi_size have been initialized:
     assert(mpi_size > 0 && mpi_rank >= 0 && mpi_rank < mpi_size);
@@ -82,6 +60,7 @@ MpiRecursiveSolver::MpiRecursiveSolver(const ParityGame &game)
 
 MpiRecursiveSolver::~MpiRecursiveSolver()
 {
+    delete attr_algo_;
 }
 
 ParityGame::Strategy MpiRecursiveSolver::solve()
@@ -91,20 +70,9 @@ ParityGame::Strategy MpiRecursiveSolver::solve()
     // Initialize stragegy
     strategy_ = ParityGame::Strategy(V, NO_VERTEX);
 
-    {
-        // Select vertices for my initial partition of the game graph:
-        std::vector<verti> verts;
-        verts.reserve((V + mpi_size - 1)/mpi_size);
-        for (verti v = mpi_rank; v < V; v += mpi_size)
-        {
-            assert(worker(v) == mpi_rank);
-            verts.push_back(v);
-        }
-
-        // Solve the game:
-        GamePartition partition(game(), verts);
-        solve(partition, 0);
-    }
+    // Solve the game:
+    GamePartition gpart(game(), vpart_, mpi_rank);
+    solve(gpart, 0);
 
     // Collect resulting strategy
     ParityGame::Strategy result;
@@ -119,7 +87,7 @@ ParityGame::Strategy MpiRecursiveSolver::solve()
         info("Combining strategy...");
         for (verti v = 0; v < V; ++v)
         {
-            int i = worker(v);
+            int i = vpart_(v);
             if (i != mpi_rank)
             {
                 int val = -1;
@@ -132,7 +100,7 @@ ParityGame::Strategy MpiRecursiveSolver::solve()
     {
         for (verti v = 0; v < V; ++v)
         {
-            if (worker(v) == mpi_rank)
+            if (vpart_(v) == mpi_rank)
             {
                 int val = result[v];
                 MPI::COMM_WORLD.Send(&val, 1, MPI_INT, 0, 0);
@@ -197,7 +165,8 @@ void MpiRecursiveSolver::solve(GamePartition &part, int min_prio)
             }
         }
         //debug("|min_prio|=%d", mpi_sum((int)min_prio_attr_queue.size()));
-        make_attractor_set(part, player, min_prio_attr, min_prio_attr_queue, true);
+        attr_algo_->make_attractor_set( vpart_, part, player, min_prio_attr,
+                                        min_prio_attr_queue, true, strategy_ );
         //debug("|min_prio_attr|=%d", mpi_sum((int)set_size(part, min_prio_attr)));
         std::vector<verti> unsolved = collect_complement(min_prio_attr);
 
@@ -226,7 +195,8 @@ void MpiRecursiveSolver::solve(GamePartition &part, int min_prio)
         if (mpi_and(lost_attr_queue.empty())) break;
 
         // Create subgame with vertices not yet lost to opponent:
-        make_attractor_set(part, opponent, lost_attr, lost_attr_queue);
+        attr_algo_->make_attractor_set( vpart_, part, opponent, lost_attr,
+                                        lost_attr_queue, false, strategy_ );
         //debug("|lost_attr|=%d", (int)set_size(part, lost_attr));
 
         std::vector<verti> not_lost = collect_complement(lost_attr);
@@ -261,370 +231,21 @@ void MpiRecursiveSolver::solve(GamePartition &part, int min_prio)
     }
 }
 
-void AsyncMpiRecursiveSolver::make_attractor_set(
-    const GamePartition &part, ParityGame::Player player,
-    std::vector<char> &attr, std::deque<verti> &queue,
-    bool quick_start )
-{
-    /*
-    debug( "enter make_attractor_set(%s, %d) in %s",
-           str(part, attr).c_str(), (int)quick_start, str(part).c_str());
-    */
-
-    const StaticGraph &graph = part.game().graph();
-
-    // Uses Friedemann Mattern's four-counter method for termination detection.
-    // All processes keep track of the number of sent and received messages.
-    // When idle, the first process sends a probe that is circulated to other
-    // processes when they are idle, accumulating the total number of messages
-    // sent and received. This has to be done twice in order to confirm global
-    // termination, at which point the first process sends a termination signal
-    // to the other processes.
-
-    bool send_probe = (mpi_rank == 0);
-    int num_send = 0, num_recv = 0;
-    int total_send = 0, total_recv = 0;
-
-    // Set up asynchronous receive buffers for the three different messages:
-    verti vertex_val;
-    int probe_val[2] = { 0, 0 };
-    MPI::Prequest reqs[3] = {
-        MPI::COMM_WORLD.Recv_init( &vertex_val, 1, MPI_INT,
-                                   MPI::ANY_SOURCE, TAG_VERTEX ),
-
-        MPI::COMM_WORLD.Recv_init( &probe_val[0], 2, MPI_INT,
-                                   MPI::ANY_SOURCE, TAG_PROBE ),
-
-        MPI::COMM_WORLD.Recv_init( NULL, 0, MPI_INT, 0, TAG_TERM )
-    };
-    MPI::Prequest::Startall(3, reqs);
-
-    // When quick starting, processes are aware of each other's initial vertex
-    // sets. If not, then we must first transmit the contents of the initial
-    // set to the relevant other processes.
-    if (!quick_start)
-    {
-        // N.B. queue.size() cannot be calculated inside the loop, because
-        //      notify_others may push new, non-local vertices in the queue!
-        size_t n = queue.size();
-        for (size_t i = 0; i < n; ++i)
-        {
-            notify_others( part, queue[i], queue, attr, reqs[TAG_VERTEX],
-                           vertex_val, num_send, num_recv );
-        }
-    }
-
-    for (;;)
-    {
-        // Active: process queued vertices
-        //debug("active");
-        while (!queue.empty())
-        {
-            const verti w = queue.front();
-            queue.pop_front();
-            for ( StaticGraph::const_iterator it = graph.pred_begin(w);
-                  it != graph.pred_end(w); ++it )
-            {
-                const verti v = *it;
-
-                if (attr[v]) continue;
-
-                // FIXME: this is a bit of a hack! The intent is to process
-                //        internal vertices only, but `part' doesn't store
-                //        any info to quickly decide this.
-                if (worker(part.global(v)) != mpi_rank) continue;
-
-                if (part.game().player(v) == player)
-                {
-                    // Store strategy for player-controlled vertex:
-                    strategy_[part.global(v)] = part.global(w);
-                }
-                else  // opponent-controlled vertex
-                {
-                    // Can the opponent keep the token out of the attractor set?
-                    for (StaticGraph::const_iterator jt = graph.succ_begin(v);
-                        jt != graph.succ_end(v); ++jt)
-                    {
-                        if (!attr[*jt]) goto skip_v;
-                    }
-
-                    // Store strategy for opponent-controlled vertex:
-                    strategy_[part.global(v)] = NO_VERTEX;
-                }
-                // Add vertex v to the attractor set:
-                attr[v] = true;
-                queue.push_back(v);
-                //debug("added %d to attractor set", part.global(v));
-                notify_others( part, v, queue, attr, reqs[TAG_VERTEX],
-                               vertex_val, num_send, num_recv );
-
-            skip_v:
-                continue;
-            }
-        }
-
-        // Idle: wait for a message to respond to.
-        //debug("idle");
-        if (send_probe)
-        {
-            if (mpi_size < 2) goto terminated;
-            MPI::COMM_WORLD.Send(probe_val, 2, MPI_INT, 1, TAG_PROBE);
-            send_probe = false;
-            //debug("sent probe");
-        }
-        while (queue.empty())
-        {
-            switch (MPI::Request::Waitany(3, reqs))
-            {
-            case TAG_VERTEX:
-                {
-                    //debug("received %d", vertex_val);
-                    verti i = part.local(vertex_val);
-                    assert(!attr[i]);
-                    attr[i] = true;
-                    queue.push_back(i);
-                    ++num_recv;
-                    reqs[TAG_VERTEX].Start();
-                } break;
-
-            case TAG_PROBE:
-                {
-                    probe_val[0] += num_send;
-                    probe_val[1] += num_recv;
-                    //debug("received probe (%d, %d)", probe_val[0], probe_val[1]);
-                    if (mpi_rank == 0)  // first process checks for termination
-                    {
-                        if (probe_val[0] == total_recv)
-                        {
-                            // Termination detected!
-                            assert(probe_val[0] == probe_val[1]);
-                            assert(total_send == total_recv);
-                            for (int i = 1; i < mpi_size; ++i)
-                            {
-                                MPI::COMM_WORLD.Send( NULL, 0, MPI_INT,
-                                                      i, TAG_TERM );
-                            }
-                            goto terminated;
-                        }
-                        else
-                        {
-                            // Not yet terminated.
-                            total_send = probe_val[0];
-                            total_recv = probe_val[1];
-                            probe_val[0] = 0;
-                            probe_val[1] = 0;
-                            MPI::COMM_WORLD.Send( probe_val, 2, MPI_INT,
-                                                  1, TAG_PROBE );
-                            //debug("resent probe");
-                        }
-                    }
-                    else  // mpi_rank > 0
-                    {
-                        int dest = mpi_rank + 1 == mpi_size ? 0 : mpi_rank + 1;
-                        MPI::COMM_WORLD.Send( probe_val, 2, MPI_INT,
-                                              dest, TAG_PROBE );
-                        //debug("forwarded probe");
-                    }
-                    reqs[TAG_PROBE].Start();
-                } break;
-
-            case TAG_TERM:
-                goto terminated;
-
-            default:  // should never get here
-                assert(0);
-                break;
-            }
-        }
-    }
-
-terminated:
-    //debug("terminated!");
-    for (int i = 0; i < 3; ++i)
-    {
-        reqs[i].Cancel();
-        reqs[i].Free();
-    }
-    //debug("return %s", str(part, attr).c_str());
-}
-
-/*! Sends local vertex i to every worker that has a predecessor in its internal
-    vertex set (using the global vertex index), but only once per worker.
-    Afterwards, receives new vertices from other processes, ands add them to the
-    local queue. */
-void AsyncMpiRecursiveSolver::notify_others( const GamePartition &part, verti i,
-    std::deque<verti> &queue, std::vector<char> &attr,
-    MPI::Prequest &req, const verti &req_val,
-    int &num_send, int &num_recv )
-{
-    const StaticGraph &graph = part.game().graph();
-    verti v = part.global(i);
-    std::vector<bool> recipients(mpi_size);
-    for ( StaticGraph::const_iterator it = graph.pred_begin(i);
-            it != graph.pred_end(i); ++it )
-    {
-        recipients[worker(part.global(*it))] = true;
-    }
-    for ( StaticGraph::const_iterator it = graph.succ_begin(i);
-            it != graph.succ_end(i); ++it )
-    {
-        recipients[worker(part.global(*it))] = true;
-    }
-    for (int dest = 0; dest < mpi_size; ++dest)
-    {
-        if (recipients[dest] && dest != mpi_rank)
-        {
-            //debug("sending %d to %d", v, dest);
-            MPI::COMM_WORLD.Send(&v, 1, MPI_INT, dest, TAG_VERTEX);
-            ++num_send;
-        }
-    }
-
-    // Receive pending vertex updates:
-    while (req.Test())
-    {
-        //debug("received %d", req_val);
-        i = part.local(req_val);
-        assert(!attr[i]);
-        attr[i] = true;
-        queue.push_back(i);
-        ++num_recv;
-        req.Start();
-    }
-}
-
-void SyncMpiRecursiveSolver::make_attractor_set(
-    const GamePartition &part, ParityGame::Player player,
-    std::vector<char> &attr, std::deque<verti> &queue,
-    bool quick_start )
-{
-    // Offset into `queue' where local entries (internal vertices) begin:
-    size_t local_begin = quick_start ? queue.size() :  0;
-    while (mpi_or(!queue.empty()))
-    {
-        // Calculate maximal internal attractor set
-        for (size_t pos = 0; pos < queue.size(); ++pos)
-        {
-            const StaticGraph &graph = part.game().graph();
-            const verti w = queue[pos];
-            for ( StaticGraph::const_iterator it = graph.pred_begin(w);
-                  it != graph.pred_end(w); ++it )
-            {
-                const verti v = *it;
-
-                if (attr[v]) continue;
-
-                // FIXME: this is a bit of a hack! The intent is to process
-                //        internal vertices only, but `part' doesn't store
-                //        any info to quickly decide this.
-                if (worker(part.global(v)) != mpi_rank) continue;
-
-                if (part.game().player(v) == player)
-                {
-                    // Store strategy for player-controlled vertex:
-                    strategy_[part.global(v)] = part.global(w);
-                }
-                else  // opponent-controlled vertex
-                {
-                    // Can the opponent keep the token out of the attractor set?
-                    for (StaticGraph::const_iterator jt = graph.succ_begin(v);
-                        jt != graph.succ_end(v); ++jt)
-                    {
-                        if (!attr[*jt]) goto skip_v;
-                    }
-
-                    // Store strategy for opponent-controlled vertex:
-                    strategy_[part.global(v)] = NO_VERTEX;
-                }
-                // Add vertex v to the attractor set:
-                attr[v] = true;
-                queue.push_back(v);
-                //debug("added %d to attractor set", part.global(v));
-
-            skip_v:
-                continue;
-            }
-        }
-        // Synchronize with other processes, obtaining a fresh queue of
-        // external vertices that were added in parallel:
-        queue.erase(queue.begin(), queue.begin() + local_begin);
-        //debug("queue size: %d", queue.size());
-        std::deque<verti> next_queue;
-        mpi_exchange_queues(part, queue, attr, next_queue);
-        next_queue.swap(queue);
-        //debug("next queue size: %d", queue.size());
-        local_begin = queue.size();
-    }
-}
-
-void SyncMpiRecursiveSolver::mpi_exchange_queues(
-    const GamePartition &part, const std::deque<verti> &queue,
-    std::vector<char> &attr, std::deque<verti> &next_queue )
-{
-    const StaticGraph &graph = part.game().graph();
-    for (int i = 0; i < mpi_size; ++i)
-    {
-        for (int j = 0; j < mpi_size; ++j)
-        {
-            if (i == mpi_rank && j != mpi_rank)
-            {
-                // Send relevant vertices to j'th process
-                for (std::deque<verti>::const_iterator it = queue.begin();
-                     it != queue.end(); ++it)
-                {
-                    assert(attr[*it]);
-                    bool found = false;
-                    for (StaticGraph::const_iterator jt = graph.pred_begin(*it);
-                         !found && jt != graph.pred_end(*it); ++jt)
-                    {
-                        if (worker(part.global(*jt)) == j) found = true;
-                    }
-                    for (StaticGraph::const_iterator jt = graph.succ_begin(*it);
-                         !found && jt != graph.succ_end(*it); ++jt)
-                    {
-                        if (worker(part.global(*jt)) == j) found = true;
-                    }
-                    if (found)
-                    {
-                        int val = (int)part.global(*it);
-                        MPI::COMM_WORLD.Send(&val, 1, MPI_INT, j, 0);
-                        //debug("sending %d to %d", val, j);
-                    }
-                }
-                int val = -1;
-                MPI::COMM_WORLD.Send(&val, 1, MPI_INT, j, 0);
-            }
-
-            if (i != mpi_rank && j == mpi_rank)
-            {
-                // Receive relevant vertices from i'th process
-                for (;;)
-                {
-                    int val = -1;
-                    MPI::COMM_WORLD.Recv(&val, 1, MPI_INT, i, 0);
-                    if (val == -1) break;
-                    //debug("received %d from %d", val, i);
-                    const verti v = part.local((verti)val);
-                    assert(!attr[v]);
-                    attr[v] = 1;
-                    next_queue.push_back(v);
-                }
-            }
-        }
-    }
-}
-
 ParityGameSolver *MpiRecursiveSolverFactory::create( const ParityGame &game,
         const verti *vertex_map, verti vertex_map_size )
 {
     (void)vertex_map;       // unused
     (void)vertex_map_size;  // unused
+    VertexPartition vpart(mpi_size, 1);
+    MpiAttractorAlgorithm *attr_algo;
     if (async_)
     {
-        return new AsyncMpiRecursiveSolver(game);
+        attr_algo = new AsyncMpiAttractorAlgorithm;
     }
-    else
+    else  // !async_
     {
-        return new SyncMpiRecursiveSolver(game);
+        attr_algo = new SyncMpiAttractorAlgorithm;
     }
+    return new MpiRecursiveSolver(game, vpart, attr_algo);
+    // N.B. MpiRecursiveSolver will delete `attr_algo' at destruction.
 }

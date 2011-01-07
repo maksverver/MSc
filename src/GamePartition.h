@@ -10,14 +10,15 @@
 #ifndef GAME_PARTITION_H_INCLUDED
 #define GAME_PARTITION_H_INCLUDED
 
+#include "VertexPartition.h"
 #include "ParityGame.h"
 
-/* A game partition is a subgame induced by a starting set of internal vertices
-   extended with all vertices that share an edge with an internal vertex.
+/*! A game partition is a subgame induced by a starting set of internal vertices
+    extended with all vertices that share an edge with an internal vertex.
 
-   In addition to storing the subgame for the extended vertex set, the partition
-   stores a mapping of local to global and global to local vertex indices, and
-   the local indices of the internal vertices.
+    In addition to storing the subgame for the extended vertex set, the partition
+    stores a mapping of local to global and global to local vertex indices, and
+    the local indices of the internal vertices.
 */
 class GamePartition
 {
@@ -25,9 +26,10 @@ public:
     typedef std::vector<verti>::const_iterator const_iterator;
 
 public:
-    /*! Construct a partition from a global game and an internal vertex set
-        specified as a list of global vertex indices. */
-    GamePartition(const ParityGame &old_game, const std::vector<verti> &intern);
+    /*! Construct a partition of the global game for the given process using
+        the specified partition. */
+    GamePartition( const ParityGame &old_game,
+                   const VertexPartition &vpart, int process );
 
     /*! Constructs a partition as the intersection of an existing partition with
         a vertex subset, specified as a list of vertex indices local to the
@@ -79,6 +81,11 @@ public:
 
     /*! Returns whether this is an empty partition (i.e. total_size() == 0) */
     bool empty() const { return global_.empty(); }
+
+    /*! For debugging: returns the internal vertex set of the partition as a
+        string, or a subset of according to `sel' if it is non-empty. */
+    std::string debug_str(const std::vector<char> &sel = std::vector<char>())
+        const;
 
 private:
     ParityGame game_;               //! Local subgame

@@ -8,10 +8,23 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #include "GamePartition.h"
+#include <sstream>  // for debug_str()
+#include <assert.h>
 
 GamePartition::GamePartition( const ParityGame &old_game,
-                              const std::vector<verti> &intern )
+                              const VertexPartition &vpart, int proc )
 {
+    // Select vertices in the partition of the game graph:
+    const verti V = old_game.graph().V();
+    std::vector<verti> intern;
+    intern.reserve(vpart.num_assigned(V, proc));
+    for (verti v = vpart.first(proc); v < V; v = vpart.next(proc, v))
+    {
+        assert(vpart(v) == proc);
+        intern.push_back(v);
+    }
+    assert(intern.size() == intern.capacity());
+
     // We assume `intern' is sorted and therefore `internal' will
     // be sorted too. This makes it easier to create subpartitions later.
     assert(is_sorted(intern.begin(), intern.end(), std::less<verti>()));
@@ -125,4 +138,21 @@ void GamePartition::swap(GamePartition &gp)
     std::swap(global_, gp.global_);
     // N.B. std::swap() is not yet overloaded for hash maps in C++ TR1:
     local_.swap(gp.local_);
+}
+
+std::string GamePartition::debug_str(const std::vector<char> &sel) const
+{
+    std::ostringstream os;
+    bool first = true;
+    os << "{ ";
+    for (GamePartition::const_iterator it = begin(); it != end(); ++it)
+    {
+        if (sel.empty() || sel[*it])
+        {
+            if (first) first = false; else os << ", ";
+            os << global(*it);
+        }
+    }
+    os << " }";
+    return os.str();
 }
