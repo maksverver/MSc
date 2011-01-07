@@ -109,6 +109,26 @@ void StaticGraph::make_random(verti V, unsigned out_deg, EdgeDirection edge_dir)
     assign(edges, edge_dir);
 }
 
+void StaticGraph::assign(const StaticGraph &graph)
+{
+    if (&graph == this) return;
+
+    reset(graph.V_, graph.E_, graph.edge_dir_);
+
+    if (edge_dir_ & EDGE_SUCCESSOR)
+    {
+        std::copy(graph.successors_, graph.successors_ + E_, successors_);
+        std::copy(graph.successor_index_, graph.successor_index_ + V_ + 1,
+                  successor_index_);
+    }
+    if (edge_dir_ & EDGE_PREDECESSOR)
+    {
+        std::copy(graph.predecessors_, graph.predecessors_ + E_, predecessors_);
+        std::copy(graph.predecessor_index_, graph.predecessor_index_ + V_ + 1,
+                  predecessor_index_);
+    }
+}
+
 void StaticGraph::assign(edge_list edges, EdgeDirection edge_dir)
 {
     // Find number of vertices

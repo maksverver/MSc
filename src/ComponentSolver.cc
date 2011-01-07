@@ -121,7 +121,7 @@ int ComponentSolver::operator()(const verti *vertices, size_t num_vertices)
         for (int player = 0; player < 2; ++player)
         {
             make_attractor_set( game_, (ParityGame::Player)player,
-                                winning[player], &strategy_ );
+                                winning[player], strategy_ );
 
             // Mark vertices in winning + attractor set as solved:
             for (HASH_SET(verti)::const_iterator it =

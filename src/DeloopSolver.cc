@@ -53,7 +53,7 @@ ParityGame::Strategy DeloopSolver::solve()
         for ( std::deque<verti>::const_iterator it = winning.begin();
                 it != winning.end(); ++it ) solved.insert(*it);
         make_attractor_set( game_, (ParityGame::Player)player,
-                            solved, winning, &strategy );
+                            solved, winning, strategy );
 
         verti num_solved = (verti)solved.size() - old_solved;
         info( "(DeloopSolver) Found %d vertices won by %s",

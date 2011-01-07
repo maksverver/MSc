@@ -103,7 +103,7 @@ ParityGame::Strategy DecycleSolver::solve()
             for ( std::deque<verti>::const_iterator it = winning_.begin();
                     it != winning_.end(); ++it ) solved.insert(*it);
             make_attractor_set( game_, (ParityGame::Player)(prio_%2),
-                                solved, winning_, &strategy_ );
+                                solved, winning_, strategy_ );
 
             update_memory_use(my_memory_use() + solved.memory_use());
             winning_.clear();

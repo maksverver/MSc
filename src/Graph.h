@@ -93,6 +93,9 @@ public:
         \param edge_dir which parts of edges to store */
     void make_random(verti V, unsigned out_deg, EdgeDirection edge_dir);
 
+    /*! Reset the graph to a copy of `graph'. */
+    void assign(const StaticGraph &graph);
+
     /*! Reset the graph based on the given edge structure. */
     void assign(edge_list edges, EdgeDirection edge_dir);
 
@@ -125,8 +128,14 @@ public:
     /*! Swaps the contents of this graph with another one. */
     void swap(StaticGraph &g);
 
-    verti V() const { return V_; }  /*!< Return number of vertices in the graph */
-    edgei E() const { return E_; }  /*!< Return number of edges in the graph */
+    /*! Returns whether the graph is empty. */
+    bool empty() const { return V_ == 0; }
+
+    /*! Returns the number of vertices in the graph. */
+    verti V() const { return V_; }
+
+    /*! Returns the number of edges in the graph. */
+    edgei E() const { return E_; }
 
     /*! Return direction of edges stored. */
     EdgeDirection edge_dir() const { return edge_dir_; }

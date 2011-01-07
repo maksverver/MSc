@@ -12,6 +12,8 @@
 
 #include "ParityGameSolver.h"
 
+class Substrategy;
+
 class RecursiveSolver : public ParityGameSolver
 {
 public:
@@ -21,8 +23,9 @@ public:
     ParityGame::Strategy solve();
 
 private:
-    //! Solves a subgame with a known minimum priority:
-    ParityGame::Strategy solve(const ParityGame &game, int min_prio);
+    /*! Solves a subgame with a known minimum priority, or returns false if
+        solving is aborted. */
+    bool solve(ParityGame &game, Substrategy &strat);
 };
 
 class RecursiveSolverFactory : public ParityGameSolverFactory

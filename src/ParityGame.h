@@ -76,6 +76,12 @@ public:
     /*! Reset to an empty game. */
     void clear();
 
+    /*! Reset the game to a copy of `game'. */
+    void assign(const ParityGame &game);
+
+    /*! Returns whether the game is empty. */
+    bool empty() const { return graph().empty(); }
+
     /*! Generate a random parity game, with vertices assigned uniformly at
         random to players, and priority assigned uniformly between 0 and d-1.
         \sa void StaticGraph::make_random()
@@ -111,10 +117,24 @@ public:
               usual interpretation of 1->3, 2->1, 3->2) */
     void shuffle(const std::vector<verti> &perm);
 
-    /*! Compresses range of priorities such that after compression,
-        cardinality(p) &gt; 0, for 0 &lt; p &lt; d (note that cardinality(0)
-        may still be zero!). */
-    void compress_priorities();
+    /*! Compresses the range of priorities such that after compression,
+        cardinality(p) &gt; 0, for 0 &lt; p &lt; d.
+
+        If `cardinality' is 0, then the priorities for the game itself are used.
+        Otherwise, `cardinality' must be an array of length `d' and the caller
+        must ensure that all priorities that occur in the game have a positive
+        cardinality count.
+
+        If `preserve_parity' is true, then remapping preserves the parity of
+        priorities and thus players of vertices. In this case, cardinality(0)
+        may be zero afterwards.
+
+        If `preserve_parity' is false, then players as well as priorities are
+        remapped to preserve winning sets. The function returns the parity of
+        the priority that was mapped to zero.
+    */
+    Player compress_priorities( const verti cardinality[] = 0,
+                                bool preserve_parity = true );
 
     /*! Read a game description in PGSolver format. */
     void read_pgsolver( std::istream &is,
@@ -162,7 +182,8 @@ public:
     verti cardinality(int p) const { return cardinality_[p]; }
 
     /*! Return the winner for vertex v according to strategy s. */
-    Player winner(const Strategy &s, verti v) const;
+    template<class StrategyT>
+    Player winner(const StrategyT &s, verti v) const;
 
     /*! Returns whether the given strategy is valid (and thereby optimal) for
         both players. */

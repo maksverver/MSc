@@ -31,3 +31,10 @@ void ParityGame::make_subgame( const ParityGame &game,
     graph_.make_subgraph(game.graph_, vertices_begin, vertices_end);
     recalculate_cardinalities(num_vertices);
 }
+
+template<class StrategyT>
+ParityGame::Player ParityGame::winner(const StrategyT &s, verti v) const
+{
+    /* A vertex is won by its player iff the player has a strategy for it: */
+    return (s[v] != NO_VERTEX) ? player(v) : ParityGame::Player(1 - player(v));
+}

@@ -15,16 +15,15 @@
 /*! Computes the attractor set of the given vertex set for a specific player,
     and stores it in-place in `vertices'. If `strategy' is not NULL, it is
     updated for all vertices added that are controlled by `player'. */
-template<class SetT>
+template<class SetT, class StrategyT>
 void make_attractor_set( const ParityGame &game, ParityGame::Player player,
-                         SetT &vertices, ParityGame::Strategy *strategy );
+                         SetT &vertices, StrategyT &strategy );
 
 /* Variant that takes an explicit queue of initial vertices. This queue must
     be initialized to `vertices' or a subset thereof. */
-template<class SetT, class DequeT>
+template<class SetT, class DequeT, class StrategyT>
 void make_attractor_set( const ParityGame &game, ParityGame::Player player,
-    SetT &vertices, DequeT &todo, ParityGame::Strategy *strategy );
-
+    SetT &vertices, DequeT &todo, StrategyT &strategy );
 
 #include "attractor_impl.h"
 

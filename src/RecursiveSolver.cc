@@ -11,12 +11,81 @@
 #include "attractor.h"
 #include <set>
 #include <assert.h>
+//#include "Logger.h"  // debug
 
-template<class T>
-static size_t memory_use(const std::vector<T> &v)
+class Substrategy
 {
-    return v.capacity()*sizeof(T);
-}
+private:
+    friend class Reference;
+
+    class Reference
+    {
+    public:
+        Reference(Substrategy &s, verti v) : substrat_(s), v_(s.global(v)) { }
+
+        Reference &operator=(verti w)
+        {
+            if (w != NO_VERTEX) w = substrat_.global(w);
+            substrat_.strategy_[v_] = w;
+            return *this;
+        }
+
+    private:
+        Substrategy &substrat_;
+        verti v_;
+    };
+
+public:
+    //! Constructs a strategy for all the vertices in a global strategy.
+    Substrategy(ParityGame::Strategy &strategy)
+        : strategy_(strategy)
+    {
+    }
+
+    //! Constructs a substrategy from an existing (sub)strategy and vertex map.
+    Substrategy(const Substrategy &substrat, std::vector<verti> vmap)
+        : strategy_(substrat.strategy_)
+    {
+        global_.resize(vmap.size());
+        for (size_t i = 0; i < global_.size(); ++i)
+        {
+            global_[i] = substrat.global(vmap[i]);
+        }
+    }
+
+    //! Swaps this substrategy ovbect with another.
+    void swap(Substrategy &other)
+    {
+        strategy_.swap(other.strategy_);
+        global_.swap(other.global_);
+    }
+
+    //! Returns a write-only reference to the strategy for vertex `v'.
+    Reference operator[](verti v)
+    {
+        return Reference(*this, v);
+    }
+
+    //! Returns the winner for vertex `v' assuming it is controlled by `p'.
+    ParityGame::Player winner(verti v, ParityGame::Player p)
+    {
+        if (strategy_[global_[v]] == NO_VERTEX) p = ParityGame::Player(1 - p);
+        return p;
+    }
+
+    //! Maps local to global vertex index
+    inline verti global(verti v) const
+    {
+        return global_.empty() ? v : global_[v];
+    }
+
+private:
+    //! Reference to the global strategy
+    ParityGame::Strategy &strategy_;
+
+    //! Mapping from local to global vertex indices, or empty for identity.
+    std::vector<verti> global_;
+};
 
 /*! Returns the complement of a vertex set; i.e. an ordered list of all vertex
     indices under V, from which the contents of `vertices' have been removed. */
@@ -53,123 +122,101 @@ RecursiveSolver::~RecursiveSolver()
 
 ParityGame::Strategy RecursiveSolver::solve()
 {
-    return solve(game(), 0);
+    ParityGame game;
+    game.assign(game_);
+    game.compress_priorities(0, false);
+    ParityGame::Strategy strategy(game.graph().V(), NO_VERTEX);
+    Substrategy substrat(strategy);
+    if (!solve(game, substrat)) strategy.clear();
+    return strategy;
 }
 
-#include "Logger.h"  // for debug
-
-ParityGame::Strategy RecursiveSolver::solve(const ParityGame &game, int min_prio)
+// Note: assumes priorities are fully compressed in `game', so that all
+//       priorities between 0 and `d' are used, or the game is empty.
+bool RecursiveSolver::solve(ParityGame &game, Substrategy &strat)
 {
-    assert(min_prio < game.d());
+    if (aborted()) return false;
 
-    const StaticGraph        &graph   = game.graph();
-    const verti              V        = graph.V();
-    const ParityGame::Player player   = (ParityGame::Player)(min_prio%2);
-    const ParityGame::Player opponent = (ParityGame::Player)(1 - min_prio%2);
-
-    if (aborted()) return ParityGame::Strategy();
-
-    if (game.d() - min_prio <= 1)
+    while (!game.empty())
     {
-        // Only one priority left; construct trivial strategy.
-        ParityGame::Strategy strategy(V, NO_VERTEX);
-        for (verti v = 0; v < V; ++v)
+        const StaticGraph &graph = game.graph();
+        const verti V = graph.V();
+
+        std::vector<verti> unsolved;
+
+        // Compute attractor set of minimum priority vertices:
         {
-            if (game.player(v) == player) strategy[v] = *graph.succ_begin(v);
+            std::set<verti> min_prio_attr;
+            for (verti v = 0; v < V; ++v)
+            {
+                if (game.priority(v) == 0) min_prio_attr.insert(v);
+            }
+            //Logger::info("|min_prio|=%d", (int)min_prio_attr.size());
+            assert(!min_prio_attr.empty());
+            make_attractor_set(game, ParityGame::PLAYER_EVEN, min_prio_attr, strat);
+            //Logger::info("|min_prio_attr|=%d", (int)min_prio_attr.size());
+            if (min_prio_attr.size() == V) break;
+            get_complement(V, min_prio_attr).swap(unsolved);
         }
-        //Logger::info("V=%d min_prio=%d", (int)V, min_prio);
-        return strategy;
+
+        // Solve vertices not in the minimum priority attractor set:
+        {
+            ParityGame subgame;
+            subgame.make_subgame(game, unsolved.begin(), unsolved.end());
+            assert(subgame.cardinality(0) == 0);
+            subgame.compress_priorities(0, false);
+            Substrategy substrat(strat, unsolved);
+            if (!solve(subgame, substrat)) return false;
+
+            // Compute attractor set of all vertices won by the opponent:
+            std::set<verti> lost_attr;
+            for (verti v = 0; v < (verti)unsolved.size(); ++v)
+            {
+                if (substrat.winner(v, game.player(unsolved[v]))
+                        == ParityGame::PLAYER_ODD)
+                {
+                    lost_attr.insert(unsolved[v]);
+                }
+            }
+            if (lost_attr.empty()) break;
+            make_attractor_set(game, ParityGame::PLAYER_ODD, lost_attr, strat);
+            //Logger::info("|lost|=%d", (int)lost_attr.size());
+            //Logger::info("|lost_attr|=%d", (int)lost_attr.size());
+            get_complement(V, lost_attr).swap(unsolved);
+        }
+
+        // Repeat with subgame of which vertices won by odd have been removed:
+        {
+            ParityGame subgame;
+            subgame.make_subgame(game, unsolved.begin(), unsolved.end());
+            subgame.compress_priorities(0, false);
+            Substrategy substrat(strat, unsolved);
+            strat.swap(substrat);
+            game.swap(subgame);
+        }
     }
 
-    //Logger::info("enter V=%d min_prio=%d", (int)V, min_prio);
-
-    // Degenerate case: no vertices with this priority exist:
-    if (game.cardinality(min_prio) == 0) return solve(game, min_prio + 1);
-
-    ParityGame::Strategy strategy(V, NO_VERTEX);
-
-    // Compute attractor set of minimum priority vertices:
-    std::set<verti> min_prio_attr;
+    // If we get here, then the opponent's winning set was empty; the strategy
+    // for most vertices has already been initialized, except for those with
+    // minimum priority. Since the whole game is won by the current player, it
+    // suffices to pick an arbitrary successor for these vertices:
+    const StaticGraph &graph = game.graph();
+    const verti V = graph.V();
     for (verti v = 0; v < V; ++v)
     {
-        assert(game.priority(v) >= min_prio);
-        if (game.priority(v) == min_prio) min_prio_attr.insert(v);
-    }
-    //Logger::info("|min_prio|=%d", (int)min_prio_attr.size());
-    assert(!min_prio_attr.empty());
-    make_attractor_set(game, player, min_prio_attr, &strategy);
-    //Logger::info("|min_prio_attr|=%d", (int)min_prio_attr.size());
-
-    // Compute attractor set of vertices lost to the opponent:
-    std::set<verti> lost_attr;
-
-    if (min_prio_attr.size() < V)
-    {
-        // Find unsolved vertices so far:
-        std::vector<verti> unsolved = get_complement(V, min_prio_attr);
-        min_prio_attr.clear();  // free no-longer used memory
-
-        // Create subgame with unsolved vertices:
-        ParityGame subgame;
-        subgame.make_subgame(game, unsolved.begin(), unsolved.end());
-        ParityGame::Strategy substrat = solve(subgame, min_prio + 1);
-
-        // Check if solving failed (or was aborted):
-        if (substrat.size() != unsolved.size()) return ParityGame::Strategy();
-
-        // Calculate current memory use:
-        update_memory_use( subgame.memory_use() +
-                           ::memory_use(unsolved) +
-                           ::memory_use(substrat) );
-
-        merge_strategies(strategy, substrat, unsolved);
-
-        // Create attractor set of all vertices won by the opponent:
-        for (verti v = 0; v < (verti)unsolved.size(); ++v)
+        if (game.priority(v) == 0)
         {
-            if (subgame.winner(substrat, v) == opponent)
+            if (game.player(v) == ParityGame::PLAYER_EVEN)
             {
-                lost_attr.insert(unsolved[v]);
+                strat[v] = *graph.succ_begin(v);
             }
-        }
-        //Logger::info("|lost|=%d", (int)lost_attr.size());
-        make_attractor_set(game, opponent, lost_attr, &strategy);
-        //Logger::info("|lost_attr|=%d", (int)lost_attr.size());
-    }
-
-    if (lost_attr.empty())  // whole game won by current player!
-    {
-        // Pick an arbitrary edge for minimum-priority vertices:
-        for (verti v = 0; v < V; ++v)
-        {
-            if (game.player(v) == player && strategy[v] == NO_VERTEX)
+            else
             {
-                assert(game.priority(v) == min_prio);
-                strategy[v] = *graph.succ_begin(v);
+                strat[v] = NO_VERTEX;
             }
         }
     }
-    else  // opponent wins some vertices
-    {
-        // Construct subgame without vertices lost to opponent:
-        std::vector<verti> unsolved = get_complement(V, lost_attr);
-        ParityGame subgame;
-        subgame.make_subgame(game, unsolved.begin(), unsolved.end());
-        ParityGame::Strategy substrat = solve(subgame, min_prio);
-
-        // Check if solving failed (or was aborted):
-        if (substrat.size() != unsolved.size()) return ParityGame::Strategy();
-
-        // Calculate current memory use:
-        update_memory_use( subgame.memory_use() +
-                           ::memory_use(unsolved) +
-                           ::memory_use(substrat) );
-
-        merge_strategies(strategy, substrat, unsolved);
-    }
-
-    //Logger::info("leave V=%d min_prio=%d", (int)V, min_prio);
-    return strategy;
+    return true;
 }
 
 ParityGameSolver *RecursiveSolverFactory::create( const ParityGame &game,

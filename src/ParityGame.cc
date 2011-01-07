@@ -30,8 +30,20 @@ void ParityGame::clear()
     delete[] cardinality_;
 
     d_ = 0;
+    graph_.clear();
     vertex_ = NULL;
     cardinality_ = NULL;
+}
+
+void ParityGame::assign(const ParityGame &game)
+{
+    if (&game == this) return;
+
+    graph_.assign(game.graph_);
+    verti V = graph_.V();
+    reset(V, game.d_);
+    std::copy(game.vertex_, game.vertex_ + V, vertex_);
+    recalculate_cardinalities(V);
 }
 
 void ParityGame::reset(verti V, int d)
@@ -114,35 +126,38 @@ void ParityGame::shuffle(const std::vector<verti> &perm)
     vertex_ = new_vertex;
 }
 
-void ParityGame::compress_priorities()
+ParityGame::Player ParityGame::compress_priorities( const verti cardinality[],
+                                                    bool preserve_parity )
 {
+    if (cardinality == 0) cardinality = cardinality_;
+
     // Quickly check if we have anything to compress first:
-    if (std::find(cardinality_ + 1, cardinality_ + d_, 0) == cardinality_ + d_)
+    if ( empty() || std::find( cardinality + preserve_parity,
+                               cardinality + d_, 0 ) == cardinality + d_ )
     {
-        return;
+        return (d_ == 0) ? PLAYER_NONE : PLAYER_EVEN;
     }
 
     // Find out how to map old priorities to new priorities
     std::vector<int> prio_map(d_, -1);
-    int last_prio = 0;
-    prio_map[0] = last_prio;
-    for (int p = 1; p < d_; ++p)
+    int first_prio = 0, last_prio = 0;
+    if (!preserve_parity)
     {
-        if (cardinality_[p] == 0) continue;  // remove priority p
-        if (last_prio%2 != p%2) ++last_prio;
-        prio_map[p] = last_prio;
+        // Find lowest priority in use:
+        while (cardinality[first_prio] == 0) ++first_prio;
+        assert(first_prio < d_);  // fails only if cardinality count is invalid!
     }
-
-    // Remap priorities of all vertices
-    for (verti v = 0; v < graph_.V(); ++v)
+    bool swap_players = first_prio%2 != 0;
+    prio_map[first_prio] = last_prio;
+    for (int p = first_prio + 1; p < d_; ++p)
     {
-        assert(prio_map[vertex_[v].priority] >= 0);
-        vertex_[v].priority = prio_map[vertex_[v].priority];
+        if (cardinality[p] == 0) continue;  // remove priority p
+        if ((last_prio%2 ^ p%2) != swap_players) ++last_prio;
+        prio_map[p] = last_prio;
     }
 
     // Update priority limit and cardinality counts
     int new_d = last_prio + 1;
-    assert(new_d < d_);
     verti *new_cardinality = new verti[new_d];
     std::fill(new_cardinality, new_cardinality + new_d, 0);
     for (int p = 0; p < d_; ++p)
@@ -155,7 +170,18 @@ void ParityGame::compress_priorities()
     delete[] cardinality_;
     cardinality_ = new_cardinality;
     d_ = new_d;
+
+    // Remap priorities and players of all vertices
+    for (verti v = 0; v < graph_.V(); ++v)
+    {
+        assert(prio_map[vertex_[v].priority] >= 0);
+        vertex_[v].priority = prio_map[vertex_[v].priority];
+        if (swap_players) vertex_[v].player = Player(1 - vertex_[v].player);
+    }
+
+    return swap_players ? PLAYER_ODD : PLAYER_EVEN;
 }
+
 
 size_t ParityGame::memory_use() const
 {
@@ -163,12 +189,6 @@ size_t ParityGame::memory_use() const
     res += sizeof(ParityGameVertex)*graph_.V();     // vertex info
     res += sizeof(verti)*d_;                        // priority frequencies
     return res;
-}
-
-ParityGame::Player ParityGame::winner(const Strategy &s, verti v) const
-{
-    /* A vertex is won by its player iff the player has a strategy for it: */
-    return (s[v] != NO_VERTEX) ? player(v) : ParityGame::Player(1 - player(v));
 }
 
 /*! Swaps the contents of this parity game with another one. */

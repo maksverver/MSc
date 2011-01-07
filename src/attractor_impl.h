@@ -10,19 +10,17 @@
 #include "attractor.h"
 #include <queue>
 
-template<class SetT>
+template<class SetT, class StrategyT>
 void make_attractor_set( const ParityGame &game, ParityGame::Player player,
-                         SetT &vertices, ParityGame::Strategy *strategy )
+                         SetT &vertices, StrategyT &strategy )
 {
     std::deque<verti> todo(vertices.begin(), vertices.end());
     return make_attractor_set(game, player, vertices, todo, strategy);
 }
 
-#include "Logger.h"
-
-template<class SetT, class DequeT>
+template<class SetT, class DequeT, class StrategyT>
 void make_attractor_set( const ParityGame &game, ParityGame::Player player,
-    SetT &vertices, DequeT &todo, ParityGame::Strategy *strategy )
+    SetT &vertices, DequeT &todo, StrategyT &strategy )
 {
     const StaticGraph &graph = game.graph();
 
@@ -43,7 +41,7 @@ void make_attractor_set( const ParityGame &game, ParityGame::Player player,
             if (game.player(v) == player)
             {
                 // Store strategy for player-controlled vertex:
-                if (strategy) (*strategy)[v] = w;
+                strategy[v] = w;
             }
             else  // opponent controls vertex
             {
@@ -55,7 +53,7 @@ void make_attractor_set( const ParityGame &game, ParityGame::Player player,
                 }
 
                 // Store strategy for opponent-controlled vertex:
-                if (strategy) (*strategy)[v] = NO_VERTEX;
+                strategy[v] = NO_VERTEX;
             }
 
             // Add vertex v to the attractor set:
