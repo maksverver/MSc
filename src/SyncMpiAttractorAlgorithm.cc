@@ -11,12 +11,12 @@
 
 extern int mpi_rank, mpi_size;
 
-// FIXME: this duplicates code from MpiRecursiveSolver.
+//! Returns whether `local_value' is true in any of the MPI processes:
 static bool mpi_or(int local_value)
 {
-    int global_sum = 0;
-    MPI::COMM_WORLD.Allreduce(&local_value, &global_sum, 1, MPI_INT, MPI_SUM);
-    return global_sum != 0;
+    int res;
+    MPI::COMM_WORLD.Allreduce(&local_value, &res, 1, MPI_INT, MPI_LOR);
+    return res;
 }
 
 SyncMpiAttractorImpl::SyncMpiAttractorImpl( const VertexPartition &vpart,

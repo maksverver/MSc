@@ -69,7 +69,7 @@ public:
     //! Returns the winner for vertex `v' assuming it is controlled by `p'.
     ParityGame::Player winner(verti v, ParityGame::Player p)
     {
-        if (strategy_[global_[v]] == NO_VERTEX) p = ParityGame::Player(1 - p);
+        if (strategy_[global(v)] == NO_VERTEX) p = ParityGame::Player(1 - p);
         return p;
     }
 
@@ -124,20 +124,32 @@ ParityGame::Strategy RecursiveSolver::solve()
 {
     ParityGame game;
     game.assign(game_);
-    game.compress_priorities(0, false);
     ParityGame::Strategy strategy(game.graph().V(), NO_VERTEX);
     Substrategy substrat(strategy);
     if (!solve(game, substrat)) strategy.clear();
     return strategy;
 }
 
-// Note: assumes priorities are fully compressed in `game', so that all
-//       priorities between 0 and `d' are used, or the game is empty.
+/*! Returns the first alternation, i.e. a priority `p' such that some vertices
+    exist with priorities p and q, where q < p and q%2 != p%2. If there are no
+    alternations, game.d() is returned instead. */
+static int first_alternation(const ParityGame &game)
+{
+    int d = game.d();
+    int q = 0;
+    while (q < d && game.cardinality(q) == 0) ++q;
+    int p = q + 1;
+    while (p < d && game.cardinality(p) == 0) p += 2;
+    if (p > d) p = d;
+    return p;
+}
+
 bool RecursiveSolver::solve(ParityGame &game, Substrategy &strat)
 {
     if (aborted()) return false;
 
-    while (!game.empty())
+    int prio;
+    while ((prio = first_alternation(game)) < game.d())
     {
         const StaticGraph &graph = game.graph();
         const verti V = graph.V();
@@ -146,14 +158,15 @@ bool RecursiveSolver::solve(ParityGame &game, Substrategy &strat)
 
         // Compute attractor set of minimum priority vertices:
         {
+            ParityGame::Player player = (ParityGame::Player)((prio - 1)%2);
             std::set<verti> min_prio_attr;
             for (verti v = 0; v < V; ++v)
             {
-                if (game.priority(v) == 0) min_prio_attr.insert(v);
+                if (game.priority(v) < prio) min_prio_attr.insert(v);
             }
             //Logger::info("|min_prio|=%d", (int)min_prio_attr.size());
             assert(!min_prio_attr.empty());
-            make_attractor_set(game, ParityGame::PLAYER_EVEN, min_prio_attr, strat);
+            make_attractor_set(game, player, min_prio_attr, strat);
             //Logger::info("|min_prio_attr|=%d", (int)min_prio_attr.size());
             if (min_prio_attr.size() == V) break;
             get_complement(V, min_prio_attr).swap(unsolved);
@@ -163,23 +176,22 @@ bool RecursiveSolver::solve(ParityGame &game, Substrategy &strat)
         {
             ParityGame subgame;
             subgame.make_subgame(game, unsolved.begin(), unsolved.end());
-            assert(subgame.cardinality(0) == 0);
-            subgame.compress_priorities(0, false);
             Substrategy substrat(strat, unsolved);
             if (!solve(subgame, substrat)) return false;
 
             // Compute attractor set of all vertices won by the opponent:
+            ParityGame::Player opponent = (ParityGame::Player)(prio%2);
             std::set<verti> lost_attr;
-            for (verti v = 0; v < (verti)unsolved.size(); ++v)
+            for ( std::vector<verti>::const_iterator it = unsolved.begin();
+                  it != unsolved.end(); ++it )
             {
-                if (substrat.winner(v, game.player(unsolved[v]))
-                        == ParityGame::PLAYER_ODD)
+                if (strat.winner(*it, game.player(*it)) == opponent)
                 {
-                    lost_attr.insert(unsolved[v]);
+                    lost_attr.insert(*it);
                 }
             }
             if (lost_attr.empty()) break;
-            make_attractor_set(game, ParityGame::PLAYER_ODD, lost_attr, strat);
+            make_attractor_set(game, opponent, lost_attr, strat);
             //Logger::info("|lost|=%d", (int)lost_attr.size());
             //Logger::info("|lost_attr|=%d", (int)lost_attr.size());
             get_complement(V, lost_attr).swap(unsolved);
@@ -189,7 +201,6 @@ bool RecursiveSolver::solve(ParityGame &game, Substrategy &strat)
         {
             ParityGame subgame;
             subgame.make_subgame(game, unsolved.begin(), unsolved.end());
-            subgame.compress_priorities(0, false);
             Substrategy substrat(strat, unsolved);
             strat.swap(substrat);
             game.swap(subgame);
@@ -204,9 +215,9 @@ bool RecursiveSolver::solve(ParityGame &game, Substrategy &strat)
     const verti V = graph.V();
     for (verti v = 0; v < V; ++v)
     {
-        if (game.priority(v) == 0)
+        if (game.priority(v) < prio)
         {
-            if (game.player(v) == ParityGame::PLAYER_EVEN)
+            if (game.player(v) == game.priority(v)%2)
             {
                 strat[v] = *graph.succ_begin(v);
             }

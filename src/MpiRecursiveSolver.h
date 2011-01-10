@@ -10,7 +10,7 @@
 #ifndef MPI_RECURSIVE_SOLVER_H_INCLUDED
 #define MPI_RECURSIVE_SOLVER_H_INCLUDED
 
-#include "ParityGameSolver.h"
+#include "RecursiveSolver.h"
 #include "VertexPartition.h"
 #include "GamePartition.h"
 #include "MpiAttractorAlgorithm.h"
@@ -38,16 +38,14 @@ public:
     ParityGame::Strategy solve();
 
 protected:
-    /*! Solves the game for the internal vertex set of the given game partition,
-        given that the minimum priority used in the game is `min_prio'.
-
-        Updates `strategy_' so that it is valid for all global indices
+    /*! Solves the game for the internal vertex set of the given game partition
+        and updates `strategy_' so that it is valid for all global indices
         corresponding with internal vertices of the partition.
 
         After returning, the game partition has been reduced to the winning set
-        for the player corresponding to the parity of min_prio.
+        for the player corresponding to the minimum priority used in `part'.
     */
-    void solve(GamePartition &part, int min_prio);
+    void solve(GamePartition &part);
 
 protected:
     //! Vertex partition used to partition the game over MPI worker processes.
