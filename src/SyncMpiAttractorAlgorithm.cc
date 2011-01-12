@@ -26,7 +26,6 @@ SyncMpiAttractorImpl::SyncMpiAttractorImpl( const VertexPartition &vpart,
     : vpart_(vpart), part(part), player(player), attr(attr), queue(queue),
       strategy_(strategy)
 {
-    info("Constructed SyncMpiAttractorImpl.");
 }
 
 void SyncMpiAttractorImpl::solve(bool quick_start)

@@ -63,13 +63,20 @@ protected:
 class MpiRecursiveSolverFactory : public ParityGameSolverFactory
 {
 public:
-    MpiRecursiveSolverFactory(bool async) : async_(async) { };
+    /*! A solver factory for MpiRecursiveSolvers. `async' determines which
+        MpiAttractorAlgorithm is used during solving. `chunk_size' specifies
+        the chunk sized used to partition the graph; if it is 0, then the
+        chunk size is chosen such that every worker has a single (approximately
+        equal size) chunk to work with. */
+    MpiRecursiveSolverFactory(bool async, verti chunk_size)
+        : async_(async), chunk_size_(chunk_size) { };
 
     ParityGameSolver *create( const ParityGame &game,
         const verti *vertex_map, verti vertex_map_size );
 
 private:
     bool async_;
+    verti chunk_size_;
 };
 
 #endif /* ndef MPI_RECURSIVE_SOLVER_H_INCLUDED */

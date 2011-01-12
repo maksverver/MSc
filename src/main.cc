@@ -83,8 +83,9 @@ static int          arg_random_priorities     =      20;
 static int          arg_timeout               =       0;
 static bool         arg_verify                = false;
 static bool         arg_zielonka              = false;
-static int          arg_zielonka_variant      = -1;
+static bool         arg_zielonka_sync         = false;
 static bool         arg_mpi                   = false;
+static int          arg_chunk_size            = -1;
 
 static const double MB = 1048576.0;  // one megabyte
 
@@ -118,33 +119,46 @@ static double get_vmsize()
 static void print_usage()
 {
     printf(
-"Options:\n"
-"  --help/-h              show help\n"
+"General options:\n"
+"  --help/-h              show this help message\n"
+"  --verbosity/-v <level> message verbosity (0-6; default: 4)\n"
+"  --quiet/-q             no messages (equivalent to -v0)\n"
+"\n"
+"Input:\n"
 "  --input/-i <format>    input format: random, raw, PGSolver or PBES\n"
-"  --size <int>           size of randomly generated graph\n"
-"  --outdegree <int>      average out-degree in randomly generated graph\n"
-"  --priorities <int>     number of priorities in randomly generated game\n"
-"  --seed <int>           random seed\n"
-"  --lifting/-l <desc>    Small Progress Measures lifting strategy\n"
-"  --alternate/-a         SPM: use Friedmann's alternating solving approach\n"
+"  --priorities <int>     (random only) number of priorities\n"
+"  --size <int>           (random only) number of vertices\n"
+"  --outdegree <int>      (random only) average out-degree\n"
+"  --seed <int>           (random only) random nubmer generator seed\n"
+"\n"
+"Preprocessing:\n"
+"  --deloop               detect loops won by the controlling player\n"
+"  --decycle              detect cycles won and controlled by a single player\n"
+"  --scc                  solve strongly connected components individually\n"
+"  --dual                 solve the dual game\n"
+"  --reorder (bfs|dfs)    order vertices by breadth-/depth-first-search order\n"
+"\n"
+"Solving with Small Progress Measures:\n"
+"  --lifting/-l <desc>    Small Progress Measures lifting strategy to use\n"
+"  --alternate/-a         use Friedmann's alternating solving approach\n"
+"\n"
+"\nZielonka's recursive algorithm:\n"
+"  --zielonka/-z          use Zielonka's recursive algorithm\n"
+"  --mpi                  solve in parallel using MPI\n"
+"  --chunk/-c <size>      (MPI only) chunk size for partitioning\n"
+"  --sync                 (MPI only) use synchronized MPI algorithm\n"
+"\n"
+"Output:\n"
 "  --dot/-d <file>        write parity game in GraphViz dot format to <file>\n"
 "  --pgsolver/-p <file>   write parity game in PGSolver format to <file>\n"
 "  --raw/-r <file>        write parity game in raw format to <file>\n"
 "  --winners/-w <file>    write compact winners specification to <file>\n"
 "  --strategy/-s <file>   write optimal strategy for both players to <file>\n"
+"\n"
+"Benchmarking/testing:\n"
 "  --stats/-S             collect lifting statistics during SPM solving\n"
-"  --decycle              detect cycles won and controlled by a single player\n"
-"  --deloop               detect vertices with loops won by a single player\n"
-"  --scc                  solve strongly connected components individually\n"
-"  --dual                 solve the dual game\n"
-"  --reorder/-e (bfs|dfs) reorder vertices\n"
 "  --timeout/-t <t>       abort solving after <t> seconds\n"
 "  --verify/-V            verify solution after solving\n"
-"  --zielonka/-z          use Zielonka's recursive algorithm\n"
-"  --zielonka=sync/-zsync (MPI only): use synchronized implementation\n"
-"  --mpi                  solve in parallel using MPI\n"
-"  --verbosity/-v <level> message verbosity (0-6; default: 4)\n"
-"  --quiet/-q             no messages (equivalent to -v0)\n"
 "  --hot/-H <file>        write 'hot' vertices in GraphViz format to <file>\n"
 "  --debug/-D <file>      write solution in debug format to <file>\n");
 }
@@ -153,39 +167,55 @@ static void parse_args(int argc, char *argv[])
 {
     static struct option long_options[] = {
         { "help",       no_argument,       NULL, 'h' },
+        { "verbosity",  required_argument, NULL, 'v' },
+        { "quiet",      no_argument,       NULL, 'q' },
+
         { "input",      required_argument, NULL, 'i' },
         { "size",       required_argument, NULL,  1  },
         { "outdegree",  required_argument, NULL,  2  },
         { "priorities", required_argument, NULL,  3  },
         { "seed",       required_argument, NULL,  4  },
+
+        { "decycle",    no_argument,       NULL,  5  },
+        { "deloop",     no_argument,       NULL,  6  },
+        { "scc",        no_argument,       NULL,  7  },
+        { "dual",       no_argument,       NULL,  8  },
+        { "reorder",    required_argument, NULL,  9  },
+
         { "lifting",    required_argument, NULL, 'l' },
         { "alternate",  no_argument,       NULL, 'a' },
+
+        { "zielonka",   no_argument,       NULL, 'z' },
+        { "mpi",        no_argument,       NULL, 10  },
+        { "chunk",      no_argument,       NULL, 'c' },
+        { "sync",       no_argument,       NULL, 11  },
+
         { "dot",        required_argument, NULL, 'd' },
         { "pgsolver",   required_argument, NULL, 'p' },
         { "raw",        required_argument, NULL, 'r' },
         { "winners",    required_argument, NULL, 'w' },
         { "strategy",   required_argument, NULL, 's' },
+
         { "stats",      no_argument,       NULL, 'S' },
-        { "decycle",    no_argument,       NULL,  5  },
-        { "deloop",     no_argument,       NULL,  6  },
-        { "scc",        no_argument,       NULL,  7  },
-        { "dual",       no_argument,       NULL,  8  },
-        { "reorder",    required_argument, NULL, 'e' },
         { "timeout",    required_argument, NULL, 't' },
         { "verify",     no_argument,       NULL, 'V' },
-        { "zielonka",   optional_argument, NULL, 'z' },
-        { "mpi",        no_argument,       NULL,  9  },
-        { "verbosity",  required_argument, NULL, 'v' },
-        { "quiet",      no_argument,       NULL, 'q' },
         { "hot",        required_argument, NULL, 'H' },
         { "debug",      required_argument, NULL, 'D' },
         { NULL,         no_argument,       NULL,  0  } };
 
-    static const char *short_options = "hi:l:ad:p:r:w:s:Se:t:Vz::v:qH:D:";
+    std::string options;
+    for (struct option *opt = long_options; opt->name; ++opt)
+    {
+        if (opt->val > ' ')
+        {
+            options += (char)opt->val;
+            if (opt->has_arg == required_argument) options += ':';
+        }
+    }
 
     for (;;)
     {
-        int ch = getopt_long(argc, argv, short_options, long_options, NULL);
+        int ch = getopt_long(argc, argv, options.c_str(), long_options, NULL);
         if (ch == -1) break;
 
         switch (ch)
@@ -193,6 +223,18 @@ static void parse_args(int argc, char *argv[])
         case 'h':   /* help */
             print_usage();
             exit(EXIT_SUCCESS);
+            break;
+
+        case 'v':   /* set logger severity to (NONE - verbosity) */
+            {
+                int severity = Logger::LOG_NONE - atoi(optarg);
+                if (severity > Logger::LOG_NONE)  severity = Logger::LOG_NONE;
+                if (severity < Logger::LOG_DEBUG) severity = Logger::LOG_DEBUG;
+                Logger::severity((Logger::Severity)severity);
+            } break;
+
+        case 'q':  /* set logger severity to NONE */
+            Logger::severity(Logger::LOG_NONE);
             break;
 
         case 'i':   /* input format */
@@ -243,12 +285,66 @@ static void parse_args(int argc, char *argv[])
             arg_random_seed = atoi(optarg);
             break;
 
+        case 5:     /* remove p-controlled i-cycles when p == i%2 */
+            arg_decycle = true;
+            break;
+
+        case 6:     /* preprocess vertices with loops */
+            arg_deloop = true;
+            break;
+
+        case 7:     /* decompose into strongly connected components */
+            arg_scc_decomposition = true;
+            break;
+
+        case 8:     /* solve dual game */
+            arg_solve_dual = true;
+            break;
+
+        case 9:    /* reorder vertices */
+            if (strcasecmp(optarg, "bfs") == 0)
+            {
+                arg_reordering = REORDER_BFS;
+            }
+            else
+            if (strcasecmp(optarg, "dfs") == 0)
+            {
+                arg_reordering = REORDER_DFS;
+            }
+            else
+            {
+                printf("Invalid reordering: %s\n", optarg);
+                exit(EXIT_FAILURE);
+            }
+            break;
+
         case 'l':   /* Small Progress Measures lifting strategy */
             arg_spm_lifting_strategy = optarg;
             break;
 
         case 'a':  /* Alternate SPM solver */
             arg_alternate = true;
+            break;
+
+        case 'z':   /* use Zielonka's algorithm instead of SPM */
+            arg_zielonka = true;
+            break;
+
+        case 10:    /* parallize solving with MPI */
+            arg_mpi = true;
+            break;
+
+        case 'c':   /* use given chunk size */
+            arg_chunk_size = atoi(optarg);
+            if (arg_chunk_size < 1)
+            {
+                fprintf(stderr, "Invalid chunk size: %s\n", optarg);
+                exit(EXIT_FAILURE);
+            }
+            break;
+
+        case 11:    /* use synchronized algorithm */
+            arg_zielonka_sync = true;
             break;
 
         case 'd':   /* dot output file */
@@ -275,83 +371,12 @@ static void parse_args(int argc, char *argv[])
             arg_collect_stats = true;
             break;
 
-        case 5:     /* remove p-controlled i-cycles when p == i%2 */
-            arg_decycle = true;
-            break;
-
-        case 6:     /* preprocess vertices with loops */
-            arg_deloop = true;
-            break;
-
-        case 7:     /* decompose into strongly connected components */
-            arg_scc_decomposition = true;
-            break;
-
-        case 8:     /* solve dual game */
-            arg_solve_dual = true;
-            break;
-
-        case 'e':   /* reorder vertices */
-            if (strcasecmp(optarg, "bfs") == 0)
-            {
-                arg_reordering = REORDER_BFS;
-            }
-            else
-            if (strcasecmp(optarg, "dfs") == 0)
-            {
-                arg_reordering = REORDER_DFS;
-            }
-            else
-            {
-                printf("Invalid reordering: %s\n", optarg);
-                exit(EXIT_FAILURE);
-            }
-            break;
-
         case 't':   /* time limit (in seconds) */
             arg_timeout = atoi(optarg);
             break;
 
         case 'V':   /* verify solution */
             arg_verify = true;
-            break;
-
-        case 'z':   /* use Zielonka's algorithm instead of SPM */
-            arg_zielonka = true;
-            if (optarg != NULL)
-            {
-                if (strcmp(optarg, "async") == 0)
-                {
-                    arg_zielonka_variant = 1;
-                }
-                else
-                if (strcmp(optarg, "sync") == 0)
-                {
-                    arg_zielonka_variant = 0;
-                }
-                else
-                {
-                    printf( "Invalid variant for Zielonka's algorithm: %s\n",
-                            optarg );
-                    exit(EXIT_FAILURE);
-                }
-            }
-            break;
-
-        case 9:     /* parallize solving with MPI */
-            arg_mpi = true;
-            break;
-
-        case 'v':   /* set logger severity to (NONE - verbosity) */
-            {
-                int severity = Logger::LOG_NONE - atoi(optarg);
-                if (severity > Logger::LOG_NONE)  severity = Logger::LOG_NONE;
-                if (severity < Logger::LOG_DEBUG) severity = Logger::LOG_DEBUG;
-                Logger::severity((Logger::Severity)severity);
-            } break;
-
-        case 'q':  /* set logger severity to NONE */
-            Logger::severity(Logger::LOG_NONE);
             break;
 
         case 'H':   /* debug hot vertices file */
@@ -791,19 +816,15 @@ int main(int argc, char *argv[])
         {
             if (!arg_mpi)
             {
-                if (arg_zielonka_variant >= 0)
-                {
-                    Logger::fatal(
-                        "Specifying a variant for Zielonka's algorithm "
-                        "requires enabling MPI!" );
-                }
                 solver_factory.reset(new RecursiveSolverFactory());
             }
 #ifdef WITH_MPI
             else
             {
                 solver_factory.reset(
-                    new MpiRecursiveSolverFactory(arg_zielonka_variant != 0) );
+                    new MpiRecursiveSolverFactory(
+                        !arg_zielonka_sync,
+                        arg_chunk_size > 0 ? (verti)arg_chunk_size : 0 ) );
             }
 #endif
         }

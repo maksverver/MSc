@@ -18,8 +18,6 @@ AsyncMpiAttractorImpl::AsyncMpiAttractorImpl( const VertexPartition &vpart,
     : vpart_(vpart), part(part), player(player), attr(attr), queue(queue),
       strategy_(strategy), num_send(0), num_recv(0)
 {
-    info("Constructed AsyncMpiAttractorImpl.");
-
     reqs[TAG_VERTEX] = MPI::COMM_WORLD.Recv_init(
         &vertex_val, 1, MPI_INT, MPI::ANY_SOURCE, TAG_VERTEX );
 

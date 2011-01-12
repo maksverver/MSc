@@ -71,6 +71,9 @@ public:
         return res;
     }
 
+    int num_procs() const { return num_procs_; }
+    verti chunk_size() const { return chunk_size_; }
+
 private:
     int num_procs_;
     verti chunk_size_;

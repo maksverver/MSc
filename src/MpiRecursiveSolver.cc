@@ -223,7 +223,10 @@ ParityGameSolver *MpiRecursiveSolverFactory::create( const ParityGame &game,
 {
     (void)vertex_map;       // unused
     (void)vertex_map_size;  // unused
-    VertexPartition vpart(mpi_size, 1);
+
+    VertexPartition vpart(mpi_size, chunk_size_ > 0 ? chunk_size_
+        : (game.graph().V() + mpi_size - 1)/mpi_size);
+
     MpiAttractorAlgorithm *attr_algo;
     if (async_)
     {
@@ -233,6 +236,11 @@ ParityGameSolver *MpiRecursiveSolverFactory::create( const ParityGame &game,
     {
         attr_algo = new SyncMpiAttractorAlgorithm;
     }
+
+    Logger::info(
+        "Constructing %s MpiRecursiveSolver with %ld vertices per chunk.",
+        async_ ? "asynchronous" : "synchronized", (long)vpart.chunk_size() );
+
+    // N.B. MpiRecursiveSolver takes ownership of `attr_algo'
     return new MpiRecursiveSolver(game, vpart, attr_algo);
-    // N.B. MpiRecursiveSolver will delete `attr_algo' at destruction.
 }
