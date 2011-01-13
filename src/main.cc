@@ -831,25 +831,29 @@ int main(int argc, char *argv[])
 
         if (arg_timeout > 0) set_timeout(arg_timeout);
 
+        {
+            // FIXME: this should probably count towards solving time
+            // FIXME: it might be useful when using SPM to solve only
+            Logger::info("Preprocessing graph...");
+            edgei old_edges = game.graph().E();
+            SmallProgressMeasuresSolver::preprocess_game(game);
+            edgei rem_edges = old_edges - game.graph().E();
+            Logger::info( "Removed %d edge%s...",
+                            rem_edges, rem_edges == 1 ? "" : "s" );
+        }
+
         if (arg_decycle)
         {
             solver_factory.reset(
                 new DecycleSolverFactory(*solver_factory.release()) );
         }
         else
+        if (arg_deloop)
         {
-            // Shouldn't this count towards solving time?
-            Logger::info("Preprocessing graph...");
-            edgei old_edges = game.graph().E();
-            SmallProgressMeasuresSolver::preprocess_game(game);
-            edgei rem_edges = old_edges - game.graph().E();
-            Logger::info( "Removed %d edge%s...",
-                          rem_edges, rem_edges == 1 ? "" : "s" );
-            if (arg_deloop)
-            {
-                solver_factory.reset(
-                    new DeloopSolverFactory(*solver_factory.release()) );
-            }
+            // N.B. current implementation of the DeloopSolver assumes
+            //      the game has been preprocessed as done above!
+            solver_factory.reset(
+                new DeloopSolverFactory(*solver_factory.release()) );
         }
 
         // Wrap component solver, if solving by components requested:
