@@ -187,7 +187,7 @@ static void parse_args(int argc, char *argv[])
 
         { "zielonka",   no_argument,       NULL, 'z' },
         { "mpi",        no_argument,       NULL, 10  },
-        { "chunk",      no_argument,       NULL, 'c' },
+        { "chunk",      required_argument, NULL, 'c' },
         { "sync",       no_argument,       NULL, 11  },
 
         { "dot",        required_argument, NULL, 'd' },

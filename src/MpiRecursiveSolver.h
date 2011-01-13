@@ -44,6 +44,8 @@ protected:
 
         After returning, the game partition has been reduced to the winning set
         for the player corresponding to the minimum priority used in `part'.
+        Since it's not a priori clear which player this is, it is usually best
+        to ignore `part' after the call.
     */
     void solve(GamePartition &part);
 

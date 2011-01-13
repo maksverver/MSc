@@ -153,6 +153,7 @@ bool RecursiveSolver::solve(ParityGame &game, Substrategy &strat)
     {
         const StaticGraph &graph = game.graph();
         const verti V = graph.V();
+        //Logger::debug("V=%d prio=%d", V, prio);
 
         std::vector<verti> unsolved;
 
@@ -164,10 +165,10 @@ bool RecursiveSolver::solve(ParityGame &game, Substrategy &strat)
             {
                 if (game.priority(v) < prio) min_prio_attr.insert(v);
             }
-            //Logger::info("|min_prio|=%d", (int)min_prio_attr.size());
+            //Logger::debug("|min_prio|=%d", (int)min_prio_attr.size());
             assert(!min_prio_attr.empty());
             make_attractor_set(game, player, min_prio_attr, strat);
-            //Logger::info("|min_prio_attr|=%d", (int)min_prio_attr.size());
+            //Logger::debug("|min_prio_attr|=%d", (int)min_prio_attr.size());
             if (min_prio_attr.size() == V) break;
             get_complement(V, min_prio_attr).swap(unsolved);
         }
@@ -192,8 +193,8 @@ bool RecursiveSolver::solve(ParityGame &game, Substrategy &strat)
             }
             if (lost_attr.empty()) break;
             make_attractor_set(game, opponent, lost_attr, strat);
-            //Logger::info("|lost|=%d", (int)lost_attr.size());
-            //Logger::info("|lost_attr|=%d", (int)lost_attr.size());
+            //Logger::debug("|lost|=%d", (int)lost_attr.size());
+            //Logger::debug("|lost_attr|=%d", (int)lost_attr.size());
             get_complement(V, lost_attr).swap(unsolved);
         }
 

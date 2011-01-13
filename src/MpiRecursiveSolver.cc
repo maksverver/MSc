@@ -121,7 +121,7 @@ static int mpi_first_alternation(const ParityGame &local_game)
     // Find out which priorities are in use, globally:
     assert(d < 256);
     for (int p = 0; p < d; ++p) local_used[p] = local_game.cardinality(p) > 0;
-    MPI_Allreduce(local_used, used, d, MPI::BYTE, MPI::BAND, MPI::COMM_WORLD);
+    MPI_Allreduce(local_used, used, d, MPI::BYTE, MPI::BOR, MPI::COMM_WORLD);
 
     // Determine where first alternation occurs:
     int q = 0;
@@ -137,7 +137,7 @@ void MpiRecursiveSolver::solve(GamePartition &part)
     int prio;
     while ((prio = mpi_first_alternation(part.game())) < part.game().d())
     {
-        //Logger::debug("part=%s min_prio=%d", str(part).c_str(), min_prio);
+        //debug("part=%s prio=%d", part.debug_str().c_str(), prio);
 
         const verti V = part.total_size();
         if (mpi_rank == 0 && aborted())
@@ -157,11 +157,9 @@ void MpiRecursiveSolver::solve(GamePartition &part)
                 min_prio_attr_queue.push_back(v);
             }
         }
-        //debug("|min_prio|=%d", mpi_sum((int)min_prio_attr_queue.size()));
         attr_algo_->make_attractor_set(
             vpart_, part, (ParityGame::Player)((prio - 1)%2),
             min_prio_attr, min_prio_attr_queue, true, strategy_ );
-        //debug("|min_prio_attr|=%d", mpi_sum((int)set_size(part, min_prio_attr)));
         std::vector<verti> unsolved = collect_complement(min_prio_attr);
 
         // Check if attractor set covers the entire game:
@@ -174,15 +172,17 @@ void MpiRecursiveSolver::solve(GamePartition &part)
         // Find attractor set of vertices lost to opponent in subgame:
         std::vector<char> lost_attr(V, 0);
         std::deque<verti> lost_attr_queue;
-        for ( GamePartition::const_iterator it = subpart.begin();
-              it != subpart.end(); ++it )
+        for ( GamePartition::const_iterator it = part.begin();
+               it != part.end(); ++it )
         {
-            verti w = subpart.global(*it);
-            verti v = part.local(w);
-            lost_attr[v] = 1;
-            lost_attr_queue.push_back(v);
+            const verti v = *it;
+            if ( !min_prio_attr[v] &&
+                 game().winner(strategy_, part.global(v)) == prio%2 )
+            {
+                lost_attr[v] = 1;
+                lost_attr_queue.push_back(v);
+            }
         }
-        //debug("|lost|=%d", (int)lost_attr_queue.size());
 
         // Check if opponent's winning set is empty:
         if (mpi_and(lost_attr_queue.empty())) break;
@@ -191,7 +191,6 @@ void MpiRecursiveSolver::solve(GamePartition &part)
         attr_algo_->make_attractor_set(
             vpart_, part, (ParityGame::Player)(prio%2),
             lost_attr, lost_attr_queue, false, strategy_ );
-        //debug("|lost_attr|=%d", (int)set_size(part, lost_attr));
 
         std::vector<verti> not_lost = collect_complement(lost_attr);
         GamePartition(part, not_lost).swap(part);
