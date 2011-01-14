@@ -7,6 +7,7 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#include "DenseSet.h"
 #include "RecursiveSolver.h"
 #include "attractor.h"
 #include <set>
@@ -88,16 +89,21 @@ private:
 };
 
 /*! Returns the complement of a vertex set; i.e. an ordered list of all vertex
-    indices under V, from which the contents of `vertices' have been removed. */
-static std::vector<verti> get_complement( verti V,
-                                          const std::set<verti> &vertices )
+    indices under V, from which the contents of the range delineated by `begin'
+    and `end' have been removed.
+
+    N.B. [begin..end) must produce a strictly increasing sequence!
+*/
+template<class ForwardIterator>
+static std::vector<verti> get_complement( verti V, ForwardIterator begin,
+                                                   ForwardIterator end )
 {
     std::vector<verti> res;
-    res.reserve(V - vertices.size());
-    std::set<verti>::const_iterator it = vertices.begin();
+    res.reserve(V - (verti)std::distance(begin, end));
+    ForwardIterator it = begin;
     for (verti v = 0; v < V; ++v)
     {
-        if (it == vertices.end() || v < *it)
+        if (it == end || v < *it)
         {
             res.push_back(v);
         }
@@ -107,7 +113,7 @@ static std::vector<verti> get_complement( verti V,
             ++it;
         }
     }
-    assert(it == vertices.end());
+    assert(it == end);
     return res;
 }
 
@@ -144,6 +150,18 @@ static int first_alternation(const ParityGame &game)
     return p;
 }
 
+/* Implementation note: the recursive solver might use either a DenseSet or
+   a std::set to store vertex sets (which are passed to make_attractor_set).
+   The former is faster when the size of these sets is large, but requires O(V)
+   time and memory to initialize, which is costly when these sets are small.
+
+   It seems that the benefit of faster lookups during attractor set computation
+   usually tips the balance in favor of the DenseSet.
+
+   Note that hash sets cannot readily be used because get_complement() expects
+   iterators to produce the set contents in-order.
+*/
+
 bool RecursiveSolver::solve(ParityGame &game, Substrategy &strat)
 {
     if (aborted()) return false;
@@ -160,7 +178,8 @@ bool RecursiveSolver::solve(ParityGame &game, Substrategy &strat)
         // Compute attractor set of minimum priority vertices:
         {
             ParityGame::Player player = (ParityGame::Player)((prio - 1)%2);
-            std::set<verti> min_prio_attr;
+            //std::set<verti> min_prio_attr;
+            DenseSet<verti> min_prio_attr(0, V);
             for (verti v = 0; v < V; ++v)
             {
                 if (game.priority(v) < prio) min_prio_attr.insert(v);
@@ -170,7 +189,8 @@ bool RecursiveSolver::solve(ParityGame &game, Substrategy &strat)
             make_attractor_set(game, player, min_prio_attr, strat);
             //Logger::debug("|min_prio_attr|=%d", (int)min_prio_attr.size());
             if (min_prio_attr.size() == V) break;
-            get_complement(V, min_prio_attr).swap(unsolved);
+            get_complement(V, min_prio_attr.begin(), min_prio_attr.end())
+                .swap(unsolved);
         }
 
         // Solve vertices not in the minimum priority attractor set:
@@ -182,7 +202,8 @@ bool RecursiveSolver::solve(ParityGame &game, Substrategy &strat)
 
             // Compute attractor set of all vertices won by the opponent:
             ParityGame::Player opponent = (ParityGame::Player)(prio%2);
-            std::set<verti> lost_attr;
+            //std::set<verti> lost_attr;
+            DenseSet<verti> lost_attr(0, V);
             for ( std::vector<verti>::const_iterator it = unsolved.begin();
                   it != unsolved.end(); ++it )
             {
@@ -195,7 +216,8 @@ bool RecursiveSolver::solve(ParityGame &game, Substrategy &strat)
             make_attractor_set(game, opponent, lost_attr, strat);
             //Logger::debug("|lost|=%d", (int)lost_attr.size());
             //Logger::debug("|lost_attr|=%d", (int)lost_attr.size());
-            get_complement(V, lost_attr).swap(unsolved);
+            get_complement(V, lost_attr.begin(), lost_attr.end())
+                .swap(unsolved);
         }
 
         // Repeat with subgame of which vertices won by odd have been removed:
