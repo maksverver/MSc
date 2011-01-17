@@ -3862,7 +3862,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset listings
-lstparams "language={C++}"
+lstparams "language={C++},numbers=left"
 inline false
 status open
 
@@ -4534,7 +4534,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset listings
-lstparams "language={C++},tabsize=4"
+lstparams "language={C++},numbers=left,tabsize=4"
 inline false
 status open
 
@@ -4793,7 +4793,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset listings
-lstparams "basicstyle={\ttfamily},language={C++},tabsize=4"
+lstparams "basicstyle={\ttfamily},language={C++},numbers=left,tabsize=4"
 inline false
 status open
 
@@ -5138,7 +5138,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset listings
-lstparams "basicstyle={\ttfamily},language={C++},tabsize=4"
+lstparams "basicstyle={\ttfamily},language={C++},numbers=left,tabsize=4"
 inline false
 status open
 
@@ -5422,7 +5422,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset listings
-lstparams "basicstyle={\ttfamily},language={C++},tabsize=4"
+lstparams "basicstyle={\ttfamily},language={C++},numbers=left,tabsize=4"
 inline false
 status open
 
@@ -6084,20 +6084,28 @@ key "zielonka1998igf"
 
 .
  It is presented solelby as a proof, not as an efficient algorithm, but
- it was discovered 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-by whom?
-\end_layout
+ it has been shown (e.g.
+ in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "friedmann2009solving"
 
 \end_inset
 
- that it works well as an actual solver too.
- It is a proof by induction on the number of different priorities: when
- there is a single priority, the game is trivially solved (this is the basis
- for the induction).
+and in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "keiren2009"
+
+\end_inset
+
+) to work well as an actual solver too.
+\end_layout
+
+\begin_layout Standard
+The algorithm is based on a proof by induction on the number of different
+ priorities: when there is a single priority, the game is trivially solved
+ (this is the basis for the induction).
  Then, assuming that we can solve any game with 
 \begin_inset Formula $d$
 \end_inset
@@ -6365,17 +6373,498 @@ From the above, it is clear that to solve a game with
 .
 \end_layout
 
+\begin_layout Section
+Implementation
+\end_layout
+
+\begin_layout Standard
+The actual algorithm implementation varies a little from the proof structure
+ for practical reasons.
+ For one thing, the implementation is restricted to finite graphs.
+ The inductive proof lends itself to being implemented recursively, but
+ a straightforward recursive formulation is undesirable here, because deep
+ recursion on a large game may overflow the runtime stack.
+ Instead, the implementation is iterative and recurses only when computing
+ subgames with fewer priorities, bounding the maximum recursion depth by
+ 
+\begin_inset Formula $d$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Additionally, instead of solving one priority at a time, we will speed up
+ the solving process by always looking for the next alternation in the game.
+ An alternation in a parity game is defined as a priority 
+\begin_inset Formula $p$
+\end_inset
+
+ such that there is a priority 
+\begin_inset Formula $n<p$
+\end_inset
+
+ such that 
+\begin_inset Formula $n\not\equiv p\mod{2}$
+\end_inset
+
+ and there are some vertices with priority 
+\begin_inset Formula $n$
+\end_inset
+
+, some vertices with priority 
+\begin_inset Formula $p$
+\end_inset
+
+, but no vertices with priority 
+\begin_inset Formula $o$
+\end_inset
+
+ for any 
+\begin_inset Formula $n<o<p$
+\end_inset
+
+.
+ The number of alternations in the initial game is a limit on the recursion
+ depth, but typically (after priority compression) this is equal to 
+\begin_inset Formula $d$
+\end_inset
+
+.
+ However, for smaller subgames, the number of alternations may be much lower,
+ as not all priority values are necessarily used.
+ Specifically, if there are no alternations in the game, then all priorities
+ assigned to vertices have the same parity, and the corresponding player
+ trivially wins the entire game.
+\end_layout
+
+\begin_layout Standard
+Otherwise, all vertices with priority less than 
+\begin_inset Formula $p$
+\end_inset
+
+ (or, equivalently, less than or equal to 
+\begin_inset Formula $n$
+\end_inset
+
+) can be compressed into a single value.
+ In the implementation, this is done implicitly by adding all of these vertices
+ to the minimum-priority attractor set (though the game itself is unchanged).
+\end_layout
+
+\begin_layout Standard
+The recursive algorithm is presented in Algorithm 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "alg:Zielonka's-Recursive-Algorithm"
+
+\end_inset
+
+.
+ Recall that Strategy is maps vertices to successor vertices (where the
+ value 
+\begin_inset Formula $\texttt{NO\_VERTEX}$
+\end_inset
+
+ is used to indicate that a vertex is not in the controller's winning set).
+ This requires that subgame construction preserves vertex indices, at least
+ conceptually.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "numbers=left,tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+solve(ParityGame game, Strategy strategy)
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	Priority p = least_alternation(game)
+\end_layout
+
+\begin_layout Plain Layout
+
+	while p < game.d {
+\end_layout
+
+\begin_layout Plain Layout
+
+		Set<Vertex> min_prio = { v in game.graph.V
+\end_layout
+
+\begin_layout Plain Layout
+
+			where game.priority(v) < p }
+\end_layout
+
+\begin_layout Plain Layout
+
+		Set<Vertex> min_prio_attr =
+\end_layout
+
+\begin_layout Plain Layout
+
+			make_attractor_set(min_prio, (p-1) mod 2, strategy)
+\end_layout
+
+\begin_layout Plain Layout
+
+		Set<Vertex> unsolved =
+\end_layout
+
+\begin_layout Plain Layout
+
+			game.graph.get_complement(min_prio_attr)
+\end_layout
+
+\begin_layout Plain Layout
+
+		if |unsolved| == 0 { break }
+\end_layout
+
+\begin_layout Plain Layout
+
+		ParityGame subgame = game.make_subgame(unsolved)
+\end_layout
+
+\begin_layout Plain Layout
+
+		solve(subgame, strategy)
+\end_layout
+
+\begin_layout Plain Layout
+
+		Set<Vertex> lost = { v in subgame.graph.V
+\end_layout
+
+\begin_layout Plain Layout
+
+			where strategy.winner(v) == p mod 2 }
+\end_layout
+
+\begin_layout Plain Layout
+
+		if |lost| == 0 { break }
+\end_layout
+
+\begin_layout Plain Layout
+
+		Set<Vertex> lost_attr = 
+\end_layout
+
+\begin_layout Plain Layout
+
+			make_attractor_set(lost, p mod 2, strategy)
+\end_layout
+
+\begin_layout Plain Layout
+
+		Set<Vertex> remaining =
+\end_layout
+
+\begin_layout Plain Layout
+
+			game.graph.get_complement(lost_attr)
+\end_layout
+
+\begin_layout Plain Layout
+
+		game = game.make_subgame(remaining)
+\end_layout
+
+\begin_layout Plain Layout
+
+		p = least_alternation(game)
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+	for v in game.graph.V {
+\end_layout
+
+\begin_layout Plain Layout
+
+		if game.priority(v) < p {
+\end_layout
+
+\begin_layout Plain Layout
+
+			if game.player(v) == game.priority(v) mod 2 {
+\end_layout
+
+\begin_layout Plain Layout
+
+				strategy[v] = any successor of v
+\end_layout
+
+\begin_layout Plain Layout
+
+			} else {
+\end_layout
+
+\begin_layout Plain Layout
+
+				strategy[v] = NO_VERTEX
+\end_layout
+
+\begin_layout Plain Layout
+
+			}
+\end_layout
+
+\begin_layout Plain Layout
+
+		}
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Zielonka's Recursive Algorithm
+\begin_inset CommandInset label
+LatexCommand label
+name "alg:Zielonka's-Recursive-Algorithm"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The solver function itself takes an initial parity game and a strategy array;
+ the initial contents of the array are irrelevant, but after completion,
+ the strategy will be filled in with the optimal strategy for both players,
+ but only for the vertices in the initial game graph.
+ Note that the strategy is passed by reference: all invocations of 
+\begin_inset Formula $\texttt{solve}$
+\end_inset
+
+ share the same array, and entries in the array are updated at different
+ invocations, and sometimes overwritten.
+ It remains to be shown that the when 
+\begin_inset Formula $\texttt{solve}$
+\end_inset
+
+ terminates, a complete strategy for both players has been computed.
+\end_layout
+
+\begin_layout Standard
+The execution of the main algorithm depends on several, simpler helper functions
+:
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $\texttt{least\_alternation}$
+\end_inset
+
+ returns the least alternation in the game, as described above, by analyzing
+ the cardinality of priorities in use.
+ If there is no alternation, the game degree 
+\begin_inset Formula $\texttt{d}$
+\end_inset
+
+ is returned instead.
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $\texttt{make\_attractor\_set}$
+\end_inset
+
+ takes a vertex set and extends it to its attractor set with respect to
+ the given player, as described earlier.
+ For all vertices that are added to the set (but not those in initial set)
+ the accompanying strategy is also assigned, so that play according to the
+ strategy leads to the vertices in the initial set.
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $\texttt{get\_complement}$
+\end_inset
+
+ returns the complement of a given vertex set, with respect to the vertex
+ set of a graph.
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $\texttt{make\_subgame}$
+\end_inset
+
+ constructs the subgame induced by the given vertex set.
+ Since in Zielonka's algorithm subgames are constructed from the complement
+ of an attractor set, this always results in a proper game.
+ (For purposes of the algorithm outlined above, it is assumed that vertex
+ identifiers are preserved, so that assignments to the global strategy array
+ are consistent with the global game.)
+\end_layout
+
+\begin_layout Standard
+From a high-level point of view, the algorithm operates by first assuming
+ that all vertices in 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+
+\begin_inset Formula $\texttt{min\_prio\_attr}$
+\end_inset
+
+
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
+ are won by the corresponding player and then recursively solving the rest
+ of the game.
+ If the rest of the game is won by the same player, the procedure is complete;
+ otherwise, the opponent has a non-empty winning set, and can win from any
+ vertices in its attractor set as well.
+ This attractor set is removed from the game, and the procedure is repeated
+ with the remainder, until it becomes empty or entirely won by one player.
+\end_layout
+
+\begin_layout Subsection
+Strategy computation
+\end_layout
+
+\begin_layout Standard
+The strategy for vertices in 
+\begin_inset Formula $\texttt{min\_prio\_attr}\setminus\texttt{min\_prio}$
+\end_inset
+
+ is assigned during attractor set computation.
+ The strategy for vertices in its complement are assigned by the recursive
+ invocation of 
+\begin_inset Formula $\texttt{solve}$
+\end_inset
+
+.
+ The strategy for vertices in the attractor set of vertices lost to the
+ opponent are overwritten by the next attractor set computation; this part
+ of the strategy is then final, and the vertices in this set are removed
+ from the graph.
+\end_layout
+
+\begin_layout Standard
+The while-loop exits in three cases: when the game has no more alternations,
+ when the attractor set of the minimum priority vertices covers the entire
+ game graph, or when the vertices outside this attractor set are all won
+ by the player corresponding to the minimum priority vertices.
+ In all of these cases, the remaining game has no alternations (i.e.
+ it is a single-parity game).
+ At this point, the only vertices for which the strategy has not been assigned,
+ are those with priority less than 
+\begin_inset Formula $\texttt{p}$
+\end_inset
+
+.
+ For those, it suffices to pick an arbitrary successor in the remaining
+ part of the game (which is done in the for-loop at the end) to complete
+ the strategy.
+\end_layout
+
+\begin_layout Subsection
+Termination
+\end_layout
+
+\begin_layout Standard
+In this algorithm every recursive invocation removes at least one alternation
+ from the game (when 
+\begin_inset Formula $\texttt{solve}$
+\end_inset
+
+ is called recursively, all vertices with priority less than 
+\begin_inset Formula $\texttt{p}$
+\end_inset
+
+ are removed, so 
+\begin_inset Formula $\texttt{p}$
+\end_inset
+
+ is not an alternation in the subgame) so the number of alternations in
+ the initial game is an upper bound on the recursion depth.
+ Further more, every complete iteration of the while loop removes at least
+ two vertices from the game (one in 
+\begin_inset Formula $\texttt{lost}$
+\end_inset
+
+ and another in its attractor set, overlapping 
+\begin_inset Formula $\texttt{min\_prio\_attr}$
+\end_inset
+
+) until the game is empty or completely solved, so the maximum number of
+ iterations in the while loop is 
+\begin_inset Formula $\frac{\left|V\right|}{2}$
+\end_inset
+
+.
+ Combined, these observations guarantee the algorithm terminates.
+\end_layout
+
 \begin_layout Standard
 \begin_inset Note Note
 status open
 
 \begin_layout Plain Layout
-TODO:
-\end_layout
+- real worst case is probably smaller than 
+\begin_inset Formula $\left(\frac{\left|V\right|}{2}\right)^{d}$
+\end_inset
 
-\begin_layout Plain Layout
-real worst case is smaller; need to figure out how small, and if possible
- construct a worst-case example.
+; need to figure out how small, and if possible construct a worst-case example.
 \end_layout
 
 \end_inset
@@ -6388,15 +6877,15 @@ real worst case is smaller; need to figure out how small, and if possible
 status open
 
 \begin_layout Plain Layout
+TODO:
+\end_layout
+
+\begin_layout Plain Layout
+- describe parallel implementation
+\end_layout
+
+\begin_layout Plain Layout
 - note that McNaughton proposed something similar (when/where?)
-\end_layout
-
-\begin_layout Plain Layout
-- describe my implementation
-\end_layout
-
-\begin_layout Plain Layout
-- but finish stuff above first!
 \end_layout
 
 \end_inset
