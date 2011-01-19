@@ -12,6 +12,11 @@
 
 #include "ParityGame.h"
 
+/*! Helper function: returns whether all elements in range [begin:end) are
+    elements of `set'. */
+template<class ForwardIterator, class SetT>
+bool is_subset_of(ForwardIterator begin, ForwardIterator end, const SetT &set);
+
 /*! Computes the attractor set of the given vertex set for a specific player,
     and stores it in-place in `vertices'. If `strategy' is not NULL, it is
     updated for all vertices added that are controlled by `player'. */

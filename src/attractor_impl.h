@@ -10,6 +10,13 @@
 #include "attractor.h"
 #include <queue>
 
+template<class ForwardIterator, class SetT>
+bool is_subset_of(ForwardIterator it, ForwardIterator end, const SetT &set)
+{
+    for (; it != end; ++it) if (!set.count(*it)) return false;
+    return true;
+}
+
 template<class SetT, class StrategyT>
 void make_attractor_set( const ParityGame &game, ParityGame::Player player,
                          SetT &vertices, StrategyT &strategy )
@@ -36,7 +43,7 @@ void make_attractor_set( const ParityGame &game, ParityGame::Player player,
             const verti v = *it;
 
             // Skip predecessors that are already in the attractor set:
-            if (vertices.find(v) != vertices.end()) goto skip_v;
+            if (vertices.find(v) != vertices.end()) continue;
 
             if (game.player(v) == player)
             {
@@ -44,24 +51,19 @@ void make_attractor_set( const ParityGame &game, ParityGame::Player player,
                 strategy[v] = w;
             }
             else  // opponent controls vertex
+            if (is_subset_of(graph.succ_begin(v), graph.succ_end(v), vertices))
             {
-                // Can the opponent keep the token out of the attractor set?
-                for (StaticGraph::const_iterator jt = graph.succ_begin(v);
-                     jt != graph.succ_end(v); ++jt)
-                {
-                    if (vertices.find(*jt) == vertices.end()) goto skip_v;
-                }
-
                 // Store strategy for opponent-controlled vertex:
                 strategy[v] = NO_VERTEX;
+            }
+            else
+            {
+                continue;  // not in the attractor set yet!
             }
 
             // Add vertex v to the attractor set:
             vertices.insert(v);
             todo.push_back(v);
-
-        skip_v:
-            continue;
         }
     }
 }

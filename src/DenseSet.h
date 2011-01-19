@@ -162,6 +162,16 @@ public:
         }
     }
 
+    template <class InputIterator>
+    void insert(InputIterator it, InputIterator end)
+    {
+        for ( ; it != end; ++it)
+        {
+            Key k = *it;
+            used_[k - range_begin] = true;
+        }
+    }
+
     size_t memory_use() { return sizeof(*used_)*range_size_ + sizeof(*this); }
 
 public:
@@ -174,6 +184,10 @@ private:
     size_t          num_used_;
 
     friend class Iterator;
+
+private:
+    DenseSet(const DenseSet &);
+    DenseSet &operator=(const DenseSet &);
 };
 
 #endif /* ndef DENSE_SET_H_INCLUDED */

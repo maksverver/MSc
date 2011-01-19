@@ -140,6 +140,10 @@ private:
     const size_t range_size_;
     std::vector<value_type> values_;
     size_t used_;
+
+private:
+    DenseMap(const DenseMap &);
+    DenseMap &operator=(const DenseMap &);
 };
 
 #endif /* ndef DENSE_MAP_H_INCLUDED */

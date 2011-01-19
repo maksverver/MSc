@@ -105,13 +105,6 @@ public:
                         ForwardIterator vertices_begin,
                         ForwardIterator vertices_end );
 
-    // Variant that takes an explicit vertex map to be used:
-    template<class ForwardIterator, class VertexMapT>
-    void make_subgraph( const StaticGraph &graph,
-                        ForwardIterator vertices_begin,
-                        ForwardIterator vertices_end,
-                        VertexMapT vertex_map = VertexMapT() );
-
     /*! Removes the given edges from the graph. The contents of the edge list
         may be reordered by this function! */
     void remove_edges(edge_list &edges);
@@ -201,6 +194,14 @@ protected:
     /*! Frees allocated memory and then reallocates memory to store a graph
         with `V` vertices and `E` edges. */
     void reset(verti V, edgei E, EdgeDirection edge_dir);
+
+    /*! Reset the graph to the subgraph induced by the given vertex set, using
+        the given map data structure to create the vertex mapping. */
+    template<class ForwardIterator, class VertexMapT>
+    void make_subgraph( const StaticGraph &graph,
+                        ForwardIterator vertices_begin,
+                        ForwardIterator vertices_end,
+                        VertexMapT &vertex_map );
 
 private:
     explicit StaticGraph(const StaticGraph &graph);

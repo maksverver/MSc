@@ -1938,25 +1938,6 @@ This property is important because it means that if we start with a proper
  in order.
 \end_layout
 
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-need to describe that attractor sets of winning sets can be removed from
- a game! (+ explain why)
-\end_layout
-
-\begin_layout Plain Layout
-this is used on many occasions to break down games to be solved into smaller
- parts.
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
 \begin_layout Section
 Degenerate cases
 \end_layout
@@ -3037,6 +3018,14 @@ In my implementation, attractor sets are computed straightforwardly using
  Because the attractor set computation is analogous to a breadth-first search,
  the strategy reflects the shortest path from vertices in the extended attractor
  set to vertices in the initial set.
+ The algorithm is presented in detail as Algorithm 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "alg:Attractor-set-computation"
+
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Standard
@@ -3104,6 +3093,195 @@ The complexity can be reduced to
 \end_inset
 
  is used.
+\end_layout
+
+\begin_layout Standard
+
+\begin_inset Float algorithm
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Set<Vertex> make_attractor_set(
+\end_layout
+
+\begin_layout Plain Layout
+
+	ParityGame game, Player player,
+\end_layout
+
+\begin_layout Plain Layout
+
+	Set<Vertex> initial, Strategy s )
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	Queue<Vertex> todo
+\end_layout
+
+\begin_layout Plain Layout
+
+	Set<Vertex> attr
+\end_layout
+
+\begin_layout Plain Layout
+
+	for v in initial {
+\end_layout
+
+\begin_layout Plain Layout
+
+		attr.insert(v)
+\end_layout
+
+\begin_layout Plain Layout
+
+		todo.push_back(v)
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+	while not todo.empty() {
+\end_layout
+
+\begin_layout Plain Layout
+
+		Vertex v = todo.pop_front()
+\end_layout
+
+\begin_layout Plain Layout
+
+		for u in game.graph.predecessors(v) {
+\end_layout
+
+\begin_layout Plain Layout
+
+			if u in attr {
+\end_layout
+
+\begin_layout Plain Layout
+
+				continue
+\end_layout
+
+\begin_layout Plain Layout
+
+			}
+\end_layout
+
+\begin_layout Plain Layout
+
+			if game.player(u) == player {
+\end_layout
+
+\begin_layout Plain Layout
+
+				strategy[u] = v
+\end_layout
+
+\begin_layout Plain Layout
+
+			} else if game.graph.successors(u) is subset of attr {
+\end_layout
+
+\begin_layout Plain Layout
+
+				strategy[u] = NO_VERTEX
+\end_layout
+
+\begin_layout Plain Layout
+
+			} else {
+\end_layout
+
+\begin_layout Plain Layout
+
+				continue
+\end_layout
+
+\begin_layout Plain Layout
+
+			}
+\end_layout
+
+\begin_layout Plain Layout
+
+			attr.insert(u)
+\end_layout
+
+\begin_layout Plain Layout
+
+			todo.push_back(u)
+\end_layout
+
+\begin_layout Plain Layout
+
+ 		}
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+	return attr
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+
+Attractor set computation 
+\begin_inset CommandInset label
+LatexCommand label
+name "alg:Attractor-set-computation"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection
@@ -6872,6 +7050,168 @@ status open
 
 \end_layout
 
+\begin_layout Subsection
+Parallelization
+\end_layout
+
+\begin_layout Standard
+Zielonka's recursive algorithm is entirely deterministic, in the sense that
+ the subgames that must be computed to arrive at an answer are fixed, and
+ they can only be computed in a fixed order.
+ This is very different from Small Progress Meaures, where individual lifting
+ operations can be performed in any order, and can even be performed independent
+ly in parallel, without affecting the final outcome of the algorithm.
+\end_layout
+
+\begin_layout Standard
+This property of Zielonka's algorithm can be seen clearly in Algorithm 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "alg:Zielonka's-Recursive-Algorithm"
+
+\end_inset
+
+: every statement in the while-loop depends directly on the result obtained
+ in the immediately preceding statement.
+ As a result, it is impossible to reorder any statements, let alone evaluate
+ different statements in parallel, which suggests that the algorithm cannot
+ be parallelized at this level; at least, not without reformulating the
+ algorithm.
+\end_layout
+
+\begin_layout Standard
+Fortunately, parallelizing the algorithm at the top level is not the only
+ possible approach.
+ Although the algorithm is highly determinstic in its execution, the operations
+ that are performed are relatively high-level and computationally expensive.
+ Again, in this regard the algorithm differs from Small Progress Measures,
+ where the basic operation (a lifting attempt) is so simple that it makes
+ little sense to try and parallelize it, for the synchronization overhead
+ would likely negate the speedup gained by parallelization.
+\end_layout
+
+\begin_layout Subsubsection
+Distributed computation
+\end_layout
+
+\begin_layout Standard
+My approach to parallelizing Zielonka's algorithm is therefore based on
+ attempting to parallize the basic high-level operations on which the algorithm'
+s execution is based: 
+\begin_inset Formula $\texttt{make\_attractor\_set}$
+\end_inset
+
+, 
+\begin_inset Formula $\texttt{get\_complement}$
+\end_inset
+
+, 
+\begin_inset Formula $\texttt{make\_subgame}$
+\end_inset
+
+ and the construction of vertex sets in the while-loop, and the construction
+ of a final strategy in the for-loop at the end.
+ To this end, the initial game graph is partitioned over all available processes
+ by assigning every process a distinct part of the vertex set.
+ Every process will execute the main algorithm independently, and compute
+ the part of the strategy that applies to its local vertex set.
+\end_layout
+
+\begin_layout Standard
+In the following, it is assumed that processes execute symmetrically (all
+ execute the same program) and independently (requiring no synchronization
+ between instructions) but that communication is possible between any pair
+ of processes by way of message passing.
+ This is a fairly common distributed computing scenario, that requires a
+ fast local network between otherwise independent computers.
+\end_layout
+
+\begin_layout Standard
+Besides distributing the computation over several processes, the data structures
+ are distributed as well.
+ Every process stores the following information locally:
+\end_layout
+
+\begin_layout Itemize
+The part of the global vertex set assigned to this process; this will be
+ called the 
+\emph on
+internal vertex set
+\emph default
+.
+\end_layout
+
+\begin_layout Itemize
+The part of the global strategy corresponding with the internal vertex set.
+\end_layout
+
+\begin_layout Itemize
+A subgame of the global game graph that contains at least the internal vertex
+ set.
+\end_layout
+
+\begin_layout Standard
+Since no global data needs to be stored at individual processes, the amount
+ of memory required per process for a given game decreases as the number
+ of assigned processes increases.
+ This approach therefore allows the size of games that can be solved to
+ be scaled up with the number of processes.
+\end_layout
+
+\begin_layout Standard
+With a fixed graph partition, most of the basic operations can be parallelized
+ trivially.
+ For example, when constructing the minimum priority vertex set, every process
+ only considers the vertices in its assigned partition, and constructs a
+ local set accordingly.
+ The local sets computed by the individual processes form a partition of
+ the set computed by the global algorithm.
+ Set complements, subgames and final strategies can be constructed this
+ way as well, requiring no synchronization between processes.
+ The only tricky operation, and the only operation that requires communication
+ between processes, is the computation of attractor sets.
+ After all, containment of a vertex in an attractor set depends on whether
+ none, one or all of its successors are already in the set, but these successors
+ may not be part of the local vertex set.
+\end_layout
+
+\begin_layout Standard
+In order to allow processes to communicate information about attractor sets
+ in an efficient manner, it is useful to include in the local game graph
+ not only vertices and edges in the internal vertex set, but also all adjacent
+ vertices and the corresponding edges.
+ This allows processes to share information with all other interested processes,
+ without having to resort to broadcasting all locally computed data, which
+ may well generate so much communication overhead to negate any possible
+ benefits from parallelization.
+\end_layout
+
+\begin_layout Subsection
+Distributed attractor set computation
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+TODO:
+\end_layout
+
+\begin_layout Plain Layout
+describe two approaches: synchronized and unsynchronized.
+\end_layout
+
+\begin_layout Plain Layout
+first document serial attractor set computation (pseudo-code) somewhere
+ above for completeness.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Standard
 \begin_inset Note Note
 status open
@@ -6882,6 +7222,14 @@ TODO:
 
 \begin_layout Plain Layout
 - describe parallel implementation
+\end_layout
+
+\begin_layout Plain Layout
+- describe serial attractor set computation (pseudo-code?)
+\end_layout
+
+\begin_layout Plain Layout
+- describe parallel attractor set computation (pseudo-code?)
 \end_layout
 
 \begin_layout Plain Layout

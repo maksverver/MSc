@@ -64,13 +64,13 @@ void StaticGraph::make_subgraph( const StaticGraph &graph,
     // FIXME: determine which cut-off value works best:
     if (std::distance(vertices_begin, vertices_end) < graph.V()/3)
     {
-        return make_subgraph( graph, vertices_begin, vertices_end,
-                HASH_MAP(verti, verti)() );
+        HASH_MAP(verti, verti) map;
+        return make_subgraph(graph, vertices_begin, vertices_end, map);
     }
     else
     {
-        return make_subgraph( graph, vertices_begin, vertices_end,
-                DenseMap<verti, verti>(0, graph.V()) );
+        DenseMap<verti, verti> map(0, graph.V());
+        return make_subgraph(graph, vertices_begin, vertices_end, map);
     }
 }
 
@@ -78,7 +78,7 @@ template<class ForwardIterator, class VertexMapT>
 void StaticGraph::make_subgraph( const StaticGraph &graph,
                                  ForwardIterator vertices_begin,
                                  ForwardIterator vertices_end,
-                                 VertexMapT vertex_map )
+                                 VertexMapT &vertex_map )
 {
     assert(this != &graph);
 
