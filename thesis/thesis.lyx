@@ -3103,6 +3103,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset listings
+lstparams "language={C++},numbers=left,tabsize=4"
 inline false
 status open
 
@@ -4695,6 +4696,66 @@ The process is repeated for every priority in the game.
  with loops only, the potential benefits are larger too.
 \end_layout
 
+\begin_layout Subsubsection
+Priority propagation
+\end_layout
+
+\begin_layout Standard
+Finally, a simple preprocessing step that can be applied in order to speed
+ up solving with Small Progress Measures (and possibly other algorithms
+ as well), is a process called 
+\emph on
+priority propagation
+\emph default
+ (a term suggested in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "friedmann2009solving"
+
+\end_inset
+
+ though the concept already appears in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "antonik2009polynomial"
+
+\end_inset
+
+): we can replace the priority assigned to a vertex with the largest priority
+ among its successors, if the latter is less than the former, without affecting
+ winning sets or optimal strategies in the game.
+\end_layout
+
+\begin_layout Standard
+This can be seen to be correct by considering that if play passes through
+ this vertex infinitely often, it must also pass through at least one of
+ its successors infinitely often, and therefore the dominant priority of
+ the play cannot be that of the vertex itself, if it is greater than all
+ of its successors, and it is safe to decrement the priority for this vertex
+ without affecting the outcome of any play.
+\end_layout
+
+\begin_layout Standard
+The rationale for applying this transformation is that it tends to shift
+ the distribution of priorities in the direction of lower values (since
+ lower values can replace higher values, but not the other way around).
+ In the case of Small Progress Measures, this tends to reduce the size of
+ the vector space for progress measures, and thereby potentially decreases
+ the runtime of the algorithm.
+\end_layout
+
+\begin_layout Standard
+In practice the gains of priority propagation seem to be fairly small, as
+ has also been noted by Keiren in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "keiren2009"
+
+\end_inset
+
+.
+\end_layout
+
 \begin_layout Subsection
 Distributed implementation
 \end_layout
@@ -6268,10 +6329,6 @@ status open
  the bounds when lifting to top)
 \end_layout
 
-\begin_layout Plain Layout
-- mention priority propagation (not implemented)
-\end_layout
-
 \end_inset
 
 
@@ -6580,6 +6637,23 @@ From the above, it is clear that to solve a game with
 \end_inset
 
 .
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+TODO:
+\end_layout
+
+\begin_layout Plain Layout
+- note that McNaughton proposed something similar (when/where?)
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
@@ -7231,40 +7305,6 @@ TODO:
 
 \begin_layout Plain Layout
 describe two approaches: synchronized and unsynchronized.
-\end_layout
-
-\begin_layout Plain Layout
-first document serial attractor set computation (pseudo-code) somewhere
- above for completeness.
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-TODO:
-\end_layout
-
-\begin_layout Plain Layout
-- describe parallel implementation
-\end_layout
-
-\begin_layout Plain Layout
-- describe serial attractor set computation (pseudo-code?)
-\end_layout
-
-\begin_layout Plain Layout
-- describe parallel attractor set computation (pseudo-code?)
-\end_layout
-
-\begin_layout Plain Layout
-- note that McNaughton proposed something similar (when/where?)
 \end_layout
 
 \end_inset
