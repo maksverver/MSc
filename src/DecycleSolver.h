@@ -30,24 +30,10 @@ public:
 
     ParityGame::Strategy solve();
 
-private:
-    // SCC callback
-    int operator()(const verti *vertices, size_t num_vertices);
-    friend class SCC<DecycleSolver>;
-
-    size_t my_memory_use();
-
 protected:
     ParityGameSolverFactory &pgsf_;       //!< Solver factory to use
     const verti             *vmap_;       //!< Current vertex map
     const verti             vmap_size_;   //!< Size of vertex map
-
-    // Used in the SCC callback:
-    int                    prio_;      //!< current selected priority
-    std::vector<verti>     mapping_;   //!< current priority induced vertex set
-    StaticGraph            graph_;     //!< current priority induced subgraph
-    std::deque<verti>      winning_;   //!< current winning vertices
-    ParityGame::Strategy   strategy_;  //!< current winning strategy
 };
 
 class DecycleSolverFactory : public ParityGameSolverFactory

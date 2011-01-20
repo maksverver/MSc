@@ -3096,14 +3096,12 @@ The complexity can be reduced to
 \end_layout
 
 \begin_layout Standard
-
 \begin_inset Float algorithm
 wide false
 sideways false
 status open
 
 \begin_layout Plain Layout
-
 \begin_inset listings
 inline false
 status open
@@ -3259,7 +3257,6 @@ Set<Vertex> make_attractor_set(
 \begin_inset Caption
 
 \begin_layout Plain Layout
-
 Attractor set computation 
 \begin_inset CommandInset label
 LatexCommand label
@@ -4558,13 +4555,13 @@ Winner-controlled cycle removal
 \end_layout
 
 \begin_layout Standard
-In his solver, Freark van der Berg introduced a slightly more sophisticated
- version of the loop removal process described above.
+In his solver, Freark van der Berg introduced a more sophisticated version
+ of the loop removal process described above.
  He searches for cycles of vertices controlled by Odd with odd priority.
- Since he uses a simple depth-limited depth-first-search, he is limited
- to finding small cycles only.
+ Since he uses a simple depth-limited depth-first-search, he is able to
+ find small cycles only.
  Despite this, his benchmark results show that this already provides significant
- benefits over the removal of loops only, at least in some random games.
+ benefits over the removal of loops only; at least in some random games.
 \end_layout
 
 \begin_layout Standard
@@ -4600,7 +4597,7 @@ To remove all
 
  in the graph, an approach similar to that used to verify strategies can
  be applied.
- Construct a subgraph of all vertices controlled by 
+ Construct a subgame induced by the vertices controlled by 
 \begin_inset Formula $p$
 \end_inset
 
@@ -4639,21 +4636,55 @@ To remove all
 \end_layout
 
 \begin_layout Standard
-Strategies for these vertices can be constructed as follows: from a vertex
- with priority 
+Strategies for these vertices can be constructed as followes.
+ Put the vertices identified as described above in an initial vertex set,
+ and then compute the attractor set and associated strategies for these
+ vertices in the subgame.
+ For the vertices in the initial set, it suffices to select an arbitrary
+ successor inside the same component: since it must lie in the attractor
+ set (by definition of strongly connected components and the fact that all
+ vertices in the subgame are controlled by 
 \begin_inset Formula $p$
 \end_inset
 
- any successor inside the component may be chosen, and the rest of the strategy
- can be constructed during computation of the attractor set, as discussed
- earlier.
- Any vertices solved in this way can be removed from the game.
- This process is repeated for every priority in the game.
+) play will necessarily lead back to either the 
+\begin_inset Formula $i$
+\end_inset
+
+-vertex itself (completing a cycle) or to another 
+\begin_inset Formula $i$
+\end_inset
+
+-vertex that lies on an 
+\begin_inset Formula $i$
+\end_inset
+
+-cycle.
+ Finally, we can compute another attractor set (with strategy) for all vertices
+ solved in the subgame, but this time in the global game, to extend the
+ winning set as far as possible.
+ All of these vertices can be considered solved and removed from the game.
+\end_layout
+
+\begin_layout Standard
+It may sound inefficient to compute attractor sets twice, but this is required
+ in order to create correct strategies.
+ Computing only one attractor set (in the global game) does work for purposes
+ of computing the winning sets, but it may create cycles containing vertices
+ with priority less than 
+\begin_inset Formula $i$
+\end_inset
+
+, which was to be avoided.
+\end_layout
+
+\begin_layout Standard
+The process is repeated for every priority in the game.
  Every iteration requires constructing a subgraph with the appropriate vertices,
- decomposing it into strongly connected component, computing the attractor
- set in the original game, and then computing a subgame with the remaining
- vertices.
- Using appropriate data structures, each of these operations take at most
+ decomposing it into strongly connected components, computing the attractor
+ set in the subgame, then again in the original game, and finally computing
+ a subgame with the remaining vertices.
+ Using appropriate data structures, each of these operations takes at most
  time linear in the number of the edges in the graph, for a total runtime
  complexity of 
 \begin_inset Formula $O(dE)$

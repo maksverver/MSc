@@ -12,6 +12,108 @@
 #include <memory>
 #include <assert.h>
 
+/*! This helper class searches for cycles of a fixed priority in subgames
+    controlled entirely by the corresponding player. */
+struct CycleFinder
+{
+    /*! Construct an instance for the subgame of `game' induced by `mapping',
+        looking for cycles of dominant priority `prio'. */
+    CycleFinder( const ParityGame &game, int prio,
+                 const std::vector<verti> &mapping );
+
+    /*! Search for minimum-priority cycles and vertices in their attractor sets,
+        an update `strategy', `done_set' and `done_queue' accordingly.
+        Takes up to O(E) time. */
+    void run( ParityGame::Strategy &strategy,
+              DenseSet<verti> &done_set, std::deque<verti> &done_queue );
+
+    // SCC callback
+    int operator()(const verti *vertices, size_t num_vertices);
+
+    size_t memory_use();
+
+private:
+    int                         prio_;          //!< selected priority
+    const std::vector<verti>    &mapping_;      //!< priority induced vertex set
+    ParityGame                  subgame_;       //!< priority induced subgame
+    DenseSet<verti>             winning_set_;   //!< winning set of the subgame
+    std::deque<verti>           winning_queue_; //!< queue of winning vertices
+    ParityGame::Strategy        substrat_;      //!< current winning strategy
+};
+
+CycleFinder::CycleFinder( const ParityGame &game,
+                          int prio, const std::vector<verti> &mapping )
+    : prio_(prio), mapping_(mapping), winning_set_(0, (verti)mapping.size()),
+      winning_queue_(), substrat_(mapping.size(), NO_VERTEX)
+{
+    subgame_.make_subgame(game, mapping.begin(), mapping.end());
+}
+
+size_t CycleFinder::memory_use()
+{
+    return sizeof(*this) +
+        subgame_.memory_use() +
+        winning_set_.memory_use() +
+        sizeof(verti)*winning_queue_.size()*2 +
+        sizeof(verti)*substrat_.capacity();
+}
+
+void CycleFinder::run( ParityGame::Strategy &strategy,
+    DenseSet<verti> &done_set, std::deque<verti> &done_queue )
+{
+    // Identify key vertices which are part of the winning set:
+    decompose_graph(subgame_.graph(), *this);
+
+    if (!winning_queue_.empty())
+    {
+        // Extend to attractor in subgame. This guarantees the strategy indeed
+        // leads to cycles of priority prio_:
+        make_attractor_set( subgame_, (ParityGame::Player)(prio_%2),
+                            winning_set_, winning_queue_, substrat_ );
+
+        // Map computed winning set and strategy back to global game:
+        for ( DenseSet<verti>::const_iterator it = winning_set_.begin();
+              it != winning_set_.end(); ++it )
+        {
+            verti v = mapping_[*it];
+            verti w = substrat_[*it];
+            if (w != NO_VERTEX) w = mapping_[w];
+            strategy[v] = w;
+            assert(!done_set.count(v));
+            done_set.insert(v);
+            done_queue.push_back(v);
+        }
+    }
+}
+
+int CycleFinder::operator()(const verti *scc, size_t scc_size)
+{
+    // Search for a vertex with minimum priority, with a successor in the SCC:
+    for (size_t i = 0; i < scc_size; ++i) {
+        verti v = scc[i];
+        if (subgame_.priority(v) == prio_) {
+            // Search for an edge inside the component:
+            // FIXME: complexity analysis? has_succ is not constant time!
+            for (size_t j = 0; j < scc_size; ++j)
+            {
+                verti w = scc[j];
+                if (subgame_.graph().has_succ(v, w))
+                {
+                    if (subgame_.player(v) == prio_%2)
+                    {
+                        substrat_[v] = w;
+                    }
+                    winning_set_.insert(v);
+                    winning_queue_.push_back(v);
+                    return 0;  // continue enumerating SCCs
+                }
+            }
+            assert(scc_size == 1);
+        }
+    }
+    return 0;  // continue enumerating SCCs
+}
+
 DecycleSolver::DecycleSolver(
     const ParityGame &game, ParityGameSolverFactory &pgsf,
     const verti *vmap, verti vmap_size )
@@ -25,108 +127,71 @@ DecycleSolver::~DecycleSolver()
     pgsf_.deref();
 }
 
-int DecycleSolver::operator()(const verti *scc, size_t scc_size)
-{
-    // Search for a vertex with minimum priority, with a successor in the SCC:
-    for (size_t i = 0; i < scc_size; ++i) {
-        verti v = scc[i], orig_v = mapping_[v];
-        if (game_.priority(orig_v) == prio_) {
-            // Search for an edge inside the component:
-            // FIXME: complexity analysis? has_succ is not constant time!
-            for (size_t j = 0; j < scc_size; ++j)
-            {
-                verti w = scc[j];
-                if (graph_.has_succ(v, w))
-                {
-                    winning_.push_back(orig_v);
-                    if (game_.player(orig_v) == prio_%2)
-                    {
-                        strategy_[orig_v] = mapping_[w];
-                    }
-                    return 0;
-                }
-            }
-            assert(scc_size == 1);
-        }
-    }
-    return 0;  // continue enumerating SCCs
-}
-
-/* Returns how much memory is currently allocated for this object only: */
-size_t DecycleSolver::my_memory_use()
-{
-    return sizeof(*this)
-        + sizeof(verti)*mapping_.capacity() +
-        + graph_.memory_use()
-        + sizeof(verti)*winning_.size()*2  /* estimate! */ +
-        + sizeof(verti)*strategy_.capacity();
-}
-
 ParityGame::Strategy DecycleSolver::solve()
 {
-    if (!strategy_.empty()) return strategy_;
-
     info( "(DecycleSolver) Searching for winner-controlled cycles...");
+
     const verti V = game_.graph().V();
-    strategy_.assign(V, NO_VERTEX);
-    DenseSet<verti> solved(0, V);
-    for (prio_ = 0; prio_ < game_.d(); ++prio_)
+    ParityGame::Strategy strategy(V, NO_VERTEX);
+    DenseSet<verti> solved_set(0, V);
+
+    const size_t base_mem = sizeof(verti)*strategy.capacity() +
+                            solved_set.memory_use() + sizeof(*this);
+
+    // Find owner-controlled cycles for every priority value:
+    for (int prio = 0; prio < game_.d(); ++prio)
     {
-        // Find set of unsolved vertices with priority >= prio_
+        verti old_size = solved_set.size();
+
+        // Find set of unsolved vertices with priority >= prio
+        std::vector<verti> mapping;
         for (verti v = 0; v < V; ++v)
         {
-            if ( solved.count(v) == 0 &&
-                 game_.priority(v) >= prio_ &&
-                 ( game_.player(v) == prio_%2 ||
+            if ( solved_set.count(v) == 0 &&
+                 game_.priority(v) >= prio &&
+                 ( game_.player(v) == prio%2 ||
                    game_.graph().outdegree(v) == 1 ) )
             {
-                mapping_.push_back(v);
+                mapping.push_back(v);
             }
         }
 
-        // Construct subgraph induced by vertices found above:
-        graph_.make_subgraph(
-            game_.graph(), mapping_.begin(), mapping_.end() );
+        // Find (attractor set of) winning cycles in subgame:
+        std::deque<verti> solved_queue;
+        CycleFinder cf(game_, prio, mapping);
+        cf.run(strategy, solved_set, solved_queue);
 
-        // Identify vertices which are part of the winning set:
-        decompose_graph(graph_, *this);
+        // Extend to attractor set in the global game:
+        make_attractor_set( game_, (ParityGame::Player)(prio%2),
+                            solved_set, solved_queue, strategy );
 
-        update_memory_use(my_memory_use() + solved.memory_use());
-        graph_.clear();
-        mapping_.clear();
+        update_memory_use( base_mem + cf.memory_use() +
+                sizeof(verti)*mapping.capacity() +
+                sizeof(verti)*solved_queue.size()*2 );
 
-        if (!winning_.empty())
+        verti new_size = solved_set.size();
+        if (old_size < new_size)
         {
-            verti old_solved = (verti)solved.size();
-
-            // Compute attractor set and associated strategy:
-            for ( std::deque<verti>::const_iterator it = winning_.begin();
-                    it != winning_.end(); ++it ) solved.insert(*it);
-            make_attractor_set( game_, (ParityGame::Player)(prio_%2),
-                                solved, winning_, strategy_ );
-
-            update_memory_use(my_memory_use() + solved.memory_use());
-            winning_.clear();
-
             info( "(DecycleSolver) Identified %d vertices in %d-dominated "
-                    "cycles.", (verti)solved.size() - old_solved, prio_ );
+                  "cycles.", new_size - old_size, prio );
         }
 
-        // Early out: if all vertices are solved, continuing is pointless.
-        if (solved.size() == V) return strategy_;
+        // Early out: if all vertices are solved, it is pointless to continue.
+        if (new_size == V) return strategy;
     }
 
-    if (solved.empty())
+    if (solved_set.empty())
     {
         // Don't construct a subgame if it is identical to the input game:
         info("(DecycleSolver) No suitable cycles found! Solving...");
         std::auto_ptr<ParityGameSolver> subsolver(
             pgsf_.create(game_, vmap_, vmap_size_) );
-        strategy_ = subsolver->solve();
-        return strategy_;
+        subsolver->solve().swap(strategy);
+        update_memory_use(base_mem + subsolver->memory_use());
+        return strategy;
     }
 
-    const verti num_unsolved = V - (verti)solved.size();
+    const verti num_unsolved = V - (verti)solved_set.size();
     info( "(DecycleSolver) Creating subgame with %d vertices remaining...",
             num_unsolved );
 
@@ -135,15 +200,16 @@ ParityGame::Strategy DecycleSolver::solve()
     unsolved.reserve(num_unsolved);
     for (verti v = 0; v < V; ++v)
     {
-        if (solved.count(v) == 0) unsolved.push_back(v);
+        if (!solved_set.count(v)) unsolved.push_back(v);
     }
     assert(!unsolved.empty() && unsolved.size() == num_unsolved);
 
+    // Construct subgame for the unsolved part:
     ParityGame subgame;
     subgame.make_subgame(game_, unsolved.begin(), unsolved.end());
 
     // Construct solver:
-    std::vector<verti> submap; // declared here so it survives subsolver
+    std::vector<verti> submap;  // declared here so it survives subsolver
     std::auto_ptr<ParityGameSolver> subsolver;
     if (vmap_size_ > 0)
     {
@@ -164,13 +230,14 @@ ParityGame::Strategy DecycleSolver::solve()
     if (!substrat.empty())
     {
         info( "(DecycleSolver) Merging strategies...");
-        merge_strategies(strategy_, substrat, unsolved);
+        merge_strategies(strategy, substrat, unsolved);
     }
-    update_memory_use( my_memory_use() + solved.memory_use() +
-        sizeof(verti)*unsolved.capacity() + subgame.memory_use() +
-        sizeof(verti)*substrat.size() + subsolver->memory_use() );
 
-    return strategy_;
+    update_memory_use( base_mem + sizeof(verti)*unsolved.capacity() +
+        sizeof(verti)*submap.capacity() + subgame.memory_use() +
+        subsolver->memory_use() + sizeof(verti)*substrat.capacity() );
+
+    return strategy;
 }
 
 ParityGameSolver *DecycleSolverFactory::create( const ParityGame &game,

@@ -13,9 +13,10 @@
 
 struct VerifySCC  // used by ParityGame::verify
 {
-    const ParityGame    &_game;
-    const StaticGraph   &_graph;
-    const int           _prio;
+    const ParityGame    &game;
+    const StaticGraph   &graph;
+    const int           prio;
+    verti * const       error;
 
     int operator() (const verti *scc, size_t scc_size)
     {
@@ -23,17 +24,21 @@ struct VerifySCC  // used by ParityGame::verify
         for (size_t i = 0; i < scc_size; ++i)
         {
             verti v = scc[i];
-            if (_game.priority(v) == _prio)
+            if (game.priority(v) == prio)
             {
                 // Cycle detected if |SCC| > 1 or v has a self-edge:
-                if (scc_size > 1 || _graph.has_succ(v, v)) return 1;
+                if (scc_size > 1 || graph.has_succ(v, v))
+                {
+                    if (error) *error = v;
+                    return 1;
+                }
             }
         }
         return 0;
     }
 };
 
-bool ParityGame::verify(const Strategy &s) const
+bool ParityGame::verify(const Strategy &s, verti *error) const
 {
     assert(s.size() == graph_.V());
 
@@ -115,9 +120,9 @@ bool ParityGame::verify(const Strategy &s) const
         subgraph.assign(edges, StaticGraph::EDGE_SUCCESSOR);
 
         // Find a vertex with priority prio on a cycle:
-        VerifySCC verifier = { *this, subgraph, prio };
+        VerifySCC verifier = { *this, subgraph, prio, error };
         if (decompose_graph(subgraph, verifier) != 0) return false;
     }
-
+    if (error) *error = NO_VERTEX;
     return true;
 }

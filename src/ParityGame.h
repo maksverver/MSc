@@ -199,8 +199,9 @@ public:
     Player winner(const StrategyT &s, verti v) const;
 
     /*! Returns whether the given strategy is valid (and thereby optimal) for
-        both players. */
-    bool verify(const Strategy &s) const;
+        both players. If `verti' is non-NULL, then it is set to an incorrectly
+        classified vertex if verification fails, or to NO_VERTEX otherwise. */
+    bool verify(const Strategy &s, verti *error) const;
 
     /*! Swaps the contents of this parity game with another one. */
     void swap(ParityGame &pg);

@@ -947,9 +947,10 @@ int main(int argc, char *argv[])
         if (!failed && arg_verify)
         {
             Timer timer;
+            verti error;
 
             Logger::info("Starting verification...");
-            if (game.verify(strategy))
+            if (game.verify(strategy, &error))
             {
                 Logger::message("Verification succeeded.");
             }
@@ -962,6 +963,7 @@ int main(int argc, char *argv[])
                 Logger::error("!!        Verification failed!        !!");
                 Logger::error("!!                                    !!");
                 Logger::error("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                Logger::error("Error at vertex: %d", (int)error);
             }
             Logger::message( "Time used to verify:         %10.3f s",
                              timer.elapsed() );
