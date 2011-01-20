@@ -8,8 +8,9 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #include "ParityGame.h"
-#include <map>
 #include <algorithm>
+#include <deque>
+#include <map>
 #include <stdlib.h>
 #include <assert.h>
 
@@ -182,6 +183,68 @@ ParityGame::Player ParityGame::compress_priorities( const verti cardinality[],
     return swap_players ? PLAYER_ODD : PLAYER_EVEN;
 }
 
+int ParityGame::propagate_priority(verti v)
+{
+    int p = priority(v), q = 0;
+    for ( StaticGraph::const_iterator it = graph_.succ_begin(v);
+          it != graph_.succ_end(v); ++it )
+    {
+        verti w = *it;
+        int r = priority(w);
+        if (r >= p) return 0;
+        if (r > q) q = r;
+    }
+    vertex_[v].priority = q;
+    return p - q;
+}
+
+/* N.B. this method is designed to be reasonably fast and use little memory
+    in the common case that few priorities can be propagated, which is why the
+    algorithm starts with a first pass looking for vertices which can be
+    updated, rather than putting them all in the initial queue, which would be
+    simpler but require more memory up-front. */
+long long ParityGame::propagate_priorities()
+{
+    long long res = 0;
+    std::deque<verti> todo;
+
+    // Make an initial pass to look for updatable vertices:
+    for (verti v = 0; v < graph_.V(); ++v)
+    {
+        if (priority(v) > 0)
+        {
+            int change = propagate_priority(v);
+            if (change > 0) {
+                res += change;
+                todo.push_back(v);
+            }
+        }
+    }
+
+    // Check predecessors of updated vertices again:
+    while (!todo.empty())
+    {
+        verti w = todo.front();
+        int p = priority(w);
+        todo.pop_front();
+
+        for ( StaticGraph::const_iterator it = graph_.pred_begin(w);
+              it != graph_.pred_end(w); ++it )
+        {
+            verti v = *it;
+            if (priority(v) > p)
+            {
+                int change = propagate_priority(v);
+                if (change > 0) {
+                    res += change;
+                    todo.push_back(v);
+                }
+            }
+        }
+    }
+
+    return res;
+}
 
 size_t ParityGame::memory_use() const
 {

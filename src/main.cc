@@ -76,6 +76,7 @@ static bool         arg_deloop                = false;
 static bool         arg_scc_decomposition     = false;
 static bool         arg_solve_dual            = false;
 static Reordering   arg_reordering            = REORDER_NONE;
+static bool         arg_priority_propagation  = false;
 static int          arg_random_size           = 1000000;
 static int          arg_random_seed           =       1;
 static int          arg_random_out_degree     =       3;
@@ -137,6 +138,7 @@ static void print_usage()
 "  --scc                  solve strongly connected components individually\n"
 "  --dual                 solve the dual game\n"
 "  --reorder (bfs|dfs)    order vertices by breadth-/depth-first-search order\n"
+"  --propagate            propagate minimum priorities to predecessors\n"
 "\n"
 "Solving with Small Progress Measures:\n"
 "  --lifting/-l <desc>    Small Progress Measures lifting strategy to use\n"
@@ -181,14 +183,15 @@ static void parse_args(int argc, char *argv[])
         { "scc",        no_argument,       NULL,  7  },
         { "dual",       no_argument,       NULL,  8  },
         { "reorder",    required_argument, NULL,  9  },
+        { "propagate",  no_argument,       NULL, 10  },
 
         { "lifting",    required_argument, NULL, 'l' },
         { "alternate",  no_argument,       NULL, 'a' },
 
         { "zielonka",   no_argument,       NULL, 'z' },
-        { "mpi",        no_argument,       NULL, 10  },
+        { "mpi",        no_argument,       NULL, 11  },
         { "chunk",      required_argument, NULL, 'c' },
-        { "sync",       no_argument,       NULL, 11  },
+        { "sync",       no_argument,       NULL, 12  },
 
         { "dot",        required_argument, NULL, 'd' },
         { "pgsolver",   required_argument, NULL, 'p' },
@@ -318,6 +321,10 @@ static void parse_args(int argc, char *argv[])
             }
             break;
 
+        case 10:    /* enable priority propagation */
+            arg_priority_propagation = true;
+            break;
+
         case 'l':   /* Small Progress Measures lifting strategy */
             arg_spm_lifting_strategy = optarg;
             break;
@@ -330,7 +337,7 @@ static void parse_args(int argc, char *argv[])
             arg_zielonka = true;
             break;
 
-        case 10:    /* parallize solving with MPI */
+        case 11:    /* parallize solving with MPI */
             arg_mpi = true;
             break;
 
@@ -343,7 +350,7 @@ static void parse_args(int argc, char *argv[])
             }
             break;
 
-        case 11:    /* use synchronized algorithm */
+        case 12:    /* use synchronized algorithm */
             arg_zielonka_sync = true;
             break;
 
@@ -840,6 +847,16 @@ int main(int argc, char *argv[])
             edgei rem_edges = old_edges - game.graph().E();
             Logger::info( "Removed %d edge%s...",
                             rem_edges, rem_edges == 1 ? "" : "s" );
+        }
+
+        /* Note: priority propagation is done after preprocessing, because
+                 it benefits from removed loops (since priorities can only be
+                 propagated to vertices with loops). */
+        if (arg_priority_propagation)
+        {
+            Logger::info("Propagating priorities...");
+            long long updates = game.propagate_priorities();
+            Logger::info("Reduced summed priorities by %lld.", updates);
         }
 
         if (arg_decycle)

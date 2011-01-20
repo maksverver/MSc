@@ -136,6 +136,19 @@ public:
     Player compress_priorities( const verti cardinality[] = 0,
                                 bool preserve_parity = true );
 
+    /*! Propagate priorities in the graph, by changing the priority for a vertex
+        to the maximum of the priorities of its successors, if this is less than
+        the vertex's current priority value.
+
+        This preserves winners and optimal strategies, but usually shifts the
+        distribution of priorities towards lower values, which benefits the
+        performance in some solvers.
+
+        Returns the sum of differences between old and new priority values
+        for all vertices.
+    */
+    long long propagate_priorities();
+
     /*! Read a game description in PGSolver format. */
     void read_pgsolver( std::istream &is,
         StaticGraph::EdgeDirection edge_dir = StaticGraph::EDGE_BIDIRECTIONAL );
@@ -208,6 +221,12 @@ protected:
     /*! Recalculate cardinalities (priority frequencies) from the first
         `num_vertices` elements of `vertex_`. */
     void recalculate_cardinalities(verti num_vertices);
+
+    /*! Decreases the priority of the current vertex to the maximum of its
+        successors, if this is lower than the current priority value, and
+        returns the difference between the old and new priority value.
+        Used internally to implement priority propagation. */
+    int propagate_priority(verti v);
 
 private:
     explicit ParityGame(const ParityGame &game);

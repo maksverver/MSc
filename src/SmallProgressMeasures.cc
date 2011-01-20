@@ -282,8 +282,10 @@ ParityGame::Strategy SmallProgressMeasuresSolver::solve_normal()
         update_memory_use( spm.memory_use() + ls->memory_use() +
                            sizeof(strategy[0])*strategy.capacity() +
                            sizeof(won_by_odd[0])*won_by_odd.capacity() );
+        /*
         info("DEBUG: verifying small progress measures.");
-        assert(spm.verify_solution());  // TEMP: DEBUG!
+        assert(spm.verify_solution());
+        */
     }
 
     if (!won_by_odd.empty())
@@ -321,8 +323,10 @@ ParityGame::Strategy SmallProgressMeasuresSolver::solve_normal()
                            sizeof(won_by_odd[0])*won_by_odd.capacity() +
                            subgame.memory_use() +
                            sizeof(submap_data[0])*submap_data.capacity() );
+        /*
         info("DEBUG: verifying small progress measures.");
-        assert(spm.verify_solution());  // TEMP: DEBUG!
+        assert(spm.verify_solution());
+        */
     }
 
     return strategy;
