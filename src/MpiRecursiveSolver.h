@@ -15,8 +15,6 @@
 #include "GamePartition.h"
 #include "MpiAttractorAlgorithm.h"
 #include "Logger.h"
-#include <vector>
-#include <deque>
 #include <mpi.h>
 
 extern int mpi_rank, mpi_size;  // defined and initialized in main.cc

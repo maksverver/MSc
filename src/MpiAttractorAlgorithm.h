@@ -13,6 +13,7 @@
 #include "ParityGame.h"
 #include "VertexPartition.h"
 #include "GamePartition.h"
+#include "DenseSet.h"
 #include <deque>
 #include <vector>
 #include <mpi.h>
@@ -35,7 +36,7 @@ public:
     */
     virtual void make_attractor_set( const VertexPartition &vpart,
         const GamePartition &part, ParityGame::Player player,
-        std::vector<char> &attr, std::deque<verti> &queue,
+        DenseSet<verti> &attr, std::deque<verti> &queue,
         bool quick_start, ParityGame::Strategy &strategy ) = 0;
 };
 

@@ -25,7 +25,7 @@ public:
 
     AsyncMpiAttractorImpl( const VertexPartition &vpart,
                            const GamePartition &part, ParityGame::Player player,
-                           std::vector<char> &attr, std::deque<verti> &queue,
+                           DenseSet<verti> &attr, std::deque<verti> &queue,
                            ParityGame::Strategy &strategy );
 
     ~AsyncMpiAttractorImpl();
@@ -46,7 +46,7 @@ private:
     const VertexPartition       &vpart_;
     const GamePartition         &part;
     const ParityGame::Player    player;
-    std::vector<char>           &attr;
+    DenseSet<verti>             &attr;
     std::deque<verti>           &queue;
     ParityGame::Strategy        &strategy_;
     int                         num_send;
@@ -60,7 +60,7 @@ class AsyncMpiAttractorAlgorithm : public MpiAttractorAlgorithm
 {
     void make_attractor_set( const VertexPartition &vpart,
         const GamePartition &part, ParityGame::Player player,
-        std::vector<char> &attr, std::deque<verti> &queue,
+        DenseSet<verti> &attr, std::deque<verti> &queue,
         bool quick_start, ParityGame::Strategy &strategy )
     {
         /* Logger::debug( "enter make_attractor_set(%s, %d, %d) in %s",

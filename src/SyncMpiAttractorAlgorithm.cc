@@ -8,6 +8,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #include "SyncMpiAttractorAlgorithm.h"
+#include "attractor.h"  // for is_subset_of()
 
 extern int mpi_rank, mpi_size;
 
@@ -21,7 +22,7 @@ static bool mpi_or(int local_value)
 
 SyncMpiAttractorImpl::SyncMpiAttractorImpl( const VertexPartition &vpart,
         const GamePartition &part, ParityGame::Player player,
-        std::vector<char> &attr, std::deque<verti> &queue,
+        DenseSet<verti> &attr, std::deque<verti> &queue,
         ParityGame::Strategy &strategy )
     : vpart_(vpart), part(part), player(player), attr(attr), queue(queue),
       strategy_(strategy)
@@ -45,7 +46,7 @@ void SyncMpiAttractorImpl::solve(bool quick_start)
                 const verti v = *it;
 
                 // Skip vertices already in the attractor set:
-                if (attr[v]) continue;
+                if (attr.count(v)) continue;
 
                 // Skip vertices not assigned to this worker process:
                 if (vpart_(part.global(v)) != mpi_rank) continue;
@@ -56,24 +57,20 @@ void SyncMpiAttractorImpl::solve(bool quick_start)
                     strategy_[part.global(v)] = part.global(w);
                 }
                 else  // opponent-controlled vertex
+                if (is_subset_of(graph.succ_begin(v), graph.succ_end(v), attr))
                 {
-                    // Can the opponent keep the token out of the attractor set?
-                    for (StaticGraph::const_iterator jt = graph.succ_begin(v);
-                        jt != graph.succ_end(v); ++jt)
-                    {
-                        if (!attr[*jt]) goto skip_v;
-                    }
-
                     // Store strategy for opponent-controlled vertex:
                     strategy_[part.global(v)] = NO_VERTEX;
                 }
+                else
+                {
+                    // Not in the attractor set yet!
+                    continue;
+                }
                 // Add vertex v to the attractor set:
-                attr[v] = true;
+                attr.insert(v);
                 queue.push_back(v);
                 //debug("added %d to attractor set", part.global(v));
-
-            skip_v:
-                continue;
             }
         }
         // Synchronize with other processes, obtaining a fresh queue of
@@ -101,7 +98,7 @@ void SyncMpiAttractorImpl::exchange_queues(std::deque<verti> &next_queue)
                 for (std::deque<verti>::const_iterator it = queue.begin();
                      it != queue.end(); ++it)
                 {
-                    assert(attr[*it]);
+                    assert(attr.count(*it));
                     bool found = false;
                     for (StaticGraph::const_iterator jt = graph.pred_begin(*it);
                          !found && jt != graph.pred_end(*it); ++jt)
@@ -134,8 +131,8 @@ void SyncMpiAttractorImpl::exchange_queues(std::deque<verti> &next_queue)
                     if (val == -1) break;
                     //debug("received %d from %d", val, i);
                     const verti v = part.local((verti)val);
-                    assert(!attr[v]);
-                    attr[v] = 1;
+                    assert(!attr.count(v));
+                    attr.insert(v);
                     next_queue.push_back(v);
                 }
             }

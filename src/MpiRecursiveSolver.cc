@@ -11,18 +11,21 @@
 #include "SyncMpiAttractorAlgorithm.h"
 #include "MpiRecursiveSolver.h"
 #include "GamePartition.h"
+#include "DenseSet.h"
 #include <assert.h>
 #include <algorithm>
 #include <set>
 #include <utility>
+#include <vector>
+#include <deque>
 
 //! Returns a list of indices at which `incl' is zero.
-static std::vector<verti> collect_complement(std::vector<char> &incl)
+static std::vector<verti> collect_complement(const DenseSet<verti> &incl)
 {
     std::vector<verti> res;
-    for (size_t i = 0; i < incl.size(); ++i)
+    for (verti v = incl.range_begin; v != incl.range_end; ++v)
     {
-        if (!incl[i]) res.push_back((verti)i);
+        if (!incl.count(v)) res.push_back(v);
     }
     return res;
 }
@@ -147,13 +150,13 @@ void MpiRecursiveSolver::solve(GamePartition &part)
         }
 
         // Find attractor set of vertices with minimum priority
-        std::vector<char> min_prio_attr(V, 0);
+        DenseSet<verti> min_prio_attr(0, V);
         std::deque<verti> min_prio_attr_queue;
         for (verti v = 0; v < V; ++v )
         {
             if (part.game().priority(v) < prio)
             {
-                min_prio_attr[v] = 1;
+                min_prio_attr.insert(v);
                 min_prio_attr_queue.push_back(v);
             }
         }
@@ -170,16 +173,16 @@ void MpiRecursiveSolver::solve(GamePartition &part)
         solve(subpart);
 
         // Find attractor set of vertices lost to opponent in subgame:
-        std::vector<char> lost_attr(V, 0);
+        DenseSet<verti> lost_attr(0, V);
         std::deque<verti> lost_attr_queue;
         for ( GamePartition::const_iterator it = part.begin();
                it != part.end(); ++it )
         {
             const verti v = *it;
-            if ( !min_prio_attr[v] &&
+            if ( !min_prio_attr.count(v) &&
                  game().winner(strategy_, part.global(v)) == prio%2 )
             {
-                lost_attr[v] = 1;
+                lost_attr.insert(v);
                 lost_attr_queue.push_back(v);
             }
         }

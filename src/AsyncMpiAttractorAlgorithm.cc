@@ -8,12 +8,13 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #include "AsyncMpiAttractorAlgorithm.h"
+#include "attractor.h"  // for is_subset_of()
 
 extern int mpi_rank, mpi_size;
 
 AsyncMpiAttractorImpl::AsyncMpiAttractorImpl( const VertexPartition &vpart,
         const GamePartition &part, ParityGame::Player player,
-        std::vector<char> &attr, std::deque<verti> &queue,
+        DenseSet<verti> &attr, std::deque<verti> &queue,
         ParityGame::Strategy &strategy )
     : vpart_(vpart), part(part), player(player), attr(attr), queue(queue),
       strategy_(strategy), num_send(0), num_recv(0)
@@ -79,7 +80,7 @@ void AsyncMpiAttractorImpl::solve(bool quick_start)
                 const verti v = *it;
 
                 // Skip vertices already in the attractor set:
-                if (attr[v]) continue;
+                if (attr.count(v)) continue;
 
                 // Skip vertices not assigned to this worker process:
                 if (vpart_(part.global(v)) != mpi_rank) continue;
@@ -90,25 +91,21 @@ void AsyncMpiAttractorImpl::solve(bool quick_start)
                     strategy_[part.global(v)] = part.global(w);
                 }
                 else  // opponent-controlled vertex
+                if (is_subset_of(graph.succ_begin(v), graph.succ_end(v), attr))
                 {
-                    // Can the opponent keep the token out of the attractor set?
-                    for (StaticGraph::const_iterator jt = graph.succ_begin(v);
-                        jt != graph.succ_end(v); ++jt)
-                    {
-                        if (!attr[*jt]) goto skip_v;
-                    }
-
                     // Store strategy for opponent-controlled vertex:
                     strategy_[part.global(v)] = NO_VERTEX;
                 }
+                else
+                {
+                    // Not in the attractor set yet!
+                    continue;
+                }
                 // Add vertex v to the attractor set:
-                attr[v] = true;
+                attr.insert(v);
                 queue.push_back(v);
                 //debug("added %d to attractor set", part.global(v));
                 notify_others(v);
-
-            skip_v:
-                continue;
             }
         }
 
@@ -134,8 +131,8 @@ void AsyncMpiAttractorImpl::solve(bool quick_start)
                 {
                     //debug("received %d", vertex_val);
                     verti i = part.local(vertex_val);
-                    assert(!attr[i]);
-                    attr[i] = true;
+                    assert(!attr.count(i));
+                    attr.insert(i);
                     queue.push_back(i);
                     ++num_recv;
                     reqs[TAG_VERTEX].Start();
@@ -227,8 +224,8 @@ void AsyncMpiAttractorImpl::notify_others(verti i)
     {
         //debug("received %d", req_val);
         i = part.local(vertex_val);
-        assert(!attr[i]);
-        attr[i] = true;
+        assert(!attr.count(i));
+        attr.insert(i);
         queue.push_back(i);
         ++num_recv;
         reqs[TAG_VERTEX].Start();
