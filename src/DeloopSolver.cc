@@ -43,7 +43,7 @@ ParityGame::Strategy DeloopSolver::solve()
                  *game_.graph().succ_begin(v) == v )
             {
                 assert(solved.count(v) == 0);
-                strategy[v] = v;
+                strategy[v] = game_.player(v) == player ? v : NO_VERTEX;
                 winning.push_back(v);
                 solved.insert(v);
             }
