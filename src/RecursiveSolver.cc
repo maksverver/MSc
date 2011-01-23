@@ -12,7 +12,6 @@
 #include "attractor.h"
 #include <set>
 #include <assert.h>
-//#include "Logger.h"  // debug
 
 class Substrategy
 {
@@ -169,10 +168,10 @@ bool RecursiveSolver::solve(ParityGame &game, Substrategy &strat)
     int prio;
     while ((prio = first_alternation(game)) < game.d())
     {
+        debug("prio=%d", prio);
+
         const StaticGraph &graph = game.graph();
         const verti V = graph.V();
-        //Logger::debug("V=%d prio=%d", V, prio);
-
         std::vector<verti> unsolved;
 
         // Compute attractor set of minimum priority vertices:
@@ -184,10 +183,10 @@ bool RecursiveSolver::solve(ParityGame &game, Substrategy &strat)
             {
                 if (game.priority(v) < prio) min_prio_attr.insert(v);
             }
-            //Logger::debug("|min_prio|=%d", (int)min_prio_attr.size());
+            debug("|min_prio|=%d", (int)min_prio_attr.size());
             assert(!min_prio_attr.empty());
             make_attractor_set(game, player, min_prio_attr, strat);
-            //Logger::debug("|min_prio_attr|=%d", (int)min_prio_attr.size());
+            debug("|min_prio_attr|=%d", (int)min_prio_attr.size());
             if (min_prio_attr.size() == V) break;
             get_complement(V, min_prio_attr.begin(), min_prio_attr.end())
                 .swap(unsolved);
@@ -212,10 +211,10 @@ bool RecursiveSolver::solve(ParityGame &game, Substrategy &strat)
                     lost_attr.insert(*it);
                 }
             }
+            debug("|lost|=%d", (int)lost_attr.size());
             if (lost_attr.empty()) break;
             make_attractor_set(game, opponent, lost_attr, strat);
-            //Logger::debug("|lost|=%d", (int)lost_attr.size());
-            //Logger::debug("|lost_attr|=%d", (int)lost_attr.size());
+            debug("|lost_attr|=%d", (int)lost_attr.size());
             get_complement(V, lost_attr.begin(), lost_attr.end())
                 .swap(unsolved);
         }

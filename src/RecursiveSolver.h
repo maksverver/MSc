@@ -11,11 +11,12 @@
 #define RECURSIVE_SOLVER_H_INCLUDED
 
 #include "ParityGameSolver.h"
+#include "Logger.h"
 
 class Substrategy;
 
 /*! Parity game solver implementing Zielonka's recursive algorithm. */
-class RecursiveSolver : public ParityGameSolver
+class RecursiveSolver : public ParityGameSolver, public Logger
 {
 public:
     RecursiveSolver(const ParityGame &game);

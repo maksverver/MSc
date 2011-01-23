@@ -132,10 +132,10 @@ void ParityGame::write_pgsolver(std::ostream &os) const
 {
     // Get max priority and make it even so max_prio - p preserves parity:
     int max_prio = d();
-    if (max_prio%2 == 1) ++max_prio;
+    if (max_prio%2 == 1) --max_prio;
 
     // Write out graph
-    os << "parity " << graph_.V() - 1 << ";\n";
+    os << "parity " << (long long)graph_.V() - 1 << ";\n";
     for (verti v = 0; v < graph_.V(); ++v)
     {
         os << v << ' ' << (max_prio - priority(v)) << ' ' << player(v);

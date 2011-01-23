@@ -16,6 +16,14 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
+#if __GNUC__ >= 3
+#define PRINTF(decl) decl __attribute__((format(printf, 1, 2)));
+#define NORETURN(decl) decl __attribute__((noreturn));
+#else
+#define PRINTF(decl)
+#define NORETURN(decl)
+#endif
+
 class Logger
 {
 public:
@@ -34,15 +42,12 @@ public:
     //! Return whether messages with the given severity are displayed
     static bool enabled(Severity s) { return s >= severity_; }
 
-    inline static void debug(const char *fmt, ...);
-    inline static void info(const char *fmt, ...);
-    inline static void warn(const char *fmt, ...);
-    inline static void message(const char *fmt, ...);
-    inline static void error(const char *fmt, ...);
-#if __GNUC__ >= 3
-    __attribute__((noreturn))
-#endif
-    inline static void fatal(const char *fmt, ...);
+    inline static void PRINTF(debug(const char *fmt, ...));
+    inline static void PRINTF(info(const char *fmt, ...));
+    inline static void PRINTF(warn(const char *fmt, ...));
+    inline static void PRINTF(message(const char *fmt, ...));
+    inline static void PRINTF(error(const char *fmt, ...));
+    inline static void PRINTF(NORETURN(fatal(const char *fmt, ...)));
 
 private:
     /*! Prints a formatted message with the given severity to stderr,
@@ -56,6 +61,8 @@ private:
     static Severity severity_;  //! minimum severity for displayed messages
 };
 
+#undef PRINTF
+#undef NORETURN
 
 void Logger::debug(const char *fmt, ...)
 {

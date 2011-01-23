@@ -4162,11 +4162,11 @@ To see that decreasing the vector space is permissible, even without fixing
 \end_inset
 
 , then 
-\begin_inset Formula $v\in W^{1}$
+\begin_inset Formula $v\in W_{1}$
 \end_inset
 
  and thus 
-\begin_inset Formula $Attr^{1}(\left\{ v\right\} )\subseteq W^{1}$
+\begin_inset Formula $Attr^{1}(\left\{ v\right\} )\subseteq W_{1}$
 \end_inset
 
 , and we could solve the subgame induced by 
