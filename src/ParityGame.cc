@@ -183,11 +183,11 @@ ParityGame::Player ParityGame::compress_priorities( const verti cardinality[],
     return swap_players ? PLAYER_ODD : PLAYER_EVEN;
 }
 
-int ParityGame::propagate_priority(verti v)
+int ParityGame::propagate_priority( verti v, StaticGraph::const_iterator it,
+                                             StaticGraph::const_iterator end )
 {
     int p = priority(v), q = 0;
-    for ( StaticGraph::const_iterator it = graph_.succ_begin(v);
-          it != graph_.succ_end(v); ++it )
+    for ( ; it != end; ++it)
     {
         verti w = *it;
         int r = priority(w);
@@ -195,6 +195,8 @@ int ParityGame::propagate_priority(verti v)
         if (r > q) q = r;
     }
     vertex_[v].priority = q;
+    --cardinality_[p];
+    ++cardinality_[q];
     return p - q;
 }
 
@@ -213,7 +215,10 @@ long long ParityGame::propagate_priorities()
     {
         if (priority(v) > 0)
         {
-            int change = propagate_priority(v);
+            int change = propagate_priority(v, graph_.succ_begin(v),
+                                               graph_.succ_end(v) )
+                       + propagate_priority(v, graph_.pred_begin(v),
+                                               graph_.pred_end(v) );
             if (change > 0) {
                 res += change;
                 todo.push_back(v);
@@ -221,20 +226,38 @@ long long ParityGame::propagate_priorities()
         }
     }
 
-    // Check predecessors of updated vertices again:
+    // Check neighbours of updated vertices again:
     while (!todo.empty())
     {
         verti w = todo.front();
         int p = priority(w);
         todo.pop_front();
 
+        // Perform backwards propagation on predecessors:
         for ( StaticGraph::const_iterator it = graph_.pred_begin(w);
               it != graph_.pred_end(w); ++it )
         {
             verti v = *it;
             if (priority(v) > p)
             {
-                int change = propagate_priority(v);
+                int change = propagate_priority(v, graph_.succ_begin(v),
+                                                   graph_.succ_end(v) );
+                if (change > 0) {
+                    res += change;
+                    todo.push_back(v);
+                }
+            }
+        }
+
+        // Perform forwards propagation on successors:
+        for ( StaticGraph::const_iterator it = graph_.succ_begin(w);
+              it != graph_.succ_end(w); ++it )
+        {
+            verti v = *it;
+            if (priority(v) > p)
+            {
+                int change = propagate_priority(v, graph_.pred_begin(v),
+                                                   graph_.pred_end(v) );
                 if (change > 0) {
                     res += change;
                     todo.push_back(v);

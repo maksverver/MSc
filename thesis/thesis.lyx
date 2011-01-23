@@ -4723,30 +4723,42 @@ key "antonik2009polynomial"
 
 ): we can replace the priority assigned to a vertex with the largest priority
  among its successors, if the latter is less than the former, without affecting
- winning sets or optimal strategies in the game.
+ winning sets or optimal strategies in the game, and similarly for the predecess
+ors of a vertex.
+ (Friedmann & Lange distinguish the two cases by calling them 
+\emph on
+backwards
+\emph default
+ and 
+\emph on
+forwards propagation
+\emph default
+ respectively, though there seems to be little reason to apply one process
+ but not the other.)
 \end_layout
 
 \begin_layout Standard
-This can be seen to be correct by considering that if play passes through
- this vertex infinitely often, it must also pass through at least one of
- its successors infinitely often, and therefore the dominant priority of
- the play cannot be that of the vertex itself, if it is greater than all
- of its successors, and it is safe to decrement the priority for this vertex
- without affecting the outcome of any play.
+This can be seen to be correct by considering that if a play passes through
+ a vertex infinitely often, it must also pass through at least one of its
+ successors infinitely often.
+ When the vertex priority is greater than all of its successors', then it
+ cannot be the dominant priority of the play, so it is safe to decrement
+ it.
+ The same argument applies to predecessors, of course.
 \end_layout
 
 \begin_layout Standard
 The rationale for applying this transformation is that it tends to shift
- the distribution of priorities in the direction of lower values (since
- lower values can replace higher values, but not the other way around).
- In the case of Small Progress Measures, this tends to reduce the size of
- the vector space for progress measures, and thereby potentially decreases
- the runtime of the algorithm.
+ the distribution of priorities towards lower values (since lower values
+ can replace higher values, but not the other way around).
+ This tends to reduce the size of the vector space for progress measures,
+ and thereby potentially decreases the runtime of the Small Progress Measures
+ algorithm.
 \end_layout
 
 \begin_layout Standard
-In practice the gains of priority propagation seem to be fairly small, as
- has also been noted by Keiren in 
+In practice the gains of priority propagation seem to be small at best,
+ as has also been noted by Keiren in 
 \begin_inset CommandInset citation
 LatexCommand cite
 key "keiren2009"
@@ -4754,6 +4766,15 @@ key "keiren2009"
 \end_inset
 
 .
+ Friedmann & Lange report that 
+\begin_inset Quotes eld
+\end_inset
+
+emperically, the use of priority propagation turns out to be harmful
+\begin_inset Quotes erd
+\end_inset
+
+, though their emperical data is not presented.
 \end_layout
 
 \begin_layout Subsection

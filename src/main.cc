@@ -857,6 +857,11 @@ int main(int argc, char *argv[])
             Logger::info("Propagating priorities...");
             long long updates = game.propagate_priorities();
             Logger::info("Reduced summed priorities by %lld.", updates);
+            game.compress_priorities();
+            for (int p = 0; p < game.d(); ++p)
+            {
+                Logger::info("  %2d occurs %d times", p, game.cardinality(p));
+            }
         }
 
         if (arg_decycle)

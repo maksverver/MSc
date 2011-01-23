@@ -138,7 +138,7 @@ public:
 
     /*! Propagate priorities in the graph, by changing the priority for a vertex
         to the maximum of the priorities of its successors, if this is less than
-        the vertex's current priority value.
+        the vertex's current priority value, and similarly for its predecessors.
 
         This preserves winners and optimal strategies, but usually shifts the
         distribution of priorities towards lower values, which benefits the
@@ -223,11 +223,11 @@ protected:
         `num_vertices` elements of `vertex_`. */
     void recalculate_cardinalities(verti num_vertices);
 
-    /*! Decreases the priority of the current vertex to the maximum of its
-        successors, if this is lower than the current priority value, and
-        returns the difference between the old and new priority value.
-        Used internally to implement priority propagation. */
-    int propagate_priority(verti v);
+    /*! Helper function for ParityGame::propagate_priorities() that decreases
+        the priority for `v' to the maximum of those in range [begin:end), if
+        this is less than its current value, and returns the absolute change. */
+    int propagate_priority( verti v, StaticGraph::const_iterator begin,
+                                     StaticGraph::const_iterator end );
 
 private:
     explicit ParityGame(const ParityGame &game);
