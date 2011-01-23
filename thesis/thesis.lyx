@@ -3610,8 +3610,8 @@ Let
 \begin_inset Formula \[
 Prog(\rho,v,w)=\begin{cases}
 \top & \mbox{if \ensuremath{\rho(w)=\top}, otherwise:}\\
-\min_{m\in M^{T}}m\geq_{\phi(v)}\rho(w) & \mbox{if \ensuremath{\phi(v)\equiv0\mod{2}},}\\
-\min_{m\in M^{T}}m>_{\phi(v)}\rho(w) & \mbox{if }\ensuremath{\phi(v)\equiv1\mod{2}}.\end{cases}\]
+\min_{m\in M^{\top}}m\geq_{\phi(v)}\rho(w) & \mbox{if \ensuremath{\phi(v)\equiv0\mod{2}},}\\
+\min_{m\in M^{\top}}m>_{\phi(v)}\rho(w) & \mbox{if }\ensuremath{\phi(v)\equiv1\mod{2}}.\end{cases}\]
 
 \end_inset
 
@@ -4106,18 +4106,121 @@ name "alg:Small-Progress-Measures"
 
 \end_layout
 
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-- Mention vertex mapping? (This should be described somewhere else, as it's
- part of the global framework, not just SPM)
+\begin_layout Subsubsection
+Lifting to top
 \end_layout
+
+\begin_layout Standard
+The implemention of 
+\begin_inset Formula $\texttt{lift}$
+\end_inset
+
+ follows the definition above, but with one important enhancement: whenever
+ a vertex with odd priority 
+\begin_inset Formula $p$
+\end_inset
+
+ is lifted to 
+\begin_inset Formula $\top$
+\end_inset
+
+, the value of 
+\begin_inset Formula $M_{p}$
+\end_inset
+
+ is decreased by 1.
+ As a result, during solving, 
+\begin_inset Formula $M$
+\end_inset
+
+ is effectively determined by the cardinalities of only those vertices with
+ progress measures less than 
+\begin_inset Formula $\top$
+\end_inset
+
+.
+ Note that this may cause some progress measure vectors to temporarily exceed
+ the new vector space 
+\begin_inset Formula $M'$
+\end_inset
+
+, but this will be resolved when the vertex is lifted.
+\end_layout
+
+\begin_layout Standard
+To see that decreasing the vector space is permissible, even without fixing
+ any vectors that are now out of range, consider that if vertex 
+\begin_inset Formula $v$
+\end_inset
+
+ with priority 
+\begin_inset Formula $p$
+\end_inset
+
+ is set to 
+\begin_inset Formula $\top$
+\end_inset
+
+, then 
+\begin_inset Formula $v\in W^{1}$
+\end_inset
+
+ and thus 
+\begin_inset Formula $Attr^{1}(\left\{ v\right\} )\subseteq W^{1}$
+\end_inset
+
+, and we could solve the subgame induced by 
+\begin_inset Formula $V\setminus Attr^{1}(\left\{ v\right\} )$
+\end_inset
+
+ with vector space 
+\begin_inset Formula $M''$
+\end_inset
+
+ instead.
+ However, since 
+\begin_inset Formula $M''_{p}\subseteq M_{p}'$
+\end_inset
+
+ and since we compute a minimum fixed point in both cases, the final progress
+ measures vectors must be the same for corresponding vertices in both games.
+ This guarantees that the final value of all vectors will lie in 
+\begin_inset Formula $M''^{\top}$
+\end_inset
+
+ in both games, which means any vectors which exceed it in the original
+ game cannot be final values, and the corresponding vertices will have to
+ be lifted again, at which point they will be brought back in range.
+\end_layout
+
+\begin_layout Standard
+This enhancement is not described by Jurdziński and not implemented in any
+ of the other solvers based on Small Progress Measures, to my knowledge;
+ all of these assume 
+\begin_inset Formula $M$
+\end_inset
+
+ to be constant during solving.
+ It was invented specifically to remedy cases where the dual solving approach
+ (described in 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Two-way-SPM"
 
 \end_inset
 
+) would perform worse compared to the approach of solving the normal and
+ dual game in succession.
+ These cases arise because in the latter approach vertices won by Even (in
+ the normal game) are removed from the dual game before solving, which reduces
+ the complexity of the second problem.
+ With the two-way approach no vertices are ever removed, which would cause
+ the dual game to have a significantly larger vector space.
+\end_layout
 
+\begin_layout Standard
+Besides eliminating this disadvantage in the dual-solving approach, the
+ enhancement benefits both variations of the algorithm.
 \end_layout
 
 \begin_layout Subsection
@@ -6051,6 +6154,13 @@ status open
 
 \begin_layout Subsection
 Two-way SPM 
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Two-way-SPM"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
