@@ -6480,8 +6480,8 @@ key "zielonka1998igf"
 \end_inset
 
 .
- It is presented solelby as a proof, not as an efficient algorithm, but
- it has been shown (e.g.
+ It is presented solely as a proof, not as an efficient algorithm, but it
+ has been shown (e.g.
  in 
 \begin_inset CommandInset citation
 LatexCommand cite
@@ -6768,6 +6768,27 @@ From the above, it is clear that to solve a game with
 \end_inset
 
 .
+ In 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "friedmann-recursive-lower-bound"
+
+\end_inset
+
+, Friedmann presents a class of games requiring exponential time to solve,
+ with 
+\begin_inset Formula $\Omega(fib(V))$
+\end_inset
+
+ as a lower bound (where 
+\begin_inset Formula $fib(i)$
+\end_inset
+
+ returns the 
+\begin_inset Formula $i$
+\end_inset
+
+-th Fibonacci number).
 \end_layout
 
 \begin_layout Standard
