@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Generates a Jurdzinsky game in PGSolver format with l levels and b blocks.
+# Generates a Jurdzinski game in PGSolver format with l levels and b blocks.
 # The resulting game has (2b + 1) + (3b + 1)(l - 1) vertices and 2l priorities.
 
 # Usage:
