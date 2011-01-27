@@ -23,9 +23,9 @@ void ParityGame::read_pgsolver( std::istream &is,
     std::vector<ParityGameVertex> vertices;
     StaticGraph::edge_list edges;
 
-    // Read header line (if present)
+    // Read "parity" header line (if present)
     char ch = 0;
-    is.get(ch);
+    while (!isalnum(ch)) is.get(ch);
     is.putback(ch);
     if (!isdigit(ch))
     {
@@ -35,6 +35,21 @@ void ParityGame::read_pgsolver( std::istream &is,
         if (!(is >> parity >> max_vertex)) return;
         if (parity != "parity") return;
         vertices.reserve(max_vertex + 1);
+
+        // Skip to terminating semicolon
+        while (is.get(ch) && ch != ';') ch = 0;
+    }
+
+    // Read and discard "start" line (if present)
+    while (!isalnum(ch)) is.get(ch);
+    is.putback(ch);
+    if (!isdigit(ch))
+    {
+        std::string start;
+        verti vertex;
+
+        if (!(is >> start >> vertex)) return;
+        if (start != "start") return;
 
         // Skip to terminating semicolon
         while (is.get(ch) && ch != ';') ch = 0;

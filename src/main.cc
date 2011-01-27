@@ -66,6 +66,7 @@ static std::string  arg_pgsolver_file         = "";
 static std::string  arg_raw_file              = "";
 static std::string  arg_winners_file          = "";
 static std::string  arg_strategy_file         = "";
+static std::string  arg_paritysol_file        = "";
 static std::string  arg_hot_vertices_file     = "";
 static std::string  arg_debug_file            = "";
 static std::string  arg_spm_lifting_strategy  = "";
@@ -117,8 +118,9 @@ static double get_vmsize()
 }
 #endif
 
-static void print_usage()
+static void print_usage(const char *argv0)
 {
+    printf( "Usage: %s [<options>] [<input>]\n\n", argv0);
     printf(
 "General options:\n"
 "  --help/-h              show this help message\n"
@@ -156,6 +158,7 @@ static void print_usage()
 "  --raw/-r <file>        write parity game in raw format to <file>\n"
 "  --winners/-w <file>    write compact winners specification to <file>\n"
 "  --strategy/-s <file>   write optimal strategy for both players to <file>\n"
+"  --paritysol/-P <file>  write solution in PGSolver format to <file>\n"
 "\n"
 "Benchmarking/testing:\n"
 "  --stats/-S             collect lifting statistics during SPM solving\n"
@@ -167,6 +170,8 @@ static void print_usage()
 
 static void parse_args(int argc, char *argv[])
 {
+    enum FileMode { text, binary, none } input_mode = none;
+
     static struct option long_options[] = {
         { "help",       no_argument,       NULL, 'h' },
         { "verbosity",  required_argument, NULL, 'v' },
@@ -198,6 +203,7 @@ static void parse_args(int argc, char *argv[])
         { "raw",        required_argument, NULL, 'r' },
         { "winners",    required_argument, NULL, 'w' },
         { "strategy",   required_argument, NULL, 's' },
+        { "paritysol",  required_argument, NULL, 'P' },
 
         { "stats",      no_argument,       NULL, 'S' },
         { "timeout",    required_argument, NULL, 't' },
@@ -224,7 +230,7 @@ static void parse_args(int argc, char *argv[])
         switch (ch)
         {
         case 'h':   /* help */
-            print_usage();
+            print_usage(argv[0]);
             exit(EXIT_SUCCESS);
             break;
 
@@ -249,17 +255,20 @@ static void parse_args(int argc, char *argv[])
             if (strcasecmp(optarg, "raw") == 0)
             {
                 arg_input_format = INPUT_RAW;
+                input_mode = binary;
             }
             else
             if (strcasecmp(optarg, "pgsolver") == 0)
             {
                 arg_input_format = INPUT_PGSOLVER;
+                input_mode = text;
             }
             else
             if (strcasecmp(optarg, "pbes") == 0)
             {
 #ifdef WITH_MCRL2
                 arg_input_format = INPUT_PBES;
+                input_mode = binary;
 #else
                 printf("PBES input requires linking to mCRL2\n");
                 exit(EXIT_FAILURE);
@@ -374,6 +383,10 @@ static void parse_args(int argc, char *argv[])
             arg_strategy_file = optarg;
             break;
 
+        case 'P':   /* "paritysol" (PGSolver --solonly format) output file */
+            arg_paritysol_file = optarg;
+            break;
+
         case 'S':   /* collect lifting statistics*/
             arg_collect_stats = true;
             break;
@@ -406,8 +419,25 @@ static void parse_args(int argc, char *argv[])
     if (arg_input_format == INPUT_NONE)
     {
         printf("No input format specified!\n");
-        print_usage();
+        print_usage(argv[0]);
         exit(EXIT_FAILURE);
+    }
+
+    if (optind < argc)
+    {
+        /* Rmaining argument specifies an input file */
+        if (input_mode == none || argc - optind > 1)
+        {
+            printf("Too many (non-option) arguments specified!\n");
+            exit(EXIT_FAILURE);
+        }
+        const char *path = argv[optind];
+        const char *mode = (input_mode == text) ? "rt" : "r";
+        if (freopen(path, mode, stdin) == NULL)
+        {
+            printf("Could not open file \"%s\" for reading!\n", path);
+            exit(EXIT_FAILURE);
+        }
     }
 }
 
@@ -444,6 +474,23 @@ static void write_strategy( std::ostream &os,
     }
 }
 
+/*! Write solution in PGSolver --solonly format, which can be parsed by tools
+    like MLSsolver. */
+static void write_paritysol( std::ostream &os,
+                             const ParityGame &game,
+                             const ParityGame::Strategy &strategy )
+{
+    const StaticGraph &graph = game.graph();
+    const verti V = graph.V();
+    assert(strategy.size() == V);
+    os << "paritysol " << (long long)V - 1 << ";\n";
+    for (verti v = 0; v < V; ++v)
+    {
+        os << v << ' ' << (int)game.winner(strategy, v);
+        if (strategy[v] != NO_VERTEX) os << ' ' << strategy[v];
+        os << ";\n";
+    }
+}
 
 /*! Write a subgraph containing hot vertices (vertices that were lifted at
    least `threshold' times) in GraphViz format to given output stream. */
@@ -511,7 +558,6 @@ bool read_input(ParityGame &game)
         game.make_random(
             arg_random_size, arg_random_out_degree,
             StaticGraph::EDGE_BIDIRECTIONAL, arg_random_priorities );
-
         return true;
 
     case INPUT_RAW:
@@ -522,7 +568,7 @@ bool read_input(ParityGame &game)
     case INPUT_PGSOLVER:
         Logger::info("Reading PGSolver input...");
         game.read_pgsolver(std::cin);
-        return true;
+        return !game.empty();
 
     case INPUT_PBES:
         Logger::info("Generating parity game from PBES input....");
@@ -624,6 +670,24 @@ void write_output( const ParityGame &game,
                           arg_strategy_file.c_str() );
             std::ofstream ofs(arg_strategy_file.c_str());
             write_strategy(ofs, strategy);
+            if (!ofs) Logger::error("Writing failed!");
+        }
+    }
+
+    /* Write paritysol file */
+    if (!arg_paritysol_file.empty() && !strategy.empty())
+    {
+        if (arg_paritysol_file == "-")
+        {
+            write_paritysol(std::cout, game, strategy);
+            if (!std::cout) Logger::error("Writing failed!");
+        }
+        else
+        {
+            Logger::info( "Writing PGSolver solution description to file %s...",
+                          arg_paritysol_file.c_str() );
+            std::ofstream ofs(arg_paritysol_file.c_str());
+            write_paritysol(ofs, game, strategy);
             if (!ofs) Logger::error("Writing failed!");
         }
     }
