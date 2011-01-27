@@ -277,7 +277,15 @@ size_t ParityGame::memory_use() const
     return res;
 }
 
-/*! Swaps the contents of this parity game with another one. */
+bool ParityGame::proper() const
+{
+    for (verti v = 0; v < graph_.V(); ++v)
+    {
+        if (graph_.succ_begin(v) == graph_.succ_end(v)) return false;
+    }
+    return true;
+}
+
 void ParityGame::swap(ParityGame &pg)
 {
     std::swap(d_, pg.d_);

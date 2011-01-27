@@ -28,14 +28,17 @@ ComponentSolver::~ComponentSolver()
 
 ParityGame::Strategy ComponentSolver::solve()
 {
-    if (strategy_.empty())
-    {
-        strategy_.assign(game_.graph().V(), NO_VERTEX);
-        solved_.assign(game_.graph().V(), false);
-        if (decompose_graph(game_.graph(), *this) != 0) strategy_.clear();
-        solved_.clear();
-    }
-    return strategy_;
+    verti V = game_.graph().V();
+    strategy_.assign(V, NO_VERTEX);
+    DenseSet<verti> W0(0, V), W1(0, V);
+    winning_[0] = &W0;
+    winning_[1] = &W1;
+    if (decompose_graph(game_.graph(), *this) != 0) strategy_.clear();
+    winning_[0] = NULL;
+    winning_[1] = NULL;
+    ParityGame::Strategy result;
+    result.swap(strategy_);
+    return result;
 }
 
 int ComponentSolver::operator()(const verti *vertices, size_t num_vertices)
@@ -45,13 +48,18 @@ int ComponentSolver::operator()(const verti *vertices, size_t num_vertices)
     assert(num_vertices > 0);
 
     // Filter out solved vertices:
-    info("(ComponentSolver) Filtering %d vertices...", (int)num_vertices);
     std::vector<verti> unsolved;
     unsolved.reserve(num_vertices);
     for (size_t n = 0; n < num_vertices; ++n)
     {
-        if (!solved_[vertices[n]]) unsolved.push_back(vertices[n]);
+        verti v = vertices[n];
+        if (!winning_[0]->count(v) && !winning_[1]->count(v))
+        {
+            unsolved.push_back(vertices[n]);
+        }
     }
+    info("(ComponentSolver) SCC of size %ld with %ld unsolved vertices...",
+         (long)num_vertices, (long)unsolved.size());
     if (unsolved.empty()) return 0;
 
     // Construct a subgame for unsolved vertices in this component:
@@ -59,6 +67,7 @@ int ComponentSolver::operator()(const verti *vertices, size_t num_vertices)
           (int)unsolved.size() );
     ParityGame subgame;
     subgame.make_subgame(game_, unsolved.begin(), unsolved.end());
+    //assert(subgame.proper());
 
     /* N.B. if unsolved.size() < num_vertices then we run the SCC decomposition
        algorithm again (because removing vertices in attractor sets of winning
@@ -111,27 +120,20 @@ int ComponentSolver::operator()(const verti *vertices, size_t num_vertices)
         info("(ComponentSolver) Building attractor sets for winning regions...");
 
         // Extract winning sets from subgame:
-        HASH_SET(verti) winning[2];
+        std::deque<verti> todo[2];
         for (size_t n = 0; n < unsolved.size(); ++n)
         {
-            winning[subgame.winner(substrat, n)].insert(unsolved[n]);
+            todo[subgame.winner(substrat, n)].push_back(unsolved[n]);
         }
 
         // Extend winning sets to attractor sets:
         for (int player = 0; player < 2; ++player)
         {
             make_attractor_set( game_, (ParityGame::Player)player,
-                                winning[player], strategy_ );
-
-            // Mark vertices in winning + attractor set as solved:
-            for (HASH_SET(verti)::const_iterator it =
-                    winning[player].begin(); it != winning[player].end(); ++it)
-            {
-                solved_[*it] = true;
-            }
+                                *winning_[player], todo[player], strategy_ );
         }
     }
-    else
+    else  /* unsolved.size() < num_vertices */
     {
         info("(ComponentSolver) Identifying subcomponents...");
         ComponentSolver subsolver(subgame, pgsf_);

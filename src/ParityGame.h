@@ -198,6 +198,10 @@ public:
     template<class StrategyT>
     Player winner(const StrategyT &s, verti v) const;
 
+    /*! Returns whether this is a proper game; i.e. every vertex has a successor
+        in this game graph. */
+    bool proper() const;
+
     /*! Returns whether the given strategy is valid (and thereby optimal) for
         both players. If `verti' is non-NULL, then it is set to an incorrectly
         classified vertex if verification fails, or to NO_VERTEX otherwise. */

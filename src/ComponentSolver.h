@@ -11,6 +11,7 @@
 #define COMPONENT_SOLVER_H_INCLUDED
 
 #include "SmallProgressMeasures.h"
+#include "DenseSet.h"
 #include "Logger.h"
 #include "SCC.h"
 #include <string>
@@ -33,11 +34,11 @@ private:
     friend class SCC<ComponentSolver>;
 
 protected:
-    ParityGameSolverFactory &pgsf_;      //!< Solver factory to use
-    const verti             *vmap_;      //!< Current vertex map
-    const verti             vmap_size_;  //!< Size of vertex map
-    ParityGame::Strategy    strategy_;   //!< The resulting strategy
-    std::vector<bool>       solved_;     //!< Which vertices are solved?
+    ParityGameSolverFactory  &pgsf_;        //!< Solver factory to use
+    const verti              *vmap_;        //!< Current vertex map
+    const verti              vmap_size_;    //!< Size of vertex map
+    ParityGame::Strategy     strategy_;     //!< Resulting strategy
+    DenseSet<verti>          *winning_[2];  //!< Resulting winning sets
 };
 
 class ComponentSolverFactory : public ParityGameSolverFactory
