@@ -11,6 +11,7 @@
 #define LIFTING_STRATEGY_H_INCLUDED
 
 #include "ParityGame.h"
+#include "RefCounted.h"
 #include <string>
 
 class SmallProgressMeasures;
@@ -51,7 +52,7 @@ protected:
 };
 
 /*! Abstract base class for lifting strategy factories. */
-class LiftingStrategyFactory
+class LiftingStrategyFactory : public RefCounted
 {
 public:
     virtual ~LiftingStrategyFactory();

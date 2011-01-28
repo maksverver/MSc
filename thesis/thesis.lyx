@@ -3391,7 +3391,7 @@ Oliver Friedmann proposed a variation of the algorithm that effectively
 \end_layout
 
 \begin_layout Standard
-Small progress measures was previously implemented by Martin Lange and Olivier
+Small progress measures was previously implemented by Martin Lange and Oliver
  Friedmann in PGSolver (both the regular and two-way algorithm).
  A lock-free concurrent version was implemented by Weber and Van de Pol
  which works on shared-memory systems that do not reorder memory store operation
@@ -6165,7 +6165,7 @@ name "sub:Two-way-SPM"
 
 \begin_layout Standard
 A noteworthy variant of the Small Progress Measures algorithm was implemented
- by Olivier Friedmann in PGSolver.
+ by Oliver Friedmann in PGSolver.
  
 \begin_inset Note Note
 status open

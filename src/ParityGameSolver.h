@@ -52,8 +52,8 @@ protected:
     }
 
 protected:
-    const ParityGame    &game_;     //!< Game being solved
-    size_t              max_memory_size;    //!< Max. amount of memory used
+    const ParityGame &game_;           //!< Game being solved
+    size_t           max_memory_size;  //!< Max. amount of memory used
 };
 
 /*! Abstract base class for parity game solver factories. */

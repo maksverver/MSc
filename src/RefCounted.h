@@ -22,10 +22,11 @@ public:
         : refs_(init_refcount) { }
 
     /*! Increment reference count. */
-    void ref() { ++refs_; }
+    void ref() const { ++refs_; }
 
-    /*! Decrement reference count and deleting the object if it becomes zero. */
-    void deref() {
+    /*! Decrement reference count and delete the object if it becomes zero. */
+    void deref() const
+    {
         assert(refs_ > 0);
         if (--refs_ == 0) delete this;
     }
@@ -37,7 +38,7 @@ protected:
     virtual ~RefCounted() { assert(refs_ <= 1); }
 
 protected:
-    size_t refs_;  //!< Number of references to this object
+    mutable size_t refs_;  //!< Number of references to this object
 };
 
 #endif /* ndef REFCOUNTED */

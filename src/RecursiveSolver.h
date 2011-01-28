@@ -25,8 +25,7 @@ public:
     ParityGame::Strategy solve();
 
 private:
-    /*! Solves a subgame with a known minimum priority, or returns false if
-        solving is aborted. */
+    /*! Solves a subgame recursively, or returns false if solving is aborted. */
     bool solve(ParityGame &game, Substrategy &strat);
 };
 

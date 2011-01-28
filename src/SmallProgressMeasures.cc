@@ -45,8 +45,13 @@ SmallProgressMeasures::SmallProgressMeasures(
 
     // Initialize SPM vector bounds
     len_ = (game_.d() + p_)/2;
+    if (len_ < 1) len_ = 1;  // ensure Top is representable
     M_ = new verti[len_];
-    for (int n = 0; n < len_; ++n) M_[n] = game_.cardinality(2*n + 1 - p_) + 1;
+    for (int n = 0; n < len_; ++n)
+    {
+        int prio = 2*n + 1 - p_;
+        M_[n] = (prio < game.d()) ? game_.cardinality(prio) + 1 : 0;
+    }
 
     // Initialize SPM vector data
     size_t n = (size_t)len_*game.graph().V();
@@ -161,6 +166,17 @@ bool SmallProgressMeasures::lift(verti v)
     return true;
 }
 
+bool SmallProgressMeasures::lift_to(verti v, const verti vec2[])
+{
+    verti *vec1 = vec(v);
+    int i = 0, l = len(v);
+
+    if (vector_cmp(vec1, vec2, l) >= 0) return false;
+    for ( ; i < l; ++i) vec1[i] = vec2[i];
+    for ( ; i < len_; ++i) vec1[i] = 0;
+    return true;
+}
+
 void SmallProgressMeasures::debug_print(bool verify)
 {
     printf("M =");
@@ -249,15 +265,17 @@ bool SmallProgressMeasures::verify_solution()
 }
 
 SmallProgressMeasuresSolver::SmallProgressMeasuresSolver(
-    const ParityGame &game, LiftingStrategyFactory &lsf, bool alternate,
+    const ParityGame &game, LiftingStrategyFactory *lsf, bool alternate,
     LiftingStatistics *stats, const verti *vmap, verti vmap_size )
         : ParityGameSolver(game), lsf_(lsf), alternate_(alternate),
           stats_(stats), vmap_(vmap), vmap_size_(vmap_size)
 {
+    lsf_->ref();
 }
 
 SmallProgressMeasuresSolver::~SmallProgressMeasuresSolver()
 {
+    lsf_->deref();
 }
 
 ParityGame::Strategy SmallProgressMeasuresSolver::solve()
@@ -274,7 +292,7 @@ ParityGame::Strategy SmallProgressMeasuresSolver::solve_normal()
         info("Solving for Even...");
         SmallProgressMeasures spm( game(), ParityGame::PLAYER_EVEN,
                                    stats_, vmap_, vmap_size_ );
-        std::auto_ptr<LiftingStrategy> ls(lsf_.create(game(), spm));
+        std::auto_ptr<LiftingStrategy> ls(lsf_->create(game(), spm));
         if (!spm.solve(*ls)) return ParityGame::Strategy();
         spm.get_strategy(strategy);
         spm.get_winning_set( ParityGame::PLAYER_ODD,
@@ -312,7 +330,7 @@ ParityGame::Strategy SmallProgressMeasuresSolver::solve_normal()
         info("Solving for Odd...");
         SmallProgressMeasures spm( subgame, ParityGame::PLAYER_ODD,
                                    stats_, submap, submap_size );
-        std::auto_ptr<LiftingStrategy> ls(lsf_.create(subgame, spm));
+        std::auto_ptr<LiftingStrategy> ls(lsf_->create(subgame, spm));
         if (!spm.solve(*ls)) return ParityGame::Strategy();
         ParityGame::Strategy substrat(won_by_odd.size(), NO_VERTEX);
         spm.get_strategy(substrat);
@@ -358,8 +376,8 @@ ParityGame::Strategy SmallProgressMeasuresSolver::solve_alternate()
     spm[1].reset(new SmallProgressMeasures( game_, ParityGame::PLAYER_ODD,
                                             stats_, vmap_, vmap_size_ ));
     std::auto_ptr<LiftingStrategy> ls[2];
-    ls[0].reset(lsf_.create(game_, *spm[0]));
-    ls[1].reset(lsf_.create(game_, *spm[1]));
+    ls[0].reset(lsf_->create(game_, *spm[0]));
+    ls[1].reset(lsf_->create(game_, *spm[1]));
 
     // Solve games alternatingly:
     int player = 0;
@@ -425,6 +443,18 @@ void SmallProgressMeasuresSolver::preprocess_game(ParityGame &game)
     graph.remove_edges(obsolete_edges);
 }
 
+
+SmallProgressMeasuresSolverFactory::SmallProgressMeasuresSolverFactory(
+        LiftingStrategyFactory *lsf, bool alt, LiftingStatistics *stats )
+    : lsf_(lsf), alt_(alt), stats_(stats)
+{
+    lsf_->ref();
+}
+
+SmallProgressMeasuresSolverFactory::~SmallProgressMeasuresSolverFactory()
+{
+    lsf_->deref();
+}
 
 ParityGameSolver *SmallProgressMeasuresSolverFactory::create(
     const ParityGame &game, const verti *vmap, verti vmap_size )

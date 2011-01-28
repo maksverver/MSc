@@ -103,4 +103,3 @@ namespace std
 }
 
 #endif /* ndef GAME_PARTITION_H_INCLUDED */
-

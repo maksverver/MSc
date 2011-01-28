@@ -14,13 +14,19 @@
 
 inline int SmallProgressMeasures::vector_cmp(verti v, verti w, int N) const
 {
-    if (is_top(v)) return is_top(w) ? 0 : +1;   // v is top
-    if (is_top(w)) return -1;                   // w is top, but v isn't
+    return vector_cmp(vec(v), vec(w), N);
+}
+
+inline int SmallProgressMeasures::vector_cmp( const verti vec1[],
+                                              const verti vec2[], int N ) const
+{
+    if (is_top(vec1)) return is_top(vec2) ? 0 : +1;  // v is top
+    if (is_top(vec2)) return -1;                     // w is top, but v isn't
 
     for (int n = 0; n < N; ++n)
     {
-        if (vec(v)[n] < vec(w)[n]) return -1;
-        if (vec(v)[n] > vec(w)[n]) return +1;
+        if (vec1[n] < vec2[n]) return -1;
+        if (vec1[n] > vec2[n]) return +1;
     }
 
     return 0;

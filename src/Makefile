@@ -40,6 +40,7 @@ OBJS:=$(OBJS) \
 	AsyncMpiAttractorAlgorithm.o \
 	GamePartition.o \
 	MpiRecursiveSolver.o \
+	MpiSpmSolver.o \
 	SyncMpiAttractorAlgorithm.o
 endif
 

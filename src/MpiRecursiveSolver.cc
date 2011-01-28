@@ -49,7 +49,7 @@ static bool mpi_and(int local_value)
 }
 
 MpiRecursiveSolver::MpiRecursiveSolver( const ParityGame &game,
-    const VertexPartition &vpart, MpiAttractorAlgorithm *attr_algo )
+    const VertexPartition *vpart, MpiAttractorAlgorithm *attr_algo )
     : ParityGameSolver(game), vpart_(vpart), attr_algo_(attr_algo)
 {
     // Ensure mpi_rank and mpi_size have been initialized:
@@ -57,11 +57,15 @@ MpiRecursiveSolver::MpiRecursiveSolver( const ParityGame &game,
 
     // Sanity check: we assume vertex indices are unsigned integers:
     assert(sizeof(int) == sizeof(verti));
+
+    vpart_->ref();
 }
 
 MpiRecursiveSolver::~MpiRecursiveSolver()
 {
     delete attr_algo_;
+
+    vpart_->deref();
 }
 
 ParityGame::Strategy MpiRecursiveSolver::solve()
@@ -72,7 +76,7 @@ ParityGame::Strategy MpiRecursiveSolver::solve()
     strategy_ = ParityGame::Strategy(V, NO_VERTEX);
 
     // Solve the game:
-    GamePartition gpart(game(), vpart_, mpi_rank);
+    GamePartition gpart(game(), *vpart_, mpi_rank);
     solve(gpart);
 
     // Collect resulting strategy
@@ -88,7 +92,7 @@ ParityGame::Strategy MpiRecursiveSolver::solve()
         info("Combining strategy...");
         for (verti v = 0; v < V; ++v)
         {
-            int i = vpart_(v);
+            int i = (*vpart_)(v);
             if (i != mpi_rank)
             {
                 int val = -1;
@@ -101,7 +105,7 @@ ParityGame::Strategy MpiRecursiveSolver::solve()
     {
         for (verti v = 0; v < V; ++v)
         {
-            if (vpart_(v) == mpi_rank)
+            if ((*vpart_)(v) == mpi_rank)
             {
                 int val = result[v];
                 MPI::COMM_WORLD.Send(&val, 1, MPI_INT, 0, 0);
@@ -161,7 +165,7 @@ void MpiRecursiveSolver::solve(GamePartition &part)
             }
         }
         attr_algo_->make_attractor_set(
-            vpart_, part, (ParityGame::Player)((prio - 1)%2),
+            *vpart_, part, (ParityGame::Player)((prio - 1)%2),
             min_prio_attr, min_prio_attr_queue, true, strategy_ );
         std::vector<verti> unsolved = collect_complement(min_prio_attr);
 
@@ -192,7 +196,7 @@ void MpiRecursiveSolver::solve(GamePartition &part)
 
         // Create subgame with vertices not yet lost to opponent:
         attr_algo_->make_attractor_set(
-            vpart_, part, (ParityGame::Player)(prio%2),
+            *vpart_, part, (ParityGame::Player)(prio%2),
             lost_attr, lost_attr_queue, false, strategy_ );
 
         std::vector<verti> not_lost = collect_complement(lost_attr);
@@ -220,14 +224,23 @@ void MpiRecursiveSolver::solve(GamePartition &part)
     }
 }
 
-ParityGameSolver *MpiRecursiveSolverFactory::create( const ParityGame &game,
-        const verti *vertex_map, verti vertex_map_size )
+
+MpiRecursiveSolverFactory::MpiRecursiveSolverFactory(
+    bool async, const VertexPartition *vpart ) : async_(async), vpart_(vpart)
+{
+    vpart_->ref();
+}
+
+MpiRecursiveSolverFactory::~MpiRecursiveSolverFactory()
+{
+    vpart_->deref();
+}
+
+ParityGameSolver *MpiRecursiveSolverFactory::create(
+    const ParityGame &game, const verti *vertex_map, verti vertex_map_size )
 {
     (void)vertex_map;       // unused
     (void)vertex_map_size;  // unused
-
-    VertexPartition vpart(mpi_size, chunk_size_ > 0 ? chunk_size_
-        : (game.graph().V() + mpi_size - 1)/mpi_size);
 
     MpiAttractorAlgorithm *attr_algo;
     if (async_)
@@ -241,8 +254,8 @@ ParityGameSolver *MpiRecursiveSolverFactory::create( const ParityGame &game,
 
     Logger::info(
         "Constructing %s MpiRecursiveSolver with %ld vertices per chunk.",
-        async_ ? "asynchronous" : "synchronized", (long)vpart.chunk_size() );
+        async_ ? "asynchronous" : "synchronized", (long)vpart_->chunk_size() );
 
     // N.B. MpiRecursiveSolver takes ownership of `attr_algo'
-    return new MpiRecursiveSolver(game, vpart, attr_algo);
+    return new MpiRecursiveSolver(game, vpart_, attr_algo);
 }

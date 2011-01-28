@@ -29,7 +29,7 @@ class MpiRecursiveSolver : public ParityGameSolver, public Logger
 {
 public:
     // N.B. takes ownership of `attr_algo'!
-    MpiRecursiveSolver( const ParityGame &game, const VertexPartition &vpart,
+    MpiRecursiveSolver( const ParityGame &game, const VertexPartition *vpart,
                         MpiAttractorAlgorithm *attr_algo );
     ~MpiRecursiveSolver();
 
@@ -49,7 +49,7 @@ protected:
 
 protected:
     //! Vertex partition used to partition the game over MPI worker processes.
-    VertexPartition vpart_;
+    const VertexPartition *vpart_;
 
     //! Pointer to algorithm used to compute attractor sets using MPI.
     MpiAttractorAlgorithm *attr_algo_;
@@ -60,16 +60,18 @@ protected:
     ParityGame::Strategy strategy_;
 };
 
+/*! A solver factory for MpiRecursiveSolvers. */
 class MpiRecursiveSolverFactory : public ParityGameSolverFactory
 {
 public:
-    /*! A solver factory for MpiRecursiveSolvers. `async' determines which
+    /*! Construct a new solver factory. `async' determines which
         MpiAttractorAlgorithm is used during solving. `chunk_size' specifies
         the chunk sized used to partition the graph; if it is 0, then the
         chunk size is chosen such that every worker has a single (approximately
         equal size) chunk to work with. */
-    MpiRecursiveSolverFactory(bool async, verti chunk_size)
-        : async_(async), chunk_size_(chunk_size) { };
+    MpiRecursiveSolverFactory(bool async, const VertexPartition *vpart);
+
+    ~MpiRecursiveSolverFactory();
 
     ParityGameSolver *create( const ParityGame &game,
         const verti *vertex_map, verti vertex_map_size );
@@ -77,6 +79,7 @@ public:
 private:
     bool async_;
     verti chunk_size_;
+    const VertexPartition *vpart_;
 };
 
 #endif /* ndef MPI_RECURSIVE_SOLVER_H_INCLUDED */

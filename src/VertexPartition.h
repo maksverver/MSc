@@ -11,6 +11,7 @@
 #define VERTEX_PARTITION_H_INCLUDED
 
 #include "Graph.h"
+#include "RefCounted.h"
 #include <assert.h>
 
 /*! A vertex partition is a functor that maps vertices onto worker processes.
@@ -22,11 +23,11 @@
     Typical chunk sizes could be 1 or ceil(V/workers), or maybe some arbitrary
     large value.
 */
-class VertexPartition
+class VertexPartition : public RefCounted
 {
 public:
     VertexPartition(int num_procs, verti chunk_size)
-        : num_procs_(num_procs) ,chunk_size_(chunk_size)
+        : num_procs_(num_procs), chunk_size_(chunk_size)
     {
         assert(num_procs > 0);
         assert(chunk_size > 0);

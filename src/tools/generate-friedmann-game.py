@@ -3,7 +3,7 @@
 # Usage:
 #   generate-friedmann-game.py <N>
 #
-# Generates the N-th order game from Olivier Friedmann's "Recursive Solving
+# Generates the N-th order game from Oliver Friedmann's "Recursive Solving
 # Of Parity Games Requires Exponential Time", which requires at least fib(n)
 # iterations to solve (where fib(n) is the n-th Fibonacci number).
 

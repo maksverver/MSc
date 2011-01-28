@@ -44,7 +44,8 @@ private:
     std::vector<std::pair<long long, long long> > vertex_stats_;
 };
 
-/* Implementation of Jurdziński's Small Progress Measures algorithm. */
+/*! Implements the core of the Small Progress Measures algorithm, which keeps
+    track of progress measure vectors, and allows lifting at vertices. */
 class SmallProgressMeasures : public Abortable, public virtual Logger
 {
 public:
@@ -82,15 +83,16 @@ public:
         and returns whether it changed: */
     inline bool lift_to_top(verti v);
 
+    /*! Sets the given vertex's progress measure to the given value, if this
+        is greater than the current value, and returns whether it changed.
+        val[] must be an array of length len(v). */
+    bool lift_to(verti v, const verti vec[]);
+
     /*! For debugging: print current state to stdout */
     void debug_print(bool verify = true);
 
     /*! For debugging: verify that the current state describes a valid SPM */
     bool verify_solution();
-
-protected:
-    /*! Attempt to lift a vertex (and return whether this succeeded). */
-    bool lift(verti v);
 
     /*! Return the SPM vector for vertex `v`.
         This array contains only the components with odd (for Even) or even
@@ -102,20 +104,30 @@ protected:
         priority of v. This is the length of the SPM vector for `v`. */
     int len(verti v) const { return (game_.priority(v) + 1 + p_)/2; }
 
-    /*! Return whether the SPM vector for vertex `v` has top value. */
-    bool is_top(verti v) const { return vec(v)[0] == NO_VERTEX; }
+    /*! Return whether the given SPM vector has top value. */
+    bool is_top(const verti vec[]) const { return vec[0] == NO_VERTEX; }
 
+    /*! Return whether the SPM vector for vertex `v` has top value. */
+    bool is_top(verti v) const { return is_top(vec(v)); }
+
+protected:
     /*! Set the SPM vector for vertex `v` to top value. */
     inline void set_top(verti v);
+
+    /*! Attempt to lift a vertex (and return whether this succeeded). */
+    bool lift(verti v);
 
 private:
     SmallProgressMeasures(const SmallProgressMeasures &);
     SmallProgressMeasures &operator=(const SmallProgressMeasures &);
 
 private:
-    /*! Compares the first `N` elements of the SPM vectors for the given
-        vertices and returns -1, 0 or 1 to indicate that v is smaller, equal to,
-        r larger than w (respectively). */
+    /*! Compares the first `N` elements of the given SPM vectors and returns
+        -1, 0 or 1 to indicate that v is smaller than, equal to, or larger than
+        w (respectively). */
+    inline int vector_cmp(const verti vec1[], const verti vec2[], int N) const;
+
+    /*! Compares `N' elements of the SPM vectors for the given vertices. */
     inline int vector_cmp(verti v, verti w, int N) const;
 
     /*! Returns the minimum or maximum successor for vertex `v`,
@@ -134,30 +146,25 @@ private:
     friend class OldMaxMeasureLiftingStrategy;
 
 protected:
-    const ParityGame &game_;        //!< the game being solved
-    const int p_;                   //!< the player to solve for
-    LiftingStatistics *stats_;      //!< statistics object to record lifts
-    const verti *vmap_;             //!< active vertex map (if any)
-    verti vmap_size_;               //!< size of vertex map
-    int len_;                       //!< length of SPM vectors
-    verti *M_;                      //!< bounds on the SPM vector components
-    verti *spm_;                    //!< array storing the SPM vector data
+    const ParityGame    &game_;     //!< the game being solved
+    const int           p_;         //!< the player to solve for
+    LiftingStatistics   *stats_;    //!< statistics object to record lifts
+    const verti         *vmap_;     //!< active vertex map (if any)
+    verti               vmap_size_; //!< size of vertex map
+    int                 len_;       //!< length of SPM vectors
+    verti               *M_;        //!< bounds on the SPM vector components
+    verti               *spm_;      //!< array storing the SPM vector data
 };
 
 
 /*! A parity game solver based on Marcin Jurdzinski's small progress measures
-    algorithm, with pluggable lifting heuristics.
-
-    For each node, we need to keep an SPM vector of length game->d().
-    However, since all components with even indices (zero-based) are fixed at 0,
-    we only store values for the odd indices.
-*/
+    algorithm, with pluggable lifting heuristics. */
 class SmallProgressMeasuresSolver
     : public ParityGameSolver, public virtual Logger
 {
 public:
     SmallProgressMeasuresSolver( const ParityGame &game,
-                                 LiftingStrategyFactory &lsf,
+                                 LiftingStrategyFactory *lsf,
                                  bool alternate = false,
                                  LiftingStatistics *stats = 0,
                                  const verti *vertex_map = 0,
@@ -192,7 +199,7 @@ private:
     SmallProgressMeasuresSolver &operator=(const SmallProgressMeasuresSolver&);
 
 protected:
-    LiftingStrategyFactory &lsf_;   //!< factory used to create lifting strategy
+    LiftingStrategyFactory *lsf_;   //!< factory used to create lifting strategy
     bool alternate_;                //!< whether to use the alternate algorithm
     LiftingStatistics *stats_;      //!< object to record lifting statistics
     const verti *vmap_;             //!< current vertex map
@@ -203,16 +210,16 @@ protected:
 class SmallProgressMeasuresSolverFactory : public ParityGameSolverFactory
 {
 public:
-    SmallProgressMeasuresSolverFactory( LiftingStrategyFactory &lsf,
-        bool alt = false, LiftingStatistics *stats = 0 )
-            : lsf_(lsf), alt_(alt), stats_(stats) { };
+    SmallProgressMeasuresSolverFactory( LiftingStrategyFactory *lsf,
+        bool alt = false, LiftingStatistics *stats = 0 );
+    ~SmallProgressMeasuresSolverFactory();
 
     ParityGameSolver *create( const ParityGame &game,
                               const verti *vertex_map,
                               verti vertex_map_size );
 
 private:
-    LiftingStrategyFactory  &lsf_;
+    LiftingStrategyFactory  *lsf_;
     bool                    alt_;
     LiftingStatistics       *stats_;
 };

@@ -48,6 +48,7 @@
 int mpi_rank;  //! rank of this process in the global MPI process group
 int mpi_size;  //! number of processes in the global MPI process group
 
+#include "MpiSpmSolver.h"
 #include "MpiRecursiveSolver.h"
 #endif
 
@@ -840,46 +841,60 @@ int main(int argc, char *argv[])
 
     if (arg_spm_lifting_strategy.empty() && !arg_zielonka)
     {
-        /* Don't solve; just convert data. */
+        // Don't solve; just convert data.
         write_output(game);
         failed = false;
     }
     else
     {
         std::auto_ptr<LiftingStatistics> stats;
-        if (arg_mpi && !arg_zielonka)
-        {
-            Logger::fatal("Only Zielonka's algorithm supports MPI!");
-        }
 
 #ifndef WITH_MPI
-        if (!arg_mpi)
+        if (arg_mpi) Logger::fatal("MPI support was not compiled in!");
+#endif
+
+#ifdef WITH_MPI
+        VertexPartition *vpart = NULL;
+        if (arg_mpi)
         {
-            Logger::fatal("MPI support was not compiled in!");
+            vpart = new VertexPartition( mpi_size, arg_chunk_size > 0
+                ? arg_chunk_size : (game.graph().V() + mpi_size - 1)/mpi_size );
         }
 #endif
 
+        // Create appropriate solver factory:
+        std::auto_ptr<ParityGameSolverFactory> solver_factory;
+
         // Allocate lifting strategy:
-        std::auto_ptr<LiftingStrategyFactory> spm_strategy;
         if (!arg_spm_lifting_strategy.empty())
         {
             Logger::info( "SPM lifting strategy:      %12s",
                           arg_spm_lifting_strategy.c_str() );
 
-            spm_strategy.reset(
-                LiftingStrategyFactory::create(arg_spm_lifting_strategy) );
-        }
+            LiftingStrategyFactory *spm_strategy = 
+                LiftingStrategyFactory::create(arg_spm_lifting_strategy);
 
-        // Create appropriate solver factory:
-        std::auto_ptr<ParityGameSolverFactory> solver_factory;
+            if (!spm_strategy)
+            {
+                Logger::fatal( "Invalid lifting strategy description: %s",
+                               arg_spm_lifting_strategy.c_str() );
+            }
 
-        // Create SPM solver facory if requested:
-        if (spm_strategy.get() != NULL)
-        {
             if (arg_collect_stats) stats.reset(new LiftingStatistics(game));
 
-            solver_factory.reset(new SmallProgressMeasuresSolverFactory(
-                    *spm_strategy, arg_alternate, stats.get() ));
+            if (!arg_mpi)
+            {
+                solver_factory.reset(new SmallProgressMeasuresSolverFactory(
+                        spm_strategy, arg_alternate, stats.get() ));
+            }
+#ifdef WITH_MPI
+            else
+            {
+                solver_factory.reset(new MpiSpmSolverFactory(
+                    spm_strategy, vpart, stats.get() ));
+            }
+#endif
+            spm_strategy->deref();
         }
 
         // Create recursive solver factory if requested:
@@ -893,12 +908,18 @@ int main(int argc, char *argv[])
             else
             {
                 solver_factory.reset(
-                    new MpiRecursiveSolverFactory(
-                        !arg_zielonka_sync,
-                        arg_chunk_size > 0 ? (verti)arg_chunk_size : 0 ) );
+                    new MpiRecursiveSolverFactory(!arg_zielonka_sync, vpart) );
             }
 #endif
         }
+
+#ifdef WITH_MPI
+        if (vpart)
+        {
+            vpart->deref();
+            vpart = NULL;
+        }
+#endif
 
         if (arg_timeout > 0) set_timeout(arg_timeout);
 
