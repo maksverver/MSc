@@ -224,7 +224,6 @@ void MpiRecursiveSolver::solve(GamePartition &part)
     }
 }
 
-
 MpiRecursiveSolverFactory::MpiRecursiveSolverFactory(
     bool async, const VertexPartition *vpart ) : async_(async), vpart_(vpart)
 {

@@ -276,6 +276,7 @@ bool SmallProgressMeasures::verify_solution()
     return true;
 }
 
+
 SmallProgressMeasuresSolver::SmallProgressMeasuresSolver(
     const ParityGame &game, LiftingStrategyFactory *lsf, bool alternate,
     LiftingStatistics *stats, const verti *vmap, verti vmap_size )
@@ -362,22 +363,6 @@ ParityGame::Strategy SmallProgressMeasuresSolver::solve_normal()
 
     return strategy;
 }
-
-/* Helper class thats is an OutputIterator that sets vertices assigned through
-   it to top in the given SPM solver and corresponding lifting strategy. */
-struct SetToTopIterator
-{
-    SmallProgressMeasures &spm;
-
-    SetToTopIterator& operator++() { return *this; }
-    SetToTopIterator& operator++(int) { return *this; }
-    SetToTopIterator& operator*() { return *this; }
-    SetToTopIterator& operator=(verti v)
-    {
-        spm.lift_to_top(v);
-        return *this;
-    }
-};
 
 ParityGame::Strategy SmallProgressMeasuresSolver::solve_alternate()
 {

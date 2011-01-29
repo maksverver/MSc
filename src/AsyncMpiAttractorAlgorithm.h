@@ -17,7 +17,7 @@
    worker processes send and receive vertices to be added to the set while they
    are running independent breadth-first search over their local vertex set.
    This is should reduce latency. */
-class AsyncMpiAttractorImpl : public Logger
+class AsyncMpiAttractorImpl : public virtual Logger
 {
 public:
     //! tags used to identify different types of messages exchanged through MPI.

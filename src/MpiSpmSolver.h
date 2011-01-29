@@ -24,26 +24,45 @@ extern int mpi_rank, mpi_size;  // defined and initialized in main.cc
 class MpiSpmSolver : public ParityGameSolver, public virtual Logger
 {
 public:
-    MpiSpmSolver( const GamePartition &part,
-                  LiftingStrategyFactory *lsf,
-                  LiftingStatistics *stats = 0,
-                  const verti *vertex_map = 0,
-                  verti vertex_map_size = 0 );
+    MpiSpmSolver( const ParityGame &game, const VertexPartition *vpart,
+                  LiftingStrategyFactory *lsf, LiftingStatistics *stats = 0,
+                  const verti *vertex_map = 0, verti vertex_map_size = 0 );
 
     ~MpiSpmSolver();
 
     ParityGame::Strategy solve();
+
+protected:
+    /*! Calculates the global vector space for all worker processes, and updates
+        the SmallProgressMeasures instance to reflect it. */
+    void set_vector_space(SmallProgressMeasures &spm);
+
+    /*! Lifts vertices in `spm' until globally no more vertices can be lifted
+        (at which point, the game is solved for one player). */
+    void solve_all(SmallProgressMeasures &spm);
+
+    /*! Propagates information about stable vertices in `src' to `dst', by
+        setting vertices which stable and non-top in `src' to top in `dst'.
+        This is a purely local operation. */
+    void propagate_solved( SmallProgressMeasures &src,
+                           SmallProgressMeasures &dst );
+
+    /*! Combines the local strategy with the strategies from other worker
+        processes. Returns the combined global strategy for the process with
+        rank 0, and an empty strategy for all other processes. */
+    ParityGame::Strategy combine_strategies(ParityGame::Strategy &local);
 
 private:
     MpiSpmSolver(const MpiSpmSolver&);
     MpiSpmSolver &operator=(const MpiSpmSolver&);
 
 protected:
-    const GamePartition     &part_;     //!< the game partition being solved
-    LiftingStrategyFactory  *lsf_;      //!< used to create lifting strategies
-    LiftingStatistics       *stats_;    //!< object to record lifting statistics
-    const verti             *vmap_;     //!< current vertex map
-    const verti             vmap_size_; //!< size of vertex map
+    const VertexPartition   *vpart_;      //!< the current vertex partition
+    const GamePartition     part_;        //!< the game partition being solved
+    LiftingStrategyFactory  *lsf_;        //!< used to create lifting strategies
+    LiftingStatistics       *stats_;      //!< global lifting statistics
+    const verti             *vmap_;       //!< current global vertex map
+    const verti             vmap_size_;   //!< size of globalvertex map
 };
 
 class MpiSpmSolverFactory : public ParityGameSolverFactory

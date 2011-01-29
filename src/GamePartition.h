@@ -43,13 +43,12 @@ public:
         the vertices relevant to this partition. */
     const ParityGame &game() const { return game_; }
 
-    /*! Returns the local index for a vertex given its global index.
-        It is illegal to call this method with an argument that does not
-        correspond to a vertex in the partition. */
+    /*! Returns the local index for a vertex given its global index, or
+        NO_VERTEX if the index does not correspond to a local vertex. */
     verti local(verti v) const
     {
         HASH_MAP(verti, verti)::const_iterator it = local_.find(v);
-        assert(it != local_.end());
+        if (it == local_.end()) return NO_VERTEX;
         return it->second;
     }
 

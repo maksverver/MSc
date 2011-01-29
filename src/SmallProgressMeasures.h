@@ -35,6 +35,17 @@ public:
     long long lifts_attempted(verti v) const { return vertex_stats_[v].first; }
     long long lifts_succeeded(verti v) const { return vertex_stats_[v].second; }
 
+    void add_lifts_attempted(long long count) { lifts_attempted_ += count; }
+    void add_lifts_succeeded(long long count) { lifts_succeeded_ += count; }
+    void add_lifts_attempted(verti v, long long count)
+    {
+        vertex_stats_[v].first += count;
+    }
+    void add_lifts_succeeded(verti v, long long count)
+    {
+        vertex_stats_[v].second += count;
+    }
+
 private:
     void record_lift(verti v, bool success);
     friend class SmallProgressMeasures;
@@ -112,6 +123,19 @@ public:
     /*! For debugging: verify that the current state describes a valid SPM */
     bool verify_solution();
 
+    /*! Return the player we are solving for. */
+    ParityGame::Player player() const { return (ParityGame::Player)p_; }
+
+    /*! Return the length of the SPM vectors (a positive integer). */
+    int len() const { return len_; }
+
+    /*! Returns the SPM vector space; an array of len() integers. */
+    const verti *M() const { return M_; }
+
+    /*! Changes the SPM vector space. `new_M' must be an array of at least
+        `len' non-negative integers. */
+    void set_M(const verti *new_M) { std::copy(new_M, new_M + len_, M_); }
+
     /*! Return the SPM vector for vertex `v`.
         This array contains only the components with odd (for Even) or even
         (for Odd) indices of the vector (since the reset is fixed at zero). */
@@ -178,6 +202,24 @@ protected:
     int                 len_;       //!< length of SPM vectors
     verti               *M_;        //!< bounds on the SPM vector components
     verti               *spm_;      //!< array storing the SPM vector data
+};
+
+
+/*! Helper class for SmallProgressMeasureSolver thats is an OutputIterator that
+    sets vertices assigned through it to top in the given SPM solver (which in
+    turn updates the corresponding lifting strategy). */
+struct SetToTopIterator
+{
+    SmallProgressMeasures &spm;
+
+    SetToTopIterator& operator++() { return *this; }
+    SetToTopIterator& operator++(int) { return *this; }
+    SetToTopIterator& operator*() { return *this; }
+    SetToTopIterator& operator=(verti v)
+    {
+        spm.lift_to_top(v);
+        return *this;
+    }
 };
 
 

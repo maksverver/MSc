@@ -22,7 +22,7 @@
     when there are vertices in the attractor set that lie far away from the
     closest initial vertex, but the advantage is that termination is easy to
     detect, which is why this algorithm was initially implemented. */
-class SyncMpiAttractorImpl : public Logger
+class SyncMpiAttractorImpl : public virtual Logger
 {
 public:
     SyncMpiAttractorImpl( const VertexPartition &vpart,

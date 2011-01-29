@@ -25,7 +25,7 @@ extern int mpi_rank, mpi_size;  // defined and initialized in main.cc
     make_attractor_set(). TODO: factor parallel attractor set computation out
     into separate classes that are passed as a parameter to this solver class.
 */
-class MpiRecursiveSolver : public ParityGameSolver, public Logger
+class MpiRecursiveSolver : public ParityGameSolver, public virtual Logger
 {
 public:
     // N.B. takes ownership of `attr_algo'!

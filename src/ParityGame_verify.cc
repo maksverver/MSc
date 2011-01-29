@@ -50,25 +50,35 @@ bool ParityGame::verify(const Strategy &s, verti *error) const
 
         if (pl == player(v))  /* vertex won by owner */
         {
-            // Verify owner has a strategy: (always true)
-            if (s[v] == NO_VERTEX) return false;
-
-            // Verify strategy uses existent edges:
-            if (!graph_.has_succ(v, s[v])) return false;
-
-            // Verify strategy stays within winning set:
-            if (winner(s, s[v]) != pl) return false;
+            /* Verify that:
+                1. the vertex owner has a strategy (necessarily passes)
+                2. the strategy uses an existing edge
+                3. the strategy doesn't move outside the owner's winning set */
+            if ( s[v] == NO_VERTEX || !graph_.has_succ(v, s[v]) ||
+                 winner(s, s[v]) != pl )
+            {
+                if (error) *error = v;
+                return false;
+            }
         }
         else  /* vertex lost by owner */
         {
-            // Verify owner has no strategy: (always true)
-            if (s[v] != NO_VERTEX) return false;
+            // Verify owner has no strategy: (necessarily passes)
+            if (s[v] != NO_VERTEX)
+            {
+                if (error) *error = v;
+                return false;
+            }
 
             // Verify owner cannot move outside this winning set:
             for (StaticGraph::const_iterator it = graph_.succ_begin(v);
                  it != graph_.succ_end(v); ++it)
             {
-                if (winner(s, *it) != pl) return false;
+                if (winner(s, *it) != pl)
+                {
+                    if (error) *error = v;
+                    return false;
+                }
             }
         }
     }
@@ -121,7 +131,11 @@ bool ParityGame::verify(const Strategy &s, verti *error) const
 
         // Find a vertex with priority prio on a cycle:
         VerifySCC verifier = { *this, subgraph, prio, error };
-        if (decompose_graph(subgraph, verifier) != 0) return false;
+        if (decompose_graph(subgraph, verifier) != 0)
+        {
+            // VerifySCC has already set *error here.
+            return false;
+        }
     }
     if (error) *error = NO_VERTEX;
     return true;
