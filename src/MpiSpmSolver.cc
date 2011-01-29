@@ -25,9 +25,12 @@ MpiSpmSolver::~MpiSpmSolver()
 
 ParityGame::Strategy MpiSpmSolver::solve()
 {
-    ParityGame::Strategy result;
+    
 
-    // TODO!
+    // TODO: implement two-way approach due to Friedmann.
+    // TODO: merge lifting statistics
+    // TODO: merge resulting strategy
+    ParityGame::Strategy result;
 
     return result;
 }

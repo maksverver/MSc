@@ -45,26 +45,44 @@ private:
 };
 
 /*! Implements the core of the Small Progress Measures algorithm, which keeps
-    track of progress measure vectors, and allows lifting at vertices. */
+    track of progress measure vectors, and allows lifting at vertices.
+
+    Note that besides these vectors, it tracks the current lifting strategy and
+    (optionally) a statistics object.  All public methods of this class notify
+    the lifting strategy whenever vectors change (due to one of the solve..()
+    lift..() methods), but only when vertices are lifted through one of the
+    solve..() methods, are lifting attempts recording in the statistics object.
+
+    As a result, the lift..() methods can be used to introduce information from
+    external sources into the game, without affecting the statistics for updates
+    that result from local lifting attempts. These methods are thus uses in the
+    two-way approach to propagate information from the dual game, and the MPI
+    recursive solver.
+*/
 class SmallProgressMeasures : public Abortable, public virtual Logger
 {
 public:
     SmallProgressMeasures( const ParityGame &game, ParityGame::Player player,
-        LiftingStatistics *stats = 0, const verti *vertex_map = 0,
-        verti vertex_map_size = 0 );
+        LiftingStrategyFactory *lsf, LiftingStatistics *stats = 0,
+        const verti *vertex_map = 0, verti vertex_map_size = 0 );
 
     ~SmallProgressMeasures();
 
     /*! Solves the current game for one player using the given lifting strategy
         and returns whether the game was completely solved (in particular, the
         game is not solved if the solver is aborted). */
-    bool solve(LiftingStrategy &ls);
+    bool solve();
 
     /*! Solves part of the game by doing attemping at most `max_attempts' lifts
         using the given lifting strategy. Returns how many lifting attempts
         were actually performed, which will be less than `max_attempts' when
         the game is solved. */
-    long long solve_part(LiftingStrategy &ls, long long max_attempts);
+    long long solve_part(long long max_attempts);
+
+    /*! Performs one lifting attempt, and returns the index of the vertex and
+        whether lifting succeeded. Returns NO_VERTEX if no more vertices were
+        candidates for lifting. */
+    std::pair<verti, bool> solve_one();
 
     /*! Takes an initialized strategy vector and updates it for the current
         player. The result is valid only if the game is completely solved. */
@@ -110,12 +128,17 @@ public:
     /*! Return whether the SPM vector for vertex `v` has top value. */
     bool is_top(verti v) const { return is_top(vec(v)); }
 
-protected:
-    /*! Set the SPM vector for vertex `v` to top value. */
-    inline void set_top(verti v);
+    /*! Returns the lifting strategy used. */
+    const LiftingStrategy *lifting_strategy() const { return ls_; }
 
-    /*! Attempt to lift a vertex (and return whether this succeeded). */
+protected:
+    /*! Attempt to lift a vertex (and return whether this succeeded).
+        Notifies the lifting strategy accordingly. */
     bool lift(verti v);
+
+    /*! Set the SPM vector for vertex `v` to top value (and nothing else:
+        for example, the lifting strategy is not notified here). */
+    inline void set_top(verti v);
 
 private:
     SmallProgressMeasures(const SmallProgressMeasures &);
@@ -148,6 +171,7 @@ private:
 protected:
     const ParityGame    &game_;     //!< the game being solved
     const int           p_;         //!< the player to solve for
+    LiftingStrategy     *ls_;       //!< lifting strategy used
     LiftingStatistics   *stats_;    //!< statistics object to record lifts
     const verti         *vmap_;     //!< active vertex map (if any)
     verti               vmap_size_; //!< size of vertex map
