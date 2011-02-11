@@ -7497,6 +7497,80 @@ Copy description of games from log (Sunday 19 December)
 
 \end_layout
 
+\begin_layout Section
+Data set
+\end_layout
+
+\begin_layout Section
+Execution
+\end_layout
+
+\begin_layout Section
+Results
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Probably split into sequential/parallel results; depends a bit on what we
+ have and what is new.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Discussion
+\end_layout
+
+\begin_layout Chapter
+Conclusion
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Quickly summarize results and explain how they relate to the research question;
+ describe how my research improved the state of the art (which was the research
+ goal).
+ Hopefully, we can get some useful conclusion like "I've found a lifting
+ strategy that works well" and "I found an efficient way to solve a parity
+ game concurrently" (this can be quantified pretty well since we have a
+ serial algorithm to compare with).
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Future work
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Describe any untested hypotheses (things I thought about but don't have
+ any results on).
+ Describe possible ways to extend/improve the research.
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Chapter
 TODO LIST
 \end_layout
@@ -7551,6 +7625,50 @@ index
 
 \begin_layout Plain Layout
 - should I say `minimum' or `minimal' fixed point?
+\end_layout
+
+\begin_layout Plain Layout
+The following comes from an old version of the thesis; probably need to
+ work this in somehow:
+\end_layout
+
+\begin_layout Plain Layout
+- Explain how parity games relate to binary equation systems, mu-calculus.
+ This basically motivates why research into parity games is of practical
+ interest.
+ Explain that improving practical performance is of interest even if computation
+al complexity doesn't improve.
+ (This is critical for motivating research into lifting heuristics and parallel
+ algorithms.)
+\end_layout
+
+\begin_layout Plain Layout
+- Relation to other model checking approaches: Why would do model checking
+ by solving parity games? What are the alternatives and what's wrong with
+ them?
+\end_layout
+
+\begin_layout Plain Layout
+- Need a 
+\begin_inset Quotes eld
+\end_inset
+
+research question
+\begin_inset Quotes erd
+\end_inset
+
+-like section that contains the research question from my proposal.
+\end_layout
+
+\begin_layout Plain Layout
+- Describe globally what I'm going to do to improve the state of the art:
+ Mainly two parts: (0.
+ efficient implementation of existing algorithms => not really interesting
+ on an academic level) 1.
+ find better heuristics for small progress measures (detailed evaluation
+ of SPM would be novel?) 2.
+ find good way to parallelize small progress measures (this would be somewhat
+ novel, although a lockfree implementation exists)
 \end_layout
 
 \end_inset
