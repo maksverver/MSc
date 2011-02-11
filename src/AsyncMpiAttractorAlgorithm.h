@@ -17,12 +17,10 @@
    worker processes send and receive vertices to be added to the set while they
    are running independent breadth-first search over their local vertex set.
    This is should reduce latency. */
-class AsyncMpiAttractorImpl : public virtual Logger
+class AsyncMpiAttractorImpl : public virtual Logger,
+                              public MpiTermination
 {
 public:
-    //! tags used to identify different types of messages exchanged through MPI.
-    enum MpiTags { TAG_VERTEX, TAG_PROBE, TAG_TERM };
-
     AsyncMpiAttractorImpl( const VertexPartition &vpart,
                            const GamePartition &part, ParityGame::Player player,
                            DenseSet<verti> &attr, std::deque<verti> &queue,
@@ -39,21 +37,28 @@ private:
         other processes, and then receives any pending vertices from other
         processes, which are then added to `queue' and `attr'. When messages
         are sent or received, `num_send' and `num_recv' are incremented. */
-    void notify_others( verti v );
+    void notify_others(verti v);
 
 private:
-    // TODO: document these + add trailing newlines for consistency
-    const VertexPartition       &vpart_;
-    const GamePartition         &part;
-    const ParityGame::Player    player;
-    DenseSet<verti>             &attr;
-    std::deque<verti>           &queue;
-    ParityGame::Strategy        &strategy_;
-    int                         num_send;
-    int                         num_recv;
-    verti                       vertex_val;
-    int                         probe_val[2];
-    MPI::Prequest               reqs[3];
+    /* `vpart' and 'part' describe the vertex partition and corresponding game
+        partition for the local process. */    
+    const VertexPartition     &vpart_;            //!< current vertex partition
+    const GamePartition       &part;          //!< corresponding game partition
+
+    /* The attractor set is computed for the given target player, starting from
+       a given set of vertices in `queue' (and also set in `attr'). After,
+       completion `attr' will contain the vertices in the attractor set
+       intersected with the local vertex set, and `strategy' will be updated
+       with a valid strategy for the vertices added (note that this is a
+       strategy for the current partition only). */
+    const ParityGame::Player  player;                        //!< target player
+    DenseSet<verti>           &attr;       //!< initial and final attractor set
+    std::deque<verti>         &queue;            //!< queue of initial vertices
+    ParityGame::Strategy      &strategy_;               //!< resulting strategy
+
+    /* When an external vertex is added to the attractor set, its index is
+       received in `vertex_val': */
+    verti vertex_val;        //!< temporary buffer to receive external vertices
 };
 
 class AsyncMpiAttractorAlgorithm : public MpiAttractorAlgorithm

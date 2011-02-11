@@ -12,14 +12,6 @@
 
 extern int mpi_rank, mpi_size;
 
-//! Returns whether `local_value' is true in any of the MPI processes:
-static bool mpi_or(int local_value)
-{
-    int res;
-    MPI::COMM_WORLD.Allreduce(&local_value, &res, 1, MPI_INT, MPI_LOR);
-    return res;
-}
-
 SyncMpiAttractorImpl::SyncMpiAttractorImpl( const VertexPartition &vpart,
         const GamePartition &part, ParityGame::Player player,
         DenseSet<verti> &attr, std::deque<verti> &queue,

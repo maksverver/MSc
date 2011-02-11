@@ -30,24 +30,6 @@ static std::vector<verti> collect_complement(const DenseSet<verti> &incl)
     return res;
 }
 
-//! Returns the sum of local values of all MPI processes: (used for debugging)
-/*
-static int mpi_sum(int local_value)
-{
-    int global_sum = 0;
-    MPI::COMM_WORLD.Allreduce(&local_value, &global_sum, 1, MPI_INT, MPI_SUM);
-    return global_sum;
-}
-*/
-
-//! Returns whether `local_value' is true in all of the MPI processes:
-static bool mpi_and(int local_value)
-{
-    int res;
-    MPI::COMM_WORLD.Allreduce(&local_value, &res, 1, MPI_INT, MPI_LAND);
-    return res;
-}
-
 MpiRecursiveSolver::MpiRecursiveSolver( const ParityGame &game,
     const VertexPartition *vpart, MpiAttractorAlgorithm *attr_algo )
     : ParityGameSolver(game), vpart_(vpart), attr_algo_(attr_algo)

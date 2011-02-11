@@ -44,10 +44,7 @@
 #endif
 
 #ifdef WITH_MPI
-#include <mpi.h>
-int mpi_rank;  //! rank of this process in the global MPI process group
-int mpi_size;  //! number of processes in the global MPI process group
-
+#include "MpiUtils.h"
 #include "MpiSpmSolver.h"
 #include "MpiRecursiveSolver.h"
 #endif

@@ -10,13 +10,11 @@
 #ifndef MPI_SPM_SOLVER_H_INCLUDED
 #define MPI_SPM_SOLVER_H_INCLUDED
 
-#include "SmallProgressMeasures.h"
-#include "VertexPartition.h"
 #include "GamePartition.h"
 #include "Logger.h"
-#include <mpi.h>
-
-extern int mpi_rank, mpi_size;  // defined and initialized in main.cc
+#include "MpiUtils.h"
+#include "SmallProgressMeasures.h"
+#include "VertexPartition.h"
 
 /*! A parity game solver based on Marcin Jurdzinski's small progress measures
     algorithm, with pluggable lifting heuristics. Implements the two-way solving

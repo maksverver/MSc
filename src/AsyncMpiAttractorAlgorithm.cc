@@ -10,50 +10,22 @@
 #include "AsyncMpiAttractorAlgorithm.h"
 #include "attractor.h"  // for is_subset_of()
 
-extern int mpi_rank, mpi_size;
-
 AsyncMpiAttractorImpl::AsyncMpiAttractorImpl( const VertexPartition &vpart,
         const GamePartition &part, ParityGame::Player player,
         DenseSet<verti> &attr, std::deque<verti> &queue,
         ParityGame::Strategy &strategy )
-    : vpart_(vpart), part(part), player(player), attr(attr), queue(queue),
-      strategy_(strategy), num_send(0), num_recv(0)
+    : MpiTermination(1, MPI_INT, &vertex_val), vpart_(vpart), part(part),
+      player(player), attr(attr), queue(queue), strategy_(strategy)
 {
-    reqs[TAG_VERTEX] = MPI::COMM_WORLD.Recv_init(
-        &vertex_val, 1, MPI_INT, MPI::ANY_SOURCE, TAG_VERTEX );
-
-    reqs[TAG_PROBE] = MPI::COMM_WORLD.Recv_init(
-        &probe_val[0], 2, MPI_INT, MPI::ANY_SOURCE, TAG_PROBE ),
-
-    reqs[TAG_TERM] = MPI::COMM_WORLD.Recv_init(
-        NULL, 0, MPI_INT, 0, TAG_TERM );
-
-    MPI::Prequest::Startall(3, reqs);
 }
 
 AsyncMpiAttractorImpl::~AsyncMpiAttractorImpl()
 {
-    for (int i = 0; i < 3; ++i)
-    {
-        reqs[i].Cancel();
-        reqs[i].Free();
-    }
 }
 
 void AsyncMpiAttractorImpl::solve(bool quick_start)
 {
     const StaticGraph &graph = part.game().graph();
-
-    // Uses Friedemann Mattern's four-counter method for termination detection.
-    // All processes keep track of the number of sent and received messages.
-    // When idle, the first process sends a probe that is circulated to other
-    // processes when they are idle, accumulating the total number of messages
-    // sent and received. This has to be done twice in order to confirm global
-    // termination, at which point the first process sends a termination signal
-    // to the other processes.
-
-    bool send_probe = (mpi_rank == 0);
-    int total_send = 0, total_recv = 0;
 
     // When quick starting, processes are aware of each other's initial vertex
     // sets. If not, then we must first transmit the contents of the initial
@@ -109,89 +81,22 @@ void AsyncMpiAttractorImpl::solve(bool quick_start)
             }
         }
 
-        // Idle: wait for a message to respond to.
-        //debug("idle");
-        if (send_probe)
+        idle();
+        if (recv())
         {
-            if (mpi_size < 2)
-            {
-                //debug("single process exiting without a probe");
-                return;
-            }
-            int probe[2] = { 0, 0 };
-            MPI::COMM_WORLD.Send(probe, 2, MPI_INT, 1, TAG_PROBE);
-            send_probe = false;
-            //debug("sent probe");
+            //debug("received %d (a)", vertex_val);
+            verti i = part.local(vertex_val);
+            start();
+            assert(!attr.count(i));
+            attr.insert(i);
+            queue.push_back(i);
         }
-        while (queue.empty())
+        else
         {
-            switch (MPI::Request::Waitany(3, reqs))
-            {
-            case TAG_VERTEX:
-                {
-                    //debug("received %d", vertex_val);
-                    verti i = part.local(vertex_val);
-                    assert(!attr.count(i));
-                    attr.insert(i);
-                    queue.push_back(i);
-                    ++num_recv;
-                    reqs[TAG_VERTEX].Start();
-                } break;
-
-            case TAG_PROBE:
-                {
-                    probe_val[0] += num_send;
-                    probe_val[1] += num_recv;
-                    //debug("received probe (%d, %d)", probe_val[0], probe_val[1]);
-                    if (mpi_rank == 0)  // first process checks for termination
-                    {
-                        if (probe_val[0] == total_recv)
-                        {
-                            // Termination detected!
-                            assert(probe_val[0] == probe_val[1]);
-                            assert(total_send == total_recv);
-                            for (int i = 1; i < mpi_size; ++i)
-                            {
-                                MPI::COMM_WORLD.Send( NULL, 0, MPI_INT,
-                                                      i, TAG_TERM );
-                            }
-                            //debug("termination detected")
-                            return;
-                        }
-                        else
-                        {
-                            // Not yet terminated.
-                            total_send = probe_val[0];
-                            total_recv = probe_val[1];
-                            probe_val[0] = 0;
-                            probe_val[1] = 0;
-                            MPI::COMM_WORLD.Send( probe_val, 2, MPI_INT,
-                                                  1, TAG_PROBE );
-                            //debug("resent probe");
-                        }
-                    }
-                    else  // mpi_rank > 0
-                    {
-                        int dest = mpi_rank + 1 == mpi_size ? 0 : mpi_rank + 1;
-                        MPI::COMM_WORLD.Send( probe_val, 2, MPI_INT,
-                                              dest, TAG_PROBE );
-                        //debug("forwarded probe");
-                    }
-                    reqs[TAG_PROBE].Start();
-                } break;
-
-            case TAG_TERM:
-                //debug("termination message received");
-                return;
-
-            default:  // should never get here
-                assert(0);
-                break;
-            }
+            // Global termination detected!
+            break;
         }
     }
-    // should never get here!
-    assert(0);
 }
 
 void AsyncMpiAttractorImpl::notify_others(verti i)
@@ -214,20 +119,17 @@ void AsyncMpiAttractorImpl::notify_others(verti i)
         if (recipients[dest] && dest != mpi_rank)
         {
             //debug("sending %d to %d", v, dest);
-            MPI::COMM_WORLD.Send(&v, 1, MPI_INT, dest, TAG_VERTEX);
-            ++num_send;
+            send(&v, 1, dest);
         }
     }
 
     // Receive pending vertex updates:
-    while (reqs[TAG_VERTEX].Test())
+    while (test())
     {
-        //debug("received %d", req_val);
+        //debug("received %d (b)", vertex_val);
         i = part.local(vertex_val);
         assert(!attr.count(i));
         attr.insert(i);
         queue.push_back(i);
-        ++num_recv;
-        reqs[TAG_VERTEX].Start();
     }
 }

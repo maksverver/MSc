@@ -10,13 +10,13 @@
 #ifndef MPI_ATTRACTOR_ALGORITHM_H_INCLUDED
 #define MPI_ATTRACTOR_ALGORITHM_H_INCLUDED
 
+#include "DenseSet.h"
+#include "GamePartition.h"
+#include "MpiUtils.h"
 #include "ParityGame.h"
 #include "VertexPartition.h"
-#include "GamePartition.h"
-#include "DenseSet.h"
 #include <deque>
 #include <vector>
-#include <mpi.h>
 
 class MpiAttractorAlgorithm
 {
