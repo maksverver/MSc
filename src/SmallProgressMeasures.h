@@ -95,8 +95,14 @@ public:
         candidates for lifting. */
     std::pair<verti, bool> solve_one();
 
+    /*! After the game is solved, this returns the strategy at vertex `v' for
+        the current player, or NO_VERTEX if the vertex is controlled by his
+        opponent (in that case, any move is winning) or if it is won by his
+        opponent (in that case, all moves are losing). */
+    verti get_strategy(verti v) const;
+
     /*! Takes an initialized strategy vector and updates it for the current
-        player. The result is valid only if the game is completely solved. */
+        player. The result is valid only after the game is solved. */
     void get_strategy(ParityGame::Strategy &strat) const;
 
     /*! Returns the winning set for the given player by assigning the vertices
@@ -123,7 +129,10 @@ public:
     /*! For debugging: verify that the current state describes a valid SPM */
     bool verify_solution();
 
-    /*! Return the player we are solving for. */
+    /*! Return the parity to be solved. */
+    const ParityGame &game() const { return game_; }
+
+    /*! Return the player to solve for. */
     ParityGame::Player player() const { return (ParityGame::Player)p_; }
 
     /*! Return the length of the SPM vectors (a positive integer). */
@@ -135,6 +144,9 @@ public:
     /*! Changes the SPM vector space. `new_M' must be an array of at least
         `len' non-negative integers. */
     void set_M(const verti *new_M) { std::copy(new_M, new_M + len_, M_); }
+
+    /*! Decrements the i'th element of M. */
+    void decr_M(int i) { assert(M_[i] > 0); --M_[i]; }
 
     /*! Return the SPM vector for vertex `v`.
         This array contains only the components with odd (for Even) or even
@@ -160,8 +172,9 @@ protected:
         Notifies the lifting strategy accordingly. */
     bool lift(verti v);
 
-    /*! Set the SPM vector for vertex `v` to top value (and nothing else:
-        for example, the lifting strategy is not notified here). */
+    /*! Set the SPM vector for vertex `v` to top value. This can decrease the
+        vector space, but nothing else; e.g, the lifting strategy is not
+        notified of the lift. */
     inline void set_top(verti v);
 
 private:

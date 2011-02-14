@@ -39,6 +39,9 @@ public:
     /*! Swaps the contents of this GamePartition with another one. */
     void swap(GamePartition &gp);
 
+    //! Returns whether a local vertex index corresponds to an internal vertex.
+    bool is_internal(verti v) const;
+
     /*! Returns the parity game associated for this partition, which describes
         the vertices relevant to this partition. */
     const ParityGame &game() const { return game_; }

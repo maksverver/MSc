@@ -62,6 +62,7 @@ MpiTermination::~MpiTermination()
     for (int i = 0; i < 3; ++i)
     {
         reqs_[i].Cancel();
+        reqs_[i].Wait();
         reqs_[i].Free();
     }
 }

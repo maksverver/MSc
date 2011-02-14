@@ -8,6 +8,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #include "GamePartition.h"
+#include <algorithm>
 #include <sstream>  // for debug_str()
 #include <assert.h>
 
@@ -155,4 +156,11 @@ std::string GamePartition::debug_str(const std::vector<char> &sel) const
     }
     os << " }";
     return os.str();
+}
+
+/* FIXME: this could be implemented more efficiently (e.g. with a precomputed
+          vector<bool> bitarray) if this is used intensively. */
+bool GamePartition::is_internal(verti v) const
+{
+    return binary_search(internal_.begin(), internal_.end(), v);
 }

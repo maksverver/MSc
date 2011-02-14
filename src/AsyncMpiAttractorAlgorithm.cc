@@ -55,6 +55,7 @@ void AsyncMpiAttractorImpl::solve(bool quick_start)
                 if (attr.count(v)) continue;
 
                 // Skip vertices not assigned to this worker process:
+                // FIXME: maybe use part.is_internal() instead?
                 if (vpart_(part.global(v)) != mpi_rank) continue;
 
                 if (part.game().player(v) == player)

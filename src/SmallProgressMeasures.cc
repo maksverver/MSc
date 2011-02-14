@@ -120,13 +120,19 @@ std::pair<verti, bool> SmallProgressMeasures::solve_one()
     return std::make_pair(vertex, success);
 }
 
+verti SmallProgressMeasures::get_strategy(verti v) const
+{
+    return (!is_top(v) && game_.player(v) == p_) ? get_min_succ(v) : NO_VERTEX;
+}
+
 void SmallProgressMeasures::get_strategy(ParityGame::Strategy &strat) const
 {
     verti V = game_.graph().V();
     assert(strat.size() == V);
     for (verti v = 0; v < V; ++v)
     {
-        if (!is_top(v) && game_.player(v) == p_) strat[v] = get_min_succ(v);
+        verti w = get_strategy(v);
+        if (w != NO_VERTEX) strat[v] = w;
     }
 }
 
@@ -184,7 +190,14 @@ bool SmallProgressMeasures::lift_to(verti v, const verti vec2[])
     verti *vec1 = vec(v);
     int l = len(v);
     if (vector_cmp(vec1, vec2, l) >= 0) return false;
-    for (int i = 0; i < l; ++i) vec1[i] = vec2[i];
+    if (is_top(vec2))
+    {
+        set_top(v);
+    }
+    else
+    {
+        for (int i = 0; i < l; ++i) vec1[i] = vec2[i];
+    }
     ls_->lifted(v);
     return true;
 }

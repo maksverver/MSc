@@ -35,6 +35,9 @@ protected:
         the SmallProgressMeasures instance to reflect it. */
     void set_vector_space(SmallProgressMeasures &spm);
 
+    //! Helper function to lifts the given global vertex `v' to `vec' in `spm'.
+    void update(SmallProgressMeasures &spm, verti global_v, const verti vec[]);
+
     /*! Lifts vertices in `spm' until globally no more vertices can be lifted
         (at which point, the game is solved for one player). */
     void solve_all(SmallProgressMeasures &spm);
@@ -49,6 +52,9 @@ protected:
         processes. Returns the combined global strategy for the process with
         rank 0, and an empty strategy for all other processes. */
     ParityGame::Strategy combine_strategies(ParityGame::Strategy &local);
+    
+    //! Debug-print SPM vectors.
+    void debug_print(const SmallProgressMeasures &spm) const;
 
 private:
     MpiSpmSolver(const MpiSpmSolver&);
