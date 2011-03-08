@@ -123,7 +123,10 @@ int ComponentSolver::operator()(const verti *vertices, size_t num_vertices)
         std::deque<verti> todo[2];
         for (size_t n = 0; n < unsolved.size(); ++n)
         {
-            todo[subgame.winner(substrat, n)].push_back(unsolved[n]);
+            ParityGame::Player pl = subgame.winner(substrat, n);
+            verti v = unsolved[n];
+            winning_[pl]->insert(v);
+            todo[pl].push_back(v);
         }
 
         // Extend winning sets to attractor sets:
