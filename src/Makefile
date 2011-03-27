@@ -4,7 +4,7 @@
 WITH_MCRL2=
 
 # set this to 1 to compile in support for MPI
-WITH_MPI=1
+WITH_MPI=
 
 OBJS= \
 	Abortable.o \

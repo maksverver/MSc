@@ -793,6 +793,7 @@ int main(int argc, char *argv[])
     {
         Logger::fatal("Couldn't parse parity game from input!");
     }
+    assert(game.proper());
 
     /* Do priority compression at the start too. */
     int old_d = game.d();

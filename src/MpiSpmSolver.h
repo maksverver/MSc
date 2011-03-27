@@ -52,7 +52,7 @@ protected:
         processes. Returns the combined global strategy for the process with
         rank 0, and an empty strategy for all other processes. */
     ParityGame::Strategy combine_strategies(ParityGame::Strategy &local);
-    
+
     //! Debug-print SPM vectors.
     void debug_print(const SmallProgressMeasures &spm) const;
 
