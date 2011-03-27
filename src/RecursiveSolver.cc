@@ -135,10 +135,10 @@ ParityGame::Strategy RecursiveSolver::solve()
     return strategy;
 }
 
-/*! Returns the first alternation, i.e. a priority `p' such that some vertices
-    exist with priorities p and q, where q < p and q%2 != p%2. If there are no
-    alternations, game.d() is returned instead. */
-static int first_alternation(const ParityGame &game)
+/*! Returns the first inversion of parity, i.e. the least priority `p' such that
+    some vertices exist with priorities p and q, where q < p and q%2 != p%2.
+    If there are no inversions, game.d() is returned instead. */
+static int first_inversion(const ParityGame &game)
 {
     int d = game.d();
     int q = 0;
@@ -166,7 +166,7 @@ bool RecursiveSolver::solve(ParityGame &game, Substrategy &strat)
     if (aborted()) return false;
 
     int prio;
-    while ((prio = first_alternation(game)) < game.d())
+    while ((prio = first_inversion(game)) < game.d())
     {
         debug("prio=%d", prio);
 
