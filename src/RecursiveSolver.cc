@@ -13,107 +13,15 @@
 #include <set>
 #include <assert.h>
 
-class Substrategy
+int first_inversion(const ParityGame &game)
 {
-private:
-    friend class Reference;
-
-    class Reference
-    {
-    public:
-        Reference(Substrategy &s, verti v) : substrat_(s), v_(s.global(v)) { }
-
-        Reference &operator=(verti w)
-        {
-            if (w != NO_VERTEX) w = substrat_.global(w);
-            substrat_.strategy_[v_] = w;
-            return *this;
-        }
-
-    private:
-        Substrategy &substrat_;
-        verti v_;
-    };
-
-public:
-    //! Constructs a strategy for all the vertices in a global strategy.
-    Substrategy(ParityGame::Strategy &strategy)
-        : strategy_(strategy)
-    {
-    }
-
-    //! Constructs a substrategy from an existing (sub)strategy and vertex map.
-    Substrategy(const Substrategy &substrat, std::vector<verti> vmap)
-        : strategy_(substrat.strategy_)
-    {
-        global_.resize(vmap.size());
-        for (size_t i = 0; i < global_.size(); ++i)
-        {
-            global_[i] = substrat.global(vmap[i]);
-        }
-    }
-
-    //! Swaps this substrategy ovbect with another.
-    void swap(Substrategy &other)
-    {
-        strategy_.swap(other.strategy_);
-        global_.swap(other.global_);
-    }
-
-    //! Returns a write-only reference to the strategy for vertex `v'.
-    Reference operator[](verti v)
-    {
-        return Reference(*this, v);
-    }
-
-    //! Returns the winner for vertex `v' assuming it is controlled by `p'.
-    ParityGame::Player winner(verti v, ParityGame::Player p)
-    {
-        if (strategy_[global(v)] == NO_VERTEX) p = ParityGame::Player(1 - p);
-        return p;
-    }
-
-    //! Maps local to global vertex index
-    inline verti global(verti v) const
-    {
-        return global_.empty() ? v : global_[v];
-    }
-
-private:
-    //! Reference to the global strategy
-    ParityGame::Strategy &strategy_;
-
-    //! Mapping from local to global vertex indices, or empty for identity.
-    std::vector<verti> global_;
-};
-
-/*! Returns the complement of a vertex set; i.e. an ordered list of all vertex
-    indices under V, from which the contents of the range delineated by `begin'
-    and `end' have been removed.
-
-    N.B. [begin..end) must produce a strictly increasing sequence!
-*/
-template<class ForwardIterator>
-static std::vector<verti> get_complement( verti V, ForwardIterator begin,
-                                                   ForwardIterator end )
-{
-    std::vector<verti> res;
-    res.reserve(V - (verti)std::distance(begin, end));
-    ForwardIterator it = begin;
-    for (verti v = 0; v < V; ++v)
-    {
-        if (it == end || v < *it)
-        {
-            res.push_back(v);
-        }
-        else
-        {
-            assert(*it == v);
-            ++it;
-        }
-    }
-    assert(it == end);
-    return res;
+    int d = game.d();
+    int q = 0;
+    while (q < d && game.cardinality(q) == 0) ++q;
+    int p = q + 1;
+    while (p < d && game.cardinality(p) == 0) p += 2;
+    if (p > d) p = d;
+    return p;
 }
 
 RecursiveSolver::RecursiveSolver(const ParityGame &game)
@@ -133,20 +41,6 @@ ParityGame::Strategy RecursiveSolver::solve()
     Substrategy substrat(strategy);
     if (!solve(game, substrat)) strategy.clear();
     return strategy;
-}
-
-/*! Returns the first inversion of parity, i.e. the least priority `p' such that
-    some vertices exist with priorities p and q, where q < p and q%2 != p%2.
-    If there are no inversions, game.d() is returned instead. */
-static int first_inversion(const ParityGame &game)
-{
-    int d = game.d();
-    int q = 0;
-    while (q < d && game.cardinality(q) == 0) ++q;
-    int p = q + 1;
-    while (p < d && game.cardinality(p) == 0) p += 2;
-    if (p > d) p = d;
-    return p;
 }
 
 /* Implementation note: the recursive solver might use either a DenseSet or
