@@ -31,7 +31,8 @@
 */
 struct ParityGameVertex
 {
-    unsigned char player, priority;
+    unsigned char   player;
+    compat_uint16_t priority;
 };
 
 inline bool operator== (const ParityGameVertex &a, const ParityGameVertex &b)

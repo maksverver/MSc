@@ -66,7 +66,7 @@ void ParityGame::read_pgsolver( std::istream &is,
         if (!(is >> id >> prio >> player)) break;
 
         assert(prio >= 0);
-        assert(prio < 256);
+        assert(prio < 65536);
         assert(player == 0 || player == 1);
         if (prio > max_prio) max_prio = prio;
         if (id >= vertices.size()) vertices.resize(id + 1, invalid);
