@@ -870,8 +870,8 @@ int main(int argc, char *argv[])
             Logger::fatal("Thread support was not compiled in!");
 #else
             omp_set_num_threads(arg_threads);
-        }
 #endif
+        }
 
 #ifndef WITH_MPI
         if (arg_mpi) Logger::fatal("MPI support was not compiled in!");
