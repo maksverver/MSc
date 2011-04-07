@@ -19,7 +19,7 @@
 #include <tbb/concurrent_queue.h>
 
 static std::vector<verti> concurrent_get_complement(
-    const std::vector<char> &vertices )
+    const std::vector< tbb::atomic<char> > &vertices )
 {
     const verti V = (verti)vertices.size();
     std::vector<verti> res;
@@ -32,7 +32,7 @@ static std::vector<verti> concurrent_get_complement(
 
 static bool is_subset_of(
     StaticGraph::const_iterator it, StaticGraph::const_iterator end,
-    const std::vector<char> &vertices)
+    const std::vector< tbb::atomic<char> > &vertices)
 {
     for (; it != end; ++it) if (!vertices[*it]) return false;
     return true;
@@ -40,7 +40,7 @@ static bool is_subset_of(
 
 void concurrent_make_attractor_set(
     const ParityGame &game, ParityGame::Player player,
-    std::vector<char> &vertices,
+    std::vector< tbb::atomic<char> > &vertices,
     tbb::concurrent_queue<verti> &todo,
     Substrategy &strategy )
 {
@@ -75,8 +75,7 @@ void concurrent_make_attractor_set(
             }
 
             // Add vertex v to the attractor set:
-            vertices[v] = 1;
-            todo.push(v);
+            if (vertices[v].compare_and_swap(1, 0) == 0) todo.push(v);
         }
     }
 }
@@ -84,6 +83,7 @@ void concurrent_make_attractor_set(
 ConcurrentRecursiveSolver::ConcurrentRecursiveSolver(const ParityGame &game)
     : ParityGameSolver(game)
 {
+    assert(sizeof(tbb::atomic<char>) == 1);
 }
 
 ConcurrentRecursiveSolver::~ConcurrentRecursiveSolver()
@@ -114,7 +114,7 @@ bool ConcurrentRecursiveSolver::solve(ParityGame &game, Substrategy &strat)
         // Compute attractor set of minimum priority vertices:
         {
             ParityGame::Player player = (ParityGame::Player)((prio - 1)%2);
-            std::vector<char> min_prio_attr(V, char(0));
+            std::vector< tbb::atomic<char> > min_prio_attr(V);
             tbb::concurrent_queue<verti> min_prio_attr_queue;
             for (verti v = 0; v < V; ++v)
             {
@@ -140,7 +140,7 @@ bool ConcurrentRecursiveSolver::solve(ParityGame &game, Substrategy &strat)
 
             // Compute attractor set of all vertices won by the opponent:
             ParityGame::Player opponent = (ParityGame::Player)(prio%2);
-            std::vector<char> lost_attr(V, char(0));
+            std::vector<  tbb::atomic<char> > lost_attr(V);
             tbb::concurrent_queue<verti> lost_attr_queue;
             for ( std::vector<verti>::const_iterator it = unsolved.begin();
                   it != unsolved.end(); ++it )
