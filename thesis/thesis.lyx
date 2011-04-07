@@ -1,4 +1,4 @@
-#LyX 1.6.8 created this file. For more info see http://www.lyx.org/
+#LyX 1.6.9 created this file. For more info see http://www.lyx.org/
 \lyxformat 345
 \begin_document
 \begin_header
@@ -6830,8 +6830,9 @@ The actual algorithm implementation varies a little from the proof structure
 
 \begin_layout Standard
 Additionally, instead of solving one priority at a time, we will speed up
- the solving process by always looking for the next alternation in the game.
- An alternation in a parity game is defined as a priority 
+ the solving process by always looking for the next inversion of parity
+ in the game.
+ Let an inversion of parity be a priority 
 \begin_inset Formula $p$
 \end_inset
 
@@ -6839,7 +6840,7 @@ Additionally, instead of solving one priority at a time, we will speed up
 \begin_inset Formula $n<p$
 \end_inset
 
- such that 
+ with 
 \begin_inset Formula $n\not\equiv p\mod{2}$
 \end_inset
 
@@ -6860,15 +6861,16 @@ Additionally, instead of solving one priority at a time, we will speed up
 \end_inset
 
 .
- The number of alternations in the initial game is a limit on the recursion
- depth, but typically (after priority compression) this is equal to 
+ The number of inversions of parity in the initial game is a limit on the
+ recursion depth, but typically (after priority compression) this is equal
+ to 
 \begin_inset Formula $d$
 \end_inset
 
 .
- However, for smaller subgames, the number of alternations may be much lower,
+ However, for smaller subgames, the number of inversions may be much lower,
  as not all priority values are necessarily used.
- Specifically, if there are no alternations in the game, then all priorities
+ Specifically, if there are no inversions of parity, then all priorities
  assigned to vertices have the same parity, and the corresponding player
  trivially wins the entire game.
 \end_layout
@@ -6930,7 +6932,7 @@ solve(ParityGame game, Strategy strategy)
 
 \begin_layout Plain Layout
 
-	Priority p = least_alternation(game)
+	Priority p = least_inversion(game)
 \end_layout
 
 \begin_layout Plain Layout
@@ -7025,7 +7027,7 @@ solve(ParityGame game, Strategy strategy)
 
 \begin_layout Plain Layout
 
-		p = least_alternation(game)
+		p = least_inversion(game)
 \end_layout
 
 \begin_layout Plain Layout
@@ -7136,12 +7138,12 @@ The execution of the main algorithm depends on several, simpler helper functions
 \end_layout
 
 \begin_layout Itemize
-\begin_inset Formula $\texttt{least\_alternation}$
+\begin_inset Formula $\texttt{least\_inversion}$
 \end_inset
 
- returns the least alternation in the game, as described above, by analyzing
+ returns the least inversion in the game, as described above, by analyzing
  the cardinality of priorities in use.
- If there is no alternation, the game degree 
+ If there is no inversion, the game degree 
 \begin_inset Formula $\texttt{d}$
 \end_inset
 
@@ -7235,11 +7237,11 @@ The strategy for vertices in
 \end_layout
 
 \begin_layout Standard
-The while-loop exits in three cases: when the game has no more alternations,
+The while-loop exits in three cases: when the game has no more inversions,
  when the attractor set of the minimum priority vertices covers the entire
  game graph, or when the vertices outside this attractor set are all won
  by the player corresponding to the minimum priority vertices.
- In all of these cases, the remaining game has no alternations (i.e.
+ In all of these cases, the remaining game has no inversions (i.e.
  it is a single-parity game).
  At this point, the only vertices for which the strategy has not been assigned,
  are those with priority less than 
@@ -7257,7 +7259,7 @@ Termination
 \end_layout
 
 \begin_layout Standard
-In this algorithm every recursive invocation removes at least one alternation
+In this algorithm every recursive invocation removes at least one inversion
  from the game (when 
 \begin_inset Formula $\texttt{solve}$
 \end_inset
@@ -7270,8 +7272,8 @@ In this algorithm every recursive invocation removes at least one alternation
 \begin_inset Formula $\texttt{p}$
 \end_inset
 
- is not an alternation in the subgame) so the number of alternations in
- the initial game is an upper bound on the recursion depth.
+ is not an inversion in the subgame) so the number of inversions in the
+ initial game is an upper bound on the recursion depth.
  Further more, every complete iteration of the while loop removes at least
  two vertices from the game (one in 
 \begin_inset Formula $\texttt{lost}$

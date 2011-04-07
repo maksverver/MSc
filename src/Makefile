@@ -4,7 +4,10 @@
 WITH_MCRL2=
 
 # set this to 1 to compile in support for MPI
-WITH_MPI=1
+WITH_MPI=
+
+# set this to 1 to compile in support for concurrency
+WITH_THREADS=
 
 OBJS= \
 	Abortable.o \
@@ -30,9 +33,15 @@ OBJS= \
 	timing.o
 
 CFLAGS=-Wall -O2 -g  # default flags
-CFLAGS:=$(CFLAGS) -O0 -D_GLIBCXX_DEBUG  # additional debug flags
+#CFLAGS:=$(CFLAGS) -O0 -D_GLIBCXX_DEBUG  # additional debug flags
 #CFLAGS=-Wall -O2 -DNDEBUG  # for optimal performance
 LDLIBS=-lrt
+
+ifdef WITH_THREADS
+CFLAGS:=$(CFLAGS) -DWITH_THREADS -ltbb -fopenmp
+OBJS:=$(OBJS) \
+	ConcurrentRecursiveSolver.o
+endif
 
 ifdef WITH_MPI
 CFLAGS:=$(CFLAGS) -DWITH_MPI

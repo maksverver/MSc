@@ -99,10 +99,10 @@ ParityGame::Strategy MpiRecursiveSolver::solve()
     return result;
 }
 
-/* Returns the first alternation in the game, similar to the function of the
+/* Returns the first inversion in the game, similar to the function of the
    same name in RecursiveSolver.cc, but this version first collects information
    about priorities used in all MPI worker processes. */
-static int mpi_first_alternation(const ParityGame &local_game)
+static int mpi_first_inversion(const ParityGame &local_game)
 {
     int d = local_game.d();
     unsigned char local_used[256], used[256];  // I wish C++ supported VLA's...
@@ -112,7 +112,7 @@ static int mpi_first_alternation(const ParityGame &local_game)
     for (int p = 0; p < d; ++p) local_used[p] = local_game.cardinality(p) > 0;
     MPI_Allreduce(local_used, used, d, MPI::BYTE, MPI::BOR, MPI::COMM_WORLD);
 
-    // Determine where first alternation occurs:
+    // Determine where first inversion occurs:
     int q = 0;
     while (q < d && !used[q]) ++q;
     int p = q + 1;
@@ -124,7 +124,7 @@ static int mpi_first_alternation(const ParityGame &local_game)
 void MpiRecursiveSolver::solve(GamePartition &part)
 {
     int prio;
-    while ((prio = mpi_first_alternation(part.game())) < part.game().d())
+    while ((prio = mpi_first_inversion(part.game())) < part.game().d())
     {
         //debug("part=%s prio=%d", part.debug_str().c_str(), prio);
 

@@ -43,6 +43,11 @@
 #include <signal.h>
 #endif
 
+#ifdef WITH_THREADS
+#include <omp.h>
+#include "ConcurrentRecursiveSolver.h"
+#endif
+
 #ifdef WITH_MPI
 #include "MpiUtils.h"
 #include "MpiSpmSolver.h"
@@ -84,6 +89,7 @@ static int          arg_timeout               =       0;
 static bool         arg_verify                = false;
 static bool         arg_zielonka              = false;
 static bool         arg_zielonka_sync         = false;
+static int          arg_threads               = 0;
 static bool         arg_mpi                   = false;
 static int          arg_chunk_size            = -1;
 
@@ -146,6 +152,7 @@ static void print_usage(const char *argv0)
 "\n"
 "\nZielonka's recursive algorithm:\n"
 "  --zielonka/-z          use Zielonka's recursive algorithm\n"
+"  --threads <count>      solve concurrently using threads\n"
 "  --mpi                  solve in parallel using MPI\n"
 "  --chunk/-c <size>      (MPI only) chunk size for partitioning\n"
 "  --sync                 (MPI only) use synchronized MPI algorithm\n"
@@ -192,9 +199,10 @@ static void parse_args(int argc, char *argv[])
         { "alternate",  no_argument,       NULL, 'a' },
 
         { "zielonka",   no_argument,       NULL, 'z' },
-        { "mpi",        no_argument,       NULL, 11  },
+        { "threads",    required_argument, NULL, 11  },
+        { "mpi",        no_argument,       NULL, 12  },
         { "chunk",      required_argument, NULL, 'c' },
-        { "sync",       no_argument,       NULL, 12  },
+        { "sync",       no_argument,       NULL, 13  },
 
         { "dot",        required_argument, NULL, 'd' },
         { "pgsolver",   required_argument, NULL, 'p' },
@@ -344,7 +352,16 @@ static void parse_args(int argc, char *argv[])
             arg_zielonka = true;
             break;
 
-        case 11:    /* parallize solving with MPI */
+        case 11:    /* concurrent solving */
+            arg_threads = atoi(optarg);
+            if (arg_threads < 1)
+            {
+                fprintf(stderr, "Invalid number of threads: %s\n", optarg);
+                exit(EXIT_FAILURE);
+            }
+            break;
+
+        case 12:    /* parallize solving with MPI */
             arg_mpi = true;
             break;
 
@@ -357,7 +374,7 @@ static void parse_args(int argc, char *argv[])
             }
             break;
 
-        case 12:    /* use synchronized algorithm */
+        case 13:    /* use synchronized algorithm */
             arg_zielonka_sync = true;
             break;
 
@@ -793,6 +810,7 @@ int main(int argc, char *argv[])
     {
         Logger::fatal("Couldn't parse parity game from input!");
     }
+    assert(game.proper());
 
     /* Do priority compression at the start too. */
     int old_d = game.d();
@@ -845,6 +863,15 @@ int main(int argc, char *argv[])
     else
     {
         std::auto_ptr<LiftingStatistics> stats;
+
+        if (arg_threads)
+        {
+#ifndef WITH_THREADS
+            Logger::fatal("Thread support was not compiled in!");
+#else
+            omp_set_num_threads(arg_threads);
+        }
+#endif
 
 #ifndef WITH_MPI
         if (arg_mpi) Logger::fatal("MPI support was not compiled in!");
@@ -899,7 +926,16 @@ int main(int argc, char *argv[])
         {
             if (!arg_mpi)
             {
-                solver_factory.reset(new RecursiveSolverFactory());
+                if (!arg_threads)
+                {
+                    solver_factory.reset(new RecursiveSolverFactory());
+                }
+#ifdef WITH_THREADS
+                else
+                {
+                    solver_factory.reset(new ConcurrentRecursiveSolverFactory());
+                }
+#endif
             }
 #ifdef WITH_MPI
             else
