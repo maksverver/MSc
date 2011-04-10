@@ -3466,7 +3466,7 @@ Here I will outline SPM as described by Jurdziński.
 \begin_inset Formula \[
 M_{i}=\begin{cases}
 \{0\} & \mbox{if \ensuremath{i\equiv0\mod{2}}}\\
-\{0..\left|\{v\in V:\phi(v)=i\}-1\right|\} & \mbox{if \ensuremath{i\equiv1\mod{2}}}\end{cases}\]
+\{0..\left|\{v\in V:\phi(v)=i\}\right|\} & \mbox{if \ensuremath{i\equiv1\mod{2}}}\end{cases}\]
 
 \end_inset
 
@@ -4106,8 +4106,8 @@ name "alg:Small-Progress-Measures"
 
 \end_layout
 
-\begin_layout Subsubsection
-Lifting to top
+\begin_layout Subsection
+Optimization after lifting to top
 \end_layout
 
 \begin_layout Standard
@@ -4134,7 +4134,7 @@ The implemention of
 \end_inset
 
  is effectively determined by the cardinalities of only those vertices with
- progress measures less than 
+ values  less than 
 \begin_inset Formula $\top$
 \end_inset
 
@@ -4221,6 +4221,305 @@ reference "sub:Two-way-SPM"
 \begin_layout Standard
 Besides eliminating this disadvantage in the dual-solving approach, the
  enhancement benefits both variations of the algorithm.
+\end_layout
+
+\begin_layout Subsubsection
+Correctness proof
+\end_layout
+
+\begin_layout Standard
+Recall that the goal of Small Progress Measures is to compute the least
+ fixed point of 
+\begin_inset Formula $Lift(\cdot,v)$
+\end_inset
+
+ for any 
+\begin_inset Formula $v$
+\end_inset
+
+.
+ I will describe a function 
+\begin_inset Formula $Lift'(\cdot,v)$
+\end_inset
+
+ that behaves like 
+\begin_inset Formula $Lift(\cdot,v)$
+\end_inset
+
+ but implements the optimization described above and prove that fixed point
+ iteration yields the same result as the original 
+\begin_inset Formula $Lift(\cdot,v)$
+\end_inset
+
+ would have.
+\end_layout
+
+\begin_layout Standard
+Let's redefine 
+\begin_inset Formula $M$
+\end_inset
+
+ as a vector space 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+
+\begin_inset Formula $M'(\rho)$
+\end_inset
+
+ whose dimensions are dependent on the count of 
+\family default
+\series default
+\shape default
+\size default
+\emph on
+\bar default
+\noun default
+\color inherit
+non-top
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+ vertices in a partially constructed progress measure 
+\begin_inset Formula $\rho$
+\end_inset
+
+:
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
+
+\begin_inset Formula \[
+M'_{i}(\rho)=\begin{cases}
+\{0\} & \mbox{if \ensuremath{i\equiv0\mod{2}}}\\
+\{0..\left|\{v\in V:\phi(v)=i\;\wedge\;\rho(v)\neq\top\}\right|\} & \mbox{if \ensuremath{i\equiv1\mod{2}}}\end{cases}\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+Clearly, 
+\begin_inset Formula $M'(\rho)\subseteq M$
+\end_inset
+
+.
+
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
+ Then, define 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+
+\begin_inset Formula $Prog'(\rho,v,w)$
+\end_inset
+
+ to draw from 
+\begin_inset Formula $M'(\rho)$
+\end_inset
+
+ instead of 
+\begin_inset Formula $M$
+\end_inset
+
+ and similarly 
+\begin_inset Formula $Lift'(\rho,v)$
+\end_inset
+
+ in terms of 
+\begin_inset Formula $Prog'(\rho,v,w)$
+\end_inset
+
+ instead of 
+\begin_inset Formula $Prog(\rho,v,w)$
+\end_inset
+
+.
+ The monotonicity of the lifting function is preserved and thus fixed point
+ iteration can still be used to find a minimal fixed point of 
+\begin_inset Formula $Lift'(\rho,v)$
+\end_inset
+
+, but what remains to be shown is that the value computed in this way is
+ the same as for the original definitions of these functions.
+\end_layout
+
+\begin_layout Enumerate
+If 
+\begin_inset Formula $\rho(v)\in M'(\rho)$
+\end_inset
+
+ for all 
+\begin_inset Formula $v\in V$
+\end_inset
+
+ then 
+\begin_inset Formula $\rho=Lift(\rho,v)\iff\rho=Lift'(\rho,v)$
+\end_inset
+
+, since the equations involved in the definitions are exactly the same.
+\end_layout
+
+\begin_layout Enumerate
+If 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+
+\begin_inset Formula $\rho$
+\end_inset
+
+ is a fixed point of 
+\begin_inset Formula $Lift'(\cdot,v)$
+\end_inset
+
+ then 
+\begin_inset Formula $\rho$
+\end_inset
+
+ is also a fixed point of 
+\begin_inset Formula $Lift(\cdot,v)$
+\end_inset
+
+, which follows from the fact that the range of 
+\begin_inset Formula $Prog'$
+\end_inset
+
+ is limited to 
+\begin_inset Formula $M'(\rho)$
+\end_inset
+
+ and 1.
+\end_layout
+
+\begin_layout Enumerate
+If 
+\begin_inset Formula $\rho$
+\end_inset
+
+ is the least fixed point of 
+\begin_inset Formula $Lift(\cdot,v)$
+\end_inset
+
+ then 
+\begin_inset Formula $\rho$
+\end_inset
+
+ is also a fixed point of 
+\begin_inset Formula $Lift'(\cdot,v)$
+\end_inset
+
+, which follows from the fact that 
+\begin_inset Formula $\rho(v)\in M'(\rho)$
+\end_inset
+
+ for all 
+\begin_inset Formula $v\in V$
+\end_inset
+
+ and 1.
+ To see why 
+\begin_inset Formula $\rho(v)\in M'(\rho)$
+\end_inset
+
+, consider that if 
+\begin_inset Formula $i$
+\end_inset
+
+ is odd and 
+\begin_inset Formula $\rho$
+\end_inset
+
+ is a least progress measure, then the 
+\begin_inset Formula $i$
+\end_inset
+
+th element of the progress measure vectors encodes the maximum number of
+ vertices of priority 
+\begin_inset Formula $i$
+\end_inset
+
+ that can be visited in any play consistent with the strategy induced by
+ 
+\begin_inset Formula $\rho$
+\end_inset
+
+ before a vertex of priority 
+\begin_inset Formula $j<i$
+\end_inset
+
+ is encountered, and there are only 
+\begin_inset Formula $M'_{i}(\rho)$
+\end_inset
+
+ of those with non-top value, by definition of 
+\begin_inset Formula $M'_{i}(\rho)$
+\end_inset
+
+ .
+\end_layout
+
+\begin_layout Standard
+From 2 and 3 it follows that if 
+\begin_inset Formula $\rho$
+\end_inset
+
+ is the least fixed point of 
+\begin_inset Formula $Lift(\cdot,v)$
+\end_inset
+
+ then 
+\begin_inset Formula $\rho$
+\end_inset
+
+ is also the least fixed point of 
+\begin_inset Formula $Lift'(\cdot,v)$
+\end_inset
+
+ and computing the latter by fixed point iteration suffices to determine
+ the former.
 \end_layout
 
 \begin_layout Subsection
