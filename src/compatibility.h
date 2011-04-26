@@ -43,17 +43,17 @@ typedef unsigned long long      compat_uint64_t;
 /* Integer limits, assuming 8-bit bytes and 4-byte integers. */
 #ifdef INT_MAX
     #if INT_MAX - 0x7fffffff
-        #error "Unexpected value for MAX_INT!"
+        #error "Unexpected value for INT_MAX!"
     #endif
 #else
     #define INT_MAX 0x7fffffff
 #endif
 #ifdef INT_MIN
-    #if INT_MIN - -0x800000000
-        #error "Unexpected value for MAX_INT!"
+    #if INT_MIN - -0x80000000
+        #error "Unexpected value for INT_MIN!"
     #endif
 #else
-    #define INT_MIN -0x800000000
+    #define INT_MIN -0x80000000
 #endif
 
 /* Case-insensitive string comparison functions.
