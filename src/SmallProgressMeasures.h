@@ -73,11 +73,12 @@ private:
 class SmallProgressMeasures : public Abortable, public virtual Logger
 {
 public:
-    SmallProgressMeasures( const ParityGame &game, ParityGame::Player player,
-        LiftingStrategyFactory *lsf, LiftingStatistics *stats = 0,
-        const verti *vertex_map = 0, verti vertex_map_size = 0 );
+    SmallProgressMeasures(
+        const ParityGame &game, ParityGame::Player player,
+        LiftingStatistics *stats = 0, const verti *vertex_map = 0,
+        verti vertex_map_size = 0 );
 
-    ~SmallProgressMeasures();
+    virtual ~SmallProgressMeasures();
 
     /*! Solves the current game for one player using the given lifting strategy
         and returns whether the game was completely solved (in particular, the
@@ -120,8 +121,9 @@ public:
 
     /*! Sets the given vertex's progress measure to the given value, if this
         is greater than the current value, and returns whether it changed.
-        val[] must be an array of length len(v). */
-    bool lift_to(verti v, const verti vec[]);
+        val[] must be an array of length len(v). If carry is set, the new
+        value must be strictly greater (or top). */
+    bool lift_to(verti v, const verti vec[], bool carry = 0);
 
     /*! For debugging: print current state to stdout */
     void debug_print(bool verify = true);
@@ -148,12 +150,6 @@ public:
     /*! Decrements the i'th element of M. */
     void decr_M(int i) { assert(M_[i] > 0); --M_[i]; }
 
-    /*! Return the SPM vector for vertex `v`.
-        This array contains only the components with odd (for Even) or even
-        (for Odd) indices of the vector (since the reset is fixed at zero). */
-    verti *vec(verti v) { return &spm_[(size_t)len_*v]; }
-    const verti *vec(verti v) const { return &spm_[(size_t)len_*v]; }
-
     /*! Return the number of odd priorities less than or equal to the
         priority of v. This is the length of the SPM vector for `v`. */
     int len(verti v) const { return (game_.priority(v) + 1 + p_)/2; }
@@ -167,10 +163,26 @@ public:
     /*! Returns the lifting strategy used. */
     const LiftingStrategy *lifting_strategy() const { return ls_; }
 
+    // The following functions are implemented in derived classes that
+    // implement the actual storage of progress measure vectors:
+
+    /*! Return the SPM vector for vertex `v'.
+        This array contains only the components with odd (for Even) or even
+        (for Odd) indices of the vector (since the reset is fixed at zero). */
+    // virtual verti *vec(verti v) = 0;
+    virtual const verti *vec(verti v) const = 0;
+
+    /*! Assign the first `len(v)` elements of the vector for vertex `w' to the
+        vector for `v', or its successor if `carry' is set. */
+    virtual void set_vec(verti v, const verti src[], bool carry) = 0;
+
+    /*! Set the value for vertex `v` to top. */
+    virtual void set_vec_to_top(verti v) = 0;
+
 protected:
-    /*! Attempt to lift a vertex (and return whether this succeeded).
-        Notifies the lifting strategy accordingly. */
-    bool lift(verti v);
+    /*! Initializes the base class for use. Must be called by its concrete
+        subclasses once after construction. */
+    void initialize(LiftingStrategyFactory *lsf);
 
     /*! Set the SPM vector for vertex `v` to top value. This can decrease the
         vector space, but nothing else; e.g, the lifting strategy is not
@@ -195,10 +207,10 @@ private:
     inline verti get_ext_succ(verti v, bool take_max) const;
 
     /*! Returns the minimum successor for vertex `v`. */
-    verti get_min_succ(verti v) const;
+    inline verti get_min_succ(verti v) const { return get_ext_succ(v, false); }
 
     /*! Returns the maximum successor for vertex `v`. */
-    verti get_max_succ(verti v) const;
+    inline verti get_max_succ(verti v) const { return get_ext_succ(v, true); }
 
     // Allow selected lifting strategies to access the SPM internals:
     friend class PredecessorLiftingStrategy;
@@ -214,7 +226,23 @@ protected:
     verti               vmap_size_; //!< size of vertex map
     int                 len_;       //!< length of SPM vectors
     verti               *M_;        //!< bounds on the SPM vector components
-    verti               *spm_;      //!< array storing the SPM vector data
+};
+
+class DenseSPM : public SmallProgressMeasures
+{
+public:
+    DenseSPM( const ParityGame &game, ParityGame::Player player,
+        LiftingStrategyFactory *lsf, LiftingStatistics *stats = 0,
+        const verti *vertex_map = 0, verti vertex_map_size = 0 );
+    ~DenseSPM();
+
+    // verti *vec(verti v) { return &spm_[(size_t)len_*v]; }
+    const verti *vec(verti v) const { return &spm_[(size_t)len_*v]; }
+    void set_vec(verti v, const verti src[], bool carry) ;
+    void set_vec_to_top(verti v);
+
+protected:
+    verti *spm_;  //!< array storing the SPM vector data
 };
 
 

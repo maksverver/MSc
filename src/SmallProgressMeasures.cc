@@ -37,8 +37,7 @@ void LiftingStatistics::record_lift(verti v, bool success)
 
 SmallProgressMeasures::SmallProgressMeasures(
         const ParityGame &game, ParityGame::Player player,
-        LiftingStrategyFactory *lsf, LiftingStatistics *stats,
-        const verti *vmap, verti vmap_size  )
+        LiftingStatistics *stats,const verti *vmap, verti vmap_size  )
     : game_(game), p_((int)player), ls_(0), stats_(stats),
       vmap_(vmap), vmap_size_(vmap_size)
 {
@@ -53,12 +52,10 @@ SmallProgressMeasures::SmallProgressMeasures(
         int prio = 2*n + 1 - p_;
         M_[n] = (prio < game.d()) ? game_.cardinality(prio) + 1 : 0;
     }
+}
 
-    // Initialize SPM vector data
-    size_t n = (size_t)len_*game.graph().V();
-    spm_ = new verti[n];
-    std::fill_n(spm_, n, 0);
-
+void SmallProgressMeasures::initialize(LiftingStrategyFactory *lsf)
+{
     // Initialize vertices won by the opponent to Top. This is designed to work
     // in conjunction with preprocess_game() which should have removed the
     // non-loop outgoing edges for such vertices.
@@ -85,7 +82,6 @@ SmallProgressMeasures::SmallProgressMeasures(
 SmallProgressMeasures::~SmallProgressMeasures()
 {
     delete ls_;
-    delete[] spm_;
     delete[] M_;
 }
 
@@ -108,16 +104,24 @@ long long SmallProgressMeasures::solve_part(long long max_attempts)
 
 std::pair<verti, bool> SmallProgressMeasures::solve_one()
 {
-    verti vertex = ls_->next();
-    if (vertex == NO_VERTEX) return std::make_pair(NO_VERTEX, false);
-    bool success = lift(vertex);
+    verti v = ls_->next();
+    if (v == NO_VERTEX) return std::make_pair(NO_VERTEX, false);
+
+    bool success = false;
+    if (!is_top(v))
+    {
+        verti w = get_ext_succ(v, (int)game_.player(v) != p_);
+        if (lift_to(v, vec(w), game_.priority(v)%2 != p_))
+        {
+            ls_->lifted(v);
+            success = true;
+        }
+    }
     if (stats_ != NULL)
     {
-        verti v = vertex;
-        if (vmap_ && v < vmap_size_) v = vmap_[v];
-        if (stats_) stats_->record_lift(v, success);
+        stats_->record_lift(vmap_ && v < vmap_size_ ? vmap_[v] : v, success);
     }
-    return std::make_pair(vertex, success);
+    return std::make_pair(v, success);
 }
 
 verti SmallProgressMeasures::get_strategy(verti v) const
@@ -144,61 +148,19 @@ size_t SmallProgressMeasures::memory_use()
         + sizeof(verti)*game_.graph().V();            // strategy
 }
 
-verti SmallProgressMeasures::get_min_succ(verti v) const
-{
-    return get_ext_succ(v, false);
-}
-
-verti SmallProgressMeasures::get_max_succ(verti v) const
-{
-    return get_ext_succ(v, true);
-}
-
-bool SmallProgressMeasures::lift(verti v)
+bool SmallProgressMeasures::lift_to(verti v, const verti vec2[], bool carry)
 {
     if (is_top(v)) return false;
 
-    /* Find relevant successor */
-    verti w = ((int)game_.player(v) == p_) ? get_min_succ(v) : get_max_succ(v);
-
-    if (is_top(w))
-    {
-        set_top(v);
-        ls_->lifted(v);
-        return true;
-    }
-
-    /* Check if lifting is required */
-    int d = vector_cmp(v, w, len(v));
-    bool carry = game_.priority(v)%2 != p_;
-    if (d >= carry) return false;
-
-    /* Assign successor */
-    for (int n = len(v) - 1; n >= 0; --n)
-    {
-        vec(v)[n] = vec(w)[n] + carry;
-        carry = (vec(v)[n] >= M_[n]);
-        if (carry) vec(v)[n] = 0;
-    }
-    if (carry) set_top(v);
-    ls_->lifted(v);
-    return true;
-}
-
-bool SmallProgressMeasures::lift_to(verti v, const verti vec2[])
-{
-    verti *vec1 = vec(v);
-    int l = len(v);
-    if (vector_cmp(vec1, vec2, l) >= 0) return false;
     if (is_top(vec2))
     {
         set_top(v);
     }
     else
     {
-        for (int i = 0; i < l; ++i) vec1[i] = vec2[i];
+        if (vector_cmp(vec(v), vec2, len(v)) >= carry) return false;
+        set_vec(v, vec2, carry);
     }
-    ls_->lifted(v);
     return true;
 }
 
@@ -316,8 +278,8 @@ ParityGame::Strategy SmallProgressMeasuresSolver::solve_normal()
 
     {
         info("Solving for Even...");
-        SmallProgressMeasures spm( game(), ParityGame::PLAYER_EVEN,
-                                   lsf_, stats_, vmap_, vmap_size_ );
+        DenseSPM spm( game(), ParityGame::PLAYER_EVEN,
+                      lsf_, stats_, vmap_, vmap_size_ );
         if (!spm.solve()) return ParityGame::Strategy();
         spm.get_strategy(strategy);
         spm.get_winning_set( ParityGame::PLAYER_ODD,
@@ -355,8 +317,8 @@ ParityGame::Strategy SmallProgressMeasuresSolver::solve_normal()
 
         // Second pass; solve subgame of vertices won by Odd:
         info("Solving for Odd...");
-        SmallProgressMeasures spm( subgame, ParityGame::PLAYER_ODD,
-                                   lsf_, stats_, submap, submap_size );
+        DenseSPM spm( subgame, ParityGame::PLAYER_ODD,
+                      lsf_, stats_, submap, submap_size );
         if (!spm.solve()) return ParityGame::Strategy();
         ParityGame::Strategy substrat(won_by_odd.size(), NO_VERTEX);
         spm.get_strategy(substrat);
@@ -381,10 +343,10 @@ ParityGame::Strategy SmallProgressMeasuresSolver::solve_alternate()
 {
     // Create two SPM and two lifting strategy instances:
     std::auto_ptr<SmallProgressMeasures> spm[2];
-    spm[0].reset(new SmallProgressMeasures( game_, ParityGame::PLAYER_EVEN,
-                                            lsf_, stats_, vmap_, vmap_size_ ));
-    spm[1].reset(new SmallProgressMeasures( game_, ParityGame::PLAYER_ODD,
-                                            lsf_, stats_, vmap_, vmap_size_ ));
+    spm[0].reset(new DenseSPM( game_, ParityGame::PLAYER_EVEN,
+                               lsf_, stats_, vmap_, vmap_size_ ));
+    spm[1].reset(new DenseSPM( game_, ParityGame::PLAYER_ODD,
+                               lsf_, stats_, vmap_, vmap_size_ ));
 
     // Solve games alternatingly:
     int player = 0;
@@ -448,7 +410,6 @@ void SmallProgressMeasuresSolver::preprocess_game(ParityGame &game)
     graph.remove_edges(obsolete_edges);
 }
 
-
 SmallProgressMeasuresSolverFactory::SmallProgressMeasuresSolverFactory(
         LiftingStrategyFactory *lsf, bool alt, LiftingStatistics *stats )
     : lsf_(lsf), alt_(alt), stats_(stats)
@@ -466,4 +427,39 @@ ParityGameSolver *SmallProgressMeasuresSolverFactory::create(
 {
     return new SmallProgressMeasuresSolver(
         game, lsf_, alt_, stats_, vmap, vmap_size );
+}
+
+DenseSPM::DenseSPM( const ParityGame &game, ParityGame::Player player,
+                    LiftingStrategyFactory *lsf, LiftingStatistics *stats,
+                    const verti *vertex_map, verti vertex_map_size )
+    : SmallProgressMeasures(game, player, stats, vertex_map, vertex_map_size)
+{
+    // Initialize SPM vector data
+    size_t n = (size_t)len_*game.graph().V();
+    spm_ = new verti[n];
+    std::fill_n(spm_, n, 0);
+
+    initialize(lsf);
+}
+
+DenseSPM::~DenseSPM()
+{
+    delete[] spm_;
+}
+
+void DenseSPM::set_vec(verti v, const verti src[], bool carry)
+{
+    verti *dst = &spm_[(size_t)len_*v];
+    for (int n = len(v) - 1; n >= 0; --n)
+    {
+        dst[n] = src[n] + carry;
+        carry = (dst[n] >= M_[n]);
+        if (carry) dst[n] = 0;
+    }
+    if (carry) set_top(v);
+}
+
+void DenseSPM::set_vec_to_top(verti v)
+{
+    spm_[(size_t)len_*v] = NO_VERTEX;
 }

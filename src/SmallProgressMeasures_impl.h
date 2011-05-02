@@ -155,7 +155,7 @@ bool SmallProgressMeasures::lift_to_top(verti v)
 void SmallProgressMeasures::set_top(verti v)
 {
     assert(!is_top(v));
-    vec(v)[0] = NO_VERTEX;
+    set_vec_to_top(v);
     int prio = game_.priority(v);
     if (prio%2 != p_) decr_M(prio/2);
 }
