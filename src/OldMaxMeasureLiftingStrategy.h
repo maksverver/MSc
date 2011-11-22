@@ -24,7 +24,6 @@ public:
 
     void lifted(verti v);
     verti next();
-    size_t memory_use() const;
 
 protected:
     std::vector<verti> vec(verti v) {

@@ -175,10 +175,6 @@ public:
     void write_debug( const Strategy &s = Strategy(),
         std::ostream &os = std::cerr) const;
 
-    /*! Returns the memory used to store the parity game.
-        This includes memory used by the graph! */
-    size_t memory_use() const;
-
     /*! Return the priority limit d; all priorities must be in range [0:d) */
     int d() const { return d_; }
 

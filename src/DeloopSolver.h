@@ -39,8 +39,6 @@ private:
     int operator()(const verti *vertices, size_t num_vertices);
     friend class SCC<DeloopSolver>;
 
-    size_t my_memory_use();
-
 protected:
     ParityGameSolverFactory &pgsf_;       //!< Solver factory to use
     const verti             *vmap_;       //!< Current vertex map

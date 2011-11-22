@@ -172,8 +172,6 @@ public:
         }
     }
 
-    size_t memory_use() { return sizeof(*used_)*range_size_ + sizeof(*this); }
-
 public:
     const Key range_begin, range_end;
 

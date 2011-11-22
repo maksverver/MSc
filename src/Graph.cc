@@ -300,15 +300,6 @@ void StaticGraph::read_raw(std::istream &is)
     }
 }
 
-size_t StaticGraph::memory_use() const
-{
-    size_t res = 0;
-    res += sizeof(edgei)*(V_ + 1);
-    res += sizeof(verti)*E_;
-    if (edge_dir_ == EDGE_BIDIRECTIONAL) res *= 2;
-    return res;
-}
-
 void StaticGraph::swap(StaticGraph &g)
 {
     if (this == &g) return;

@@ -38,7 +38,6 @@ public:
         bool backward, bool alternate, verti max_size, long long max_lifts );
     void lifted(verti vertex);
     verti next();
-    size_t memory_use() const;
     bool backward() const { return lls_.backward(); }
     bool max_size() const { return focus_list_.capacity(); }
 

@@ -115,9 +115,6 @@ public:
     /*! Read raw graph data from input stream */
     void read_raw(std::istream &is);
 
-    /*! Returns the memory used to store the graph data. */
-    size_t memory_use() const;
-
     /*! Swaps the contents of this graph with another one. */
     void swap(StaticGraph &g);
 

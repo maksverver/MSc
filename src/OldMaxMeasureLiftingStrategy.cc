@@ -68,11 +68,6 @@ verti OldMaxMeasureLiftingStrategy::next()
     return v;
 }
 
-size_t OldMaxMeasureLiftingStrategy::memory_use() const
-{
-    return 0;  // TODO, after the implementation is a bit more sane
-}
-
 LiftingStrategy *OldMaxMeasureLiftingStrategyFactory::create(
     const ParityGame &game, const SmallProgressMeasures &spm )
 {

@@ -112,8 +112,6 @@ int ComponentSolver::operator()(const verti *vertices, size_t num_vertices)
         }
         ParityGame::Strategy substrat = subsolver->solve();
 
-        // Update (peak) memory use
-        update_memory_use(subgame.memory_use() + subsolver->memory_use());
         if (substrat.empty()) return -1;  // solving failed
         merge_strategies(strategy_, substrat, unsolved);
 
@@ -141,7 +139,6 @@ int ComponentSolver::operator()(const verti *vertices, size_t num_vertices)
         info("(ComponentSolver) Identifying subcomponents...");
         ComponentSolver subsolver(subgame, pgsf_);
         ParityGame::Strategy substrat = subsolver.solve();
-        update_memory_use(subgame.memory_use() + subsolver.memory_use());
         if (substrat.empty()) return -1;
         merge_strategies(strategy_, substrat, unsolved);
     }

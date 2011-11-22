@@ -46,7 +46,6 @@ public:
     ~PredecessorLiftingStrategy();
     void lifted(verti v);
     verti next();
-    size_t memory_use() const;
 
     bool backward() const { return backward_; }
     bool stack() const { return stack_; }
