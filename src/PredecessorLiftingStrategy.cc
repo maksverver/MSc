@@ -73,11 +73,6 @@ verti PredecessorLiftingStrategy::next()
     return res;
 }
 
-size_t PredecessorLiftingStrategy::memory_use() const
-{
-    return queue_capacity_*(sizeof(verti) + sizeof(char));
-}
-
 LiftingStrategy *PredecessorLiftingStrategyFactory::create(
     const ParityGame &game, const SmallProgressMeasures &spm )
 {

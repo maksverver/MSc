@@ -57,12 +57,6 @@ public:
         return *pos++;
     }
 
-    size_t memory_use() const
-    {
-        return sizeof(*this) + sizeof(cur_queue[0])*cur_queue.capacity() +
-                               sizeof(next_queue[0])*next_queue.capacity();
-    }
-
 private:
     std::vector<verti> cur_queue, next_queue;
     std::vector<verti>::const_iterator pos;

@@ -1039,15 +1039,6 @@ int main(int argc, char *argv[])
         // Print some statistics
         Logger::message("Time used to solve:          %10.3f s", timer.elapsed());
         Logger::message("Current memory use:          %10.3f MB", get_vmsize());
-        size_t total_memory_use = game.memory_use() + solver->memory_use();
-        Logger::message( "Memory required to solve:    %10.3f MB",
-                         total_memory_use /MB );
-        Logger::message( " .. used by parity game:     %10.3f MB",
-                         game.memory_use()/MB );
-        Logger::message( "     .. used by graph:       %10.3f MB",
-                         game.graph().memory_use()/MB );
-        Logger::message( " .. used by solver:          %10.3f MB",
-                         solver->memory_use()/MB );
 
         if (stats.get() != NULL)
         {

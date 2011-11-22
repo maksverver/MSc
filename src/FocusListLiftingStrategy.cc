@@ -122,11 +122,6 @@ verti FocusListLiftingStrategy::phase2()
     return read_pos_->first;
 }
 
-size_t FocusListLiftingStrategy::memory_use() const
-{
-    return sizeof(*this) + sizeof(focus_list_[0])*focus_list_.capacity();
-}
-
 LiftingStrategy *FocusListLiftingStrategyFactory::create(
     const ParityGame &game, const SmallProgressMeasures &spm )
 {

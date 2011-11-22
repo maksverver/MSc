@@ -111,9 +111,6 @@ public:
     template<class OutputIterator>
     void get_winning_set(ParityGame::Player player, OutputIterator result);
 
-    /*! Return peak memory use (excludes lifting strategy!) */
-    size_t memory_use();
-
     /*! Sets the given vertex's progress measure to top, if it isn't already,
         and returns whether it changed: */
     inline bool lift_to_top(verti v);

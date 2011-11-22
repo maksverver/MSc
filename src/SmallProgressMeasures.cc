@@ -136,14 +136,6 @@ void SmallProgressMeasures::get_strategy(ParityGame::Strategy &strat) const
     }
 }
 
-size_t SmallProgressMeasures::memory_use()
-{
-    return sizeof(*this)
-        + sizeof(game_.d())*sizeof(verti)             // M_
-        + sizeof(verti)*len_*(game_.graph().V() + 1)  // spm_
-        + sizeof(verti)*game_.graph().V();            // strategy
-}
-
 verti SmallProgressMeasures::get_min_succ(verti v) const
 {
     return get_ext_succ(v, false);
@@ -322,10 +314,6 @@ ParityGame::Strategy SmallProgressMeasuresSolver::solve_normal()
         spm.get_strategy(strategy);
         spm.get_winning_set( ParityGame::PLAYER_ODD,
             std::back_insert_iterator<std::vector<verti> >(won_by_odd) );
-        update_memory_use( spm.memory_use() +
-                           spm.lifting_strategy()->memory_use() +
-                           sizeof(strategy[0])*strategy.capacity() +
-                           sizeof(won_by_odd[0])*won_by_odd.capacity() );
         /*
         info("DEBUG: verifying small progress measures.");
         assert(spm.verify_solution());
@@ -361,13 +349,6 @@ ParityGame::Strategy SmallProgressMeasuresSolver::solve_normal()
         ParityGame::Strategy substrat(won_by_odd.size(), NO_VERTEX);
         spm.get_strategy(substrat);
         merge_strategies(strategy, substrat, won_by_odd);
-        update_memory_use( spm.memory_use() +
-                           spm.lifting_strategy()->memory_use() +
-                           sizeof(strategy[0])*strategy.capacity() +
-                           sizeof(substrat[0])*substrat.capacity() +
-                           sizeof(won_by_odd[0])*won_by_odd.capacity() +
-                           subgame.memory_use() +
-                           sizeof(submap_data[0])*submap_data.capacity() );
         /*
         info("DEBUG: verifying small progress measures.");
         assert(spm.verify_solution());
@@ -407,10 +388,6 @@ ParityGame::Strategy SmallProgressMeasuresSolver::solve_alternate()
     ParityGame::Strategy strategy(game_.graph().V(), NO_VERTEX);
     spm[0]->get_strategy(strategy);
     spm[1]->get_strategy(strategy);
-
-    update_memory_use( spm[0]->memory_use() +
-                       spm[1]->memory_use() +
-                       sizeof(strategy[0])*strategy.capacity() );
 
     return strategy;
 }

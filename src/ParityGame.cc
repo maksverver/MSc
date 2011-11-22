@@ -269,14 +269,6 @@ long long ParityGame::propagate_priorities()
     return res;
 }
 
-size_t ParityGame::memory_use() const
-{
-    size_t res = graph_.memory_use();
-    res += sizeof(ParityGameVertex)*graph_.V();     // vertex info
-    res += sizeof(verti)*d_;                        // priority frequencies
-    return res;
-}
-
 bool ParityGame::proper() const
 {
     for (verti v = 0; v < graph_.V(); ++v)

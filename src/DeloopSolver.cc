@@ -58,9 +58,6 @@ ParityGame::Strategy DeloopSolver::solve()
         verti num_solved = (verti)solved.size() - old_solved;
         info( "(DeloopSolver) Found %d vertices won by %s",
               num_solved, player == 0 ? "Even" : "Odd" );
-
-        update_memory_use( sizeof(strategy[0])*strategy.capacity() +
-            solved.memory_use() + sizeof(winning[0])*winning.size()*2  );
     }
 
     std::vector<verti> unsolved;
@@ -114,13 +111,6 @@ ParityGame::Strategy DeloopSolver::solve()
             merge_strategies(strategy, substrat, unsolved);
         }
     }
-
-    update_memory_use(
-        sizeof(strategy[0])*strategy.capacity() + solved.memory_use() +
-        sizeof(unsolved[0])*unsolved.capacity() + subgame.memory_use() +
-        sizeof(submap[0])*submap.capacity() +
-        (subsolver.get() ? subsolver->memory_use() : 0) +
-        sizeof(substrat[0])*substrat.capacity() );
 
     return strategy;
 }

@@ -237,11 +237,6 @@ verti MaxMeasureLiftingStrategy::next()
     return NO_VERTEX;
 }
 
-size_t MaxMeasureLiftingStrategy::memory_use() const
-{
-    return graph_.V()*(sizeof(bool) + 2*sizeof(verti));
-}
-
 LiftingStrategy *MaxMeasureLiftingStrategyFactory::create(
     const ParityGame &game, const SmallProgressMeasures &spm )
 {

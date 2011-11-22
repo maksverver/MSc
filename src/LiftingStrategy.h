@@ -43,9 +43,6 @@ public:
     */
     virtual verti next() = 0;
 
-    /*! Returns an estimation of the peak memory use for this strategy. */
-    virtual size_t memory_use() const { return 0; }
-
 protected:
     const StaticGraph &graph_;          //!< the game graph to work on
     const ParityGame &game_;            //!< the parity game to work on

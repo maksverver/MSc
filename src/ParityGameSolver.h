@@ -34,26 +34,17 @@ class ParityGameSolver : public Abortable, RefCounted
 {
 public:
     ParityGameSolver(const ParityGame &game)
-        : game_(game), max_memory_size(0) { };
+        : game_(game) { };
     virtual ~ParityGameSolver() { };
 
     /*! Solve the game and return the strategies for both players. */
     virtual ParityGame::Strategy solve() = 0;
 
-    /*! Returns an estimation of the peak memory use for this solver. */
-    size_t memory_use() const { return max_memory_size; }
-
     /*! Returns the parity game for this solver instance. */
     const ParityGame &game() const { return game_; }
 
 protected:
-    void update_memory_use(size_t current_size) {
-        if (current_size > max_memory_size) max_memory_size = current_size;
-    }
-
-protected:
     const ParityGame &game_;           //!< Game being solved
-    size_t           max_memory_size;  //!< Max. amount of memory used
 };
 
 /*! Abstract base class for parity game solver factories. */

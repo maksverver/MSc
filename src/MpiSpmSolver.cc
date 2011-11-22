@@ -41,11 +41,6 @@ public:
         return v;
     }
 
-    size_t memory_use() const
-    {
-        return sizeof(*this) + ls_->memory_use();
-    }
-
 protected:
     const GamePartition &part_;
     LiftingStrategy *ls_;

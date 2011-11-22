@@ -30,8 +30,6 @@ struct CycleFinder
     // SCC callback
     int operator()(const verti *vertices, size_t num_vertices);
 
-    size_t memory_use();
-
 private:
     int                         prio_;          //!< selected priority
     const std::vector<verti>    &mapping_;      //!< priority induced vertex set
@@ -47,15 +45,6 @@ CycleFinder::CycleFinder( const ParityGame &game,
       winning_queue_(), substrat_(mapping.size(), NO_VERTEX)
 {
     subgame_.make_subgame(game, mapping.begin(), mapping.end());
-}
-
-size_t CycleFinder::memory_use()
-{
-    return sizeof(*this) +
-        subgame_.memory_use() +
-        winning_set_.memory_use() +
-        sizeof(verti)*winning_queue_.size()*2 +
-        sizeof(verti)*substrat_.capacity();
 }
 
 void CycleFinder::run( ParityGame::Strategy &strategy,
@@ -135,9 +124,6 @@ ParityGame::Strategy DecycleSolver::solve()
     ParityGame::Strategy strategy(V, NO_VERTEX);
     DenseSet<verti> solved_set(0, V);
 
-    const size_t base_mem = sizeof(verti)*strategy.capacity() +
-                            solved_set.memory_use() + sizeof(*this);
-
     // Find owner-controlled cycles for every priority value:
     for (int prio = 0; prio < game_.d(); ++prio)
     {
@@ -165,10 +151,6 @@ ParityGame::Strategy DecycleSolver::solve()
         make_attractor_set( game_, (ParityGame::Player)(prio%2),
                             solved_set, solved_queue, strategy );
 
-        update_memory_use( base_mem + cf.memory_use() +
-                sizeof(verti)*mapping.capacity() +
-                sizeof(verti)*solved_queue.size()*2 );
-
         verti new_size = solved_set.size();
         if (old_size < new_size)
         {
@@ -187,7 +169,6 @@ ParityGame::Strategy DecycleSolver::solve()
         std::auto_ptr<ParityGameSolver> subsolver(
             pgsf_.create(game_, vmap_, vmap_size_) );
         subsolver->solve().swap(strategy);
-        update_memory_use(base_mem + subsolver->memory_use());
         return strategy;
     }
 
@@ -232,10 +213,6 @@ ParityGame::Strategy DecycleSolver::solve()
         info( "(DecycleSolver) Merging strategies...");
         merge_strategies(strategy, substrat, unsolved);
     }
-
-    update_memory_use( base_mem + sizeof(verti)*unsolved.capacity() +
-        sizeof(verti)*submap.capacity() + subgame.memory_use() +
-        subsolver->memory_use() + sizeof(verti)*substrat.capacity() );
 
     return strategy;
 }
