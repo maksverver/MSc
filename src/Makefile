@@ -34,7 +34,7 @@ OBJS= \
 
 CFLAGS=-Wall -O2 -g  # default flags
 #CFLAGS:=$(CFLAGS) -O0 -D_GLIBCXX_DEBUG  # additional debug flags
-#CFLAGS=-Wall -O2 -DNDEBUG  # for optimal performance
+#CFLAGS=-Wall -O3 -DNDEBUG  # for optimal performance
 LDLIBS=-lrt
 
 ifdef WITH_THREADS
@@ -63,7 +63,7 @@ CFLAGS:=$(CFLAGS) -DWITH_MCRL2=$(WITH_MCRL2) \
 	-I../../mcrl2/include \
 	-I../../mcrl2/include/aterm \
 	-I../../mcrl2/include/mcrl2/atermpp
-LDLIBS:=$(LDLIBS) -L../../mcrl2/lib/mcrl2 -lmcrl2_core -lmcrl2_data
+LDLIBS:=$(LDLIBS) -L../../mcrl2/lib/mcrl2 -lmcrl2_core -lmcrl2_data -lmcrl2_aterm -lmcrl2_utilities
 endif
 
 ifdef WITH_MPI
