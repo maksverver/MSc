@@ -13,15 +13,19 @@
 #include "MpiAttractorAlgorithm.h"
 #include "Logger.h"
 
-/*! Attractor set computation implementation that runs synchronously; i.e. all
-    worker processes compute the attractor set in lockstep, synchronizing after
-    adding a layer of vertices to the attractor set.
+/*! Implementation of the synchronous MPI-based attractor set computer.
+
+    All worker processes compute the attractor set in lockstep, synchronizing
+    after adding a layer of vertices to the attractor set.
 
     In every step the vertices that lie one step further from the initial set
     are computed. The downside of this is that a lot synchronization is done
     when there are vertices in the attractor set that lie far away from the
     closest initial vertex, but the advantage is that termination is easy to
-    detect, which is why this algorithm was initially implemented. */
+    detect, which is why this algorithm was initially implemented.
+
+    @see SyncMpiAttractorAlgorithm
+*/
 class SyncMpiAttractorImpl : public virtual Logger
 {
 public:
@@ -46,15 +50,18 @@ private:
     void exchange_queues(std::deque<verti> &next_queue);
 
 private:
-    // TODO: document these + add trailing newlines for consistency
-    const VertexPartition       &vpart_;
-    const GamePartition         &part;
-    const ParityGame::Player    player;
-    DenseSet<verti>             &attr;
-    std::deque<verti>           &queue;
-    ParityGame::Strategy        &strategy_;
+    const VertexPartition       &vpart_;    //! vertex partition (fixed)
+    const GamePartition         &part;      //! game partition (fixed)
+    const ParityGame::Player    player;     //! target player (fixed)
+    DenseSet<verti>             &attr;      //! current attractor set
+    std::deque<verti>           &queue;     //! current vertices to be examined
+    ParityGame::Strategy        &strategy_; //! current strategy
 };
 
+/*! Synchronous MPI-based attractor set computer.
+
+    @see SyncMpiAttractorImpl
+*/
 class SyncMpiAttractorAlgorithm : public MpiAttractorAlgorithm
 {
     void make_attractor_set( const VertexPartition &vpart,

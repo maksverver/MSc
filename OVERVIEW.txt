@@ -1,0 +1,38 @@
+One graph representation
+
+One parity game representation
+
+Preprocessing steps:
+    Vertex reordering (DFS/BFS)
+    Priority compression
+    Priority propagation
+    Cycle removal
+    Loop removal
+    Decomposition into strongly connected components
+
+Several Small Progress Measures lifting strategies:
+    1. Linear
+    2. Predecessor
+    3. Focus list
+    4. Linear/predecessor
+    5. "Old" Maximum measure propagation
+    6. Maximum measure propagation
+
+Two Progress Measures representation:
+    Dense (single array)
+    Sparse (array of pointers)
+
+Single-threaded solvers:
+    Recursive solver (Zielonka)
+    Small progress measures (Jurdziński)
+    Alternate SPM (Friedmann)
+
+MPI-based solvers:
+    Recursive solver (Zielonka)
+    Small progress measures (Jurdziński)
+    NOT SUPPORTED: Alternate SPM (Friedmann)
+
+Concurrent solvers:
+    Recursive solver (Zielonka)
+    TODO: Small progress measures (Jurdziński)
+    TODO: Alternate SPM (Friedmann)

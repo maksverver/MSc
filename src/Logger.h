@@ -24,6 +24,16 @@
 #define NORETURN(decl)
 #endif
 
+/*! Logger base class.
+
+    All members of this class are static.  They may be called directly,
+    (e.g. as Logger::warn("foo")) or classes may inherit from this class so
+    that the static methods can be called without prefixing them with the
+    name of the class.
+
+    The logger keeps track of a 
+*/
+
 class Logger
 {
 public:
@@ -39,7 +49,13 @@ public:
     //! Set the minimum severity of displayed messages
     static void severity(Severity s) { severity_ = s; }
 
-    //! Return whether messages with the given severity are displayed
+    /*! Return whether messages with the given severity are displayed.
+
+        Use this to determine whether messages of a certain severity level are
+        displayed before performing expensive computations to generate these
+        messages.  This allows code to execute quickly when the logging
+        threshold is high.
+    */
     static bool enabled(Severity s) { return s >= severity_; }
 
     inline static void PRINTF(debug(const char *fmt, ...));

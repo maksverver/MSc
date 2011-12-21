@@ -11,7 +11,21 @@
 #include "SCC.h"
 #include <assert.h>
 
-struct VerifySCC  // used by ParityGame::verify
+/*! \file ParityGame_verify.cc
+
+    Implementation of parity game solution verification algorithm.
+*/
+
+
+/*! A functor that is used to verify the solution for a strongly-connected
+    component of the game graph.
+
+    This is a separate class because the SCC decomposition algorithm expects
+    a functor which is called for every component found.
+
+    \see ParityGame::verify
+*/
+struct VerifySCC  // used by ParityGame::verify()
 {
     const ParityGame    &game;
     const StaticGraph   &graph;

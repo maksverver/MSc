@@ -10,15 +10,22 @@
 #ifndef TIMER_H_INCLUDED
 #define TIMER_H_INCLUDED
 
+/*! Returns the current time in seconds since the Unix epoch as a floating
+    point number.  Although the unit is seconds, the actual resolution is much
+    higher (though platform-dependent). */
 extern "C" double time_now();
 
+//! A simple timer class to keep track of elapsed wall clock time.
 class Timer
 {
 public:
     Timer() : last_(time_now()) { };
+
+    //! Returns how many seconds have elapsed since the timer was constructed.
     double elapsed() { return time_now() - last_; }
 
 private:
+    //! Tracks the timestamp
     double last_;
 };
 

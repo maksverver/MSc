@@ -122,8 +122,10 @@ private:
     bool solve(ParityGame &game, Substrategy &strat);
 };
 
+//! Factory object for RecursiveSolver instances.
 class RecursiveSolverFactory : public ParityGameSolverFactory
 {
+    //! Returns a new ResuriveSolver instance.
     ParityGameSolver *create( const ParityGame &game,
         const verti *vertex_map, verti vertex_map_size );
 };
@@ -131,6 +133,13 @@ class RecursiveSolverFactory : public ParityGameSolverFactory
 
 // Implementation of inline functions follows.
 
+/*! Returns the complement of a vertex set.
+
+    The iterators `begin' and `end' must produce a list of strictly increasing
+    vertex indices.  This function returns a vector of increasing vertex indices
+    between 0 and V (exclusive) where 0 <= v < V is in the result iff. it is
+    not included in the set described by begin..end.
+*/
 template<class ForwardIterator>
 static std::vector<verti> get_complement( verti V, ForwardIterator begin,
                                                    ForwardIterator end )

@@ -12,10 +12,16 @@
 
 #include "SmallProgressMeasures.h"
 
-/*! A simple lifting strategy that attempts to lift vertices in order (moving
-    either forward or backward) and stops when no more vertices can be lifted.
+/*! A simple lifting strategy that attempts to lift vertices in order and stops
+    when no more vertices can be lifted.
 
-    (The Multi-Core Solver for Parity Games paper calls this "Swiping")
+    The initial direction in in which vertices are selected for lifting can
+    be selected (either "forward" or "backward" for increasing or decreasing
+    vertex indices) as well as whether the direction should be reversed at
+    every iteration.
+
+    The Multi-Core Solver for Parity Games paper calls this "Swiping", but
+    only examines forward, non-reversing order.
 */
 
 class LinearLiftingStrategy : public LiftingStrategy
@@ -37,13 +43,14 @@ private:
     verti max_failed_;          //!< max. failures possible in unsolved game
 };
 
-
+//! A factory class for LinearLiftingStrategy instances.
 class LinearLiftingStrategyFactory : public LiftingStrategyFactory
 {
 public:
     LinearLiftingStrategyFactory(bool backward = false, bool alternate = false)
         : backward_(backward), alternate_(alternate) { };
 
+    //! Return a new LinearLiftingStrategy instance.
     LiftingStrategy *create( const ParityGame &game,
                              const SmallProgressMeasures &spm );
 

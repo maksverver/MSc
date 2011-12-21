@@ -18,9 +18,15 @@
 #include <string>
 #include <vector>
 
-/*! A solver that first removes i-dominated cycles controlled by player p
-    for all values of i and p where i%2 == p, then calls another, general
-    solver to solve the remaining subgame. */
+/*! A partial solver that efficiently solves cycles controlled by a single
+    player.
+
+    Specifically, it removes i-dominated cycles controlled by player p for all
+    values of i and p where i%2 == p, including the vertices in their attractor
+    sets, and then calls a general solver to solve the remaining subgame.
+
+    This is a generalization of the DeloopSolver.
+*/
 class DecycleSolver : public ParityGameSolver, public virtual Logger
 {
 public:
@@ -36,6 +42,7 @@ protected:
     const verti             vmap_size_;   //!< Size of vertex map
 };
 
+//! A factory class for DecycleSolver instances.
 class DecycleSolverFactory : public ParityGameSolverFactory
 {
 public:
@@ -43,6 +50,7 @@ public:
         : pgsf_(pgsf) { pgsf_.ref(); }
     ~DecycleSolverFactory() { pgsf_.deref(); }
 
+    //! Return a new DecycleSolver instance.
     ParityGameSolver *create( const ParityGame &game,
         const verti *vertex_map, verti vertex_map_size );
 

@@ -22,7 +22,8 @@
 
     Intended for debugging, as it shouldn't really offer any benefits over
     predecessor lifting using a queue. Its main advantage is that the order in
-    which vertices are lifted is more predictable. */
+    which vertices are lifted is more predictable.
+*/
 class LinPredLiftingStrategy : public LiftingStrategy
 {
 public:
@@ -58,13 +59,24 @@ public:
     }
 
 private:
-    std::vector<verti> cur_queue, next_queue;
-    std::vector<verti>::const_iterator pos;
+    //! List of vertices to be lifted in the current pass.
+    std::vector<verti> cur_queue;
+
+    /*! List of vertices to be lifted in the next next pass.
+        These are the predecessors of the vertices that have been successfully
+        lifted during the current pass. */
+    std::vector<verti> next_queue;
+
+    /*! Iterator over `cur_queue' that points to the next vertex to be lifted
+        in the current pass. */     
+    std::vector<verti>::const_iterator pos; 
 };
 
+//! A factory class for LinPredLiftingStrategy instances.
 class LinPredLiftingStrategyFactory : public LiftingStrategyFactory
 {
 public:
+    //! Return a new LinPredLiftingStrategy instance.
     LiftingStrategy *create( const ParityGame &game,
                              const SmallProgressMeasures &spm )
     {

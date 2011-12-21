@@ -10,15 +10,24 @@
 #ifndef MPI_UTILS_INCLUDED
 #define MPI_UTILS_INCLUDED
 
-/* This file includes some common routines which are useful for implemented
-   distributed algorithms using MPI. They are used by the MpiRecursiveSolver,
-   MpiSpmSolver and the MpiAttractorAlgorithm classes. */
+/*! \file MpiUtils.h
+
+    Common routines which are useful for implementing distributed algorithms
+    using MPI.  They are used by the MpiRecursiveSolver, MpiSpmSolver and the
+    MpiAttractorAlgorithm classes.
+*/
 
 #include <mpi.h>
 
-/* MPI process rank and size. (mpi_size == 0 if MPI is not to be used; in that
-   case, none of the routines defined here may be called!) */
-extern int mpi_rank, mpi_size;
+/*! MPI process rank. */
+extern int mpi_rank;
+
+/*! Number of MPI processes.
+
+    This is zero if MPI is not initialized; in that case, none of the routines
+    defined here may be called!
+*/
+extern int mpi_size;
 
 //! Returns whether `local_value' is true in all of the MPI processes:
 bool mpi_and(bool local_value);
@@ -31,8 +40,7 @@ int mpi_sum(int local_value);
 
 
 
-/*! Wraps MPI send and receive calls to provided Friedemann Mattern's
-    four-counter method for termination detection.
+/*! Termination detection using Friedemann Mattern's four-counter method.
 
     All processes keep track of the number of sent and received messages. When
     idle, the first process sends a probe that is circulated to other processes

@@ -7,6 +7,14 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+/*! \file ParityGame_pbes.h
+
+    Functions to convert mCRL2 PBES files to parity games.
+
+    These functions are placed in a separate file that can be omitted when
+    the tool is built without mCRL2 support.
+*/
+
 #include <mcrl2/pbes/parity_game_generator.h>
 
 template <typename Container>

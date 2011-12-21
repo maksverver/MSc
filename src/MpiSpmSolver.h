@@ -69,6 +69,7 @@ protected:
     const verti             vmap_size_;   //!< size of globalvertex map
 };
 
+//! Factory class for MpiSpmSolver instances.
 class MpiSpmSolverFactory : public ParityGameSolverFactory
 {
 public:
@@ -77,6 +78,7 @@ public:
                          LiftingStatistics *stats = 0 );
     ~MpiSpmSolverFactory();
 
+    //! Return a new MpiSpmSolver instance.
     ParityGameSolver *create( const ParityGame &game,
                               const verti *vertex_map,
                               verti vertex_map_size );

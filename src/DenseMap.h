@@ -13,6 +13,8 @@
 #include <memory>
 #include <utility>
 
+// TODO: needs documentation!
+
 // N.B. this class is far from finished!
 
 template<class Key, class Val, Val Used = Val(0), Val Unused = Val(-1),

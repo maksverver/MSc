@@ -14,15 +14,18 @@
 
 #include "SCC_impl.h"
 
-/* Decomposes the static graph into strongly connected components. Components
-   are found in reverse topological order (i.e. if component j is found after
-   component i, there is no path from a node in i to a node in j).
+/*! Decomposition into strongly-connected components using Tarjan's algorithm.
 
-   For each node found, the callback is called with as arguments a list of
-   vertex indices (const verti *) and the size of the component (size_t).
-   The callback should return an integer; if zero, enumeration of components
-   continues, otherwise, decompose_graph() returns with the value returned by
-   the callback.
+    Decomposes the static graph into strongly connected components. Components
+    are found in reverse topological order (i.e. if component j is found after
+    component i, there is no path from a node in i to a node in j).
+
+    For each component found, the callback functor is called with as arguments
+    a list of vertex indices (const verti []) and the size of the component
+    (size_t).  The callback should return an integer: zero to continue
+    enumerating components, or non-zero to abort.
+
+    @return the last value returned by a call to callback
 */
 
 template<class Callback>

@@ -24,7 +24,8 @@
     sets from the game to obtain a loop-less reduced game that is then solved
     with a new solver.
 
-    Similar to the DecycleSolver, except being less general yet faster. */
+    Similar to the DecycleSolver, except being less general yet faster.
+*/
 class DeloopSolver : public ParityGameSolver, public virtual Logger
 {
 public:
@@ -45,6 +46,7 @@ protected:
     const verti             vmap_size_;   //!< Size of vertex map
 };
 
+//! A factory class for DeloopSolver instances.
 class DeloopSolverFactory : public ParityGameSolverFactory
 {
 public:
@@ -52,6 +54,7 @@ public:
         : pgsf_(pgsf) { pgsf_.ref(); }
     ~DeloopSolverFactory() { pgsf_.deref(); }
 
+    //! Create a new DeloopSolver instance.
     ParityGameSolver *create( const ParityGame &game,
         const verti *vertex_map, verti vertex_map_size );
 

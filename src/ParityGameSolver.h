@@ -15,15 +15,15 @@
 #include "RefCounted.h"
 #include <vector>
 
-/*! Merges a substrategy into a main strategy, overwriting the existing strategy
+/*! Merge a substrategy into a main strategy. Overwrites the existing strategy
     for all vertices with indices in vertex_map. */
 void merge_strategies( std::vector<verti> &strategy,
                        const std::vector<verti> &substrat,
                        const std::vector<verti> &vertex_map );
 
-/*! Merges two vertex maps, by translating the indices from begin to end using
-    old_map, such that new_map[i] == old_map[new_map[i]] or NO_VERTEX if
-    new_map[i] >= old_map_size. */
+/*! Merge two vertex maps. Values from begin to end are remapped using old_map,
+    creating a new map, such that new_map[i] becomes old_map[new_map[i]] if
+    new_map[i] < old_map_size or NO_VERTEX otherwise. */
 template<class ForwardIterator>
 void merge_vertex_maps( ForwardIterator begin, ForwardIterator end,
                         const verti *old_map, verti old_map_size );
@@ -40,7 +40,7 @@ public:
     /*! Solve the game and return the strategies for both players. */
     virtual ParityGame::Strategy solve() = 0;
 
-    /*! Returns the parity game for this solver instance. */
+    /*! Return the parity game for this solver instance. */
     const ParityGame &game() const { return game_; }
 
 protected:

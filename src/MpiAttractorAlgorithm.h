@@ -18,6 +18,10 @@
 #include <deque>
 #include <vector>
 
+/*! Base class for MPI-based algorithms to compute attractor sets.
+
+    @see MpiRecursiveSolver
+*/
 class MpiAttractorAlgorithm
 {
 public:

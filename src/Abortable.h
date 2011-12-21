@@ -13,7 +13,8 @@
 /*! Mix-in class for classes whose operations can be aborted asynchronously.
 
     Classes inheriting Abortable should periodically check whether they are
-    aborted by calling aborted() in time-consuming procedures. */
+    aborted by calling aborted() in time-consuming procedures.
+*/
 class Abortable
 {
 public:
@@ -24,6 +25,7 @@ public:
     bool aborted() { return global_abort_; }
 
 private:
+    //! Global variable indicating whether the process has been aborted.
     static volatile bool global_abort_;
 };
 

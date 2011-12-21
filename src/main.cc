@@ -7,6 +7,11 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+/*! \file main.cc
+
+    The main solver tool implementation.
+*/
+
 #if defined(__unix__) || defined(__linux__)
 #define POSIX
 #endif
@@ -122,6 +127,7 @@ static double get_vmsize()
 }
 #endif
 
+//! Prints usage information (possible command line arguments).
 static void print_usage(const char *argv0)
 {
     printf( "Usage: %s [<options>] [<input>]\n\n", argv0);
@@ -173,6 +179,7 @@ static void print_usage(const char *argv0)
 "  --debug/-D <file>      write solution in debug format to <file>\n");
 }
 
+//! Parses command line arguments. Exits on failure.
 static void parse_args(int argc, char *argv[])
 {
     enum FileMode { text, binary, none } input_mode = none;
@@ -560,6 +567,7 @@ static void write_hot_vertices( std::ostream &os, const ParityGame &game,
     os << "}\n";
 }
 
+//! Reads/generates parity game as specified by the user.
 bool read_input(ParityGame &game)
 {
     switch (arg_input_format)
@@ -597,6 +605,7 @@ bool read_input(ParityGame &game)
     return false;
 }
 
+//! Writes parity game and solution data as specified by the user.
 void write_output( const ParityGame &game,
     const ParityGame::Strategy &strategy = ParityGame::Strategy(),
     LiftingStatistics *stats = NULL )
@@ -780,7 +789,7 @@ static void set_timeout(int t)
     Logger::warn("Time-out not available.");
 }
 #endif
-
+//! Application entry point.
 int main(int argc, char *argv[])
 {
     Logger::severity(Logger::LOG_WARN);

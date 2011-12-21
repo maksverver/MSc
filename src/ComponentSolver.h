@@ -17,8 +17,13 @@
 #include <string>
 #include <vector>
 
-/*! A solver that breaks down the game graph into strongly connected components,
-    and uses the SPM algorithm to solve independent subgames. */
+/*! A solver that breaks down the game graph into strongly connected components.
+
+    The individual components are then solved from bottom to top with a
+    general solver.  Whenever a component is solved, its attractor set in the
+    complete graph is computed, and the graph is decomposed again, in hopes of
+    generating even smaller components.
+*/
 class ComponentSolver : public ParityGameSolver, public virtual Logger
 {
 public:
@@ -41,6 +46,7 @@ protected:
     DenseSet<verti>          *winning_[2];  //!< Resulting winning sets
 };
 
+//! Factory class for ComponentSolver instances.
 class ComponentSolverFactory : public ParityGameSolverFactory
 {
 public:
@@ -48,6 +54,7 @@ public:
         : pgsf_(pgsf) { pgsf_.ref(); }
     ~ComponentSolverFactory() { pgsf_.deref(); }
 
+    //! Return a new ComponentSolver instance.
     ParityGameSolver *create( const ParityGame &game,
         const verti *vertex_map, verti vertex_map_size );
 

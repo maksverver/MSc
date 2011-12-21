@@ -14,6 +14,8 @@
 #include <memory>
 #include <utility>
 
+// TODO: needs documentation!
+
 // N.B. this class is far from finished!
 
 template< class Key, class Alloc = std::allocator<bool> >

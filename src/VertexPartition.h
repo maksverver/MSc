@@ -72,12 +72,17 @@ public:
         return res;
     }
 
+    //! Returns the number of processes.
     int num_procs() const { return num_procs_; }
+
+    /*! Returns the vertex chunk size.
+        A chunk is a range of consecutive vertices assigned to the same process.
+    */
     verti chunk_size() const { return chunk_size_; }
 
 private:
-    int num_procs_;
-    verti chunk_size_;
+    int num_procs_;         //! Number of processes.
+    verti chunk_size_;      //! Size of vertex chunks.
 };
 
 #endif /* ndef VERTEX_PARTITION_H_INCLUDED */

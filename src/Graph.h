@@ -7,6 +7,11 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+/*! \file Graph.h
+
+    Data structures to define vertices, edges and graphs.
+*/
+
 #ifndef GRAPH_H_INCLUDED
 #define GRAPH_H_INCLUDED
 

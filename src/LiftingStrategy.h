@@ -36,10 +36,7 @@ public:
         SPM solver until it returns NO_VERTEX to indicate the solution is
         complete.
 
-        \see lifted(verti vertex);
-        \param prev_vertex Index of the vertex returned by the previous call
-                           (or NO_VERTEX for the first call).
-        \param prev_lifted Indicates wheter the vertex could be lifted.
+        \see lifted(verti vertex)
     */
     virtual verti next() = 0;
 

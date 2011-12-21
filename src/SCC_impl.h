@@ -14,20 +14,21 @@
 #include <utility>
 #include <assert.h>
 
-/* Implements Tarjan's algorithm for finding strongly connected components in
-   a directed graph. It visits each vertex and edge in the graph once, so it has 
-   run-time complexity O(V + E). For each vertex, two items are stored: the
-   vertex index (which denotes the order in which vertices are visited) and a
-   lowest link index, which gives the lowest index of a vertex that is reachable
-   from the current vertex.
+/*! Implements Tarjan's algorithm for finding strongly connected components in
+    a directed graph.
 
-   When a not has not yet been visited, its index is set to (verti)-1.
-   Furthermore, the lowest link index is set to (verti)-1 if the vertex is not
-   part of the current component.
+    Visits each vertex and edge in the graph once, so it has a run-time
+    complexity O(V + E). For each vertex, two items are stored: the vertex index
+    (which denotes the order in which vertices are visited) and a lowest link
+    index, which gives the lowest index of a vertex that is reachable from the
+    current vertex.
 
-   Worst-case memory use: 5*sizeof(verti) + c.
+    When a vertex has not yet been visited, its index is set to (verti)-1.
+    Furthermore, the lowest link index is set to (verti)-1 if the vertex is not
+    part of the current component.
+
+    Worst-case memory use: 5*sizeof(verti) + c.
 */
-
 template<class Callback>
 class SCC
 {
@@ -143,15 +144,21 @@ public:
     Callback &callback_;
 
 private:
+    //! Index of next vertex to be labelled by inorder traversal.
     verti next_index;
-    std::vector<std::pair<verti, verti> > info;     // index and lowest link
-    std::vector<verti> component;                   // current component
 
-    /* The DFS stack: the current vertex paired with the current offset
-                      in its successor list. */
+    //! Inorder index and lowest link index of each vertex.
+    std::vector<std::pair<verti, verti> > info;
+
+    //! Vertex indices of the current component.
+    std::vector<verti> component;
+
+    /*! The depth-first-search stack.
+
+        Each entry consists of a vertex index and an index into its successor
+        list.  When a new unvisited vertex `v' is discovered, a pair (`v', 0)
+        is appened at the end of the stack.  The top element is popped off the
+        stack when its successor index points to the end of the successor list.
+    */
     std::vector< std::pair< verti, verti > > stack;
 };
-
-#ifdef assert
-#undef assert
-#endif

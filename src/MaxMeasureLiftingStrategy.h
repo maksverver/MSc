@@ -15,6 +15,17 @@
 #include <set>
 #include <utility>
 
+/*! A lifting strategy that propagate maximum measures first.
+
+    Conceptually this is a specialization of the predecessor lifting strategy.
+    However, of all feasible vertices to select for the next lifting attempt,
+    one is chosen specifically that has the largest maximum progress measure
+    vector.
+
+    The implementation uses a custom heap structure to act as a priority queue.
+    Special care must be taken to maintain the heap property, because lifting
+    vertices changes the associated progress measure!
+*/
 class MaxMeasureLiftingStrategy : public LiftingStrategy
 {
 public:
@@ -72,10 +83,11 @@ private:
     verti pq_size_;             //!< priority queue size
 };
 
-
+//! A factory class for MaxMeasureLiftingStrategy instances.
 class MaxMeasureLiftingStrategyFactory : public LiftingStrategyFactory
 {
 public:
+    //! Return a new MaxMeasureLiftingStrategy instance. 
     LiftingStrategy *create( const ParityGame &game,
                              const SmallProgressMeasures &spm );
 };

@@ -59,13 +59,14 @@ private:
     size_t queue_size_, queue_capacity_, queue_begin_, queue_end_;
 };
 
-
+//! Factory class for PredecessorLiftingStrategy instances.
 class PredecessorLiftingStrategyFactory : public LiftingStrategyFactory
 {
 public:
     PredecessorLiftingStrategyFactory(bool backward = false, bool stack = false)
         : backward_(backward), stack_(stack) { };
 
+    //! Returns a new PredecessorLiftingStrategy instance.
     LiftingStrategy *create( const ParityGame &game,
                              const SmallProgressMeasures &spm );
 

@@ -12,7 +12,7 @@
 
 #include "RecursiveSolver.h"
 
-/*! Parity game solver implementing Zielonka's recursive algorithm. */
+//! Concurrent implementation of Zielonka's recursive algorithm.
 class ConcurrentRecursiveSolver : public ParityGameSolver, public virtual Logger
 {
 public:
@@ -22,12 +22,14 @@ public:
     ParityGame::Strategy solve();
 
 private:
-    /*! Solves a subgame recursively, or returns false if solving is aborted. */
+    //! Solves a subgame recursively, or returns false if solving is aborted.
     bool solve(ParityGame &game, Substrategy &strat);
 };
 
+//! Factory class for ConcurrentRecursiveSolver instances.
 class ConcurrentRecursiveSolverFactory : public ParityGameSolverFactory
 {
+    //! Return a new ConcurrentRecursiveSolver instance.
     ParityGameSolver *create( const ParityGame &game,
         const verti *vertex_map, verti vertex_map_size );
 };

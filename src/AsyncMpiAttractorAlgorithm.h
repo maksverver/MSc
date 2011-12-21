@@ -13,10 +13,14 @@
 #include "MpiAttractorAlgorithm.h"
 #include "Logger.h"
 
-/*! Attractor set computation implementation that runs asynchronously; i.e. all
-   worker processes send and receive vertices to be added to the set while they
-   are running independent breadth-first search over their local vertex set.
-   This is should reduce latency. */
+/*! Implementation of the asynchronous MPI-based attractor set computer.
+
+    All worker processes send and receive vertices to be added to the set while
+    they are running independent breadth-first search over their local vertex
+    set. This is should reduce latency.
+
+    @see AsyncMpiAttractorAlgorithm
+*/
 class AsyncMpiAttractorImpl : public virtual Logger,
                               public MpiTermination
 {
@@ -61,6 +65,10 @@ private:
     verti vertex_val;        //!< temporary buffer to receive external vertices
 };
 
+/*! Asynchronous MPI-based attractor set computer.
+
+    @see AsyncMpiAttractorImpl
+*/
 class AsyncMpiAttractorAlgorithm : public MpiAttractorAlgorithm
 {
     void make_attractor_set( const VertexPartition &vpart,

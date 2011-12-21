@@ -37,7 +37,7 @@ void LiftingStatistics::record_lift(verti v, bool success)
 
 SmallProgressMeasures::SmallProgressMeasures(
         const ParityGame &game, ParityGame::Player player,
-        LiftingStatistics *stats,const verti *vmap, verti vmap_size  )
+        LiftingStatistics *stats, const verti *vmap, verti vmap_size )
     : game_(game), p_((int)player), ls_(0), stats_(stats),
       vmap_(vmap), vmap_size_(vmap_size)
 {
