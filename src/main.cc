@@ -26,10 +26,6 @@
 #include "SmallProgressMeasures.h"
 #include "Timer.h"
 
-#ifdef WITH_MCRL2
-#include <aterm_init.h>
-#endif
-
 #include <assert.h>
 #include <getopt.h>
 #include <string.h>
@@ -156,7 +152,7 @@ static void print_usage(const char *argv0)
 "  --lifting/-l <desc>    Small Progress Measures lifting strategy to use\n"
 "  --alternate/-a         use Friedmann's alternating solving approach\n"
 "\n"
-"\nZielonka's recursive algorithm:\n"
+"Solving with Zielonka's recursive algorithm:\n"
 "  --zielonka/-z          use Zielonka's recursive algorithm\n"
 "  --threads <count>      solve concurrently using threads\n"
 "  --mpi                  solve in parallel using MPI\n"
@@ -793,10 +789,6 @@ static void set_timeout(int t)
 int main(int argc, char *argv[])
 {
     Logger::severity(Logger::LOG_WARN);
-
-#ifdef WITH_MCRL2
-    MCRL2_ATERMPP_INIT(argc, argv);
-#endif
 
 #ifdef WITH_MPI
     MPI::Init(argc, argv);

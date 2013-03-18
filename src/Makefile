@@ -61,9 +61,8 @@ endif
 ifdef WITH_MCRL2
 CFLAGS:=$(CFLAGS) -DWITH_MCRL2=$(WITH_MCRL2) \
 	-I../../mcrl2/include \
-	-I../../mcrl2/include/aterm \
-	-I../../mcrl2/include/mcrl2/atermpp
-LDLIBS:=$(LDLIBS) -L../../mcrl2/lib/mcrl2 -lmcrl2_core -lmcrl2_data -lmcrl2_aterm -lmcrl2_utilities
+	-I../../mcrl2/include/dparser
+LDLIBS:=$(LDLIBS) -L../../mcrl2/lib/mcrl2 -lmcrl2_atermpp -lmcrl2_bes -lmcrl2_core -lmcrl2_data -lmcrl2_lps -lmcrl2_lts -lmcrl2_pbespgsolve -lmcrl2_pbes -lmcrl2_process -lmcrl2_syntax -lmcrl2_utilities -ldparser -lsvc -ldot_syntax -lfsm_syntax
 endif
 
 ifdef WITH_MPI
