@@ -1,21 +1,29 @@
-#LyX 1.6.9 created this file. For more info see http://www.lyx.org/
-\lyxformat 345
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
 \begin_document
 \begin_header
 \textclass book
 \use_default_options true
+\maintain_unincluded_children false
 \language english
+\language_package default
 \inputencoding auto
+\fontencoding global
 \font_roman default
 \font_sans default
 \font_typewriter default
 \font_default_family default
+\use_non_tex_fonts false
 \font_sc false
 \font_osf false
 \font_sf_scale 100
 \font_tt_scale 100
 
 \graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
 \paperfontsize default
 \spacing single
 \use_hyperref true
@@ -33,21 +41,31 @@
 \use_geometry false
 \use_amsmath 1
 \use_esint 1
+\use_mhchem 1
+\use_mathdots 1
 \cite_engine basic
 \use_bibtopic false
+\use_indices false
 \paperorientation portrait
+\suppress_date false
+\use_refstyle 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
 \secnumdepth 3
 \tocdepth 3
 \paragraph_separation indent
-\defskip medskip
+\paragraph_indentation default
 \quotes_language english
 \papercolumns 1
 \papersides 1
 \paperpagestyle default
 \tracking_changes false
 \output_changes false
-\author "" 
-\author "" 
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
 \end_header
 
 \begin_body
@@ -180,6 +198,32 @@ A parity game can be described as a quadruple
 \noun off
 \color none
 
+\begin_inset Formula $V=V_{0}\cup V_{1}$
+\end_inset
+
+ and 
+\begin_inset Formula $V_{0}\cap V_{1}=\emptyset$
+\end_inset
+
+:
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
+ 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+in other words, 
 \begin_inset Formula $V_{\text{0}}$
 \end_inset
 
@@ -187,11 +231,11 @@ A parity game can be described as a quadruple
 \begin_inset Formula $V_{\text{1}}$
 \end_inset
 
- partition the set of vertices 
-\begin_inset Formula $V=V_{0}\cup V_{1}$
+ partition the set of graph vertices 
+\begin_inset Formula $V$
 \end_inset
 
- of the graph into vertices controlled by
+ into those controlled by
 \family default
 \series default
 \shape default
@@ -397,8 +441,10 @@ dominant priority
 \end_layout
 
 \begin_layout Standard
-\begin_inset Formula \[
-P(\pi)=\min\left\{ p\in\mathbb{N}_{0}:\left|\left\{ i\in\mathbb{N}:\phi(v_{i})=p\right\} \right|=\aleph_{0}\right\} \]
+\begin_inset Formula 
+\[
+P(\pi)=\min\left\{ p\in\mathbb{N}_{0}:\left|\left\{ i\in\mathbb{N}:\phi(v_{i})=p\right\} \right|=\aleph_{0}\right\} 
+\]
 
 \end_inset
 
@@ -830,10 +876,13 @@ Sometimes we want to refer to the combined strategies of both players,
 \end_inset
 
 , defined as:
-\begin_inset Formula \[
+\begin_inset Formula 
+\[
 \sigma(v)=\begin{cases}
 \sigma_{0}(v) & \mbox{if }v\in V_{0}\\
-\sigma_{1}(v) & \mbox{if }v\in V_{1}\end{cases}\]
+\sigma_{1}(v) & \mbox{if }v\in V_{1}
+\end{cases}
+\]
 
 \end_inset
 
@@ -1393,10 +1442,13 @@ Does this need proof?
 \noun default
 \color inherit
  
-\begin_inset Formula \[
+\begin_inset Formula 
+\[
 \phi'(v)=\begin{cases}
 \phi(v) & \mbox{if }\phi(v)\leq p\\
-\phi(v)+p-q & \mbox{\mbox{if }\ensuremath{\phi(v)>p}}\end{cases}\]
+\phi(v)+p-q & \mbox{\mbox{if }\ensuremath{\phi(v)>p}}
+\end{cases}
+\]
 
 \end_inset
 
@@ -1434,10 +1486,13 @@ Since
 \end_layout
 
 \begin_layout Standard
-\begin_inset Formula \[
+\begin_inset Formula 
+\[
 \phi'(v)=\begin{cases}
 \phi(v) & \mbox{if }\phi(v)\leq p\\
-\phi(v)+p-q+1 & \mbox{\mbox{if} \ensuremath{\phi(v)<p}}\end{cases}\]
+\phi(v)+p-q+1 & \mbox{\mbox{if} \ensuremath{\phi(v)<p}}
+\end{cases}
+\]
 
 \end_inset
 
@@ -1672,8 +1727,10 @@ Let
 \bar no
 \noun off
 \color none
-\begin_inset Formula \[
-v\in V_{x}\rightarrow vE\setminus U=\emptyset\]
+\begin_inset Formula 
+\[
+v\in V_{x}\rightarrow vE\setminus U=\emptyset
+\]
 
 \end_inset
 
@@ -1690,8 +1747,10 @@ v\in V_{x}\rightarrow vE\setminus U=\emptyset\]
 \bar no
 \noun off
 \color none
-\begin_inset Formula \[
-v\in V_{1-x}\rightarrow vE\cap U\neq\emptyset\]
+\begin_inset Formula 
+\[
+v\in V_{1-x}\rightarrow vE\cap U\neq\emptyset
+\]
 
 \end_inset
 
@@ -1700,6 +1759,13 @@ v\in V_{1-x}\rightarrow vE\cap U\neq\emptyset\]
 
 \begin_layout Subsection
 Attractor sets
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Attractor-sets"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -1737,8 +1803,10 @@ An attractor set for a player
 
 \begin_layout Standard
 Zielonka gives an iterative definition of an attractor set:
-\begin_inset Formula \[
-U_{0}=U\]
+\begin_inset Formula 
+\[
+U_{0}=U
+\]
 
 \end_inset
 
@@ -1746,8 +1814,10 @@ U_{0}=U\]
 \end_layout
 
 \begin_layout Standard
-\begin_inset Formula \[
-U_{i+1}=U_{i}\cup\{v\in V_{x}:\; vE\cap U_{i}\neq\emptyset\}\cup\{v\in V_{1-x}:\; vE\setminus U_{i}=\emptyset\}\]
+\begin_inset Formula 
+\[
+U_{i+1}=U_{i}\cup\{v\in V_{x}:\; vE\cap U_{i}\neq\emptyset\}\cup\{v\in V_{1-x}:\; vE\setminus U_{i}=\emptyset\}
+\]
 
 \end_inset
 
@@ -1755,8 +1825,10 @@ U_{i+1}=U_{i}\cup\{v\in V_{x}:\; vE\cap U_{i}\neq\emptyset\}\cup\{v\in V_{1-x}:\
 \end_layout
 
 \begin_layout Standard
-\begin_inset Formula \[
-Attr^{x}(\Gamma,U)=U_{0}\cup U_{1}\cup\cdots\]
+\begin_inset Formula 
+\[
+Attr^{x}(\Gamma,U)=U_{0}\cup U_{1}\cup\cdots
+\]
 
 \end_inset
 
@@ -2058,7 +2130,7 @@ Some game graphs are not completely connected, in the sense that there may
 \end_layout
 
 \begin_layout Standard
-The first approach is to solving components in reverse topological order.
+The first approach is to solve components in reverse topological order.
  Before solving the subgame induced by a component, we add edges to dummy
  vertices (one won by Even and one won by Odd) for any existing edges that
  have a target outside the current component, depending on which winning
@@ -2087,7 +2159,7 @@ A slightly more advanced approach was introduced in PGSolver and implemented
 \begin_layout Standard
 In the second approach, we must decompose the graph and constructing a (typicall
 y large) subgame once for every subcomponent that is found.
- This seems less efficient thatn the first approach, but it has advantages
+ This seems less efficient than the first approach, but it has advantages
  as well, mainly stemming from the fact that the attractor sets of winning
  sets may extend far into the main game, removing solved parts of the graph
  which are much larger than the component which was last solved, and creating
@@ -2223,9 +2295,9 @@ i
 \emph default
  lying on a cycle after removal of all edges incident with vertices of priority
  less than 
-\begin_inset Formula $i$
-\end_inset
-
+\emph on
+i
+\emph default
 , because an 
 \emph on
 i
@@ -2255,7 +2327,7 @@ To find an even cycle, then, it suffices to try to find an
 \begin_inset Formula $i$
 \end_inset
 
--cycle all even values of 
+-cycle for all even values of 
 \begin_inset Formula $i$
 \end_inset
 
@@ -2270,8 +2342,8 @@ To find an even cycle, then, it suffices to try to find an
 \end_inset
 
  exists in a component which contains at least one edge, then a cycle can
- be found with a backtracking search within the component, which will visited
- every edge at most once.
+ be found with a backtracking search within the component, which will visit
+ every edge in the component at most once.
 \end_layout
 
 \begin_layout Standard
@@ -2372,8 +2444,10 @@ As we noted before, we are only interested in the strategy for vertices
 \end_inset
 
  as follows:
-\begin_inset Formula \[
-E|\sigma_{x}=\left\{ vw\in E:v\in\left(W_{x}\cap V_{x}\right)\wedge\sigma_{\text{x}}(v)=w\right\} \cup\left\{ vw\in E:v\in\left(W_{x}\cap V_{1-x}\right)\right\} \]
+\begin_inset Formula 
+\[
+E|\sigma_{x}=\left\{ vw\in E:v\in\left(W_{x}\cap V_{x}\right)\wedge\sigma_{\text{x}}(v)=w\right\} \cup\left\{ vw\in E:v\in\left(W_{x}\cap V_{1-x}\right)\right\} 
+\]
 
 \end_inset
 
@@ -2872,11 +2946,14 @@ This characterization shows that there is a strong relation between winning
 \end_inset
 
  if it is in his opponent's winning set instead:
-\begin_inset Formula \[
+\begin_inset Formula 
+\[
 \mathtt{solution[v]}=\begin{cases}
 \sigma_{0}(v) & \mbox{ if }v\in V_{0}\cap W_{0}\\
 \sigma_{1}(v) & \mbox{ if }v\in V_{1}\cap W_{1}\\
--1 & \mbox{ if }v\in(V_{0}\cap W_{1})\cup(V_{1}\cap W_{0})\end{cases}\]
+-1 & \mbox{ if }v\in(V_{0}\cap W_{1})\cup(V_{1}\cap W_{0})
+\end{cases}
+\]
 
 \end_inset
 
@@ -2889,16 +2966,21 @@ From a solution array, winning sets and strategies can be trivially obtained
 \end_layout
 
 \begin_layout Standard
-\begin_inset Formula \[
-W_{x}=\{v\in V_{x}:\;\mathtt{solution[v]}\neq-1\}\]
+\begin_inset Formula 
+\[
+W_{x}=\{v\in V_{x}:\;\mathtt{solution[v]}\neq-1\}
+\]
 
 \end_inset
 
 
-\begin_inset Formula \[
+\begin_inset Formula 
+\[
 \sigma_{x}(v)=\begin{cases}
 \mathtt{solution[v]} & \mbox{ if }v\in W_{x}\\
-\min(vE) & \mbox{ if \ensuremath{v\notin W_{x}}}\end{cases}\]
+\min(vE) & \mbox{ if \ensuremath{v\notin W_{x}}}
+\end{cases}
+\]
 
 \end_inset
 
@@ -3463,10 +3545,13 @@ Here I will outline SPM as described by Jurdziński.
 \end_layout
 
 \begin_layout Standard
-\begin_inset Formula \[
+\begin_inset Formula 
+\[
 M_{i}=\begin{cases}
 \{0\} & \mbox{if \ensuremath{i\equiv0\mod{2}}}\\
-\{0..\left|\{v\in V:\phi(v)=i\}\right|\} & \mbox{if \ensuremath{i\equiv1\mod{2}}}\end{cases}\]
+\{0..\left|\{v\in V:\phi(v)=i\}\right|\} & \mbox{if \ensuremath{i\equiv1\mod{2}}}
+\end{cases}
+\]
 
 \end_inset
 
@@ -3507,10 +3592,13 @@ small
 \end_layout
 
 \begin_layout Standard
-\begin_inset Formula \[
+\begin_inset Formula 
+\[
 \begin{array}{cl}
 \alpha<_{i}\beta\;\Leftrightarrow\alpha\neq\top\wedge\beta=\top & \mbox{if }\ensuremath{\alpha=\top\mbox{ or }\beta=\top}\\
-\exists j\leq i:\;\alpha_{j}<\beta_{j}\wedge\left(\forall k<j:\;\alpha_{j}=\beta_{j}\right) & \mbox{otherwise}\end{array}\]
+\exists j\leq i:\;\alpha_{j}<\beta_{j}\wedge\left(\forall k<j:\;\alpha_{j}=\beta_{j}\right) & \mbox{otherwise}
+\end{array}
+\]
 
 \end_inset
 
@@ -3540,8 +3628,10 @@ The operator
 \end_layout
 
 \begin_layout Standard
-\begin_inset Formula \[
-\alpha>_{i}\beta\;\Leftrightarrow\;\beta<_{i}\alpha\]
+\begin_inset Formula 
+\[
+\alpha>_{i}\beta\;\Leftrightarrow\;\beta<_{i}\alpha
+\]
 
 \end_inset
 
@@ -3549,8 +3639,10 @@ The operator
 \end_layout
 
 \begin_layout Standard
-\begin_inset Formula \[
-\alpha\leq_{i}\beta\;\Leftrightarrow\;\neg\left(\alpha>_{i}\beta\right)\]
+\begin_inset Formula 
+\[
+\alpha\leq_{i}\beta\;\Leftrightarrow\;\neg\left(\alpha>_{i}\beta\right)
+\]
 
 \end_inset
 
@@ -3558,8 +3650,10 @@ The operator
 \end_layout
 
 \begin_layout Standard
-\begin_inset Formula \[
-\alpha\geq_{i}\beta\;\Leftrightarrow\;\neg\left(\alpha<_{i}\beta\right)\]
+\begin_inset Formula 
+\[
+\alpha\geq_{i}\beta\;\Leftrightarrow\;\neg\left(\alpha<_{i}\beta\right)
+\]
 
 \end_inset
 
@@ -3567,8 +3661,10 @@ The operator
 \end_layout
 
 \begin_layout Standard
-\begin_inset Formula \[
-\alpha=_{i}\beta\;\Leftrightarrow\left(\alpha\leq_{i}\beta\right)\wedge\left(\alpha\geq_{i}\beta\right)\]
+\begin_inset Formula 
+\[
+\alpha=_{i}\beta\;\Leftrightarrow\left(\alpha\leq_{i}\beta\right)\wedge\left(\alpha\geq_{i}\beta\right)
+\]
 
 \end_inset
 
@@ -3576,8 +3672,10 @@ The operator
 \end_layout
 
 \begin_layout Standard
-\begin_inset Formula \[
-\alpha\neq_{i}\beta\;\Leftrightarrow\left(\alpha<_{i}\beta\right)\vee\left(\alpha>_{i}\beta\right)\]
+\begin_inset Formula 
+\[
+\alpha\neq_{i}\beta\;\Leftrightarrow\left(\alpha<_{i}\beta\right)\vee\left(\alpha>_{i}\beta\right)
+\]
 
 \end_inset
 
@@ -3607,11 +3705,14 @@ Let
 \end_layout
 
 \begin_layout Standard
-\begin_inset Formula \[
+\begin_inset Formula 
+\[
 Prog(\rho,v,w)=\begin{cases}
 \top & \mbox{if \ensuremath{\rho(w)=\top}, otherwise:}\\
 \min_{m\in M^{\top}}m\geq_{\phi(v)}\rho(w) & \mbox{if \ensuremath{\phi(v)\equiv0\mod{2}},}\\
-\min_{m\in M^{\top}}m>_{\phi(v)}\rho(w) & \mbox{if }\ensuremath{\phi(v)\equiv1\mod{2}}.\end{cases}\]
+\min_{m\in M^{\top}}m>_{\phi(v)}\rho(w) & \mbox{if }\ensuremath{\phi(v)\equiv1\mod{2}}.
+\end{cases}
+\]
 
 \end_inset
 
@@ -3635,11 +3736,14 @@ Next we can define a function
 \end_layout
 
 \begin_layout Standard
-\begin_inset Formula \[
+\begin_inset Formula 
+\[
 Lift(\rho,v)(u)=\begin{cases}
 \rho(u) & \mbox{if \ensuremath{u\neq v}}\\
 \max\{\rho(v),\min_{vw\in E}Prog(\rho,v,w)\} & \mbox{if \ensuremath{u=v\wedge v\in V_{0}}}\\
-\max\{\rho(v),\max_{vw\in E}Prog(\rho,v,w)\} & \mbox{if }\ensuremath{u=v\wedge v\in V_{1}}\end{cases}\]
+\max\{\rho(v),\max_{vw\in E}Prog(\rho,v,w)\} & \mbox{if }\ensuremath{u=v\wedge v\in V_{1}}
+\end{cases}
+\]
 
 \end_inset
 
@@ -3651,10 +3755,13 @@ And similarly, globally:
 \end_layout
 
 \begin_layout Standard
-\begin_inset Formula \[
+\begin_inset Formula 
+\[
 Lift(\rho)=\begin{cases}
 Lift(\rho,v) & \mbox{if \ensuremath{\exists v\in V:\; Lift(\rho,v)\neq\rho},}\\
-\rho & \mbox{otherwise}\end{cases}\]
+\rho & \mbox{otherwise}
+\end{cases}
+\]
 
 \end_inset
 
@@ -3689,8 +3796,10 @@ Now if we iterate
 \end_layout
 
 \begin_layout Standard
-\begin_inset Formula \[
-W_{0}=\{v\in V:\;\rho(v)<\top\}\]
+\begin_inset Formula 
+\[
+W_{0}=\{v\in V:\;\rho(v)<\top\}
+\]
 
 \end_inset
 
@@ -3698,8 +3807,10 @@ W_{0}=\{v\in V:\;\rho(v)<\top\}\]
 \end_layout
 
 \begin_layout Standard
-\begin_inset Formula \[
-W_{1}=\{v\in V:\;\rho(v)=\top\}\]
+\begin_inset Formula 
+\[
+W_{1}=\{v\in V:\;\rho(v)=\top\}
+\]
 
 \end_inset
 
@@ -3707,8 +3818,10 @@ W_{1}=\{v\in V:\;\rho(v)=\top\}\]
 \end_layout
 
 \begin_layout Standard
-\begin_inset Formula \[
-\sigma_{0}(v)=w\mbox{ if \ensuremath{v\in W_{0}}and}\rho(v)=_{\phi(v)}\rho(w)\]
+\begin_inset Formula 
+\[
+\sigma_{0}(v)=w\mbox{ if \ensuremath{v\in W_{0}}and}\rho(v)=_{\phi(v)}\rho(w)
+\]
 
 \end_inset
 
@@ -4304,10 +4417,13 @@ non-top
 \noun default
 \color inherit
 
-\begin_inset Formula \[
+\begin_inset Formula 
+\[
 M'_{i}(\rho)=\begin{cases}
 \{0\} & \mbox{if \ensuremath{i\equiv0\mod{2}}}\\
-\{0..\left|\{v\in V:\phi(v)=i\;\wedge\;\rho(v)\neq\top\}\right|\} & \mbox{if \ensuremath{i\equiv1\mod{2}}}\end{cases}\]
+\{0..\left|\{v\in V:\phi(v)=i\;\wedge\;\rho(v)\neq\top\}\right|\} & \mbox{if \ensuremath{i\equiv1\mod{2}}}
+\end{cases}
+\]
 
 \end_inset
 
@@ -4586,7 +4702,7 @@ status open
 \align center
 \begin_inset Tabular
 <lyxtabular version="3" rows="5" columns="6">
-<features>
+<features tabularvalignment="middle">
 <column alignment="center" valignment="top" width="0">
 <column alignment="center" valignment="top" width="0">
 <column alignment="center" valignment="top" width="0">
@@ -7648,7 +7764,7 @@ Fortunately, parallelizing the algorithm at the top level is not the only
  would likely negate the speedup gained by parallelization.
 \end_layout
 
-\begin_layout Subsubsection
+\begin_layout Subsection
 Distributed computation
 \end_layout
 
@@ -7714,6 +7830,16 @@ Since no global data needs to be stored at individual processes, the amount
  of assigned processes increases.
  This approach therefore allows the size of games that can be solved to
  be scaled up with the number of processes.
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Need to check: is this implemented? If so, more clearly list that as a feature!
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -7749,15 +7875,132 @@ Distributed attractor set computation
 \end_layout
 
 \begin_layout Standard
+The distributed attractor set computation algorithms are based on the sequential
+ implementation of Algorithm 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "alg:Attractor-set-computation"
+
+\end_inset
+
+, but now each process maintains its own queue of vertices (both internal
+ and successors of internal vertices) and a part of the attractor set (internal
+ vertices only).
+ Processes can work through their local queue independently, but when an
+ internal vertex is added to the local attractor set, this information must
+ be communicated to the processes responsible for the predecessors of that
+ vertex, so they the may add this vertex to their queue too.
+\end_layout
+
+\begin_layout Standard
+Logically, internal vertices are only ever added to the queue by the process
+ itself, and external vertices only by the corresponding external process.
+\end_layout
+
+\begin_layout Standard
+I implemented two distributed algorithms, which differ in the way they communica
+te vertex updates and detect termination.
+ The first method is the simplest, but it may require a lot of synchronization
+ between processes (and thus cause processes to waste time waiting on each
+ other).
+ The second method synchronizes only at the end of the calculation, and
+ should therefore be more efficient.
+ 
 \begin_inset Note Note
 status open
 
 \begin_layout Plain Layout
-TODO:
+This needs a benchmark.
 \end_layout
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Synchronous method
+\end_layout
+
+\begin_layout Standard
+In the synchronous method, the incremental sets from subsection 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Attractor-sets"
+
+\end_inset
+
+ are computed explicitly, with full synchronization between all processes
+ in between.
+ Each step conists of two phases:
+\end_layout
+
+\begin_layout Enumerate
+Each process independently calculates the next incremental attractor subset,
+ keeping a list of newly added vertices in this phase.
+\end_layout
+
+\begin_layout Enumerate
+All processes communicate their queued vertices with each other, making
+ them aware of the external vertices added to the attractor set in the first
+ phase.
+\end_layout
+
+\begin_layout Standard
+The calculation ends when all processes report that their queues are empty.
+ Separating the algorithm in discrete phases makes this case easy to detect.
+ However, many steps may be required to reach this state, incurring a proportion
+al amount of synchronization overhead.
+\end_layout
+
+\begin_layout Subsubsection
+Asynchronous method
+\end_layout
+
+\begin_layout Standard
+In the asynchronous method, processes send updates about vertices as soon
+ as they add them to their local attractor set, and add external vertices
+ to their queue as soon as they receive them.
+\end_layout
+
+\begin_layout Standard
+A process is considered 
+\emph on
+active
+\emph default
+ when it has vertices remanining in its local queue.
+ When its queue becomes empty the process is 
+\emph on
+idle
+\emph default
+, but it will be reactivated when it receives an external vertex update
+ from another process.
+ The algorithm should terminate when all processes are idle, because then
+ all queues are empty and the computation is complete.
+ To detect distributed termination, I implemented the four-counter method
+ described by Friedemann Mattern in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "mattern1987algorithms"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Because processes are free to interleave three kinds of operations (processing
+ queued vertices, sending vertex updates and receiving them), this method
+ may be somewhat faster in practice.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
 \begin_layout Plain Layout
-describe two approaches: synchronized and unsynchronized.
+discuss the effect of partitioning schemes on the efficiency of these algorithms
+?
 \end_layout
 
 \end_inset
@@ -7972,6 +8215,13 @@ research question
  novel, although a lockfree implementation exists)
 \end_layout
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage clearpage
 \end_inset
 
 
