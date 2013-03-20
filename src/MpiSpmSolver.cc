@@ -304,10 +304,10 @@ ParityGame::Strategy MpiSpmSolver::solve()
         */
         LiftingStrategyFactory *lsf = 
             new InternalLiftingStrategyFactory(part_, lsf_);
-        spm[0].reset( new SmallProgressMeasures(
-            part_.game(), ParityGame::PLAYER_EVEN, lsf, stats.get(), NULL, 0 ) );
-        spm[1].reset( new SmallProgressMeasures(
-            part_.game(), ParityGame::PLAYER_ODD, lsf, stats.get(), NULL, 0 ) );
+        spm[0].reset( new DenseSPM( part_.game(), ParityGame::PLAYER_EVEN,
+                                    lsf, stats.get(), NULL, 0 ) );
+        spm[1].reset( new DenseSPM( part_.game(), ParityGame::PLAYER_ODD,
+                                    lsf, stats.get(), NULL, 0 ) );
         lsf->deref();
     }
 

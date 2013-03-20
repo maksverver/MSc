@@ -915,6 +915,11 @@ int main(int argc, char *argv[])
 #ifdef WITH_MPI
             else
             {
+                if (!arg_alternate)
+                {
+                    Logger::fatal( "MPI SPM solver only supports alternating "
+                                   "approach (option -a)");
+                }
                 solver_factory.reset(new MpiSpmSolverFactory(
                     spm_strategy, vpart, stats.get() ));
             }
