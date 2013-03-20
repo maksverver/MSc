@@ -1,4 +1,0 @@
-Documentation:
-	main page
-	grouping
-	make sure everything relevant is documented

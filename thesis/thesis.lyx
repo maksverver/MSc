@@ -892,6 +892,16 @@ Sometimes we want to refer to the combined strategies of both players,
 \begin_layout Standard
 It turns out that for all games of finite order optimal memoryless strategies
  exist.
+ 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+citation needed
+\end_layout
+
+\end_inset
+
  Research on finite-order games typically focuses on finding memoryless
  strategies for both players, which can be described succinctly by simply
  listing an optimal move for every vertex, which is especially practical
@@ -1047,21 +1057,46 @@ Application To Model Checking
 \end_layout
 
 \begin_layout Standard
+Parity games are not just of theoretical interest; they have a practical
+ use too as a component in a model checking system.
+\end_layout
+
+\begin_layout Standard
+Model checking tools verify whether a model of a system (typically expressed
+ in some high-level formal language) satisfies a certain specification (typicall
+y captured in a temporal logic formula).
+ Practical model checking tools must balance two concerns: on the one hand,
+ the specification language available to the user should be as expressive
+ as possible, while on the other hand, the internal representation of the
+ resulting model checking problem should be kept simple enough so that it
+ can be solved efficiently using provably-correct algorithms.
+\end_layout
+
+\begin_layout Standard
+Parity games are useful here, because they can encode model checking problems
+ resulting from the application of modal μ-calculus specifications to labelled
+ transition systems.
+ Since many high-level specification languages can be converted into labelled
+ transition systems, and many temporal logics (such as CTL and LTL) can
+ be expressed in the modal μ-calculus 
 \begin_inset Note Note
 status open
 
 \begin_layout Plain Layout
-To write.
- Should include mapping from modal mu calculus + LTS to parity games.
+cite
 \end_layout
 
 \end_inset
 
-
+, this is a fairly comprehensive approach to model checking.
 \end_layout
 
 \begin_layout Section
 Related work
+\end_layout
+
+\begin_layout Subsection
+(PG algorithms)
 \end_layout
 
 \begin_layout Standard
@@ -1127,17 +1162,104 @@ Zielonka also summarizes and improves many previous results on more general
 status open
 
 \begin_layout Plain Layout
-Describe other algorithms not described in this paper (strategy improvement,
+mention other algorithms not described in this paper (strategy improvement,
  others implemented in PGSolver).
-\end_layout
-
-\begin_layout Plain Layout
-Describe previous solvers (notably, PGSolver, but also stuff done at UT)
 \end_layout
 
 \end_inset
 
 
+\end_layout
+
+\begin_layout Subsection
+(PG algorithm implementations)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+mention PG solver
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+(Model checking)
+\end_layout
+
+\begin_layout Standard
+At least two formal verification systems exist that can transform model
+ checking problems into parity games:
+\end_layout
+
+\begin_layout Enumerate
+The mCRL2 toolkit 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+cite
+\end_layout
+
+\end_inset
+
+ composes models and formulae into parametrized Boolean equation systems
+ (PBES) 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+cite
+\end_layout
+
+\end_inset
+
+, can linearize them into boolean equation systems (BES), and translate
+ these into parity games.
+\end_layout
+
+\begin_layout Enumerate
+The LTSmin toolkit 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+cite
+\end_layout
+
+\end_inset
+
+ implements a different approach, which first transform a PBES into a parametriz
+ed parity game (PPG) and then generates the parity game directly.
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "kant2012pbes2pg"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+(The second approach was motivated by the observation that generating the
+ BES would often require much more time and space than solving the resulting
+ parity game.)
+\end_layout
+
+\begin_layout Standard
+In both of these systems, the parametrized forms tend to be fairly small,
+ while the linearized forms (and therefore the final parity game) may be
+ quite large.
+ Model checking using a parity game solver as a backend therefore is viably
+ only if the resulting parity games can reasonably fit into memory.
+ This is a limitation shared with many other approaches to model checking
+ (in particular those relying on explicit state space exploration).
 \end_layout
 
 \begin_layout Chapter
@@ -8113,6 +8235,10 @@ Describe any untested hypotheses (things I thought about but don't have
 \end_inset
 
 
+\end_layout
+
+\begin_layout Standard
+-- solving parametrized parity games symbolically.
 \end_layout
 
 \begin_layout Chapter
