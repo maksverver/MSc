@@ -33,20 +33,22 @@ OBJS= \
 	timing.o
 
 CFLAGS=-Wall -O2 -g  # default flags
-#CFLAGS:=$(CFLAGS) -O0 -D_GLIBCXX_DEBUG  # additional debug flags
+#CFLAGS+=-O0 -D_GLIBCXX_DEBUG  # additional debug flags
 #CFLAGS=-Wall -O3 -DNDEBUG  # for optimal performance
 LDLIBS=-lrt
+#LDLIBS+=-L$(HOME)/google-perftools/lib -lprofiler -lunwind
+#LDLIBS+=-L$(HOME)/mpiP/lib -lmpiP -lm -lbfd -liberty -lunwind # mpiP
+
 
 ifdef WITH_THREADS
-CFLAGS:=$(CFLAGS) -DWITH_THREADS -ltbb -fopenmp
-OBJS:=$(OBJS) \
-	ConcurrentRecursiveSolver.o
+CFLAGS+=-DWITH_THREADS -I../../tbb/include -fopenmp
+LDLIBS+=-L../../tbb/lib -ltbb
+OBJS+=ConcurrentRecursiveSolver.o
 endif
 
 ifdef WITH_MPI
-CFLAGS:=$(CFLAGS) -DWITH_MPI
-OBJS:=$(OBJS) \
-	AsyncMpiAttractorAlgorithm.o \
+CFLAGS+=-DWITH_MPI
+OBJS+=	AsyncMpiAttractorAlgorithm.o \
 	GamePartition.o \
 	MpiRecursiveSolver.o \
 	MpiSpmSolver.o \
@@ -55,14 +57,14 @@ OBJS:=$(OBJS) \
 endif
 
 ifndef WITH_MCRL2
-CFLAGS:=$(CFLAGS) -Wextra -DUSE_TIMER
+CFLAGS+=-Wextra -DUSE_TIMER
 endif
 
 ifdef WITH_MCRL2
-CFLAGS:=$(CFLAGS) -DWITH_MCRL2=$(WITH_MCRL2) \
+CFLAGS+=-DWITH_MCRL2=$(WITH_MCRL2) \
 	-I../../mcrl2/include \
 	-I../../mcrl2/include/dparser
-LDLIBS:=$(LDLIBS) -L../../mcrl2/lib/mcrl2 -lmcrl2_atermpp -lmcrl2_bes -lmcrl2_core -lmcrl2_data -lmcrl2_lps -lmcrl2_lts -lmcrl2_pbespgsolve -lmcrl2_pbes -lmcrl2_process -lmcrl2_syntax -lmcrl2_utilities -ldparser -lsvc -ldot_syntax -lfsm_syntax
+LDLIBS+=-L../../mcrl2/lib/mcrl2 -lmcrl2_atermpp -lmcrl2_bes -lmcrl2_core -lmcrl2_data -lmcrl2_lps -lmcrl2_lts -lmcrl2_pbespgsolve -lmcrl2_pbes -lmcrl2_process -lmcrl2_syntax -lmcrl2_utilities -ldparser -lsvc -ldot_syntax -lfsm_syntax
 endif
 
 ifdef WITH_MPI
@@ -70,7 +72,7 @@ CC=mpicc
 CXX=mpicxx
 endif
 
-CXXFLAGS:=$(CFLAGS)
+CXXFLAGS=$(CFLAGS)
 
 all: main
 
