@@ -41,11 +41,11 @@ private:
 
     /*! Exchanges attractor set queues between MPI worker processes.
 
-        For each worker, `queue' contains internal vertices added to `attr'
+        For each worker, `queue` contains internal vertices added to `attr`
         last iteration, which are sent to other workers controlling the
         predecessors of these vertices. The vertices received this way are added
-        to `next_queue' and set in `attr'. Consequently, only external vertices
-        are added to `next_queue'.
+        to `next_queue` and set in `attr`. Consequently, only external vertices
+        are added to `next_queue`.
     */
     void exchange_queues(std::deque<verti> &next_queue);
 

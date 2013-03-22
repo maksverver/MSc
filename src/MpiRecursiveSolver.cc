@@ -19,7 +19,7 @@
 #include <vector>
 #include <deque>
 
-//! Returns a list of indices at which `incl' is zero.
+//! Returns a list of indices at which `incl` is zero.
 static std::vector<verti> collect_complement(const DenseSet<verti> &incl)
 {
     std::vector<verti> res;
@@ -237,6 +237,6 @@ ParityGameSolver *MpiRecursiveSolverFactory::create(
         "Constructing %s MpiRecursiveSolver with %ld vertices per chunk.",
         async_ ? "asynchronous" : "synchronized", (long)vpart_->chunk_size() );
 
-    // N.B. MpiRecursiveSolver takes ownership of `attr_algo'
+    // N.B. MpiRecursiveSolver takes ownership of `attr_algo`
     return new MpiRecursiveSolver(game, vpart_, attr_algo);
 }

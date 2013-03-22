@@ -35,7 +35,7 @@ int compat_strcasecmp(const char *s1, const char *s2)
     }
 }
 
-//! Case-insensitive string comparison of at most `n' characters.
+//! Case-insensitive string comparison of at most `n` characters.
 int compat_strncasecmp(const char *s1, const char *s2, size_t n)
 {
     for (; n > 0; --n)

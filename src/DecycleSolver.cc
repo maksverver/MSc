@@ -16,13 +16,13 @@
     controlled entirely by the corresponding player. */
 struct CycleFinder
 {
-    /*! Construct an instance for the subgame of `game' induced by `mapping',
-        looking for cycles of dominant priority `prio'. */
+    /*! Construct an instance for the subgame of `game` induced by `mapping`,
+        looking for cycles of dominant priority `prio`. */
     CycleFinder( const ParityGame &game, int prio,
                  const std::vector<verti> &mapping );
 
     /*! Search for minimum-priority cycles and vertices in their attractor sets,
-        an update `strategy', `done_set' and `done_queue' accordingly.
+        an update `strategy`, `done_set` and `done_queue` accordingly.
         Takes up to O(E) time. */
     void run( ParityGame::Strategy &strategy,
               DenseSet<verti> &done_set, std::deque<verti> &done_queue );

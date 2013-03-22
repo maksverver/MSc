@@ -28,7 +28,7 @@
 class RefCounted
 {
 public:
-    //! Construct and initialize the reference count to `init_refcount'.
+    //! Construct and initialize the reference count to `init_refcount`.
     RefCounted(size_t init_refcount = 1)
         : refs_(init_refcount) { }
 

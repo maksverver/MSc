@@ -14,7 +14,7 @@
 /* N.B. The PGSolver I/O functions reverse the priorities when reading/writing
    the game description. This is done to preserve solutions, since PGSolver
    considers higher values to dominate lower values, while I assume the opposite
-   (i.e. 0 is the `highest' priority) throughout the rest of the code. */
+   (i.e. 0 is the `highest` priority) throughout the rest of the code. */
 
 void ParityGame::read_pgsolver( std::istream &is,
                                 StaticGraph::EdgeDirection edge_dir )

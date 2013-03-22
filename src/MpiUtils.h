@@ -29,10 +29,10 @@ extern int mpi_rank;
 */
 extern int mpi_size;
 
-//! Returns whether `local_value' is true in all of the MPI processes:
+//! Returns whether `local_value` is true in all of the MPI processes:
 bool mpi_and(bool local_value);
 
-//! Returns whether `local_value' is true in any of the MPI processes:
+//! Returns whether `local_value` is true in any of the MPI processes:
 bool mpi_or(bool local_value);
 
 //! Returns the sum of local values of all MPI processes:
@@ -85,16 +85,16 @@ public:
         a call to recv() to wait for new data or conformation of termination. */
     void idle();
 
-    /*! Blocks while waiting for more data to arrive. Returns `true' if a data
+    /*! Blocks while waiting for more data to arrive. Returns `true` if a data
         message has been received, which must be handled by the application.
         The data buffer is valid until the next call to recv() or test().
         Returns false if global termination has been dected. */
     bool recv();
 
-    /*! Tests whether more data is available yet. Returns `true' if a data
+    /*! Tests whether more data is available yet. Returns `true` if a data
         message has been received, which must be handled by the application.
         The data buffer is valid until the next call to recv() or test().
-        Returns `false' if no data is available yet. In either case, the method
+        Returns `false` if no data is available yet. In either case, the method
         does not block. */
     bool test();
 

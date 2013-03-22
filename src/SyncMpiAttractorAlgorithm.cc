@@ -23,7 +23,7 @@ SyncMpiAttractorImpl::SyncMpiAttractorImpl( const VertexPartition &vpart,
 
 void SyncMpiAttractorImpl::solve(bool quick_start)
 {
-    // Offset into `queue' where local entries (internal vertices) begin:
+    // Offset into `queue` where local entries (internal vertices) begin:
     size_t local_begin = quick_start ? queue.size() :  0;
     while (mpi_or(!queue.empty()))
     {

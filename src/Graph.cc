@@ -199,7 +199,7 @@ void StaticGraph::remove_edges(StaticGraph::edge_list &edges)
             std::sort(edges.begin(), edges.end(), edge_cmp_forward);
         }
 
-        // Loop over existing edges and remove those listed in `edges':
+        // Loop over existing edges and remove those listed in `edges`:
         StaticGraph::edge_list::const_iterator it = edges.begin();
         const verti *p = successors_;
         verti v = 0;
@@ -222,7 +222,7 @@ void StaticGraph::remove_edges(StaticGraph::edge_list &edges)
         // Sort edges by successor first, predecessor second
         std::sort(edges.begin(), edges.end(), edge_cmp_backward);
 
-        // Loop over existing edges and remove those listed in `edges':
+        // Loop over existing edges and remove those listed in `edges`:
         StaticGraph::edge_list::const_iterator it = edges.begin();
         const verti *p = predecessors_;
         verti v = 0;

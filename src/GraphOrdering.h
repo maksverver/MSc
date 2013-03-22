@@ -24,11 +24,11 @@
 #include "Graph.h"
 
 /*! Traverses the graph in breadth-first search order, and returns the result
-    in `perm', such that perm[v] = i if v is the i-th visited vertex. */
+    in `perm`, such that perm[v] = i if v is the i-th visited vertex. */
 void get_bfs_order(const StaticGraph &graph, std::vector<verti> &perm);
 
 /*! Traverses the graph in depth-first search order, and returns the result
-    in `perm', such that perm[v] = i if v is the i-th visited vertex. */
+    in `perm`, such that perm[v] = i if v is the i-th visited vertex. */
 void get_dfs_order(const StaticGraph &graph, std::vector<verti> &perm);
 
 /*! Count the number of edges with a specific ordering of vertices.

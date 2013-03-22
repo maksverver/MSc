@@ -103,7 +103,7 @@ public:
         \param edge_dir which parts of edges to store */
     void make_random(verti V, unsigned out_deg, EdgeDirection edge_dir);
 
-    /*! Reset the graph to a copy of `graph'. */
+    /*! Reset the graph to a copy of `graph`. */
     void assign(const StaticGraph &graph);
 
     /*! Reset the graph based on the given edge structure. */
@@ -160,27 +160,27 @@ public:
         return &predecessors_[predecessor_index_[v + 1]];
     }
 
-    /*! Returns whether `v' has a successor `w'. */
+    /*! Returns whether `v` has a successor `w`. */
     bool has_succ(verti v, verti w) const {
         return std::binary_search(succ_begin(v), succ_end(v), w);
     }
 
-    /*! Returns whether `w' has a predecessor `v'. */
+    /*! Returns whether `w` has a predecessor `v`. */
     bool has_pred(verti w, verti v) const {
         return std::binary_search(pred_begin(w), pred_end(w), v);
     }
 
-    /*! Returns the degree for vertex `v'. */
+    /*! Returns the degree for vertex `v`. */
     edgei degree(verti v) const {
         return indegree(v) + outdegree(v);
     }
 
-    /*! Returns the outdegree for vertex `v'. */
+    /*! Returns the outdegree for vertex `v`. */
     edgei outdegree(verti v) const {
         return succ_end(v) - succ_begin(v);
     }
 
-    /*! Returns the indegree for vertex `v'. */
+    /*! Returns the indegree for vertex `v`. */
     edgei indegree(verti v) const {
         return pred_end(v) - pred_begin(v);
     }

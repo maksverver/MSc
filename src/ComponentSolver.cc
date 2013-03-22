@@ -75,7 +75,7 @@ int ComponentSolver::operator()(const verti *vertices, size_t num_vertices)
 
        In some (degenerate?) cases this could lead to a lot of work spent doing
        SCC decomposition for relatively little actual solving. To prevent this,
-       change the expression in the if-statement below to `true', and then the
+       change the expression in the if-statement below to `true`, and then the
        components solved are the strongly-connectected components identified in
        the initial graph (and not new components created after removing vertices
        in attractor sets of winning regions). */

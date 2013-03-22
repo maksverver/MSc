@@ -26,7 +26,7 @@
 class MpiRecursiveSolver : public ParityGameSolver, public virtual Logger
 {
 public:
-    // N.B. takes ownership of `attr_algo'!
+    // N.B. takes ownership of `attr_algo`!
     MpiRecursiveSolver( const ParityGame &game, const VertexPartition *vpart,
                         MpiAttractorAlgorithm *attr_algo );
     ~MpiRecursiveSolver();
@@ -35,13 +35,13 @@ public:
 
 protected:
     /*! Solves the game for the internal vertex set of the given game partition
-        and updates `strategy_' so that it is valid for all global indices
+        and updates `strategy_` so that it is valid for all global indices
         corresponding with internal vertices of the partition.
 
         After returning, the game partition has been reduced to the winning set
-        for the player corresponding to the minimum priority used in `part'.
+        for the player corresponding to the minimum priority used in `part`.
         Since it's not a priori clear which player this is, it is usually best
-        to ignore `part' after the call.
+        to ignore `part` after the call.
     */
     void solve(GamePartition &part);
 

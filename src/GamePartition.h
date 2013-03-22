@@ -90,7 +90,7 @@ public:
     bool empty() const { return global_.empty(); }
 
     /*! For debugging: returns the internal vertex set of the partition as a
-        string, or a subset of according to `sel' if it is non-empty. */
+        string, or a subset of according to `sel` if it is non-empty. */
     std::string debug_str(const std::vector<char> &sel = std::vector<char>())
         const;
 

@@ -34,7 +34,7 @@ struct VerifySCC  // used by ParityGame::verify()
 
     int operator() (const verti *scc, size_t scc_size)
     {
-        // Search vertices in this SCC for a vertex with priority `prio':
+        // Search vertices in this SCC for a vertex with priority `prio`:
         for (size_t i = 0; i < scc_size; ++i)
         {
             verti v = scc[i];

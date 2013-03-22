@@ -38,19 +38,19 @@ public:
         assert(verti(chunk_size*num_procs)/chunk_size == verti(num_procs));
     }
 
-    //! Returns to which process vertex `v' is assigned
+    //! Returns to which process vertex `v` is assigned
     int operator()(verti v) const
     {
         return v/chunk_size_%num_procs_;
     }
 
-    //! Returns the first vertex assigned to `proc'
+    //! Returns the first vertex assigned to `proc`
     verti first(int proc) const
     {
         return chunk_size_*proc;
     }
 
-    /*! Given a vertex `v' assigned to `proc', returns the next vertex assigned
+    /*! Given a vertex `v` assigned to `proc`, returns the next vertex assigned
         to the same process. */
     verti next(int proc, verti v) const
     {
@@ -59,7 +59,7 @@ public:
         return v;
     }
 
-    //! Returns how many of the vertices in range [0..V) are assigned to `proc'.
+    //! Returns how many of the vertices in range [0..V) are assigned to `proc`.
     verti num_assigned(verti V, int proc) const
     {
         verti x = chunk_size_ * num_procs_;

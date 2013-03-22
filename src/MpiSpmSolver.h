@@ -35,15 +35,15 @@ protected:
         the SmallProgressMeasures instance to reflect it. */
     void set_vector_space(SmallProgressMeasures &spm);
 
-    //! Helper function to lifts the given global vertex `v' to `vec' in `spm'.
+    //! Helper function to lifts the given global vertex `v` to `vec` in `spm`.
     void update(SmallProgressMeasures &spm, verti global_v, const verti vec[]);
 
-    /*! Lifts vertices in `spm' until globally no more vertices can be lifted
+    /*! Lifts vertices in `spm` until globally no more vertices can be lifted
         (at which point, the game is solved for one player). */
     void solve_all(SmallProgressMeasures &spm);
 
-    /*! Propagates information about stable vertices in `src' to `dst', by
-        setting vertices which stable and non-top in `src' to top in `dst'.
+    /*! Propagates information about stable vertices in `src` to `dst`, by
+        setting vertices which stable and non-top in `src` to top in `dst`.
         This is a purely local operation. */
     void propagate_solved( SmallProgressMeasures &src,
                            SmallProgressMeasures &dst );

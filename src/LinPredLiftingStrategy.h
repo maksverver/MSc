@@ -69,7 +69,7 @@ private:
         lifted during the current pass. */
     std::vector<verti> next_queue;
 
-    /*! Iterator over `cur_queue' that points to the next vertex to be lifted
+    /*! Iterator over `cur_queue` that points to the next vertex to be lifted
         in the current pass. */     
     std::vector<verti>::const_iterator pos; 
 };

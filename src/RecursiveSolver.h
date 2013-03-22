@@ -64,13 +64,13 @@ public:
         global_.swap(other.global_);
     }
 
-    //! Returns a write-only reference to the strategy for vertex `v'.
+    //! Returns a write-only reference to the strategy for vertex `v`.
     Reference operator[](verti v)
     {
         return Reference(*this, v);
     }
 
-    //! Returns the winner for vertex `v' assuming it is controlled by `p'.
+    //! Returns the winner for vertex `v` assuming it is controlled by `p`.
     ParityGame::Player winner(verti v, ParityGame::Player p)
     {
         if (strategy_[global(v)] == NO_VERTEX) p = ParityGame::Player(1 - p);
@@ -93,8 +93,8 @@ private:
 
 
 /*! Returns the complement of a vertex set; i.e. an ordered list of all vertex
-    indices under V, from which the contents of the range delineated by `begin'
-    and `end' have been removed.
+    indices under V, from which the contents of the range delineated by `begin`
+    and `end` have been removed.
 
     N.B. [begin..end) must produce a strictly increasing sequence!
 */
@@ -102,7 +102,7 @@ template<class ForwardIterator>
 static std::vector<verti> get_complement( verti V, ForwardIterator begin,
                                                    ForwardIterator end );
 
-/*! Returns the first inversion of parity, i.e. the least priority `p' such that
+/*! Returns the first inversion of parity, i.e. the least priority `p` such that
     some vertices exist with priorities p and q, where q < p and q%2 != p%2.
     If there are no inversions, game.d() is returned instead. */
 int first_inversion(const ParityGame &game);
@@ -135,7 +135,7 @@ class RecursiveSolverFactory : public ParityGameSolverFactory
 
 /*! Returns the complement of a vertex set.
 
-    The iterators `begin' and `end' must produce a list of strictly increasing
+    The iterators `begin` and `end` must produce a list of strictly increasing
     vertex indices.  This function returns a vector of increasing vertex indices
     between 0 and V (exclusive) where 0 <= v < V is in the result iff. it is
     not included in the set described by begin..end.

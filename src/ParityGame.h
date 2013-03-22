@@ -86,7 +86,7 @@ public:
     /*! Reset to an empty game. */
     void clear();
 
-    /*! Reset the game to a copy of `game'. */
+    /*! Reset the game to a copy of `game`. */
     void assign(const ParityGame &game);
 
     /*! Returns whether the game is empty. */
@@ -108,7 +108,7 @@ public:
 
     /*! Create a subgame containing only the given vertices from the original
         game. Vertices are renumbered to be in range [0..num_vertices).
-        Edges going out of the vertex subset specified by `vertices' are
+        Edges going out of the vertex subset specified by `vertices` are
         removed, so every vertex must have at least one outgoing edge that stays
         within the vertex subset, or the result is not a valid parity game.
 
@@ -141,16 +141,16 @@ public:
     /*! Compresses the range of priorities such that after compression,
         cardinality(p) &gt; 0, for 0 &lt; p &lt; d.
 
-        If `cardinality' is 0, then the priorities for the game itself are used.
-        Otherwise, `cardinality' must be an array of length `d' and the caller
+        If `cardinality` is 0, then the priorities for the game itself are used.
+        Otherwise, `cardinality` must be an array of length `d` and the caller
         must ensure that all priorities that occur in the game have a positive
         cardinality count.
 
-        If `preserve_parity' is true, then remapping preserves the parity of
+        If `preserve_parity` is true, then remapping preserves the parity of
         priorities and thus players of vertices. In this case, cardinality(0)
         may be zero afterwards.
 
-        If `preserve_parity' is false, then players as well as priorities are
+        If `preserve_parity` is false, then players as well as priorities are
         remapped to preserve winning sets. The function returns the parity of
         the priority that was mapped to zero.
     */
@@ -262,7 +262,7 @@ protected:
     void recalculate_cardinalities(verti num_vertices);
 
     /*! Helper function for ParityGame::propagate_priorities() that decreases
-        the priority for `v' to the maximum of those in range [begin:end), if
+        the priority for `v` to the maximum of those in range [begin:end), if
         this is less than its current value, and returns the absolute change. */
     int propagate_priority( verti v, StaticGraph::const_iterator begin,
                                      StaticGraph::const_iterator end );

@@ -517,7 +517,7 @@ static void write_paritysol( std::ostream &os,
 }
 
 /*! Write a subgraph containing hot vertices (vertices that were lifted at
-   least `threshold' times) in GraphViz format to given output stream. */
+   least `threshold` times) in GraphViz format to given output stream. */
 static void write_hot_vertices( std::ostream &os, const ParityGame &game,
     const LiftingStatistics &stats, long long threshold )
 {

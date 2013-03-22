@@ -37,22 +37,22 @@ private:
 
     void solve(bool quick_start);
 
-    /*! Helper function for make_attractor_set() that transmits `v' to relevant
+    /*! Helper function for make_attractor_set() that transmits `v` to relevant
         other processes, and then receives any pending vertices from other
-        processes, which are then added to `queue' and `attr'. When messages
-        are sent or received, `num_send' and `num_recv' are incremented. */
+        processes, which are then added to `queue` and `attr`. When messages
+        are sent or received, `num_send` and `num_recv` are incremented. */
     void notify_others(verti v);
 
 private:
-    /* `vpart' and 'part' describe the vertex partition and corresponding game
+    /* `vpart` and 'part' describe the vertex partition and corresponding game
         partition for the local process. */    
     const VertexPartition     &vpart_;            //!< current vertex partition
     const GamePartition       &part;          //!< corresponding game partition
 
     /* The attractor set is computed for the given target player, starting from
-       a given set of vertices in `queue' (and also set in `attr'). After,
-       completion `attr' will contain the vertices in the attractor set
-       intersected with the local vertex set, and `strategy' will be updated
+       a given set of vertices in `queue` (and also set in `attr`). After,
+       completion `attr` will contain the vertices in the attractor set
+       intersected with the local vertex set, and `strategy` will be updated
        with a valid strategy for the vertices added (note that this is a
        strategy for the current partition only). */
     const ParityGame::Player  player;                        //!< target player
@@ -61,7 +61,7 @@ private:
     ParityGame::Strategy      &strategy_;               //!< resulting strategy
 
     /* When an external vertex is added to the attractor set, its index is
-       received in `vertex_val': */
+       received in `vertex_val`: */
     verti vertex_val;        //!< temporary buffer to receive external vertices
 };
 

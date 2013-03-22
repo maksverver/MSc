@@ -25,7 +25,7 @@ public:
 
 #if 0
     /*! Merge statistics from a given object into this object, using the given
-        vertex mapping to map vertex indices (vertex v in `other' has index
+        vertex mapping to map vertex indices (vertex v in `other` has index
         mapping[v] in this object). */
     void merge(const LiftingStatistics &other, const verti *mapping = NULL);
 #endif
@@ -85,9 +85,9 @@ public:
         game is not solved if the solver is aborted). */
     bool solve();
 
-    /*! Solves part of the game by doing attemping at most `max_attempts' lifts
+    /*! Solves part of the game by doing attemping at most `max_attempts` lifts
         using the given lifting strategy. Returns how many lifting attempts
-        were actually performed, which will be less than `max_attempts' when
+        were actually performed, which will be less than `max_attempts` when
         the game is solved. */
     long long solve_part(long long max_attempts);
 
@@ -96,7 +96,7 @@ public:
         candidates for lifting. */
     std::pair<verti, bool> solve_one();
 
-    /*! After the game is solved, this returns the strategy at vertex `v' for
+    /*! After the game is solved, this returns the strategy at vertex `v` for
         the current player, or NO_VERTEX if the vertex is controlled by his
         opponent (in that case, any move is winning) or if it is won by his
         opponent (in that case, all moves are losing). */
@@ -140,8 +140,8 @@ public:
     /*! Returns the SPM vector space; an array of len() integers. */
     const verti *M() const { return M_; }
 
-    /*! Changes the SPM vector space. `new_M' must be an array of at least
-        `len' non-negative integers. */
+    /*! Changes the SPM vector space. `new_M` must be an array of at least
+        `len` non-negative integers. */
     void set_M(const verti *new_M) { std::copy(new_M, new_M + len_, M_); }
 
     /*! Decrements the i'th element of M. */
@@ -163,14 +163,14 @@ public:
     // The following functions are implemented in derived classes that
     // implement the actual storage of progress measure vectors:
 
-    /*! Return the SPM vector for vertex `v'.
+    /*! Return the SPM vector for vertex `v`.
         This array contains only the components with odd (for Even) or even
         (for Odd) indices of the vector (since the reset is fixed at zero). */
     // virtual verti *vec(verti v) = 0;
     virtual const verti *vec(verti v) const = 0;
 
-    /*! Assign the first `len(v)` elements of the vector for vertex `w' to the
-        vector for `v', or its successor if `carry' is set. */
+    /*! Assign the first `len(v)` elements of the vector for vertex `w` to the
+        vector for `v`, or its successor if `carry` is set. */
     virtual void set_vec(verti v, const verti src[], bool carry) = 0;
 
     /*! Set the value for vertex `v` to top. */
@@ -196,7 +196,7 @@ private:
         w (respectively). */
     inline int vector_cmp(const verti vec1[], const verti vec2[], int N) const;
 
-    /*! Compares `N' elements of the SPM vectors for the given vertices. */
+    /*! Compares `N` elements of the SPM vectors for the given vertices. */
     inline int vector_cmp(verti v, verti w, int N) const;
 
     /*! Returns the minimum or maximum successor for vertex `v`,

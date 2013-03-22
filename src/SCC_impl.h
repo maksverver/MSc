@@ -156,7 +156,7 @@ private:
     /*! The depth-first-search stack.
 
         Each entry consists of a vertex index and an index into its successor
-        list.  When a new unvisited vertex `v' is discovered, a pair (`v', 0)
+        list.  When a new unvisited vertex `v` is discovered, a pair (`v`, 0)
         is appened at the end of the stack.  The top element is popped off the
         stack when its successor index points to the end of the successor list.
     */
