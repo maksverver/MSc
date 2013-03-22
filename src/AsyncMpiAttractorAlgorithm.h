@@ -26,7 +26,7 @@ class AsyncMpiAttractorImpl : public virtual Logger,
 {
 public:
     AsyncMpiAttractorImpl( const VertexPartition &vpart,
-                           const GamePartition &part, ParityGame::Player player,
+                           const GamePart &part, ParityGame::Player player,
                            DenseSet<verti> &attr, std::deque<verti> &queue,
                            ParityGame::Strategy &strategy );
 
@@ -45,9 +45,9 @@ private:
 
 private:
     /* `vpart` and 'part' describe the vertex partition and corresponding game
-        partition for the local process. */    
+        partition for the local process. */
     const VertexPartition     &vpart_;            //!< current vertex partition
-    const GamePartition       &part;          //!< corresponding game partition
+    const GamePart            &part;          //!< corresponding game partition
 
     /* The attractor set is computed for the given target player, starting from
        a given set of vertices in `queue` (and also set in `attr`). After,
@@ -72,7 +72,7 @@ private:
 class AsyncMpiAttractorAlgorithm : public MpiAttractorAlgorithm
 {
     void make_attractor_set( const VertexPartition &vpart,
-        const GamePartition &part, ParityGame::Player player,
+        const GamePart &part, ParityGame::Player player,
         DenseSet<verti> &attr, std::deque<verti> &queue,
         bool quick_start, ParityGame::Strategy &strategy )
     {

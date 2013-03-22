@@ -10,7 +10,7 @@
 #ifndef MPI_SPM_SOLVER_H_INCLUDED
 #define MPI_SPM_SOLVER_H_INCLUDED
 
-#include "GamePartition.h"
+#include "GamePart.h"
 #include "Logger.h"
 #include "MpiUtils.h"
 #include "SmallProgressMeasures.h"
@@ -62,7 +62,7 @@ private:
 
 protected:
     const VertexPartition   *vpart_;      //!< the current vertex partition
-    const GamePartition     part_;        //!< the game partition being solved
+    const GamePart          part_;        //!< the game part being solved
     LiftingStrategyFactory  *lsf_;        //!< used to create lifting strategies
     LiftingStatistics       *stats_;      //!< global lifting statistics
     const verti             *vmap_;       //!< current global vertex map

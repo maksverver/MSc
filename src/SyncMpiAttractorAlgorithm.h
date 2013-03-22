@@ -30,7 +30,7 @@ class SyncMpiAttractorImpl : public virtual Logger
 {
 public:
     SyncMpiAttractorImpl( const VertexPartition &vpart,
-                          const GamePartition &part, ParityGame::Player player,
+                          const GamePart &part, ParityGame::Player player,
                           DenseSet<verti> &attr, std::deque<verti> &queue,
                           ParityGame::Strategy &strategy );
 
@@ -51,7 +51,7 @@ private:
 
 private:
     const VertexPartition       &vpart_;    //! vertex partition (fixed)
-    const GamePartition         &part;      //! game partition (fixed)
+    const GamePart              &part;      //! game partition (fixed)
     const ParityGame::Player    player;     //! target player (fixed)
     DenseSet<verti>             &attr;      //! current attractor set
     std::deque<verti>           &queue;     //! current vertices to be examined
@@ -65,7 +65,7 @@ private:
 class SyncMpiAttractorAlgorithm : public MpiAttractorAlgorithm
 {
     void make_attractor_set( const VertexPartition &vpart,
-        const GamePartition &part, ParityGame::Player player,
+        const GamePart &part, ParityGame::Player player,
         DenseSet<verti> &attr, std::deque<verti> &queue,
         bool quick_start, ParityGame::Strategy &strategy )
     {

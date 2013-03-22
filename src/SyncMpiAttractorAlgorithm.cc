@@ -13,7 +13,7 @@
 extern int mpi_rank, mpi_size;
 
 SyncMpiAttractorImpl::SyncMpiAttractorImpl( const VertexPartition &vpart,
-        const GamePartition &part, ParityGame::Player player,
+        const GamePart &part, ParityGame::Player player,
         DenseSet<verti> &attr, std::deque<verti> &queue,
         ParityGame::Strategy &strategy )
     : vpart_(vpart), part(part), player(player), attr(attr), queue(queue),

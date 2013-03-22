@@ -7,13 +7,13 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include "GamePartition.h"
+#include "GamePart.h"
 #include <algorithm>
 #include <sstream>  // for debug_str()
 #include <assert.h>
 
-GamePartition::GamePartition( const ParityGame &old_game,
-                              const VertexPartition &vpart, int proc )
+GamePart::GamePart( const ParityGame &old_game,
+                    const VertexPartition &vpart, int proc )
 {
     // Select vertices in the partition of the game graph:
     const verti V = old_game.graph().V();
@@ -69,8 +69,8 @@ GamePartition::GamePartition( const ParityGame &old_game,
     //         external vertices too, but these are never used!
 }
 
-GamePartition::GamePartition( const GamePartition &part,
-                              const std::vector<verti> &verts )
+GamePart::GamePart( const GamePart &part,
+                    const std::vector<verti> &verts )
 {
     std::set_intersection( verts.begin(), verts.end(),
                            part.internal_.begin(), part.internal_.end(),
@@ -132,7 +132,7 @@ GamePartition::GamePartition( const GamePartition &part,
     */
 }
 
-void GamePartition::swap(GamePartition &gp)
+void GamePart::swap(GamePart &gp)
 {
     std::swap(game_, gp.game_);
     std::swap(internal_, gp.internal_);
@@ -141,12 +141,12 @@ void GamePartition::swap(GamePartition &gp)
     local_.swap(gp.local_);
 }
 
-std::string GamePartition::debug_str(const std::vector<char> &sel) const
+std::string GamePart::debug_str(const std::vector<char> &sel) const
 {
     std::ostringstream os;
     bool first = true;
     os << "{ ";
-    for (GamePartition::const_iterator it = begin(); it != end(); ++it)
+    for (GamePart::const_iterator it = begin(); it != end(); ++it)
     {
         if (sel.empty() || sel[*it])
         {
@@ -160,7 +160,7 @@ std::string GamePartition::debug_str(const std::vector<char> &sel) const
 
 /* FIXME: this could be implemented more efficiently (e.g. with a precomputed
           vector<bool> bitarray) if this is used intensively. */
-bool GamePartition::is_internal(verti v) const
+bool GamePart::is_internal(verti v) const
 {
     return binary_search(internal_.begin(), internal_.end(), v);
 }

@@ -10,7 +10,7 @@
 #include "AsyncMpiAttractorAlgorithm.h"
 #include "SyncMpiAttractorAlgorithm.h"
 #include "MpiRecursiveSolver.h"
-#include "GamePartition.h"
+#include "GamePart.h"
 #include "DenseSet.h"
 #include <assert.h>
 #include <algorithm>
@@ -58,7 +58,7 @@ ParityGame::Strategy MpiRecursiveSolver::solve()
     strategy_ = ParityGame::Strategy(V, NO_VERTEX);
 
     // Solve the game:
-    GamePartition gpart(game(), *vpart_, mpi_rank);
+    GamePart gpart(game(), *vpart_, mpi_rank);
     solve(gpart);
 
     // Collect resulting strategy
@@ -121,7 +121,7 @@ static int mpi_first_inversion(const ParityGame &local_game)
     return p;
 }
 
-void MpiRecursiveSolver::solve(GamePartition &part)
+void MpiRecursiveSolver::solve(GamePart &part)
 {
     int prio;
     while ((prio = mpi_first_inversion(part.game())) < part.game().d())
@@ -155,13 +155,13 @@ void MpiRecursiveSolver::solve(GamePartition &part)
         if (mpi_and(unsolved.empty())) break;
 
         // Solve subgame with remaining vertices and fewer priorities:
-        GamePartition subpart(part, unsolved);
+        GamePart subpart(part, unsolved);
         solve(subpart);
 
         // Find attractor set of vertices lost to opponent in subgame:
         DenseSet<verti> lost_attr(0, V);
         std::deque<verti> lost_attr_queue;
-        for ( GamePartition::const_iterator it = part.begin();
+        for ( GamePart::const_iterator it = part.begin();
                it != part.end(); ++it )
         {
             const verti v = *it;
@@ -182,14 +182,14 @@ void MpiRecursiveSolver::solve(GamePartition &part)
             lost_attr, lost_attr_queue, false, strategy_ );
 
         std::vector<verti> not_lost = collect_complement(lost_attr);
-        GamePartition(part, not_lost).swap(part);
+        GamePart(part, not_lost).swap(part);
     }
 
     // If we get here, then the opponent's winning set was empty; the strategy
     // for most vertices has already been initialized, except for those with
     // minimum priority. Since the whole game is won by the current player, it
     // suffices to pick an arbitrary successor for these vertices:
-    for (GamePartition::const_iterator it = part.begin(); it != part.end(); ++it)
+    for (GamePart::const_iterator it = part.begin(); it != part.end(); ++it)
     {
         const verti v = part.global(*it);
         if (game_.priority(v) < prio)

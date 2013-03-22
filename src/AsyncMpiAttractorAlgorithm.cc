@@ -11,7 +11,7 @@
 #include "attractor.h"  // for is_subset_of()
 
 AsyncMpiAttractorImpl::AsyncMpiAttractorImpl( const VertexPartition &vpart,
-        const GamePartition &part, ParityGame::Player player,
+        const GamePart &part, ParityGame::Player player,
         DenseSet<verti> &attr, std::deque<verti> &queue,
         ParityGame::Strategy &strategy )
     : MpiTermination(1, MPI_INT, &vertex_val), vpart_(vpart), part(part),

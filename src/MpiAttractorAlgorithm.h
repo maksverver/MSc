@@ -11,7 +11,7 @@
 #define MPI_ATTRACTOR_ALGORITHM_H_INCLUDED
 
 #include "DenseSet.h"
-#include "GamePartition.h"
+#include "GamePart.h"
 #include "MpiUtils.h"
 #include "ParityGame.h"
 #include "VertexPartition.h"
@@ -39,7 +39,7 @@ public:
         and includes both internal and external vertices in the attractor set.
     */
     virtual void make_attractor_set( const VertexPartition &vpart,
-        const GamePartition &part, ParityGame::Player player,
+        const GamePart &part, ParityGame::Player player,
         DenseSet<verti> &attr, std::deque<verti> &queue,
         bool quick_start, ParityGame::Strategy &strategy ) = 0;
 };

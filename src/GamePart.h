@@ -25,7 +25,7 @@
     This class also contains mappings from global to local vertex indices and
     vice versa.
 */
-class GamePartition
+class GamePart
 {
 public:
     typedef std::vector<verti>::const_iterator const_iterator;
@@ -33,16 +33,16 @@ public:
 public:
     /*! Construct a partition of the global game for the given process using
         the specified vertex partition. */
-    GamePartition( const ParityGame &old_game,
+    GamePart( const ParityGame &old_game,
                    const VertexPartition &vpart, int process );
 
     /*! Constructs a partition as the intersection of an existing partition with
         a vertex subset, specified as a list of vertex indices local to the
         game partition. */
-    GamePartition(const GamePartition &part, const std::vector<verti> &verts);
+    GamePart(const GamePart &part, const std::vector<verti> &verts);
 
-    /*! Swaps the contents of this GamePartition with another one. */
-    void swap(GamePartition &gp);
+    /*! Swaps the contents of this GamePart with another one. */
+    void swap(GamePart &gp);
 
     //! Returns whether a local vertex index corresponds to an internal vertex.
     bool is_internal(verti v) const;
@@ -103,7 +103,7 @@ private:
 
 namespace std
 {
-    template<> inline void swap<GamePartition>(GamePartition &a, GamePartition &b)
+    template<> inline void swap<GamePart>(GamePart &a, GamePart &b)
     {
         a.swap(b);
     }

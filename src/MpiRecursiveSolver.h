@@ -10,7 +10,7 @@
 #ifndef MPI_RECURSIVE_SOLVER_H_INCLUDED
 #define MPI_RECURSIVE_SOLVER_H_INCLUDED
 
-#include "GamePartition.h"
+#include "GamePart.h"
 #include "Logger.h"
 #include "MpiAttractorAlgorithm.h"
 #include "MpiUtils.h"
@@ -43,7 +43,7 @@ protected:
         Since it's not a priori clear which player this is, it is usually best
         to ignore `part` after the call.
     */
-    void solve(GamePartition &part);
+    void solve(GamePart &part);
 
 protected:
     //! Vertex partition used to partition the game over MPI worker processes.

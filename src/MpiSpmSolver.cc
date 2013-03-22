@@ -14,7 +14,7 @@
 class InternalLiftingStrategy : public LiftingStrategy
 {
 public:
-    InternalLiftingStrategy(const GamePartition &part, LiftingStrategy *other)
+    InternalLiftingStrategy(const GamePart &part, LiftingStrategy *other)
         : LiftingStrategy(part.game()), part_(part), ls_(other)
     {
     }
@@ -42,14 +42,14 @@ public:
     }
 
 protected:
-    const GamePartition &part_;
+    const GamePart &part_;
     LiftingStrategy *ls_;
 };
 
 class InternalLiftingStrategyFactory : public LiftingStrategyFactory
 {
 public:
-    InternalLiftingStrategyFactory( const GamePartition &part,
+    InternalLiftingStrategyFactory( const GamePart &part,
                                     LiftingStrategyFactory *other )
         : part_(part), lsf_(other)
     {
@@ -68,7 +68,7 @@ public:
     }
 
 private:
-    const GamePartition &part_;
+    const GamePart &part_;
     LiftingStrategyFactory *lsf_;
 };
 
@@ -94,7 +94,7 @@ void MpiSpmSolver::set_vector_space(SmallProgressMeasures &spm)
 {
     std::vector<verti> local(spm.len(), 1);
     const ParityGame &game = part_.game();
-    for ( GamePartition::const_iterator it = part_.begin();
+    for ( GamePart::const_iterator it = part_.begin();
           it != part_.end(); ++it )
     {
         verti v = *it;
@@ -327,7 +327,7 @@ ParityGame::Strategy MpiSpmSolver::solve()
     info("Extracting local strategy...");
     const ParityGame &game = part_.game();
     ParityGame::Strategy strategy(game.graph().V(), NO_VERTEX);
-    for ( GamePartition::const_iterator it = part_.begin();
+    for ( GamePart::const_iterator it = part_.begin();
           it != part_.end(); ++it )
     {
         strategy[*it] = spm[game.player(*it)]->get_strategy(*it);
