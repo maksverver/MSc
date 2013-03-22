@@ -12,6 +12,7 @@
 
 /*! \file GraphOrdering.h
     \brief Functions to analyze vertex order in a static graph.
+    \ingroup ParityGameData
 
     This file declares functions that are useful to determine the ordering of
     vertices in a graph, and find ways to reorder them (for example, to obtain

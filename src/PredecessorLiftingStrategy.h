@@ -14,7 +14,9 @@
 #include <deque>
 #include <vector>
 
-/*! A simple lifting strategy that puts all nodes in a queue, then takes them
+/*! \ingroup LiftingStrategies
+ 
+    A simple lifting strategy that puts all nodes in a queue, then takes them
     out one at a time; whenever a node is successfully lifted, its predecessors
     are put back in the queue as they may need to be lifted too.
 
@@ -59,7 +61,8 @@ private:
     size_t queue_size_, queue_capacity_, queue_begin_, queue_end_;
 };
 
-//! Factory class for PredecessorLiftingStrategy instances.
+/*! \ingroup LiftingStrategies
+    Factory class for PredecessorLiftingStrategy instances. */
 class PredecessorLiftingStrategyFactory : public LiftingStrategyFactory
 {
 public:

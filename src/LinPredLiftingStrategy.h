@@ -14,7 +14,9 @@
 #include <algorithm>
 #include <vector>
 
-/*! A lifting strategy that combines the linear and predecessor lifting
+/*! \ingroup LiftingStrategies
+
+    A lifting strategy that combines the linear and predecessor lifting
     strategies: vertices are lifted in sequential order (like with the linear
     lifting strategy) but after a single pass over all vertices, only those
     vertices which had a successor lifted are (like with the predecessor lifting
@@ -72,7 +74,8 @@ private:
     std::vector<verti>::const_iterator pos; 
 };
 
-//! A factory class for LinPredLiftingStrategy instances.
+/*! \ingroup LiftingStrategies
+    A factory class for LinPredLiftingStrategy instances. */
 class LinPredLiftingStrategyFactory : public LiftingStrategyFactory
 {
 public:

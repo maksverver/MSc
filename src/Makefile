@@ -1,7 +1,7 @@
 # N.B. this Makefile uses gmake conditionals
 
 # set this to 1 to compile in support for mCRL2 (and link to mCRL2 libs)
-WITH_MCRL2=1
+WITH_MCRL2=
 
 # set this to 1 to compile in support for MPI
 WITH_MPI=

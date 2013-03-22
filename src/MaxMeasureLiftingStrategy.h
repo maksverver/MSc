@@ -15,7 +15,9 @@
 #include <set>
 #include <utility>
 
-/*! A lifting strategy that propagate maximum measures first.
+/*! \ingroup LiftingStrategies
+
+    A lifting strategy that propagate maximum measures first.
 
     Conceptually this is a specialization of the predecessor lifting strategy.
     However, of all feasible vertices to select for the next lifting attempt,
@@ -83,7 +85,8 @@ private:
     verti pq_size_;             //!< priority queue size
 };
 
-//! A factory class for MaxMeasureLiftingStrategy instances.
+/*! \ingroup LiftingStrategies
+    A factory class for MaxMeasureLiftingStrategy instances. */
 class MaxMeasureLiftingStrategyFactory : public LiftingStrategyFactory
 {
 public:

@@ -24,15 +24,22 @@
 #   define ATTR_PACKED
 #endif
 
-/*! Information stored for each vertex of a parity game:
-    - the player to move (either PLAYER_EVEN or PLAYER_ODD)
-    - the priority of the vertex  between 0 and `d` (exclusive).
+/*! \defgroup ParityGameData
+
+    Data structures used to represent parity games in memory.
+*/
+
+/*! \ingroup ParityGameData
+
     \sa ParityGame::Player
 */
 struct ParityGameVertex
 {
+    //! the vertex owner (i.e. next player to move)
     unsigned char   player;
-    compat_uint16_t priority;
+
+    //! the priority of the vertex  between 0 and `d` (exclusive).
+    compat_uint16_t priority;  
 };
 
 inline bool operator== (const ParityGameVertex &a, const ParityGameVertex &b)
@@ -46,16 +53,18 @@ inline bool operator!= (const ParityGameVertex &a, const ParityGameVertex &b)
 }
 
 
-/*! A parity game extends a directed graph by assigning a player
+/*! \ingroup ParityGameData
+
+    A parity game extends a directed graph by assigning a player
     (Even or Odd) and an integer priority to every vertex.
     Priorities are between 0 and `d` (exclusive). */
 class ParityGame
 {
 public:
     /*! The two players in a parity game (Even and Odd) */
-    enum Player { PLAYER_NONE = -1,
-                  PLAYER_EVEN =  0,
-                  PLAYER_ODD  =  1
+    enum Player { PLAYER_NONE = -1,  //!< None (-1)
+                  PLAYER_EVEN =  0,  //!< Even (0)
+                  PLAYER_ODD  =  1   //!< Odd (1)
                 } ATTR_PACKED;
 
     /*! A strategy determines the partitioning of the game's vertices into
@@ -83,6 +92,13 @@ public:
     /*! Returns whether the game is empty. */
     bool empty() const { return graph().empty(); }
 
+    /*! Efficiently swaps the contents of this parity game with another one. */
+    void swap(ParityGame &pg);
+
+
+    //!\name Generation
+    //!@{
+
     /*! Generate a random parity game, with vertices assigned uniformly at
         random to players, and priority assigned uniformly between 0 and d-1.
         \sa void StaticGraph::make_random()
@@ -102,6 +118,10 @@ public:
     void make_subgame( const ParityGame &game,
                        ForwardIterator vertices_begin,
                        ForwardIterator vertices_end );
+    //!@}
+
+    //!\name Transformation
+    //!@{
 
     /*! Replaces the current game by its dual game, which uses the same game
         graph, but swaps players and changes priorities, such that the solution
@@ -149,6 +169,10 @@ public:
         for all vertices.
     */
     long long propagate_priorities();
+    //!@}
+
+    //!\name Input/Output
+    //!@{
 
     /*! Read a game description in PGSolver format. */
     void read_pgsolver( std::istream &is,
@@ -175,37 +199,50 @@ public:
     void write_debug( const Strategy &s = Strategy(),
         std::ostream &os = std::cerr) const;
 
-    /*! Return the priority limit d; all priorities must be in range [0:d) */
+    //!@}
+
+    //! \name Data access
+    //!@{
+
+    /*! Returns the priority limit d; all priorities must be in range [0:d). */
     int d() const { return d_; }
 
-    /*! Return the game graph */
+    /*! Returns the game graph */
     const StaticGraph &graph() const { return graph_; }
 
-    /*! Return the priority associated with vertex v */
+    /*! Returns the priority associated with vertex v */
     int priority(verti v) const { return vertex_[v].priority; }
 
-    /*! Return the player associated with vertex v */
-    Player player(verti v) const { return (Player)vertex_[v].player; }
+    /*! Returns the player associated with vertex v */
+    Player player(verti v) const { return (Player)(signed char)vertex_[v].player; }
 
-    /*! Return the number of vertices with priority `p`.
+    /*! Returns the number of vertices with priority `p`.
         `p` must be between 0 and `d` (exclusive). */
     verti cardinality(int p) const { return cardinality_[p]; }
 
-    /*! Return the winner for vertex v according to strategy s. */
+    /*! Returns the winner for vertex v according to strategy s. */
     template<class StrategyT>
     Player winner(const StrategyT &s, verti v) const;
 
-    /*! Returns whether this is a proper game; i.e. every vertex has a successor
-        in this game graph. */
+    //!@}
+
+    //!\name Verification
+    //!@{
+
+    /*! Checks if this is a proper game.
+
+        A game is proper if every vertex has a successor in the game graph. */
     bool proper() const;
 
-    /*! Returns whether the given strategy is valid (and thereby optimal) for
-        both players. If `verti' is non-NULL, then it is set to an incorrectly
-        classified vertex if verification fails, or to NO_VERTEX otherwise. */
-    bool verify(const Strategy &s, verti *error) const;
+    /*! Verifies that the given strategy is valid in this game.
 
-    /*! Swaps the contents of this parity game with another one. */
-    void swap(ParityGame &pg);
+        \param s the strategy to be verified
+        \param error if non-NULL, then *error is set NO_VERTEX if the strategy is
+                     correct, and to the index of an incorrectly classified
+                     vertex if the strategy is incorrect.
+    */
+    bool verify(const Strategy &s, verti *error) const;
+    //!@}
 
 #ifdef WITH_MCRL2
     /*! Generate a parity game from an mCRL2 PBES. */

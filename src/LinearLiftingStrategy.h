@@ -12,7 +12,9 @@
 
 #include "SmallProgressMeasures.h"
 
-/*! A simple lifting strategy that attempts to lift vertices in order and stops
+/*! \ingroup LiftingStrategies
+
+    A simple lifting strategy that attempts to lift vertices in order and stops
     when no more vertices can be lifted.
 
     The initial direction in in which vertices are selected for lifting can
@@ -43,7 +45,8 @@ private:
     verti max_failed_;          //!< max. failures possible in unsolved game
 };
 
-//! A factory class for LinearLiftingStrategy instances.
+/*! \ingroup LiftingStrategies
+    A factory class for LinearLiftingStrategy instances. */
 class LinearLiftingStrategyFactory : public LiftingStrategyFactory
 {
 public:

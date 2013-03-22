@@ -15,7 +15,9 @@
 #include <utility>
 #include <vector>
 
-/*! This is an implementation of the "Focus List Approach" described in the
+/*! \ingroup LiftingStrategies
+
+    This is an implementation of the "Focus List Approach" described in the
     Multi-Core Solver for Parity Games paper.
 
     It alternates between two phases. In the first phase, it iterates over the
@@ -77,7 +79,8 @@ private:
     focus_list::iterator write_pos_;    //!< current position in the focus list
 };
 
-//! Factory class for FocusListLiftingStrategy instances.
+/*! \ingroup LiftingStrategies
+    Factory class for FocusListLiftingStrategy instances. */
 class FocusListLiftingStrategyFactory : public LiftingStrategyFactory
 {
 public:

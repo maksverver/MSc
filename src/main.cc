@@ -12,6 +12,12 @@
     The main solver tool implementation.
 */
 
+/*! \mainpage
+
+Overview goes here.
+
+*/
+
 #if defined(__unix__) || defined(__linux__)
 #define POSIX
 #endif

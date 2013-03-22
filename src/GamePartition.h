@@ -13,12 +13,17 @@
 #include "VertexPartition.h"
 #include "ParityGame.h"
 
-/*! A game partition is a subgame induced by a starting set of internal vertices
-    extended with all vertices that share an edge with an internal vertex.
+/*! \ingroup ParityGameData
 
-    In addition to storing the subgame for the extended vertex set, the partition
-    stores a mapping of local to global and global to local vertex indices, and
-    the local indices of the internal vertices.
+    A game can be partitioned into using a VertexPartition.
+
+    This class explicitely creates a subgame for one part of a vertex partition
+    extended with the directly adjacent vertices from other parts.  This
+    extended set is called the local vertex set.  Local vertices from the
+    original vertex part are called internal; others are called external.
+
+    This class also contains mappings from global to local vertex indices and
+    vice versa.
 */
 class GamePartition
 {
@@ -27,7 +32,7 @@ public:
 
 public:
     /*! Construct a partition of the global game for the given process using
-        the specified partition. */
+        the specified vertex partition. */
     GamePartition( const ParityGame &old_game,
                    const VertexPartition &vpart, int process );
 

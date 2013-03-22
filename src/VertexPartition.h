@@ -14,7 +14,9 @@
 #include "RefCounted.h"
 #include <assert.h>
 
-/*! A vertex partition is a functor that maps vertices onto worker processes.
+/*! \ingroup ParityGameData
+
+    A vertex partition is a functor that maps vertices onto worker processes.
 
     Currently one type of partition is supported, that assigns fixed-size chunks
     of consecutive vertices onto increasing worker processes, wrapping around

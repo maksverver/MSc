@@ -30,42 +30,47 @@ typedef compat_uint32_t edgei;    //!< type used to number edges
 
 class StaticGraph;
 
-//! A not-completely-standard-compliant class to iterate over a graph's edges.
-class EdgeIterator
-{
-public:
-    EdgeIterator() { }
-    EdgeIterator(const EdgeIterator &ei) : g(ei.g), v(ei.v), e(ei.e) { }
-    inline EdgeIterator &operator=(const EdgeIterator &ei);
-    inline std::pair<verti, verti> operator*();
-    inline std::pair<verti, verti> operator++();
-    inline std::pair<verti, verti> operator++(int);
-
-    typedef edgei Distance;
-    Distance operator-(const EdgeIterator &ei) { return e - ei.e; }
-
-protected:
-    EdgeIterator(const StaticGraph *g, verti v, edgei e) : g(g), v(v), e(e) { }
-
-private:
-    const StaticGraph *g;  //! underlying graph whose edges are being iterated
-    verti v;               //! current vertex index
-    edgei e;               //! current edge index
-
-    friend class StaticGraph;
-};
-
-
-/*! A static graph consists of V vertices (numbered from 0 to V, exclusive)
+/*! \ingroup ParityGameData
+ 
+    A static graph consists of V vertices (numbered from 0 to V, exclusive)
     and E edges, and can store either edge successors, predecessors, or both. */
 class StaticGraph
 {
+#if 0
+public:
+    //! A not-completely-standard-compliant class to iterate over a graph's edges.
+    class EdgeIterator
+    {
+    public:
+        EdgeIterator() { }
+        EdgeIterator(const EdgeIterator &ei) : g(ei.g), v(ei.v), e(ei.e) { }
+        inline EdgeIterator &operator=(const EdgeIterator &ei);
+        inline std::pair<verti, verti> operator*();
+        inline std::pair<verti, verti> operator++();
+        inline std::pair<verti, verti> operator++(int);
+
+        edgei operator-(const EdgeIterator &ei) { return e - ei.e; }
+
+    protected:
+        EdgeIterator(const StaticGraph *g, verti v, edgei e) : g(g), v(v), e(e) { }
+
+    private:
+        const StaticGraph *g;  //! underlying graph whose edges are being iterated
+        verti v;               //! current vertex index
+        edgei e;               //! current edge index
+
+        friend class StaticGraph;
+    };
+#endif
+
 public:
     /*! Iterator used to iterate over predecessor/successor vertices. */
     typedef const verti *const_iterator;
 
+#if 0
     /*! Iterator used to iterate over edges. */
     typedef EdgeIterator const_edge_iterator;
+#endif
 
     /*! A list of edges */
     typedef std::vector<std::pair<verti, verti> > edge_list;
@@ -90,7 +95,7 @@ public:
 
     /*! Reset to an empty graph. */
     void clear();
-
+    
     /*! Generate a random graph with `V` vertices and an average out-degree of
         `out_deg` (minimum out degree is 1). This replaces any old data stored.
         \param V        number of vertices to generate
@@ -180,6 +185,7 @@ public:
         return pred_end(v) - pred_begin(v);
     }
 
+#if 0
     /*! Returns an edge iterator starting at the given vertex.
         Currently, this requires the graph to store successors. */
     const_edge_iterator edges_begin(verti v = 0) const {
@@ -191,6 +197,7 @@ public:
     const_edge_iterator edges_end() const {
         return EdgeIterator(this, V_, E_);
     }
+#endif
 
 protected:
     /*! Frees allocated memory and then reallocates memory to store a graph

@@ -16,8 +16,16 @@
 
 class SmallProgressMeasures;
 
-/*! Instances of this class encapsulate vertex lifting strategies to be used
-    with the small progress measures parity game solver. */
+/*! \defgroup LiftingStrategies
+
+    Lifting strategies for the Small Progress Measures solving algorithm.
+*/
+
+/*! \ingroup LiftingStrategies
+
+    Instances of this class encapsulate vertex lifting strategies to be used
+    with the small progress measures parity game solver.
+*/
 class LiftingStrategy
 {
 public:
@@ -45,7 +53,8 @@ protected:
     const ParityGame &game_;            //!< the parity game to work on
 };
 
-/*! Abstract base class for lifting strategy factories. */
+/*! \ingroup LiftingStrategies
+    Abstract base class for lifting strategy factories. */
 class LiftingStrategyFactory : public RefCounted
 {
 public:
