@@ -49,7 +49,7 @@ endif
 ifdef WITH_MPI
 CFLAGS+=-DWITH_MPI
 OBJS+=	AsyncMpiAttractorAlgorithm.o \
-	GamePartition.o \
+	GamePart.o \
 	MpiRecursiveSolver.o \
 	MpiSpmSolver.o \
 	MpiUtils.o \
