@@ -10,11 +10,12 @@
 #ifndef COMPATIBILITY_H_INCLUDED
 #define COMPATIBILITY_H_INCLUDED
 
-/*! \file Compatibility.h
-    \brief Compatibility functions.
+/*! \file compatibility.h
+    \brief Cross-platform compatibility functions.
 
     This file declares functions that are used to achieve compatibility with
-    platforms/compilers that do not support the POSIX and/or C99 standards.
+    platforms/compilers that do not completely support the POSIX, C99 or C++
+    standars.
 
     Contrary to common conventions, this file should be included last in source
     files that require it, so any platform-specific definitions can take
@@ -58,7 +59,11 @@ typedef unsigned long long      compat_uint64_t;
 
 /* Case-insensitive string comparison functions.
    redefined here to support non-POSIX platforms. */
+
+//! Case-insensitive string comparison.
 int compat_strcasecmp(const char *s1, const char *s2);
+
+//! Case-insensitive string comparison of at most `n` characters.
 int compat_strncasecmp(const char *s1, const char *s2, size_t n);
 
 /* Figure out which hashtable implementation to use: */
