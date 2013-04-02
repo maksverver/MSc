@@ -338,8 +338,8 @@ ParityGame::Strategy SmallProgressMeasuresSolver::solve_alternate()
         if (aborted()) return ParityGame::Strategy();
 
         info("Propagating solved vertices to other game...");
-        SetToTopIterator it = { *spm[1 - player] };
-        spm[player]->get_winning_set((ParityGame::Player)player, it);
+        spm[player]->get_winning_set( (ParityGame::Player)player,
+                                      SetToTopIterator(*spm[1 - player]) );
         player = 1 - player;
     } while (num_lifts == max_lifts);
     // One game is solved; solve other game completely too:

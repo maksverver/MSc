@@ -16,7 +16,14 @@
 #include <vector>
 #include <utility>
 
-/*! Object used to collect statistics when solving using the SPM algorithm */
+/*! \defgroup SmallProgressMeasures
+
+    Classes related to the Small Progress Measures parity game solving algoritm.
+*/
+
+/*! \ingroup SmallProgressMeasures
+
+    Object used to collect statistics when solving using the SPM algorithm */
 class LiftingStatistics
 {
 public:
@@ -55,7 +62,9 @@ private:
     std::vector<std::pair<long long, long long> > vertex_stats_;
 };
 
-/*! Implements the core of the Small Progress Measures algorithm, which keeps
+/*! \ingroup SmallProgressMeasures
+
+    Implements the core of the Small Progress Measures algorithm, which keeps
     track of progress measure vectors, and allows lifting at vertices.
 
     Note that besides these vectors, it tracks the current lifting strategy and
@@ -66,9 +75,12 @@ private:
 
     As a result, the lift..() methods can be used to introduce information from
     external sources into the game, without affecting the statistics for updates
-    that result from local lifting attempts. These methods are thus uses in the
+    that result from local lifting attempts. These methods are thus used in the
     two-way approach to propagate information from the dual game, and the MPI
     recursive solver.
+
+    Note that this is an abstract base class: subclasses may implement different
+    storage formats for the progress measure vectors.
 */
 class SmallProgressMeasures : public Abortable, public virtual Logger
 {
@@ -225,6 +237,15 @@ protected:
     verti               *M_;        //!< bounds on the SPM vector components
 };
 
+/*! \ingroup SmallProgressMeasures
+
+    A small progress measures implementation that stores progress measure vectors
+    "densely". All `len`*`V` elements are stored in a contiguous array.
+
+    This is memory efficient and allows fast access and updating of progress
+    measure vectors.  The main limitation is that it does not support concurrent
+    access.
+*/
 class DenseSPM : public SmallProgressMeasures
 {
 public:
@@ -243,29 +264,33 @@ protected:
 };
 
 
-/*! Helper class for SmallProgressMeasureSolver thats is an OutputIterator that
-    sets vertices assigned through it to top in the given SPM solver (which in
-    turn updates the corresponding lifting strategy). */
-struct SetToTopIterator
-{
-    SmallProgressMeasures &spm;
+/*! \ingroup SmallProgressMeasures
 
-    SetToTopIterator& operator++() { return *this; }
-    SetToTopIterator& operator++(int) { return *this; }
-    SetToTopIterator& operator*() { return *this; }
-    SetToTopIterator& operator=(verti v)
-    {
-        spm.lift_to_top(v);
-        return *this;
-    }
-};
-
-
-/*! A parity game solver based on Marcin Jurdzinski's small progress measures
+    A parity game solver based on Marcin Jurdzinski's small progress measures
     algorithm, with pluggable lifting heuristics. */
 class SmallProgressMeasuresSolver
     : public ParityGameSolver, public virtual Logger
 {
+    /*! Helper class which is an OutputIterator that sets vertices assigned
+        through it to top in the given SPM representation (which in turn updates
+        the corresponding lifting strategy). */
+    class SetToTopIterator
+    {
+    public:
+        SetToTopIterator(SmallProgressMeasures &spm) : spm(spm) { }
+        SetToTopIterator& operator++() { return *this; }
+        SetToTopIterator& operator++(int) { return *this; }
+        SetToTopIterator& operator*() { return *this; }
+        SetToTopIterator& operator=(verti v)
+        {
+            spm.lift_to_top(v);
+            return *this;
+        }
+
+    private:
+        SmallProgressMeasures &spm;
+    };
+
 public:
     SmallProgressMeasuresSolver( const ParityGame &game,
                                  LiftingStrategyFactory *lsf,
@@ -310,7 +335,9 @@ protected:
     const verti vmap_size_;         //!< size of vertex map
 };
 
+/*! \ingroup SmallProgressMeasures
 
+    Factory class for SmallProgressMeasuresSolver instances */
 class SmallProgressMeasuresSolverFactory : public ParityGameSolverFactory
 {
 public:
