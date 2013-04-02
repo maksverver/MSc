@@ -14,7 +14,25 @@
 #include <memory>
 #include <utility>
 
-// TODO: needs documentation!
+/*! \defgroup Containers
+
+    Custom container data structures.
+*/
+
+/*! \ingroup Containers
+
+    A set-like data structure that stores values from a dense integer range.
+
+    Each set instance has a fixed range of possible values; elements stored are
+    integers that must lie within this range.  Memory used and time required to
+    iterate over the set is proportional to the size of the range (*not* the 
+    size of the set, i.e. the number of elements).
+
+    Internally, the DenseSet uses an array of bools to note the presence/absence
+    of elements, which typically requires one byte per value in range.
+
+    \see DenseMap
+*/
 
 // N.B. this class is far from finished!
 

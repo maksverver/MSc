@@ -13,7 +13,24 @@
 #include <memory>
 #include <utility>
 
-// TODO: needs documentation!
+/*! \ingroup Containers
+
+    A map-like data structure with keys from a dense integer range.
+
+    Each map instance has a fixed range of possible keys.  Memory used and time
+    required to iterate over the set is proportional to the size of the range
+    (*not* the  size of the set, i.e. the number of elements).
+
+    Internally, the DenseMap uses an array of key/value-pairs to store its
+    contents.  A special `Unused` value marks the absence of stored elements.
+    Note that this is quite different from DenseSet!
+
+    Note that the `Unused` template parameter must never be used as a value
+    stored in the map.  `Used` on the other hand, may be any valid value.  It
+    will be used internally to mark the end of the stored data.
+
+    \see DenseSet
+*/
 
 // N.B. this class is far from finished!
 
