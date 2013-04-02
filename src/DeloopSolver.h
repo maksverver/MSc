@@ -18,13 +18,17 @@
 #include <string>
 #include <vector>
 
-/*! A solver that takes a game preprocessed with SmallProgressMeasures::pre-
-    process_game(), identifies vertices with loops (which are won by the player
-    corresponding with the parity of their priority) and removes their attractor
-    sets from the game to obtain a loop-less reduced game that is then solved
-    with a new solver.
+/*! A solver that identifies vertices with loops which are won by their owner
+    (i.e. when the owner corresponds with the parity of the vertex priority)
+    and removes their attractor sets from the game to obtain a loop-less reduced
+    game that is then solved with a new solver.
 
-    Similar to the DecycleSolver, except being less general yet faster.
+    This REQUIRES that the game graph has been preprocessed with
+    SmallProgressMeasures::preprocess_game()!
+
+    Compared to the DecycleSolver, this preprocessor is faster but weaker.
+
+    \see DecycleSolver
 */
 class DeloopSolver : public ParityGameSolver, public virtual Logger
 {

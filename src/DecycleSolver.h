@@ -21,11 +21,16 @@
 /*! A partial solver that efficiently solves cycles controlled by a single
     player.
 
-    Specifically, it removes i-dominated cycles controlled by player p for all
-    values of i and p where i%2 == p, including the vertices in their attractor
-    sets, and then calls a general solver to solve the remaining subgame.
+    Specifically, it removes all i-dominated cycles controlled by player p for
+    all values of i and p where i%2 == p, including the vertices in their
+    attractor sets, and then calls a general solver to solve the remaining
+    subgame.
 
-    This is a generalization of the DeloopSolver.
+    This is a generalization of the DeloopSolver, which is limited to detecting
+    cycles of length 1. The only downside to using the DecycleSolver is that it
+    is slower.
+
+    \see DeloopSolver
 */
 class DecycleSolver : public ParityGameSolver, public virtual Logger
 {

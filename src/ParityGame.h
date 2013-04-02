@@ -31,6 +31,8 @@
 
 /*! \ingroup ParityGameData
 
+    Parity Game data associated with each vertex in the game graph.
+
     \sa ParityGame::Player
 */
 struct ParityGameVertex

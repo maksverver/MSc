@@ -15,9 +15,9 @@
 
 /*! Implementation of the asynchronous MPI-based attractor set computer.
 
-    All worker processes send and receive vertices to be added to the set while
-    they are running independent breadth-first search over their local vertex
-    set. This is should reduce latency.
+    All worker processes send and receive vertices to be added to the set, while
+    independently running a breadth-first search over their local vertex set.
+    This should reduce latency.
 
     @see AsyncMpiAttractorAlgorithm
 */
