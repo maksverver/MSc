@@ -987,69 +987,101 @@ Computational Complexity
 \end_layout
 
 \begin_layout Standard
-The computational complexity of parity games as a decision problem (i.e.
- asking whether a particular vertex is won by a particular player) is not
- yet known.
- Assuming that a polynomial-time algorithm to verify the optimality of a
- pair of winning strategies exists (and indeed it does; one will be presented
- later on) then we can solve the more general problem of determining winning
- sets as well as strategies by nondeterministically guessing the winner
- and an optimal move for each vertex, which puts the problem in NP (the
- set of problems decidable by a non-deterministic Turing machine and verifiable
- by a deterministic Turing machine in polynomial time), where the strategies
- are certificates for the solution.
+Given a polynomial-time algorithm to verify the optimality of a pair of
+ winning strategies (one such algorithm will be presented later on), the
+ general problem of determining winning sets as well as strategies can be
+ solved by nondeterministically guessing the winner and an optimal move
+ for each vertex, which puts the problem in NP (the set of problems decidable
+ by a non-deterministic Turing machine and verifiable by a deterministic
+ Turing machine in polynomial time) and co-NP (by symmetry of the problem:
+ absence of a winning strategy for one player can be proven by showing a
+ winning strategy for the other player).
+ The strategies are certificates to the solution.
 \end_layout
 
 \begin_layout Standard
-The problem of determining winning sets alone is in UP.
- From the symmetry of the problem (winning sets complement each other) it
- follows that the problem is in co-NP and co-UP as well, simply by reversing
- the roles of the players.
+NP and co-NP are generally believed to be distinct, and since the existence
+ of NP-complete problems in co-NP would imply NP = co-NP, it seems unlikely
+ that the problem is NP-complete.
+ Whether a polynomial time algorithm exists at all remains an open question,
+ despite considerable interest.
 \end_layout
 
 \begin_layout Standard
-It is not known whether or not solving parity games is an NP-complete problem.
- The fact that it is in both NP and co-NP suggests that it is not, for otherwise
- it would be co-NP-complete as well, and NP and co-NP would be equal, which
- current evidence suggests is not the case, unless P equals NP (and consequently
- co-NP) as well.
- Therefore, it is suspected that it should be possible to solve parity games
- in polynomial time only.
- However, no proof of this property exist.
- The known algorithms are exponential in the order of the game.
-\end_layout
-
-\begin_layout Standard
-The best known time complexity bound on the problem is that of Jurdziński's
- Small Progress Measures algorithm which has an upper bound of 
-\begin_inset Formula $O\left(d\left|E\right|\left(\frac{\left|V\right|}{\left\lfloor d/2\right\rfloor }\right)^{\left\lfloor d/2\right\rfloor }\right)$
+The more restricted problem of determining only winning sets has been shown
+ to be in UP 
+\begin_inset Formula $\cap$
 \end_inset
 
- where 
+ co-UP 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "jurdzinski1998deciding"
+
+\end_inset
+
+, where UP is the subset of NP containing those problems that are decidable
+ by an 
+\emph on
+unambiguous
+\emph default
+ nondeterministic Turing machine.
+ Since P 
+\begin_inset Formula $\subseteq$
+\end_inset
+
+ UP 
+\begin_inset Formula $\subseteq$
+\end_inset
+
+ NP this is a stronger result, altough none of these subset relations are
+ known to be strict.
+\end_layout
+
+\begin_layout Standard
+The best currently known algorithms are either exponential in game order
+ 
 \begin_inset Formula $d$
 \end_inset
 
- is the order of the game, and this bound is tight for particular known
- instances.
- Fortunately, many instances arising in practice can be solved much more
- quickly than the worst-case complexity, making parity game algorithms feasible
- in graphs with dozens of different priorities and thousands to billions
- of vertices.
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-Add citation for proof of complexity bounds (probably below to related work).
- Add complexity of Zielonka, SPM and strategy improvement? Maybe add section
- about reduction to other (NP-complete of course) problems?
-\end_layout
+ (for example, Jurdziński's Small Progress Measures algorithm 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "jurdzinski2000spm"
 
 \end_inset
 
+ has an upper bound of 
+\begin_inset Formula $O\left(d\left|E\right|\left(\frac{\left|V\right|}{\left\lfloor d/2\right\rfloor }\right)^{\left\lfloor d/2\right\rfloor }\right)$
+\end_inset
 
+ and Jurdziński describes classes of games that indeed require exponental
+ time to solve) while others are instead subexponential in the size of the
+ graph (for example, Jurdziński, Paterson and Zwick give an 
+\begin_inset Formula $\left|V\right|^{O(\sqrt{\left|V\right|}}$
+\end_inset
+
+ algorithm in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "jurdzinski2006deterministic"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+Often 
+\begin_inset Formula $d$
+\end_inset
+
+ is small and therefore the first category of algorithms provides better
+ complexity bounds.
+ However, in practice many instances can be solved much more quickly than
+ the worst case time complexity would suggest, and consequently these complexity
+ bounds have little value when determining which algorithms are useful in
+ practice.
 \end_layout
 
 \begin_layout Section
@@ -1058,27 +1090,34 @@ Application To Model Checking
 
 \begin_layout Standard
 Parity games are not just of theoretical interest; they have a practical
- use too as a component in a model checking system.
+ uses too, primarily as a component in model checking systems.
+ Model checking tools verify whether a model of a system (typically expressed
+ in some high-level formal language) satisfies a certain specification (typicall
+y captured in a temporal logic formula).
 \end_layout
 
 \begin_layout Standard
-Model checking tools verify whether a model of a system (typically expressed
- in some high-level formal language) satisfies a certain specification (typicall
-y captured in a temporal logic formula).
- Practical model checking tools must balance two concerns: on the one hand,
+Practical model checking tools must balance two concerns: on the one hand,
  the specification language available to the user should be as expressive
  as possible, while on the other hand, the internal representation of the
  resulting model checking problem should be kept simple enough so that it
- can be solved efficiently using provably-correct algorithms.
+ can be solved quickly using provably-correct algorithms.
 \end_layout
 
 \begin_layout Standard
 Parity games are useful here, because they can encode model checking problems
- resulting from the application of modal μ-calculus specifications to labelled
- transition systems.
+ resulting from the application of modal 
+\begin_inset Formula $\mu$
+\end_inset
+
+-calculus specifications to labelled transition systems.
  Since many high-level specification languages can be converted into labelled
  transition systems, and many temporal logics (such as CTL and LTL) can
- be expressed in the modal μ-calculus 
+ be expressed in the modal 
+\begin_inset Formula $\mu$
+\end_inset
+
+-calculus 
 \begin_inset Note Note
 status open
 
@@ -1089,6 +1128,32 @@ cite
 \end_inset
 
 , this is a fairly comprehensive approach to model checking.
+\end_layout
+
+\begin_layout Section
+Contributions
+\end_layout
+
+\begin_layout Standard
+[[Describe my contributions.]]
+\end_layout
+
+\begin_layout Standard
+An efficient solution verification algorithm.
+\end_layout
+
+\begin_layout Standard
+Max.
+ measures lifting heuristic.
+\end_layout
+
+\begin_layout Standard
+Parallel/distributed implementations.
+\end_layout
+
+\begin_layout Standard
+Evaluation of high-performance implementations of some well-known algorithms
+ (previous results were theoretical or implemented relatively inefficiently).
 \end_layout
 
 \begin_layout Section
