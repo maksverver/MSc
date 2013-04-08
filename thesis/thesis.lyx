@@ -1131,51 +1131,41 @@ cite
 \end_layout
 
 \begin_layout Section
-Contributions
-\end_layout
-
-\begin_layout Standard
-[[Describe my contributions.]]
-\end_layout
-
-\begin_layout Standard
-An efficient solution verification algorithm.
-\end_layout
-
-\begin_layout Standard
-Max.
- measures lifting heuristic.
-\end_layout
-
-\begin_layout Standard
-Parallel/distributed implementations.
-\end_layout
-
-\begin_layout Standard
-Evaluation of high-performance implementations of some well-known algorithms
- (previous results were theoretical or implemented relatively inefficiently).
-\end_layout
-
-\begin_layout Section
 Related work
 \end_layout
 
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+short intro: three parts: theoretical work on parity games, work on model
+ checking which is similar but not about parity games, and 3: parity game
+ implementations, whiche are rare, and which is most directly related to
+ my work
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Subsection
-(PG algorithms)
+Automata theory and Parity Game algorithms
 \end_layout
 
 \begin_layout Standard
 A considerably amount of literature is available on parity games specifically
- and on more general perfect-information games played on infinite graphs
- and trees, as well as their relationship to computing automata and the
- application to model checking.
+ and more generally on perfect-information games played on (possibly infinite)
+ graphs and trees, as well as their relationship to computing automata and
+ their application to model checking.
  The majority of this work is theorethical in nature.
 \end_layout
 
 \begin_layout Standard
 A proof of determinacy for Borel games, of which parity games are a specializati
 on, was given by Donald A.
- Martin in 
+ Martin 
 \begin_inset CommandInset citation
 LatexCommand cite
 key "martin1975borel"
@@ -1183,18 +1173,18 @@ key "martin1975borel"
 \end_inset
 
 .
- Additionally, Klarlund proves in 
+ Additionally, Klarlund proved that memoryless strategies exist for players
+ in Borel games when using a Rabin winning condition 
 \begin_inset CommandInset citation
 LatexCommand cite
 key "klarlund1994progress"
 
 \end_inset
 
-, that memoryless strategies exist for players in Borel games when using
- a Rabin winning condition, of which the parity condition is a special case.
- Both of these results are more general than needed for parity games.
- Zielonka gives two direct proofs for the memoryless determinacy of parity
- games specifically in 
+, of which the parity condition is a special case.
+ Both of these results are more general than needed for parity games; Zielonka
+ gives two direct proofs for the memoryless determinacy of parity games
+ specifically 
 \begin_inset CommandInset citation
 LatexCommand cite
 key "zielonka1998igf"
@@ -1202,55 +1192,121 @@ key "zielonka1998igf"
 \end_inset
 
 .
- Jurdziński points out in 
+\end_layout
+
+\begin_layout Standard
+Zielonka also summarizes and improves many previous results on more general
+ classes of games played on infinite labeled graphs, with winning conditions
+ that are more complex than the parity condition.
+ These games cannot generally be solved by memoryless strategies, but many
+ of the concepts he mentions are still applicable to parity games, which
+ is why some of his terminology will be used in this report (see section
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Common-Terminology"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+Building on these and other ideas, many different parity game algorithms
+ have been proposed, including:
+\end_layout
+
+\begin_layout Itemize
+A recursive algorithm based on a constructive proof of determinacy, first
+ described by McNaughton 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "mcnaughton1993infinite"
+
+\end_inset
+
+ and later formulated more generally by Zielonka 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "zielonka1998igf"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Fixed-point iteration using Small Progress Measures by Jurdziński 
 \begin_inset CommandInset citation
 LatexCommand cite
 key "jurdzinski2000spm"
 
 \end_inset
 
- that a consequence of both players following memoryless strategies on a
- finite graph is that plays will eventually become periodic.
+
 \end_layout
 
-\begin_layout Standard
-Zielonka also summarizes and improves many previous results on more general
- classes of games played on infinite labaled graphs, with winning conditions
- that are more complex than the parity condition.
- These games cannot generally be solved by memoryless strategies, but many
- of the concepts he mentions are still applicable to parity games, which
- is why some of his terminology will be used in this report.
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-mention other algorithms not described in this paper (strategy improvement,
- others implemented in PGSolver).
-\end_layout
+\begin_layout Itemize
+Strategy improvement by Vöge and Jurdziński 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "voege2000discrete"
 
 \end_inset
 
 
 \end_layout
 
-\begin_layout Subsection
-(PG algorithm implementations)
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-mention PG solver
-\end_layout
+\begin_layout Itemize
+A randomized subexponential algorithm by Björklund, Sandberg and Vorobyov
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "bjorklund2003discrete"
 
 \end_inset
 
 
+\end_layout
+
+\begin_layout Itemize
+A deterministic subexponential algorithm by Jurdziński, Paterson and Zwick
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "jurdzinski2006deterministic"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+A “big steps” improvement of the recursive algorithm by Schewe 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "schewe2007solving"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Optimal strategy improvement by Schewe 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "schewe2008strategy-improvement"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Additionally, various indirect approaches to solving parity games by reduction
+ to other formulations such as SAT and Boolean equation systems have been
+ proposed.
 \end_layout
 
 \begin_layout Subsection
@@ -1325,6 +1381,107 @@ In both of these systems, the parametrized forms tend to be fairly small,
  only if the resulting parity games can reasonably fit into memory.
  This is a limitation shared with many other approaches to model checking
  (in particular those relying on explicit state space exploration).
+\end_layout
+
+\begin_layout Subsection
+(PG algorithm implementations)
+\end_layout
+
+\begin_layout Standard
+Although very many algorithms have been proposed in literature, few algorithms
+ are implemented, and little consideration is given to practical considerations
+ like memory use and parallellization.
+ This is suprising considering the practical utility that parity game solvers
+ could have as part of a model checking toolchain.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+mention PG solver
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+mention weber + van de Pol
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Note that my contributions mainly lie in this area.
+ My implementation considerably improves upon the state of the art.
+ (Mention that I beat pbes2bool, PGSolver and Weber's code.)
+\end_layout
+
+\begin_layout Standard
+mention Friedmann & Lange 
+\begin_inset Quotes eld
+\end_inset
+
+solving parity games in practice
+\begin_inset Quotes erd
+\end_inset
+
+: note that their benchmark results are so bad it's hard to take them seriously,
+ but note that their conclusions mirror my own (i.e.
+ Zielonka is great, linear-time preprocessing almost always pays off).
+\end_layout
+
+\begin_layout Standard
+mention that Schewe (in big steps) compares his start.
+ impr.
+ to the simplex algorithm for solving linear programming problem, and considers
+ the best class of algorithms in practice, although that doesn't seem to
+ be supported by Friedmann & Lange.
+\end_layout
+
+\begin_layout Standard
+mention Keiren.
+\end_layout
+
+\begin_layout Section
+Contributions
+\end_layout
+
+\begin_layout Standard
+[[Describe my contributions.]]
+\end_layout
+
+\begin_layout Standard
+An efficient solution verification algorithm.
+\end_layout
+
+\begin_layout Standard
+Max.
+ measures lifting heuristic.
+\end_layout
+
+\begin_layout Standard
+Parallel/distributed implementations.
+\end_layout
+
+\begin_layout Standard
+Evaluation of high-performance implementations of some well-known algorithms
+ (previous results were theoretical or implemented relatively inefficiently).
+\end_layout
+
+\begin_layout Standard
+PGsolver tool that outperforms pbes2bool, PGsolver, and Van de pol/Weber
+ ((what's their tool called?))
 \end_layout
 
 \begin_layout Chapter
@@ -1734,7 +1891,14 @@ Most solving algorithms do not require that priorities are compressed into
 \end_layout
 
 \begin_layout Section
-Common Terminology
+Common Terminology 
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Common-Terminology"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -3564,9 +3728,10 @@ key "tarjan1971depth"
 \end_inset
 
  is used, which enumerates all strongly connected components in reverse
- topological order (components are found in order such that each component
- has only edges within itself or going into components found before).
- It requires 
+ topological order, which means that when a component is found all edges
+ lead to vertices within the component, or into one of the components found
+ before.
+ The algorithm requires 
 \begin_inset Formula $O(\left|E\right|)$
 \end_inset
 
@@ -3574,8 +3739,8 @@ key "tarjan1971depth"
 \begin_inset Formula $O(\left|V\right|)$
 \end_inset
 
- space, even if the algorithm is aborted before all components have been
- found.
+ space (even if the algorithm is aborted before all components have been
+ found).
 \end_layout
 
 \begin_layout Standard
@@ -3586,16 +3751,17 @@ The algorithm as described by Tarjan is based on a depth-first search of
  exhaust the available stack space.
  Therefore, the implementation uses an iterative approach, with an explicit
  stack data structure which is stored in the heap.
- In addition to removing the limitations on recursion depth, this has the
- additional benefit of being a relative compact representation compared
- to the stack frames that would typically be created in a recursive procedure.
+ In addition to removing the limitations on recursion depth, this reduces
+ memory use substantially, because the on-heap state representation (consisting
+ of a vertex and edge index) is much more compact than a full stack frame
+ would be.
 \end_layout
 
 \begin_layout Standard
 Components are passed to a callback function as an array of indices of vertices
  in the original graph.
  Such an array can be used to construct a subgame for the component, as
- described above, though it should be noted that the subgame induces by
+ described above, though it should be noted that the subgame induced by
  a strongly connected component of the game graph is not typically a proper
  subgame itself, unless there are no edges going out of the current component.
 \end_layout
@@ -3661,10 +3827,9 @@ Oliver Friedmann proposed a variation of the algorithm that effectively
 
 \begin_layout Standard
 Small progress measures was previously implemented by Martin Lange and Oliver
- Friedmann in PGSolver (both the regular and two-way algorithm).
- A lock-free concurrent version was implemented by Weber and Van de Pol
- which works on shared-memory systems that do not reorder memory store operation
-s.
+ Friedmann in PGSolver (both the regular and two-way algorithm) and a lock-free
+ concurrent version was implemented by Weber and Van de Pol which works
+ on shared-memory systems that do not reorder memory store operations.
  A concurrent implementation for the Playstation 3 (taking advantage of
  the capabilities of the multi-core Cell processor) was written by Jorne
  Kandziora and later improved upon by Freark van der Berg.
@@ -3689,7 +3854,14 @@ Description
 \end_layout
 
 \begin_layout Standard
-Here I will outline SPM as described by Jurdziński.
+Here I will outline SPM as described by Jurdziński 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "jurdzinski2000spm"
+
+\end_inset
+
+.
  Let's assume we want to solve the game for player even.
  Then, we associate with each vertex a value, which is either a 
 \series bold
@@ -3728,7 +3900,7 @@ Here I will outline SPM as described by Jurdziński.
 \begin_inset Formula $M_{i}$
 \end_inset
 
- is defined:
+ is defined as:
 \end_layout
 
 \begin_layout Standard
@@ -4054,8 +4226,8 @@ However, in practice this strategy for vertex selection appears to have
 \end_layout
 
 \begin_layout Enumerate
-As mentioned above, in many cases an appropriate vertex selection strategy
- can reduce the number of applications of 
+In many cases an appropriate vertex selection strategy can reduce the number
+ of applications of 
 \begin_inset Formula $Lift(p)$
 \end_inset
 
@@ -4129,7 +4301,7 @@ lifting attempt
 \bar no
 \noun off
 \color none
-
+(
 \begin_inset Formula $Lift(\rho,v)(v)=\rho$
 \end_inset
 
@@ -4142,7 +4314,7 @@ lifting attempt
 \bar default
 \noun default
 \color inherit
-.
+).
  Depending on the implementation, a succesful lifting attempt may be more
  costly than an unsuccesful attempt, but both have non-zero cost, so the
  goal for an efficient implementation will be to minimize both of these
@@ -4160,7 +4332,7 @@ ly) stable.
  point has been reached.
  In general, we want to avoid trying to lift stable vertices as this doesn't
  progress the algorithm, but in many cases we do not know whether a vertex
- is stable or not unless we try to lift it.
+ is stable until we try to lift it.
  Typically, we cannot avoid at least one unsuccesful lifting attempt for
  each vertex in order to prove all progress measures have stabilized.
 \end_layout
@@ -4181,29 +4353,28 @@ refer to actual implementation where this is clear
 
 , but since both the maximum priority and the average out-degree is typically
  low, we might ignore this for sake of simplicity.
- Similarly, we will assume that the cost of failed lifting attempts is constant
- as well, and is no greater than that of a succesful lifting attempt, as
- the same successors must be examined, except that no updates are performed.
+ Similarly, we will assume that the cost a failed lifting attempt does not
+ exceed that of a succesful lifting attempt, as the same successors must
+ be examined, except that no updates are performed.
+ Whether or not there is a significant difference depends on the underlying
+ memory model, and on how expensive updates are.
 \end_layout
 
 \begin_layout Standard
-Ideally, the SPM algorithm performs succesful lifting attempts only and
- then stops, minimizing the total cost required to arrive at a solution.
- Unfortunately, there is no obvious way to select vertices to achieve this.
- Moreover, after the minimum fixed point has been found, we may have to
- perform additional (failing) lifting attempts just to verify that we have
- indeed found a fixed point.
- Unfortunately, there is no obvious way to select vertices in an optimal
- fashion.
- Therefore, lifting strategies are necessarily heuristical in nature, making
- a best-effort attempt at selecting a sequence of vertices that minimizes
- the cost.
- 
+Ideally, the SPM algorithm performs a sequence of succesful lifting attempts
+ first, and then only a number of failing attempts required to prove that
+ the solution is stable.
+ Unfortunately, there is no easy way to predict such an optimal sequence
+ in general, and as Jurdziński already showed, even in cases where an optimal
+ sequence is known, it may be quite large.
+\end_layout
+
+\begin_layout Standard
 \begin_inset Note Note
 status open
 
 \begin_layout Plain Layout
-(But can we determine an optimal sequence with hindsight?)
+(Open question: can we determine an optimal sequence with hindsight?)
 \end_layout
 
 \end_inset
@@ -4220,16 +4391,12 @@ lifting strategy
  the values of the progress measure vectors and/or the history of vertices
  being lifted, determines which vertex is selected for the next lifting
  attempt.
- Most sensible strategies are 
-\emph on
-online algorithms
-\emph default
- in the sense that they take the success of the previous lifting operation
+ Most sensible strategies take the success of the previous lifting operation
  into account to determine which vertex to lift next.
- As a result, the strategies are stateful, and although sophisticated lifting
- strategies may cause fewer work to be done in the SPM algorithm itself,
- this comes at the cost of requiring more time and memory spent on keeping
- state for the lifting strategy itself.
+ These strategies are stateful, and although sophisticated lifting strategies
+ may cause fewer work to be done in the SPM algorithm itself (by reducing
+ the number of lifting attempts) this may come at the cost of spending more
+ time and memory on internal bookkeeping.
  We will present results which quantify this overhead for various possible
  strategies later.
 \end_layout
@@ -4239,12 +4406,15 @@ Termination conditions
 \end_layout
 
 \begin_layout Standard
-As has been mentioned, the decision to terminate the algorithm is made by
- the lifting strategy.
- The reason for this is to keep the main algorithm as simple as possible,
- which is useful because the lifting strategy already keeps track of potentially
- unstable vertices.
- A sufficient condition for termination is to verify that there are no 
+In my implementation the SPM algorithm is terminated when the lifting strategy
+ decides that the solution is stable.
+ The lifting strategy already keeps track of the information necessary to
+ decide whether a stable solution has been reached, and duplicating this
+ logic in the core SPM algorithm would make it unnecessarily complicated.
+\end_layout
+
+\begin_layout Standard
+A sufficient condition for termination is to verify that there are no 
 \emph on
 dirty
 \emph default
@@ -4280,40 +4450,9 @@ Core Algorithm Implementation
 \begin_layout Standard
 To implement the Jurdziński's algorithm, we start with an all-zero progress
  measures, and while a vertex can be found that can be lifted, we lift it.
- Jurdziński notes that finding a suitable vertex to lift takes at most 
-\begin_inset Formula $O(\left|V\right|)$
-\end_inset
-
- time (by considering each vertex in succession).
- In practice we can do better, at least on average, with a suitable lifting
- strategy.
-\end_layout
-
-\begin_layout Standard
-The small progress measure vectors themselves are stored simply in a contiguous
- array of length 
-\begin_inset Formula $\left|V\right|\times\left\lfloor \frac{d}{2}\right\rfloor $
-\end_inset
-
- (where 
-\begin_inset Formula $d$
-\end_inset
-
- is one larger than the maximum priority occuring in the game graph), since
- each vector consists of 
-\family roman
-\series medium
-\shape up
-\size normal
-\emph off
-\bar no
-\noun off
-\color none
-
-\begin_inset Formula $\left\lfloor \frac{d}{2}\right\rfloor $
-\end_inset
-
- components.
+ Jurdziński notes that to find a suitable vertex to lift we might need to
+ consider each vertex in succession, but a suitable lifting strategy will
+ do much better, at least in practice.
 \end_layout
 
 \begin_layout Standard
@@ -4399,6 +4538,32 @@ name "alg:Small-Progress-Measures"
 \end_inset
 
 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Now the question remains where and how the small progress measure vectors
+ themselves are stored.
+ This depends on the model of computation.
+ For a single-threaded algorithm, this data can simply be kept in a contiguous
+ array of length 
+\begin_inset Formula $\left|V\right|\times\left\lfloor \frac{d}{2}\right\rfloor $
+\end_inset
+
+ (note that the vector elements that are fixed to zero are not stored explicitly
+).
+ For multi-threaded and distributed implementations, more sophisticated
+ representations are necessary.
+ 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+describe these somewhere else; refer to them here
 \end_layout
 
 \end_inset
@@ -7091,7 +7256,7 @@ key "friedmann2009solving"
 
 \end_inset
 
-and in 
+ and in 
 \begin_inset CommandInset citation
 LatexCommand cite
 key "keiren2009"
@@ -7099,6 +7264,22 @@ key "keiren2009"
 \end_inset
 
 ) to work well as an actual solver too.
+\end_layout
+
+\begin_layout Standard
+Zielonka's formulation of the algorithm is based on previous work by McNaughton
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "mcnaughton1993infinite"
+
+\end_inset
+
+.
+ The main difference is that McNaughton limits himself to finite graphs,
+ while Zielonka concerns himself with infinite graphs as well.
+ Beauces of their fundamental similarity, Zielonka's algorithm is sometimes
+ referred to as McNaughton's algorithm in literature on parity games.
 \end_layout
 
 \begin_layout Standard
@@ -7125,7 +7306,7 @@ Without loss of generality (using priority compression if necessary) suppose
  in wich some vertices have priority 0.
  Then, we can compute the attractor set of these vertices for player Even
  (
-\begin_inset Formula $U=Attr^{0}(\Gamma,\{v:\,\phi(v)=0\}$
+\begin_inset Formula $U=Attr^{0}(\Gamma,\phi^{-1}(0)$
 \end_inset
 
 
@@ -7204,10 +7385,10 @@ Since there are no vertices with priority
 \end_inset
 
  in 
-\begin_inset Formula $\Gamma$
+\begin_inset Formula $\Gamma'$
 \end_inset
 
-'
+
 \family roman
 \series medium
 \shape up
@@ -7391,23 +7572,6 @@ key "friedmann-recursive-lower-bound"
 \end_inset
 
 -th Fibonacci number).
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-TODO:
-\end_layout
-
-\begin_layout Plain Layout
-- note that McNaughton proposed something similar (when/where?)
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Section
