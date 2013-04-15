@@ -8722,7 +8722,7 @@ research question
 \begin_inset CommandInset bibtex
 LatexCommand bibtex
 bibfiles "references"
-options "bibtotoc,plain"
+options "bibtotoc,plainurl"
 
 \end_inset
 
