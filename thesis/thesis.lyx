@@ -3,6 +3,10 @@
 \begin_document
 \begin_header
 \textclass book
+\begin_preamble
+\usepackage {url}  % this doesn't seem to work!
+\usepackage {a4wide}
+\end_preamble
 \use_default_options true
 \maintain_unincluded_children false
 \language english
@@ -152,8 +156,8 @@ name "fig:introduction-example"
 \end_layout
 
 \begin_layout Standard
-There are different conventions for the names of players.
- They can be called Even and Odd, or denoted by symbols ◇ and ◻, which is
+There are different conventions for the player's names.
+ They may be called Even and Odd, or denoted by symbols ◇ and ◻, which is
  particularly useful when visualizing games, as can be seen in Figure 
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -176,7 +180,7 @@ reference "fig:introduction-example"
 \begin_inset Formula $x$
 \end_inset
 
-, his opponent can be described as 
+, his opponent is 
 \begin_inset Formula $1-x$
 \end_inset
 
@@ -184,7 +188,7 @@ reference "fig:introduction-example"
 \end_layout
 
 \begin_layout Standard
-A parity game can be described as a quadruple 
+Formally, a parity game can be described as a quadruple 
 \begin_inset Formula $\Gamma=(V_{\text{0}},V_{\text{1}},E,\phi)$
 \end_inset
 
@@ -205,25 +209,7 @@ A parity game can be described as a quadruple
 \begin_inset Formula $V_{0}\cap V_{1}=\emptyset$
 \end_inset
 
-:
-\family default
-\series default
-\shape default
-\size default
-\emph default
-\bar default
-\noun default
-\color inherit
- 
-\family roman
-\series medium
-\shape up
-\size normal
-\emph off
-\bar no
-\noun off
-\color none
-in other words, 
+ (in other words: 
 \begin_inset Formula $V_{\text{0}}$
 \end_inset
 
@@ -244,20 +230,13 @@ in other words,
 \bar default
 \noun default
 \color inherit
- Even and Odd respectively.
+ Even and Odd respectively).
  
-\begin_inset Formula $E$
+\begin_inset Formula $E\subseteq V\times V$
 \end_inset
 
  is the set of directed edges in the game graph.
- Note that 
-\begin_inset Formula $E$
-\end_inset
-
- is a true set: every ordered pair of vertices has at most one edge between
- them.
- Duplicate edges are not allowed, but loops (edges which lead from a vertex
- back to itself) may occur.
+ This set may contain loops (edges which lead from a vertex back to itself).
  
 \begin_inset Formula $\phi:V\rightarrow\mathbb{N}_{0}$
 \end_inset
@@ -279,72 +258,8 @@ order of the game
 \begin_layout Standard
 Parity games can be played on finite as well as infinite graphs.
  A parity game is called finite if it is played on a graph with a finite
- number of vertices.
- Consequently, the number of edges will be finite too (since the edge set
- is 
-\family roman
-\series medium
-\shape up
-\size normal
-\emph off
-\bar no
-\noun off
-\color none
-a subset of
-\family default
-\series default
-\shape default
-\size default
-\emph default
-\bar default
-\noun default
-\color inherit
- 
-\family roman
-\series medium
-\shape up
-\size normal
-\emph off
-\bar no
-\noun off
-\color none
-
-\begin_inset Formula $V\times V$
-\end_inset
-
-)
-\family default
-\series default
-\shape default
-\size default
-\emph default
-\bar default
-\noun default
-\color inherit
-.
- Finally, because the number of distinct priorities is bounded by 
-\family roman
-\series medium
-\shape up
-\size normal
-\emph off
-\bar no
-\noun off
-\color none
-
-\begin_inset Formula $\left|V\right|$
-\end_inset
-
-
-\family default
-\series default
-\shape default
-\size default
-\emph default
-\bar default
-\noun default
-\color inherit
-, the order of a finite game is finite as well.
+ number of vertices; in this case, the number of edges and the order of
+ the game will be finite as well.
 \end_layout
 
 \begin_layout Subsection
@@ -353,7 +268,7 @@ Game Play and Winning Conditions
 
 \begin_layout Standard
 A parity game is played by placing a token on some initial vertex.
- The player to whom the vertex belongs moves the token to an adjacent vertex,
+ The player controlling that vertex moves the token to an adjacent vertex,
  which may belong to either player, who then makes the next move.
  When the token lands on a vertex without any outgoing edges, the game ends.
  However, it is more common for a game to continue indefinitely, causing
@@ -386,7 +301,7 @@ play
 \noun default
 \color inherit
 
-\begin_inset Formula $\forall i<n\; v_{i}v_{i+1}\in E$
+\begin_inset Formula $\forall i<n,\ v_{i}v_{i+1}\in E$
 \end_inset
 
  and 
@@ -399,7 +314,7 @@ play
 \end_inset
 
  is an infinite play if and only if 
-\begin_inset Formula $\forall i\in\mathbb{N}\; v_{i}v_{i+1}\in E$
+\begin_inset Formula $\forall i\in\mathbb{N},\; v_{i}v_{i+1}\in E$
 \end_inset
 
 .
@@ -704,9 +619,9 @@ ng winning sets for either player.
 \end_layout
 
 \begin_layout Standard
-An objection against determining winning sets without associated strategies
- is that even if we assume the output to be correct, the winning sets alone
- do not provide any insight in 
+A limitation of calculating winning sets without associated strategies is
+ that even if we assume the output to be correct, the winning sets alone
+ do not provide any insight into 
 \emph on
 why
 \emph default
@@ -714,9 +629,9 @@ why
  Strategies are useful to understand the outcome of the games.
  In the application of model checking, strategies can be used to show why
  a certain property holds, or generate counter-examples if it doesn't.
- Moreover, if we have not just a winning set, but also associated strategies,
- we can readily verify their correctness (as will be described in detail
- later).
+ Additionally, if we have not just a winning set, but also associated strategies
+, we can check the correctness of a proposed solution without having to
+ solve the game from scratch.
 \end_layout
 
 \begin_layout Standard
@@ -725,10 +640,10 @@ Therefore,
 solving a game
 \emph default
  in the most general sense means to identify optimal strategies for both
- players in addition to winning sets for both players.
+ players in addition to their winning sets.
  Note that even in finite games, strategies (unlike winning sets) do not
  complement each other, so given an optimal strategy for one player, we
- cannot (easily) deduce the strategy for his opponent.
+ cannot (easily) deduce an optimal strategy for his opponent.
 \end_layout
 
 \begin_layout Subsection
@@ -772,7 +687,7 @@ optimal strategy
 \end_layout
 
 \begin_layout Standard
-Strategy as described above are called 
+Strategies as described above are called 
 \emph on
 infinite-memory strategies
 \emph default
@@ -855,7 +770,7 @@ We will define memoryless strategies as functions
 \begin_inset Formula $V_{x}$
 \end_inset
 
-but not in 
+ but not in 
 \begin_inset Formula $W_{\text{x}}$
 \end_inset
 
@@ -892,16 +807,6 @@ Sometimes we want to refer to the combined strategies of both players,
 \begin_layout Standard
 It turns out that for all games of finite order optimal memoryless strategies
  exist.
- 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-citation needed
-\end_layout
-
-\end_inset
-
  Research on finite-order games typically focuses on finding memoryless
  strategies for both players, which can be described succinctly by simply
  listing an optimal move for every vertex, which is especially practical
@@ -909,8 +814,8 @@ citation needed
 \end_layout
 
 \begin_layout Standard
-Since this report is about finding optimal strategies to finite parity games,
- the term 
+This report is about finding optimal strategies to finite parity games,
+ and therefore the term 
 \emph on
 strategy
 \emph default
@@ -1004,7 +909,7 @@ NP and co-NP are generally believed to be distinct, and since the existence
  of NP-complete problems in co-NP would imply NP = co-NP, it seems unlikely
  that the problem is NP-complete.
  Whether a polynomial time algorithm exists at all remains an open question,
- despite considerable interest.
+ despite considerable research interest.
 \end_layout
 
 \begin_layout Standard
@@ -1034,8 +939,8 @@ unambiguous
 \begin_inset Formula $\subseteq$
 \end_inset
 
- NP this is a stronger result, altough none of these subset relations are
- known to be strict.
+ NP this is a stronger result, altough it is not known which (if any) of
+ these sets are distinct.
 \end_layout
 
 \begin_layout Standard
@@ -1058,7 +963,7 @@ key "jurdzinski2000spm"
  and Jurdziński describes classes of games that indeed require exponental
  time to solve) while others are instead subexponential in the size of the
  graph (for example, Jurdziński, Paterson and Zwick give an 
-\begin_inset Formula $\left|V\right|^{O(\sqrt{\left|V\right|}}$
+\begin_inset Formula $\left|V\right|^{O(\sqrt{\left|V\right|})}$
 \end_inset
 
  algorithm in 
@@ -1090,10 +995,10 @@ Application To Model Checking
 
 \begin_layout Standard
 Parity games are not just of theoretical interest; they have a practical
- uses too, primarily as a component in model checking systems.
- Model checking tools verify whether a model of a system (typically expressed
- in some high-level formal language) satisfies a certain specification (typicall
-y captured in a temporal logic formula).
+ uses too, primarily as a component in model checking systems, which attempt
+ to verify whether a model of a system (typically expressed in some high-level
+ formal language) satisfies a certain specification (typically captured
+ in a temporal logic formula).
 \end_layout
 
 \begin_layout Standard
@@ -1122,7 +1027,7 @@ Parity games are useful here, because they can encode model checking problems
 status open
 
 \begin_layout Plain Layout
-cite
+citation?
 \end_layout
 
 \end_inset
@@ -1135,36 +1040,36 @@ Related work
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-short intro: three parts: theoretical work on parity games, work on model
- checking which is similar but not about parity games, and 3: parity game
- implementations, whiche are rare, and which is most directly related to
- my work
+The work related to mine falls into three broad categories: theoretical
+ work on parity game algorithms, practical work on formulating problems
+ as parity games, and implementations of parity game algorithms.
+ I will summarize the developments most relevant to my project in this section.
 \end_layout
+
+\begin_layout Subsection
+Automata theory and parity game algorithms 
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Automata-and-PG-algorithms"
 
 \end_inset
 
 
 \end_layout
 
-\begin_layout Subsection
-Automata theory and Parity Game algorithms
-\end_layout
-
 \begin_layout Standard
-A considerably amount of literature is available on parity games specifically
+A considerable amount of literature is available on parity games specifically
  and more generally on perfect-information games played on (possibly infinite)
  graphs and trees, as well as their relationship to computing automata and
  their application to model checking.
- The majority of this work is theorethical in nature.
+ The majority of this work is theoretical in nature.
 \end_layout
 
 \begin_layout Standard
-A proof of determinacy for Borel games, of which parity games are a specializati
-on, was given by Donald A.
+An important property of parity games is the fact that the winner can be
+ determined for every vertex using memoryless strategies.
+ A proof of determinacy of Borel games, of which parity games are a specializati
+on, was first formulated by Donald A.
  Martin 
 \begin_inset CommandInset citation
 LatexCommand cite
@@ -1173,15 +1078,15 @@ key "martin1975borel"
 \end_inset
 
 .
- Additionally, Klarlund proved that memoryless strategies exist for players
- in Borel games when using a Rabin winning condition 
+ For Borel games with a Rabin winning condition, of which the parity condition
+ is a special case, Klarlund proved that memoryless strategies exist 
 \begin_inset CommandInset citation
 LatexCommand cite
 key "klarlund1994progress"
 
 \end_inset
 
-, of which the parity condition is a special case.
+.
  Both of these results are more general than needed for parity games; Zielonka
  gives two direct proofs for the memoryless determinacy of parity games
  specifically 
@@ -1195,7 +1100,7 @@ key "zielonka1998igf"
 \end_layout
 
 \begin_layout Standard
-Zielonka also summarizes and improves many previous results on more general
+Zielonka also summarizes and improves upon previous results on more general
  classes of games played on infinite labeled graphs, with winning conditions
  that are more complex than the parity condition.
  These games cannot generally be solved by memoryless strategies, but many
@@ -1212,8 +1117,8 @@ reference "sec:Common-Terminology"
 \end_layout
 
 \begin_layout Standard
-Building on these and other ideas, many different parity game algorithms
- have been proposed, including:
+Building on these ideas, many different parity game algorithms have been
+ proposed, including:
 \end_layout
 
 \begin_layout Itemize
@@ -1305,12 +1210,82 @@ key "schewe2008strategy-improvement"
 
 \begin_layout Standard
 Additionally, various indirect approaches to solving parity games by reduction
- to other formulations such as SAT and Boolean equation systems have been
- proposed.
+ to other formulations such as SAT (
+\begin_inset CommandInset citation
+LatexCommand cite
+key "lange2005sat"
+
+\end_inset
+
+) and Boolean equation systems have been proposed.
+\end_layout
+
+\begin_layout Standard
+This gives plenty of algorithms to choose from, though there is no agreement
+ on which algorithms work best in practice.
+ Schewe favours strategy improvement, stating they are: 
+\emph on
+
+\begin_inset Quotes eld
+\end_inset
+
+[..] fast simplex style algorithms that perform well in practice.
+ While their complexity is wide open, they are often considered the best
+ choice for solving large scale games.
+\emph default
+
+\begin_inset Quotes erd
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "schewe2008strategy-improvement"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+However, Friedmann and Lange have performed an emperical evaluation of various
+ algorithms, and conclude that 
+\emph on
+
+\begin_inset Quotes eld
+\end_inset
+
+the small progress measures algorithm as well as the strategy improvement
+ turn out to be generally slower than the recursive algorithm
+\emph default
+
+\begin_inset Quotes erd
+\end_inset
+
+ and conclude that 
+\emph on
+
+\begin_inset Quotes eld
+\end_inset
+
+Zielonka’s recursive algorithm is the best parity game solver in practice
+\emph default
+
+\begin_inset Quotes erd
+\end_inset
+
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "friedmann2009solving"
+
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Subsection
-(Model checking)
+Model checking tools
 \end_layout
 
 \begin_layout Standard
@@ -1320,168 +1295,287 @@ At least two formal verification systems exist that can transform model
 
 \begin_layout Enumerate
 The mCRL2 toolkit 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-cite
-\end_layout
+\begin_inset CommandInset citation
+LatexCommand cite
+key "groote2008mcrl2"
 
 \end_inset
 
  composes models and formulae into parametrized Boolean equation systems
  (PBES) 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-cite
-\end_layout
+\begin_inset CommandInset citation
+LatexCommand cite
+key "groote2005parameterised"
 
 \end_inset
 
-, can linearize them into boolean equation systems (BES), and translate
- these into parity games.
+, can linearize these into boolean equation systems (BES), and either solve
+ those directly (with a tool called 
+\family typewriter
+pbes2bool
+\family default
+) or translate them into parity games instead.
 \end_layout
 
 \begin_layout Enumerate
 The LTSmin toolkit 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-cite
-\end_layout
+\begin_inset CommandInset citation
+LatexCommand cite
+key "blom2010ltsmin"
 
 \end_inset
 
- implements a different approach, which first transform a PBES into a parametriz
-ed parity game (PPG) and then generates the parity game directly.
- 
+ supports a different approach: it transforms a PBES into a parametrized
+ parity game (PPG) and then generates the parity game directly 
 \begin_inset CommandInset citation
 LatexCommand cite
 key "kant2012pbes2pg"
 
 \end_inset
 
-
+.
+ This approach was motivated by the observation that linearization of the
+ PBES was often the slowest step in the solution process, and that optimization
+ of this conversion can drastically reduce both time and memory required.
 \end_layout
 
 \begin_layout Standard
-(The second approach was motivated by the observation that generating the
- BES would often require much more time and space than solving the resulting
- parity game.)
-\end_layout
-
-\begin_layout Standard
-In both of these systems, the parametrized forms tend to be fairly small,
+In both of these toolkits, the parametrized forms tend to be fairly small,
  while the linearized forms (and therefore the final parity game) may be
  quite large.
- Model checking using a parity game solver as a backend therefore is viably
+ Model checking using a parity game solver as a backend therefore is viable
  only if the resulting parity games can reasonably fit into memory.
  This is a limitation shared with many other approaches to model checking
  (in particular those relying on explicit state space exploration).
 \end_layout
 
 \begin_layout Subsection
-(PG algorithm implementations)
+Parity game solvers
 \end_layout
 
 \begin_layout Standard
-Although very many algorithms have been proposed in literature, few algorithms
- are implemented, and little consideration is given to practical considerations
- like memory use and parallellization.
- This is suprising considering the practical utility that parity game solvers
- could have as part of a model checking toolchain.
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-mention PG solver
-\end_layout
+Although many algorithms have been proposed in literature (as discussed
+ in section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Automata-and-PG-algorithms"
 
 \end_inset
 
-
+) few implementations are mentioned, and there is little discussion of practical
+ considerations (memory use, efficiency, parallelizability, distributability,
+ et cetera).
+ This is suprising: considering the utility of parity game solvers as part
+ of a model checking toolchain, and the notorious gap between theoretical
+ time complexity and solving time required in practical instances, one would
+ imagine there to be more research interest in determining which algorithms
+ work well in practice.
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-mention weber + van de Pol
-\end_layout
+The main exception is PGSolver (
+\emph on
+“a collection of tools for generating, manipulating and - most of all -
+ solving parity games”
+\emph default
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "pgsolver"
 
 \end_inset
 
+) which implements a large number of algorithms described in literature,
+ as well as a number of preprocessing operations to simplify instances before
+ passing them on to a solver backend.
+ This tool is actively maintained, and is the basis of Friedmann and Lange's
+ empirical evaluation 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "friedmann2009solving"
 
-\end_layout
-
-\begin_layout Standard
-Note that my contributions mainly lie in this area.
- My implementation considerably improves upon the state of the art.
- (Mention that I beat pbes2bool, PGSolver and Weber's code.)
-\end_layout
-
-\begin_layout Standard
-mention Friedmann & Lange 
-\begin_inset Quotes eld
 \end_inset
 
-solving parity games in practice
-\begin_inset Quotes erd
+.
+ Jeroen Keiren also used PGSolver to evaluate the suitability of parity
+ game algorithms to solve the Boolean equation systems generated by the
+ mCRL2 toolkit.
+\begin_inset CommandInset citation
+LatexCommand cite
+key "keiren2009"
+
 \end_inset
 
-: note that their benchmark results are so bad it's hard to take them seriously,
- but note that their conclusions mirror my own (i.e.
- Zielonka is great, linear-time preprocessing almost always pays off).
+ Although PGSolver is a powerful tool, it also has some limitations: it's
+ a strictly sequential solver that doesn't support parallel or distributed
+ solving.
 \end_layout
 
 \begin_layout Standard
-mention that Schewe (in big steps) compares his start.
- impr.
- to the simplex algorithm for solving linear programming problem, and considers
- the best class of algorithms in practice, although that doesn't seem to
- be supported by Friedmann & Lange.
+It should be mentioned that Van de Pol and Weber developed a multi-core
+ implementation of Small Progress Measures 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "vandepol2008multicore"
+
+\end_inset
+
+ (the first parallel implementation of a parity game algorithm).
+ However, their tool is unmaintained and because of the limited scope of
+ their experiments, not very suitable for general use.
 \end_layout
 
 \begin_layout Standard
-mention Keiren.
+In summary, it appears that PGSolver is the only comprehensive tool easily
+ available to users that have a parity game problem to solve.
 \end_layout
 
 \begin_layout Section
-Contributions
+My Contributions
 \end_layout
 
 \begin_layout Standard
-[[Describe my contributions.]]
+From the above it should be clear that there is a gap between theory and
+ practice with respect to using parity games as a formalism for solving
+ formal verification problems.
+ On the practical side there is a desire to efficiently solve model checking
+ problems that arise in practice.
+ Tool support to express these problems as parity games already exists.
+ On the theoretical side there is no dearth of proposed algorithms for solving
+ parity games, but there is only one tool that actually implements these
+ algorithms: PGSolver.
 \end_layout
 
 \begin_layout Standard
-An efficient solution verification algorithm.
+It should come as no surprise that my contributions lie in this area.
+ The main deliverable of my master's project, besides this report, is an
+ efficient parity game solving tool which improves upon the state of the
+ art in several ways:
+\end_layout
+
+\begin_layout Itemize
+For mCRL2, my tool offers a faster and more memory-efficient alternative
+ to 
+\family typewriter
+pbes2bool
+\family default
+ (the default solver for PBES).
+ My solver has already been integrated into mCRL2 as an experimental tool
+ called 
+\family typewriter
+pbespgsolve
+\family default
+ which can be used today.
+\end_layout
+
+\begin_layout Itemize
+Compared to PGSolver, my tool features fewer different solver algorithms,
+ but better preprocessing routines and heuristics.
+ My tool typically uses less time and space to solve testcases, sometimes
+ by a small margin, sometimes dramatically so.
 \end_layout
 
 \begin_layout Standard
-Max.
- measures lifting heuristic.
+I want to stress that improving upon PGSolver was not a goal of my project
+ in itself.
+ However, having independent implementations of some of the critical algorithms
+ (in different programming languages and using different data structures)
+ is very useful to put empirical data such as reported by Friedmann and
+ Lange in perspective, because it helps quantify to which extent results
+ depend on the performance of the algorithms themselves and to which extent
+ they are influenced by implementation techniques.
 \end_layout
 
 \begin_layout Standard
-Parallel/distributed implementations.
+My solver also includes a few innovations that are documented in this report:
+\end_layout
+
+\begin_layout Itemize
+A new preprocessing technique which removes cycles controlled by a single
+ player from the game (described in subsection 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Winner-controlled-cycle-removal"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Itemize
+An efficient strategy verification algorithm that is not dependent on any
+ solving algorithm (described in section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Verification"
+
+\end_inset
+
+) 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+TODO: need to check how verification works in PGsolver and whether my approach
+ is better
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+A new heuristic for the small progress measures algorithm (described in
+ subsection 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Maximum-Measure-Propagation"
+
+\end_inset
+
+)
 \end_layout
 
 \begin_layout Standard
-Evaluation of high-performance implementations of some well-known algorithms
- (previous results were theoretical or implemented relatively inefficiently).
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
++ add: Parallel/distributed implementations
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
-PGsolver tool that outperforms pbes2bool, PGsolver, and Van de pol/Weber
- ((what's their tool called?))
+Finally, my report includes an empirical evaluation of these algorithms
+ and techniques (some novel, some only known from literature, and some previousl
+y evaluated) in order to give more insight in which techniques are most
+ useful when solving parity games in practice (in chapter 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "chap:Empirical-Evaluation"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+The rest of the report should be structured around describing/proving these
+ contributions.
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Chapter
@@ -2188,7 +2282,17 @@ Attr^{x}(\Gamma,U)=U_{0}\cup U_{1}\cup\cdots
 
 \begin_layout Standard
 This is also useful to compute the attractor set iteratively.
- Since it is a fixed point attractor, 
+ Since it is a fixed point 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+checkme
+\end_layout
+
+\end_inset
+
+ attractor, 
 \begin_inset Formula $Attr^{x}(\Gamma,U)$
 \end_inset
 
@@ -2540,7 +2644,14 @@ Browse PGSolver docs/Jeroen's thesis for stuff worth repeating here.
 \end_layout
 
 \begin_layout Section
-Verification
+Verification 
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Verification"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -5422,7 +5533,14 @@ TODO: example pictures for the four cases above?
 \end_layout
 
 \begin_layout Subsubsection
-Winner-controlled cycle removal
+Winner-controlled cycle removal 
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Winner-controlled-cycle-removal"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -6528,11 +6646,18 @@ name "alg:Focus-List-Lifting"
 \end_layout
 
 \begin_layout Subsection
-Maximum-Measure Propagation
+Maximum Measure Propagation 
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Maximum-Measure-Propagation"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
-The maximum-measure propagation strategy is a variant of the predecessor
+The maximum measure propagation strategy is a variant of the predecessor
  lifting strategy that at each iteration attempts to lift a vertex with
  a successor that has a maximal progress measure vector assigned to it.
  The rationale behind this strategy is the observation that since we increase
@@ -6562,7 +6687,7 @@ Pathological examples can be constructed in which this order of lifting
 \end_layout
 
 \begin_layout Standard
-In practice, maximum-measure propagation is not always strictly better than
+In practice, maximum measure propagation is not always strictly better than
  the general simple predecessor lifting strategy described above, as will
  be shown later.
  However, in many cases it does cause fewer (succesful as well as total)
@@ -8360,7 +8485,14 @@ discuss the effect of partitioning schemes on the efficiency of these algorithms
 \end_layout
 
 \begin_layout Chapter
-Empirical Evaluation
+Empirical Evaluation 
+\begin_inset CommandInset label
+LatexCommand label
+name "chap:Empirical-Evaluation"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -8568,6 +8700,10 @@ research question
  of SPM would be novel?) 2.
  find good way to parallelize small progress measures (this would be somewhat
  novel, although a lockfree implementation exists)
+\end_layout
+
+\begin_layout Plain Layout
+- Note that source code + documentation is available online/at request
 \end_layout
 
 \end_inset
