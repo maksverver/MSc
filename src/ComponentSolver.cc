@@ -67,7 +67,7 @@ int ComponentSolver::operator()(const verti *vertices, size_t num_vertices)
           (int)unsolved.size() );
     ParityGame subgame;
     subgame.make_subgame(game_, unsolved.begin(), unsolved.end());
-    //assert(subgame.proper());
+    // assert(subgame.proper());  // this is somewhat costly to check
 
     /* N.B. if unsolved.size() < num_vertices then we run the SCC decomposition
        algorithm again (because removing vertices in attractor sets of winning
@@ -79,7 +79,7 @@ int ComponentSolver::operator()(const verti *vertices, size_t num_vertices)
        components solved are the strongly-connectected components identified in
        the initial graph (and not new components created after removing vertices
        in attractor sets of winning regions). */
-
+    ParityGame::Strategy substrat;
     if (unsolved.size() == num_vertices)
     {
         // Compress vertex priorities
@@ -110,39 +110,38 @@ int ComponentSolver::operator()(const verti *vertices, size_t num_vertices)
             subsolver.reset(
                 pgsf_.create(subgame, &unsolved[0], unsolved.size()) );
         }
-        ParityGame::Strategy substrat = subsolver->solve();
-
-        if (substrat.empty()) return -1;  // solving failed
-        merge_strategies(strategy_, substrat, unsolved);
-
-        info("(ComponentSolver) Building attractor sets for winning regions...");
-
-        // Extract winning sets from subgame:
-        std::deque<verti> todo[2];
-        for (size_t n = 0; n < unsolved.size(); ++n)
-        {
-            ParityGame::Player pl = subgame.winner(substrat, n);
-            verti v = unsolved[n];
-            winning_[pl]->insert(v);
-            todo[pl].push_back(v);
-        }
-
-        // Extend winning sets to attractor sets:
-        for (int player = 0; player < 2; ++player)
-        {
-            make_attractor_set( game_, (ParityGame::Player)player,
-                                *winning_[player], todo[player], strategy_ );
-        }
+        subsolver->solve().swap(substrat);
     }
     else  /* unsolved.size() < num_vertices */
     {
         info("(ComponentSolver) Identifying subcomponents...");
-        ComponentSolver subsolver(subgame, pgsf_);
-        ParityGame::Strategy substrat = subsolver.solve();
-        if (substrat.empty()) return -1;
-        merge_strategies(strategy_, substrat, unsolved);
+        ComponentSolver(subgame, pgsf_).solve().swap(substrat);
+    }
+    if (substrat.empty()) return -1;  // solving failed
+
+    info("(ComponentSolver) Merging strategies...");
+    merge_strategies(strategy_, substrat, unsolved);
+
+    info("(ComponentSolver) Building attractor sets for winning regions...");
+
+    // Extract winning sets from subgame:
+    std::deque<verti> todo[2];
+    for (size_t n = 0; n < unsolved.size(); ++n)
+    {
+        ParityGame::Player pl = subgame.winner(substrat, n);
+        verti v = unsolved[n];
+        winning_[pl]->insert(v);
+        todo[pl].push_back(v);
     }
 
+    // Extend winning sets to attractor sets:
+    for (int player = 0; player < 2; ++player)
+    {
+        make_attractor_set( game_, (ParityGame::Player)player,
+                            *winning_[player], todo[player], strategy_ );
+    }
+
+    info("(ComponentSolver) Leaving.");
     return 0;
 }
 
