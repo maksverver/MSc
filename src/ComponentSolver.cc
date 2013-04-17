@@ -15,8 +15,9 @@
 
 ComponentSolver::ComponentSolver(
     const ParityGame &game, ParityGameSolverFactory &pgsf,
-    const verti *vmap, verti vmap_size )
-    : ParityGameSolver(game), pgsf_(pgsf), vmap_(vmap), vmap_size_(vmap_size)
+    int max_depth, const verti *vmap, verti vmap_size )
+    : ParityGameSolver(game), pgsf_(pgsf), max_depth_(max_depth),
+      vmap_(vmap), vmap_size_(vmap_size)
 {
     pgsf_.ref();
 }
@@ -63,24 +64,18 @@ int ComponentSolver::operator()(const verti *vertices, size_t num_vertices)
     if (unsolved.empty()) return 0;
 
     // Construct a subgame for unsolved vertices in this component:
-    info( "(ComponentSolver) Constructing subgame with %d vertices...",
-          (int)unsolved.size() );
     ParityGame subgame;
     subgame.make_subgame(game_, unsolved.begin(), unsolved.end());
     // assert(subgame.proper());  // this is somewhat costly to check
 
-    /* N.B. if unsolved.size() < num_vertices then we run the SCC decomposition
-       algorithm again (because removing vertices in attractor sets of winning
-       regions may cause components to fall apart into distinct SCCs).
-
-       In some (degenerate?) cases this could lead to a lot of work spent doing
-       SCC decomposition for relatively little actual solving. To prevent this,
-       change the expression in the if-statement below to `true`, and then the
-       components solved are the strongly-connectected components identified in
-       the initial graph (and not new components created after removing vertices
-       in attractor sets of winning regions). */
     ParityGame::Strategy substrat;
-    if (unsolved.size() == num_vertices)
+    if (max_depth_ > 0 && unsolved.size() < num_vertices)
+    {
+        info( "(ComponentSolver) Recursing on subgame of size %d...",
+              (int)unsolved.size() );
+        ComponentSolver(subgame, pgsf_, max_depth_ - 1).solve().swap(substrat);
+    }
+    else
     {
         // Compress vertex priorities
         {
@@ -95,7 +90,8 @@ int ComponentSolver::operator()(const verti *vertices, size_t num_vertices)
         }
 
         // Solve the subgame
-        info("(ComponentSolver) Solving subgame...");
+        info( "(ComponentSolver) Solving subgame of size %d...",
+              (int)unsolved.size() );
         std::vector<verti> submap;  // declared here so it survives subsolver
         std::auto_ptr<ParityGameSolver> subsolver;
         if (vmap_size_ > 0)
@@ -111,11 +107,6 @@ int ComponentSolver::operator()(const verti *vertices, size_t num_vertices)
                 pgsf_.create(subgame, &unsolved[0], unsolved.size()) );
         }
         subsolver->solve().swap(substrat);
-    }
-    else  /* unsolved.size() < num_vertices */
-    {
-        info("(ComponentSolver) Identifying subcomponents...");
-        ComponentSolver(subgame, pgsf_).solve().swap(substrat);
     }
     if (substrat.empty()) return -1;  // solving failed
 
@@ -148,5 +139,6 @@ int ComponentSolver::operator()(const verti *vertices, size_t num_vertices)
 ParityGameSolver *ComponentSolverFactory::create( const ParityGame &game,
         const verti *vertex_map, verti vertex_map_size )
 {
-    return new ComponentSolver(game, pgsf_, vertex_map, vertex_map_size);
+    return new ComponentSolver( game, pgsf_, max_depth_, 
+                                vertex_map, vertex_map_size );
 }

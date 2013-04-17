@@ -27,8 +27,18 @@
 class ComponentSolver : public ParityGameSolver, public virtual Logger
 {
 public:
+    /*! Constructs a solver for the given `game` using the factory `pgsf` to
+        create subsolver instances to solve subgames constructed for each
+        strongly connected component found.
+
+        When `max_depth` > 0, components identified in the main graph are
+        recursively decomposed (up to the give depth) if it turns out they have
+        been partially solved already (i.e. when some of their vertices lie in
+        the attractor sets of winning regions identified earlier).
+    */
     ComponentSolver( const ParityGame &game, ParityGameSolverFactory &pgsf,
-                     const verti *vmap = 0, verti vmap_size = 0 );
+                     int max_depth, const verti *vmap = 0, verti vmap_size = 0
+                   );
     ~ComponentSolver();
 
     ParityGame::Strategy solve();
@@ -40,6 +50,7 @@ private:
 
 protected:
     ParityGameSolverFactory  &pgsf_;        //!< Solver factory to use
+    const bool               max_depth_;    //!< Max. recusion depth
     const verti              *vmap_;        //!< Current vertex map
     const verti              vmap_size_;    //!< Size of vertex map
     ParityGame::Strategy     strategy_;     //!< Resulting strategy
@@ -50,8 +61,9 @@ protected:
 class ComponentSolverFactory : public ParityGameSolverFactory
 {
 public:
-    ComponentSolverFactory(ParityGameSolverFactory &pgsf)
-        : pgsf_(pgsf) { pgsf_.ref(); }
+    //! \see ComponentSolver::ComponentSolver()
+    ComponentSolverFactory(ParityGameSolverFactory &pgsf, int max_depth = 10)
+        : pgsf_(pgsf), max_depth_(max_depth) { pgsf_.ref(); }
     ~ComponentSolverFactory() { pgsf_.deref(); }
 
     //! Return a new ComponentSolver instance.
@@ -60,6 +72,7 @@ public:
 
 protected:
     ParityGameSolverFactory &pgsf_;     //!< Factory used to create subsolvers
+    const int max_depth_;               //!< Maximum recursion depth
 };
 
 #endif /* ndef COMPONENT_SOLVER_H_INCLUDED */

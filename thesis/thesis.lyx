@@ -5685,6 +5685,50 @@ The process is repeated for every priority in the game.
 \end_layout
 
 \begin_layout Subsubsection
+Decomposition into strongly-connected components
+\end_layout
+
+\begin_layout Standard
+If the game graph contains multiple strongly-connected components, the game
+ can be solved in smaller chunks by identifying these components and then
+ solving them individually in reverse topological order (i.e.
+ starting with components without outgoing edges).
+ The question then becomes how to handle edges between components, since
+ a subgame induced by a component with outgoing edges may not be a proper
+ game.
+ A simple approach is to collapse the winning sets of solved components
+ into single vertices, but more can be gained by extending winning regions
+ identified in one component into attractor sets which may extend into other
+ areas of the graph and yield solutions for those vertices basically for
+ free.
+\end_layout
+
+\begin_layout Standard
+This approach can be taken even further by recursively decomposing components
+ in the main graph that have been partially solved in the above way.
+ This approach is taken in PGSolver and for ease of comparison also in my
+ own tool, but it should be noted that it's not strictly an improvement
+ of the above method.
+ There may be cases where decomposition yields a large component every time,
+ and then solving the whole game would take 
+\begin_inset Formula $O(EV)$
+\end_inset
+
+ time and 
+\begin_inset Formula $O(V)$
+\end_inset
+
+ invocations of the underlying solver, which sounds good considering the
+ worst-case complexity of most solvers, but may be rather slow in practice.
+\end_layout
+
+\begin_layout Standard
+To prevent such degenerate cases my implementation limits the maximum recursion
+ depth in the component solver (which has the additional benefit of preventing
+ the solver from crashing due to stack overflow).
+\end_layout
+
+\begin_layout Subsubsection
 Priority propagation
 \end_layout
 
