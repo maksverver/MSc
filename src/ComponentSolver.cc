@@ -65,8 +65,7 @@ int ComponentSolver::operator()(const verti *vertices, size_t num_vertices)
 
     // Construct a subgame for unsolved vertices in this component:
     ParityGame subgame;
-    subgame.make_subgame(game_, unsolved.begin(), unsolved.end());
-    // assert(subgame.proper());  // this is somewhat costly to check
+    subgame.make_subgame(game_, unsolved.begin(), unsolved.end(), true);
 
     ParityGame::Strategy substrat;
     if (max_depth_ > 0 && unsolved.size() < num_vertices)

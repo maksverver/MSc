@@ -50,7 +50,7 @@ GamePart::GamePart( const ParityGame &old_game,
     verts.erase(std::unique(verts.begin(), verts.end()), verts.end());
 
     // Create game
-    game_.make_subgame(old_game, verts.begin(), verts.end());
+    game_.make_subgame(old_game, verts.begin(), verts.end(), false);
 
     // Create vertex index maps
     global_ = verts;
@@ -102,7 +102,7 @@ GamePart::GamePart( const GamePart &part,
         }
     }
 
-    game_.make_subgame(part.game_, new_verts.begin(), new_verts.end());
+    game_.make_subgame(part.game_, new_verts.begin(), new_verts.end(), false);
     global_.resize(new_verts.size());
     for (verti i = 0; i < (verti)global_.size(); ++i)
     {

@@ -88,7 +88,7 @@ ParityGame::Strategy DeloopSolver::solve()
         }
         assert(!unsolved.empty() && unsolved.size() == num_unsolved);
 
-        subgame.make_subgame(game_, unsolved.begin(), unsolved.end());
+        subgame.make_subgame(game_, unsolved.begin(), unsolved.end(), true);
 
         // Construct solver:
         if (vmap_size_ > 0)

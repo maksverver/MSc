@@ -288,9 +288,8 @@ ParityGame::Strategy SmallProgressMeasuresSolver::solve_normal()
         ParityGame subgame;
         info("Constructing subgame of size %ld to solve for Odd...",
              (long)won_by_odd.size());
-        subgame.make_subgame(game_, won_by_odd.begin(), won_by_odd.end());
+        subgame.make_subgame(game_, won_by_odd.begin(), won_by_odd.end(), true);
         subgame.compress_priorities();
-        assert(subgame.proper());
 
         // Create vertex map to use:
         std::vector<verti> submap_data;

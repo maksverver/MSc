@@ -59,18 +59,19 @@ bool is_sorted(It i, It j, Cmp cmp)
 template<class ForwardIterator>
 void StaticGraph::make_subgraph( const StaticGraph &graph,
                                  ForwardIterator vertices_begin,
-                                 ForwardIterator vertices_end )
+                                 ForwardIterator vertices_end,
+                                 bool proper )
 {
     // FIXME: determine which cut-off value works best:
     if (std::distance(vertices_begin, vertices_end) < graph.V()/3)
     {
         HASH_MAP(verti, verti) map;
-        return make_subgraph(graph, vertices_begin, vertices_end, map);
+        return make_subgraph(graph, vertices_begin, vertices_end, map, proper);
     }
     else
     {
         DenseMap<verti, verti> map(0, graph.V());
-        return make_subgraph(graph, vertices_begin, vertices_end, map);
+        return make_subgraph(graph, vertices_begin, vertices_end, map, proper);
     }
 }
 
@@ -78,7 +79,8 @@ template<class ForwardIterator, class VertexMapT>
 void StaticGraph::make_subgraph( const StaticGraph &graph,
                                  ForwardIterator vertices_begin,
                                  ForwardIterator vertices_end,
-                                 VertexMapT &vertex_map )
+                                 VertexMapT &vertex_map,
+                                 bool proper )
 {
     assert(this != &graph);
 
@@ -132,6 +134,7 @@ void StaticGraph::make_subgraph( const StaticGraph &graph,
             {
                 std::sort(begin, end);
             }
+            if (proper) assert(begin != end);  /* proper parity game graph */
         }
         assert(v == V_ && e == E_);
         successor_index_[v] = e;

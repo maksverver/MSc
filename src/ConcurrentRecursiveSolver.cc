@@ -134,7 +134,7 @@ bool ConcurrentRecursiveSolver::solve(ParityGame &game, Substrategy &strat)
         // Solve vertices not in the minimum priority attractor set:
         {
             ParityGame subgame;
-            subgame.make_subgame(game, unsolved.begin(), unsolved.end());
+            subgame.make_subgame(game, unsolved.begin(), unsolved.end(), true);
             Substrategy substrat(strat, unsolved);
             if (!solve(subgame, substrat)) return false;
 
@@ -160,7 +160,7 @@ bool ConcurrentRecursiveSolver::solve(ParityGame &game, Substrategy &strat)
         // Repeat with subgame of which vertices won by odd have been removed:
         {
             ParityGame subgame;
-            subgame.make_subgame(game, unsolved.begin(), unsolved.end());
+            subgame.make_subgame(game, unsolved.begin(), unsolved.end(), true);
             Substrategy substrat(strat, unsolved);
             strat.swap(substrat);
             game.swap(subgame);

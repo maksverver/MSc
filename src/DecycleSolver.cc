@@ -44,7 +44,7 @@ CycleFinder::CycleFinder( const ParityGame &game,
     : prio_(prio), mapping_(mapping), winning_set_(0, (verti)mapping.size()),
       winning_queue_(), substrat_(mapping.size(), NO_VERTEX)
 {
-    subgame_.make_subgame(game, mapping.begin(), mapping.end());
+    subgame_.make_subgame(game, mapping.begin(), mapping.end(), false);
 }
 
 void CycleFinder::run( ParityGame::Strategy &strategy,
@@ -187,7 +187,7 @@ ParityGame::Strategy DecycleSolver::solve()
 
     // Construct subgame for the unsolved part:
     ParityGame subgame;
-    subgame.make_subgame(game_, unsolved.begin(), unsolved.end());
+    subgame.make_subgame(game_, unsolved.begin(), unsolved.end(), true);
 
     // Construct solver:
     std::vector<verti> submap;  // declared here so it survives subsolver

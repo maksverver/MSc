@@ -119,7 +119,8 @@ public:
     template<class ForwardIterator>
     void make_subgame( const ParityGame &game,
                        ForwardIterator vertices_begin,
-                       ForwardIterator vertices_end );
+                       ForwardIterator vertices_end,
+                       bool proper );
     //!@}
 
     //!\name Transformation

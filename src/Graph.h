@@ -113,7 +113,8 @@ public:
     template<class ForwardIterator>
     void make_subgraph( const StaticGraph &graph,
                         ForwardIterator vertices_begin,
-                        ForwardIterator vertices_end );
+                        ForwardIterator vertices_end,
+                        bool proper );
 
     /*! Removes the given edges from the graph. The contents of the edge list
         may be reordered by this function! */
@@ -210,7 +211,8 @@ protected:
     void make_subgraph( const StaticGraph &graph,
                         ForwardIterator vertices_begin,
                         ForwardIterator vertices_end,
-                        VertexMapT &vertex_map );
+                        VertexMapT &vertex_map,
+                        bool proper );
 
 private:
     explicit StaticGraph(const StaticGraph &graph);
