@@ -95,7 +95,7 @@ public:
 
     /*! Reset to an empty graph. */
     void clear();
-    
+
     /*! Generate a random graph with `V` vertices and an average out-degree of
         `out_deg` (minimum out degree is 1). This replaces any old data stored.
         \param V        number of vertices to generate
@@ -108,6 +108,9 @@ public:
 
     /*! Reset the graph based on the given edge structure. */
     void assign(edge_list edges, EdgeDirection edge_dir);
+
+    /*! Convert the graph into a list of edges. */
+    edge_list get_edges() const;
 
     /*! Reset the graph to the subgraph induced by the given vertex set: */
     template<class ForwardIterator>

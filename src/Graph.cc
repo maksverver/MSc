@@ -259,6 +259,25 @@ void StaticGraph::remove_edges(StaticGraph::edge_list &edges)
     }
 }
 
+StaticGraph::edge_list StaticGraph::get_edges() const
+{
+    assert(edge_dir_ & EDGE_SUCCESSOR);  // successor info required for now!
+
+    edge_list result;
+    result.reserve(E_);
+    for (verti v = 0; v < V_; ++v)
+    {
+        edgei begin = successor_index_[v], end = successor_index_[v + 1];
+        for (edgei i = begin; i < end; ++i)
+        {
+            verti w = successors_[i];
+            result.push_back(std::make_pair(v, w));
+        }
+    }
+    assert(result.size() == E_);
+    return result;
+}
+
 void StaticGraph::write_raw(std::ostream &os) const
 {
     os.write((const char*)&V_, sizeof(V_));
