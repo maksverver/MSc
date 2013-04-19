@@ -36,3 +36,5 @@ Concurrent solvers:
     Recursive solver (Zielonka)
     TODO: Small progress measures (Jurdziński)
     TODO: Alternate SPM (Friedmann)
+
+One verification algorithm

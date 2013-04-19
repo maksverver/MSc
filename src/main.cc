@@ -970,7 +970,7 @@ int main(int argc, char *argv[])
 
         {
             // FIXME: this should probably count towards solving time
-            // FIXME: it might be useful when using SPM to solve only
+            // FIXME: it might only be useful when solve with SPM solver
             Logger::info("Preprocessing graph...");
             edgei old_edges = game.graph().E();
             SmallProgressMeasuresSolver::preprocess_game(game);

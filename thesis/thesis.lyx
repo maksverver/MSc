@@ -4,7 +4,6 @@
 \begin_header
 \textclass book
 \begin_preamble
-\usepackage {url}  % this doesn't seem to work!
 \usepackage {a4wide}
 \end_preamble
 \use_default_options true
@@ -258,7 +257,7 @@ order of the game
 \begin_layout Standard
 Parity games can be played on finite as well as infinite graphs.
  A parity game is called finite if it is played on a graph with a finite
- number of vertices; in this case, the number of edges and the order of
+ number of vertices; in this case, the number of edges and the index of
  the game will be finite as well.
 \end_layout
 
@@ -539,7 +538,7 @@ winning
 \end_inset
 
 .
- Parity games of a finite order have the important property that they are
+ Parity games of finite index have the important property that they are
  fully 
 \emph on
 determined
@@ -578,7 +577,7 @@ determined
 \end_inset
 
  which can be won by player Even and Odd respectively.
- When the order is infinite, we can still identify disjoint sets 
+ When the index is infinite, we can still identify disjoint sets 
 \begin_inset Formula $W_{\text{0}}$
 \end_inset
 
@@ -805,7 +804,7 @@ Sometimes we want to refer to the combined strategies of both players,
 \end_layout
 
 \begin_layout Standard
-It turns out that for all games of finite order optimal memoryless strategies
+It turns out that for all games of finite index optimal memoryless strategies
  exist.
  Research on finite-order games typically focuses on finding memoryless
  strategies for both players, which can be described succinctly by simply
@@ -944,7 +943,7 @@ unambiguous
 \end_layout
 
 \begin_layout Standard
-The best currently known algorithms are either exponential in game order
+The best currently known algorithms are either exponential in game index
  
 \begin_inset Formula $d$
 \end_inset
@@ -1680,7 +1679,7 @@ The final property is a true restriction because it makes it impossible
 , we would need a symbolic representation).
  From a theoretical point of view, a finite vertex set allows for algorithms
  and proofs that do not generalize to infinite graphs.
- In particular, the winner of any play can be decided, because the order
+ In particular, the winner of any play can be decided, because the index
  of the graph is finite, as has been established in the preceding.
 \end_layout
 
@@ -1701,23 +1700,10 @@ When discussing actual implementations of data structures and algorithms,
 \begin_inset Formula $d$
 \end_inset
 
- is the order of the game.
+ is the index of the game.
  This is done by remapping priorities for vertices in a process called 
 \emph on
 priority compression.
-
-\emph default
- 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-cite: PGSolver manual? or an earlier paper?
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Standard
@@ -1743,7 +1729,7 @@ Consider we have a game
 \begin_inset Formula $d-1$
 \end_inset
 
- (inclusive) are used and since the order of the game is 
+ (inclusive) are used and since the index of the game is 
 \begin_inset Formula $d$
 \end_inset
 
@@ -2501,9 +2487,7 @@ If the priorities of vertices all have the same parity (even or odd) then
  with an arbitrary strategy.
  A special case is the single-priority game, where only a single priority
  is used.
- Note that priority compression will reduce both single-parity and single-priori
-ty games to a game in which 0 is the only priority in use, making this type
- of game easy to recognize.
+ Priority compression is useful to convert the former case to the latter.
 \end_layout
 
 \begin_layout Subsection
@@ -3032,7 +3016,7 @@ The time required for the last step is bounded by
 \begin_inset Formula $d$
 \end_inset
 
- is the order of the game.
+ is the index of the game.
  Since 
 \begin_inset Formula $d\leq\left|V\right|$
 \end_inset
@@ -3363,7 +3347,7 @@ The priority limit (
 \end_inset
 
 ) which is calculated as the maximum priority value used + 1.
- (This is equal to the order of the game assuming all priority values are
+ (This is equal to the index of the game assuming all priority values are
  used.)
 \end_layout
 
@@ -8078,7 +8062,7 @@ The execution of the main algorithm depends on several, simpler helper functions
 
  returns the least inversion in the game, as described above, by analyzing
  the cardinality of priorities in use.
- If there is no inversion, the game degree 
+ If there is no inversion, the game index 
 \begin_inset Formula $\texttt{d}$
 \end_inset
 
@@ -8655,26 +8639,6 @@ TODO LIST
 status open
 
 \begin_layout Plain Layout
-- replace 
-\begin_inset Quotes eld
-\end_inset
-
-degree
-\begin_inset Quotes erd
-\end_inset
-
- (of a parity game) by 
-\begin_inset Quotes eld
-\end_inset
-
-index
-\begin_inset Quotes erd
-\end_inset
-
-, which is the term used by Piterman and by Lange
-\end_layout
-
-\begin_layout Plain Layout
 - identify and label lemma's so I can refer to them more easily
 \end_layout
 
@@ -8692,10 +8656,6 @@ index
 \end_inset
 
 - have I described everything I came up with?
-\end_layout
-
-\begin_layout Plain Layout
-- need many more references!
 \end_layout
 
 \begin_layout Plain Layout
