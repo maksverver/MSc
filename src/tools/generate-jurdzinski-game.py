@@ -26,6 +26,10 @@
 # (Note: since this is in PGSolver format, high numbers are used for high
 #  priorities, which is the opposite of the convention used in Jurdzinski's
 #  paper.)
+#
+# (Note: PGSolver includes a `jurdzinskigame` generator too, but the games it
+#  generates aren't exactly like Jurdzinski described.  I don't know how or why
+#  they are different, although they seem equally hard to solve.)
 
 import sys
 

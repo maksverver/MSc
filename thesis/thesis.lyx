@@ -245,7 +245,7 @@ Formally, a parity game can be described as a quadruple
  The number of distinct priority values assigned to vertices in the game,
  is called the 
 \emph on
-order of the game
+index of the game
 \emph default
 , wich is equal to the cardinality of the range of 
 \begin_inset Formula $\phi$
@@ -256,9 +256,9 @@ order of the game
 
 \begin_layout Standard
 Parity games can be played on finite as well as infinite graphs.
- A parity game is called finite if it is played on a graph with a finite
- number of vertices; in this case, the number of edges and the index of
- the game will be finite as well.
+ A finite parity game is played on a graph with a finite number of vertices;
+ in this case, the number of edges and the index of the game will be finite
+ as well.
 \end_layout
 
 \begin_layout Subsection
@@ -290,7 +290,7 @@ play
 \begin_inset Formula $\pi=v_{1}v_{2}\ldots v_{n}$
 \end_inset
 
- is a finite play if and only if 
+ is a (finite) play if and only if 
 \family default
 \series default
 \shape default
@@ -312,13 +312,13 @@ play
 \begin_inset Formula $\pi=v_{1}v_{2}\ldots$
 \end_inset
 
- is an infinite play if and only if 
+ is an (infinite) play if and only if 
 \begin_inset Formula $\forall i\in\mathbb{N},\; v_{i}v_{i+1}\in E$
 \end_inset
 
 .
- A subsequence of a play that ends on a vertex with outgoing edges is called
- a 
+ A subsequence of a play (ending on some vertex with outgoing edges) is
+ called a 
 \emph on
 partial play
 \emph default
@@ -326,9 +326,8 @@ partial play
 \end_layout
 
 \begin_layout Standard
-For finite plays, the loser of the game is the player who is first unable
- to move.
- His opponent is the winner.
+For finite plays, the player who is first unable to move is called the loser,
+ and his opponent the winner.
  In a finite play, the loser is therefore simply the controller of the final
  vertex in the play.
 \end_layout
@@ -611,10 +610,10 @@ In many practical applications, determination of winning sets is enough
  to constitute a solution.
  For example, when using parity games as a vehicle for model checking, the
  question whether a formal property holds corresponds with the question
- wether a particular vertex in a game graph is won by player Even or Odd.
- In this case it would suffice to determine which player wins from this
- particular vertex without computing strategies and even without fully determini
-ng winning sets for either player.
+ wether a particular vertex in a game graph is won by player Even.
+ In this case it suffices to determine the winner for this particular vertex
+ only, without computing associated strategies, and even without fully determini
+ng winning sets.
 \end_layout
 
 \begin_layout Standard
@@ -808,8 +807,7 @@ It turns out that for all games of finite index optimal memoryless strategies
  exist.
  Research on finite-order games typically focuses on finding memoryless
  strategies for both players, which can be described succinctly by simply
- listing an optimal move for every vertex, which is especially practical
- for games on finite graphs.
+ listing an optimal move for every vertex.
 \end_layout
 
 \begin_layout Standard
@@ -938,8 +936,15 @@ unambiguous
 \begin_inset Formula $\subseteq$
 \end_inset
 
- NP this is a stronger result, altough it is not known which (if any) of
- these sets are distinct.
+ NP this is a stronger result, although it is not known whether P
+\begin_inset Formula $\subset$
+\end_inset
+
+UP or UP
+\begin_inset Formula $\subset$
+\end_inset
+
+NP.
 \end_layout
 
 \begin_layout Standard
@@ -959,9 +964,8 @@ key "jurdzinski2000spm"
 \begin_inset Formula $O\left(d\left|E\right|\left(\frac{\left|V\right|}{\left\lfloor d/2\right\rfloor }\right)^{\left\lfloor d/2\right\rfloor }\right)$
 \end_inset
 
- and Jurdziński describes classes of games that indeed require exponental
- time to solve) while others are instead subexponential in the size of the
- graph (for example, Jurdziński, Paterson and Zwick give an 
+ ) while others are instead subexponential in the size of the graph (for
+ example, Jurdziński, Paterson and Zwick give an 
 \begin_inset Formula $\left|V\right|^{O(\sqrt{\left|V\right|})}$
 \end_inset
 
@@ -982,10 +986,10 @@ Often
 
  is small and therefore the first category of algorithms provides better
  complexity bounds.
- However, in practice many instances can be solved much more quickly than
- the worst case time complexity would suggest, and consequently these complexity
- bounds have little value when determining which algorithms are useful in
- practice.
+ However, in practice many instances can be solved much faster than the
+ worst case time complexity would suggest, and consequently these complexity
+ bounds are of little use to answer the question of which algorithms work
+ best in practice.
 \end_layout
 
 \begin_layout Section
@@ -1031,7 +1035,8 @@ citation?
 
 \end_inset
 
-, this is a fairly comprehensive approach to model checking.
+, efficient algorithms for solving parity games could provide the basis
+ of a comprehensive approach to model checking.
 \end_layout
 
 \begin_layout Section
@@ -2267,18 +2272,7 @@ Attr^{x}(\Gamma,U)=U_{0}\cup U_{1}\cup\cdots
 \end_layout
 
 \begin_layout Standard
-This is also useful to compute the attractor set iteratively.
- Since it is a fixed point 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-checkme
-\end_layout
-
-\end_inset
-
- attractor, 
+Since the graph is finite eventually 
 \begin_inset Formula $Attr^{x}(\Gamma,U)$
 \end_inset
 
@@ -2291,17 +2285,25 @@ checkme
 \bar no
 \noun off
 \color none
-converges to 
-\begin_inset Formula $U_{i}$
+converges to some 
+\begin_inset Formula $U_{i}\subseteq V$
 \end_inset
 
- with 
+ when 
 \begin_inset Formula $U_{i}=U_{i+1}$
 \end_inset
 
+ and we can find that point by iteratively computing the sets up to this
+ point.
+ In practice a slightly different approach is used, as will be described
+ in subsection 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Attractor-set-computation"
+
+\end_inset
+
 .
- From a practical point of view, we expand the attractor set until we can
- add no more vertices to it, and then we are done.
 \end_layout
 
 \begin_layout Standard
@@ -2639,9 +2641,8 @@ name "sec:Verification"
 \end_layout
 
 \begin_layout Standard
-In order to be able to ascertain the correctness of the implemented algorithms,
- it is useful to have a means of verifying the solutions produced by these
- algorithms.
+To ascertain the correctness of the implemented algorithms, it is useful
+ to have a means of verifying the solutions produced by these algorithms.
  Of course, algorithms are typically published with a correctness proof
  before they are implemented, but mistakes could be introduced during implementa
 tion, which makes it worthwhile to implement a verification routine to validate
@@ -3066,10 +3067,10 @@ y how the missing parts are implemented concretely.
 \end_layout
 
 \begin_layout Standard
-In order to ensure that the results presented here are reproducible, and
- to make the differences in results obtained with different tools easier
- to understand and explain, I will document the choices that I made in the
- implementation of my solving tool to a fair amount of detail.
+To ensure that the results presented here are reproducible, and to make
+ the differences in results obtained with different tools easier to understand
+ and explain, I will document the choices that I made in the implementation
+ of my solving tool to a fair amount of detail.
  In particular, the core data structures and the algorithms will be documented
  precisely.
 \end_layout
@@ -3520,12 +3521,19 @@ y of algorithms that rely on subgame construction, which includes Zielonka's
 
  is kept around in order to map the vertex indentifiers in the subgame back
  to the original game, which is necesssary to propagate solution and strategy
- information back to the main game, and for gathering of global statistics
- and debugging information.
+ information back to the main game, and to gather global statistics and
+ debugging information.
 \end_layout
 
 \begin_layout Subsection
-Attractor set computation
+Attractor set computation 
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Attractor-set-computation"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -5641,7 +5649,7 @@ Strategies for these vertices can be constructed as followes.
 
 \begin_layout Standard
 It may sound inefficient to compute attractor sets twice, but this is required
- in order to create correct strategies.
+ to create correct strategies.
  Computing only one attractor set (in the global game) does work for purposes
  of computing the winning sets, but it may create cycles containing vertices
  with priority less than 
@@ -5717,9 +5725,9 @@ Priority propagation
 \end_layout
 
 \begin_layout Standard
-Finally, a simple preprocessing step that can be applied in order to speed
- up solving with Small Progress Measures (and possibly other algorithms
- as well), is a process called 
+Finally, a simple preprocessing step that can be applied to speed up solving
+ with Small Progress Measures (and possibly other algorithms as well), is
+ a process called 
 \emph on
 priority propagation
 \emph default
