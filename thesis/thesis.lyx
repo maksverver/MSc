@@ -1591,30 +1591,27 @@ Building blocks for parity game solvers
 \end_layout
 
 \begin_layout Standard
-Before discussing algorithms used to solve parity games, it is important
- to have a clear view of which type of games can and cannot be solved, and
- to have established common terminology to identify the components used
- in parity game solvers, as well as known properties of these components.
- Many of these preliminary definitions have been introduced in previous
- work, but unfortunately the terminology varies subtly (and sometimes fundamenta
-lly) which makes it hard to continue here without establishing precisely
- what is meant by a number of common terms and concepts.
- 
+Before discussing algorithms used to solve parity games, it is useful to
+ establish some common terminology related to parity game theory.
+ Most of this terminology comes from literature, but since the terms used
+ and their meaning varies considerably, it is necessary to definite the
+ concepts and terms that will be used in the rest of this report.
 \end_layout
 
 \begin_layout Standard
-The purpose of this section of the report is to introduce a number of restrictio
-ns and definitions that will apply to the rest of the report.
- Firstly, a number of restrictions on the game structure will be given,
- that simplify the definition and discussion of the algorithms and datastructure
-s that follows.
- Secondly, a number of useful properties of parity games will be presented;
+First, a number of restrictions on the game structure will be given, that
+ simplify the definition and discussion of the algorithms and datastructures
+ that follow.
+ Second, a number of useful properties of parity games will be presented;
  none of these are new, but they will be defined in a manner consistent
  with the preceding definitions.
- Thirdly, a number of notable special cases of parity games will be discussed;
+ Third, a number of notable special cases of parity games will be discussed;
  these deserve to be mentioned but are otherwise outside the scope of this
  report.
- Finally, a polynomial-time algorithm for the verification of parity game
+\end_layout
+
+\begin_layout Standard
+Finally, a polynomial-time algorithm for the verification of parity game
  algorithms will be presented, which is used to guarantee the correctness
  of the reported results.
 \end_layout
@@ -1624,40 +1621,17 @@ Restrictions on the graph
 \end_layout
 
 \begin_layout Standard
-For convenience, I will assume some restrictions on the structure of the
- graph, which simplify the design and analysis of the data structures and
- algorithms involved considerably, but which do not diminish the practical
- utility of parity games algorithms.
- Of these, the first two properties are simplifications that do not limit
- the classes of games that can be analyzed in general.
- Only the third restriction is a true restriction in a theoretical sense.
- These restrictions are as follows:
-\end_layout
-
-\begin_layout Enumerate
-Every vertex has at least one outgoing edge.
-\end_layout
-
-\begin_layout Enumerate
-The graph is connected.
-\end_layout
-
-\begin_layout Enumerate
-The graph is finite.
-\end_layout
-
-\begin_layout Standard
-The first property makes finite plays impossible, which simplifies the analysis
+For convenience, I will assume that every vertex has at least one outgoing
+ edge.
+ This property makes finite plays impossible, which simplifies the analysis
  of many algorithms.
  We will call a game a 
 \emph on
 proper game
 \emph default
  if its graph satisfies this property.
- However, improper games (whose game graphs contain vertices with no outgoing
- edges) can be turned into proper games by considering each vertex without
- outgoing edges.
- If it is controlled by player 
+ However, improper games can be turned into proper games by considering
+ each vertex without outgoing edges: if it is controlled by player 
 \begin_inset Formula $x$
 \end_inset
 
@@ -1671,25 +1645,13 @@ proper game
 \end_layout
 
 \begin_layout Standard
-The second property does not restrict the classes of games that can be solved
- either.
- During a play, the token never leaves the (weakly) connected component
- of the graph that it starts in, so for any unconnected graph, we can trivially
- decompose the graph into weakly connected components, analyze these components
- individually, and combine the results.
-\end_layout
-
-\begin_layout Standard
-The final property is a true restriction because it makes it impossible
- to analyze infinite graphs.
+Additionally, I will assume the game graph is finite.
  This has practical as well as theoretical benefits.
  From a practical point of view, since all of the game data is now finite,
  it allows us to represent graphs explicitly using only finite memory (otherwise
-, we would need a symbolic representation).
+, a symbolic representation would be required).
  From a theoretical point of view, a finite vertex set allows for algorithms
  and proofs that do not generalize to infinite graphs.
- In particular, the winner of any play can be decided, because the index
- of the graph is finite, as has been established in the preceding.
 \end_layout
 
 \begin_layout Section
@@ -1738,11 +1700,7 @@ Consider we have a game
 \begin_inset Formula $d-1$
 \end_inset
 
- (inclusive) are used and since the index of the game is 
-\begin_inset Formula $d$
-\end_inset
-
- this means we are done.
+ (inclusive) are used and we are done.
  Otherwise, let 
 \series bold
 
@@ -1773,7 +1731,7 @@ If
 
  is odd, we additionally switch the roles of players Even and Odd.
  Formally, we construct a game 
-\begin_inset Formula $\Gamma'=(V_{\text{0}}',V_{\text{1}}',E',\phi')$
+\begin_inset Formula $\Gamma'=(V_{\text{0}}',V_{\text{1}}',E,\phi')$
 \end_inset
 
  where 
@@ -1797,15 +1755,11 @@ If
 \begin_inset Formula $\phi'(v)=\phi(v)-q$
 \end_inset
 
- and 
-\begin_inset Formula $E'=E$
-\end_inset
-
 .
 \end_layout
 
 \begin_layout Standard
-If, however, 
+If 
 \begin_inset Formula $p>0$
 \end_inset
 
@@ -1842,16 +1796,6 @@ If, however,
 
  have the same parity, and since none of the values in between are used,
  they can be interchanged without affecting the outcome of the game.
- 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-Does this need proof?
-\end_layout
-
-\end_inset
-
  More formally, in this case we define 
 \family roman
 \series medium
@@ -1893,7 +1837,7 @@ Since
 \begin_inset Formula $p-q\equiv0\mod{2}$
 \end_inset
 
- we have preserved parity: 
+ this preserves parity: 
 \begin_inset Formula $\phi'(v)\equiv\phi(v)\mod{2}$
 \end_inset
 
@@ -1923,7 +1867,7 @@ Since
 \[
 \phi'(v)=\begin{cases}
 \phi(v) & \mbox{if }\phi(v)\leq p\\
-\phi(v)+p-q+1 & \mbox{\mbox{if} \ensuremath{\phi(v)<p}}
+\phi(v)+p-q+1 & \mbox{\mbox{if} \ensuremath{\phi(v)>p}}
 \end{cases}
 \]
 
@@ -1937,7 +1881,7 @@ Again, since
 \begin_inset Formula $p-q+1\equiv0\mod{2}$
 \end_inset
 
- this preserved the parity of 
+ this preserves the parity of 
 \begin_inset Formula $\phi$
 \end_inset
 
@@ -1950,16 +1894,8 @@ Again, since
 \end_inset
 
 .
- We need to repeat the process described here for every gap in the set of
- used priorities (which is at most 
-\begin_inset Formula $d$
-\end_inset
-
- times) and the result will always be a set of 
-\begin_inset Formula $d$
-\end_inset
-
- used priorities from 
+ Repeating this process to eliminate all the gaps results in a game which
+ uses priorities form 
 \begin_inset Formula $0$
 \end_inset
 
@@ -1972,11 +1908,14 @@ Again, since
 
 \begin_layout Standard
 Most solving algorithms do not require that priorities are compressed into
- a minimal range, but the maximum occurring priority usually is a component
- in the total amount of time or memory required.
- Therefore, it is useful to preprocess every game to minimize the priority
- set in this way, especially since this can be easily done in time linear
- in the number of vertices, which makes it a relatively inexpensive operation.
+ a minimal range, but since the amount of time and space required is often
+ a function of the maximum priority that occurs in the game, it is useful
+ to preprocess every game to minimize the priority set in this way, especially
+ since this is can be easily done in 
+\begin_inset Formula $O(V)$
+\end_inset
+
+ time.
 \end_layout
 
 \begin_layout Section
@@ -2019,7 +1958,7 @@ subgame
 \end_inset
 
  is the game 
-\begin_inset Formula $\Gamma|U=(V_{\text{0}}\cap U,V_{\text{1}}\cap U,E\cap\left(U\times U\right),\phi|U)$
+\begin_inset Formula $\Gamma|U=(V_{0}\cap U,V_{1}\cap U,E\cap\left(U\times U\right),\phi|U)$
 \end_inset
 
  where 
@@ -2071,19 +2010,7 @@ proper subgame
 \bar no
 \noun off
 \color none
- if every vertex in 
-\begin_inset Formula $U$
-\end_inset
-
- has at least one successor also in 
-\begin_inset Formula $U$
-\end_inset
-
- (in other words, if 
-\begin_inset Formula $\Gamma|U$
-\end_inset
-
- is a proper game as described above).
+ if it is a proper game as described above.
 \end_layout
 
 \begin_layout Subsection
@@ -2104,11 +2031,11 @@ Let
 \end_inset
 
 , or formally 
-\begin_inset Formula $vE=\left\{ w|vw\in E\right\} .$
+\begin_inset Formula $vE=\{w\in V:\ vw\in E\}.$
 \end_inset
 
  Analogously, 
-\begin_inset Formula $Ew=\{v|vw\in E\}$
+\begin_inset Formula $Ew=\{v\in V:\ vw\in E\}$
 \end_inset
 
 .
@@ -2197,6 +2124,22 @@ v\in V_{1-x}\rightarrow vE\cap U\neq\emptyset
 
 \end_layout
 
+\begin_layout Standard
+In literature, 
+\begin_inset Formula $x$
+\end_inset
+
+-traps are sometimes called 
+\emph on
+dominions
+\emph default
+ for player 
+\begin_inset Formula $1-x$
+\end_inset
+
+ instead.
+\end_layout
+
 \begin_layout Subsection
 Attractor sets
 \begin_inset CommandInset label
@@ -2238,11 +2181,7 @@ An attractor set for a player
 \end_inset
 
  itself).
- It is a fixed point attractor under expansion using the recursive definition:
-\end_layout
-
-\begin_layout Standard
-Zielonka gives an iterative definition of an attractor set:
+ Zielonka gives an iterative definition of an attractor set:
 \begin_inset Formula 
 \[
 U_{0}=U
@@ -2311,20 +2250,11 @@ reference "sub:Attractor-set-computation"
 \end_layout
 
 \begin_layout Standard
-
-\family roman
-\series medium
-\shape up
-\size normal
-\emph off
-\bar no
-\noun off
-\color none
-Using an appropriate data structure (for example, a hash table) attractor
- sets can be computed in time linear in the number of edges incident to
- vertices in the resulting attractor set.
- With typical sparse graphs, this is linear in the size of the attractor
- set as well.
+In literature, attractor sets are sometimes called 
+\emph on
+force sets
+\emph default
+ instead.
 \end_layout
 
 \begin_layout Subsubsection
@@ -2332,7 +2262,7 @@ Attractor strategies
 \end_layout
 
 \begin_layout Standard
-An important property of attractor sets, is that if 
+An important property of attractor sets is that if 
 \begin_inset Formula $U\subseteq W_{x}$
 \end_inset
 
@@ -2350,7 +2280,7 @@ An important property of attractor sets, is that if
 \end_inset
 
 .
- Fortunately, this can easily be done: every vertex that appears first in
+ Fortunately, this can easily be done: every vertex that first appears in
  
 \begin_inset Formula $U_{i+1}$
 \end_inset
@@ -2373,7 +2303,8 @@ An important property of attractor sets, is that if
 \end_inset
 
  steps, at which point the rest of the strategy is known.
- Zielonka proves these properties in more detail.
+ Therefore, attractor set computation of a winning region with known strategy
+ yields a stategy for the entire attractor set too.
 \end_layout
 
 \begin_layout Subsubsection
@@ -2381,7 +2312,10 @@ Duality between attractor sets and traps
 \end_layout
 
 \begin_layout Standard
-The second important property of attractor sets, is that the complement
+The second important property of attractor sets is that the complement 
+\begin_inset Formula $V'$
+\end_inset
+
  of an attractor set for player 
 \begin_inset Formula $x$
 \end_inset
@@ -2450,11 +2384,11 @@ of
 
 \begin_layout Standard
 This property is important because it means that if we start with a proper
- game (which is assumed in the following) then we can safely remove attractor
- sets of arbitrary vertex sets and obtain a proper subgame, which is not
- the case if we would remove arbitrary vertex sets.
+ game then we can safely remove attractor sets of arbitrary vertex sets
+ to obtain proper subgames, which is not the case if we would remove arbitrary
+ vertex sets.
  This technique can be used to break down a game in parts which are solved
- in order.
+ separately.
 \end_layout
 
 \begin_layout Section
@@ -2466,14 +2400,14 @@ In addition to games which do not comply with the restrictions mentioned
  earlier, there are also a few classes of degenerate games that are special
  cases of the general game describe above.
  They are mentioned separately because specific algorithms exist to solve
- them quicker than is possible for the general case.
+ them more quickly.
 \end_layout
 
 \begin_layout Standard
 These special cases are occasionally provided as input to a solver (for
  example, as the representation of a particularly simple model checking
- problem) but more commonly they arise as subgames to be solved after applying
- a number of reductions or partial solution techniques.
+ problem) but more commonly they arise as subgames to be solved after preprocess
+ing the game or after partial solving.
 \end_layout
 
 \begin_layout Subsection
@@ -2493,7 +2427,7 @@ If the priorities of vertices all have the same parity (even or odd) then
  with an arbitrary strategy.
  A special case is the single-priority game, where only a single priority
  is used.
- Priority compression is useful to convert the former case to the latter.
+ Priority compression can be used to convert the former case to the latter.
 \end_layout
 
 \begin_layout Subsection
@@ -2535,8 +2469,8 @@ In such a game, player
 \begin_inset Formula $x$
 \end_inset
 
- wins from precisely from the vertices which lie on a cycle of which the
- minimum priority has parity equal to 
+ wins precisely from the vertices which lie on a cycle of which the minimum
+ priority has parity equal to 
 \begin_inset Formula $x$
 \end_inset
 
@@ -2555,10 +2489,10 @@ In such a game, player
 \end_layout
 
 \begin_layout Standard
-In extremely rare cases the game is played on a cycle graph and neither
- player has a choice.
- In that case, strategies are trivial and whichever player has the dominant
- priority on the cycle wins from any vertex in the game.
+In extremely rare cases the game is played on a graph consisting of cycles
+ only and then neither player has a choice.
+ In that case, strategies are trivial and the winner of each cycle corresponds
+ to the parity of the least priority occuring on the cycle.
 \end_layout
 
 \begin_layout Subsection
@@ -2569,9 +2503,9 @@ Graphs of multiple components
 Some game graphs are not completely connected, in the sense that there may
  be pairs of vertices where there exists no path from one vertex to the
  other.
- These graphs can be solved more efficiently by solving strongly connected
- components separately and combining the results.
- There are two main approaches to implementing this.
+ These games can be solved more efficiently by identifying strongly connected
+ components, solving each component separately, and then combining the results.
+ There are two different ways to solve this.
 \end_layout
 
 \begin_layout Standard
@@ -2621,11 +2555,16 @@ d, so the overhead is limited (and comparable to that of the first approach)
 status open
 
 \begin_layout Plain Layout
-What other special cases have been identified?
-\end_layout
+NOTE: this 
+\begin_inset Quotes eld
+\end_inset
 
-\begin_layout Plain Layout
-Browse PGSolver docs/Jeroen's thesis for stuff worth repeating here.
+second approach
+\begin_inset Quotes erd
+\end_inset
+
+ is what PGsolver implements, but isn't how I implemented it at all! Maybe
+ this whole section is out of place?
 \end_layout
 
 \end_inset
@@ -2654,8 +2593,16 @@ tion, which makes it worthwhile to implement a verification routine to validate
 \end_layout
 
 \begin_layout Standard
-The verification algorithm depends on the correct solution of single-player
- games, for which a polynomial time algorithm will be presented.
+Note that solutions produced by different algorithms cannot generally be
+ compared: although winning sets are unique (and thus can be compared) strategie
+s are generally not, so when two algorithms produce two different pairs
+ of strategies, that does not imply either is wrong.
+\end_layout
+
+\begin_layout Standard
+The verification algorithm described below depends on the efficient solution
+ of single-player games, for which a polynomial time algorithm will be presented
+ first.
 \end_layout
 
 \begin_layout Subsection
@@ -2700,7 +2647,7 @@ To solve the game, we iteratively identify an even cycle
 \noun off
 \color none
 and then solve the smaller subgame 
-\begin_inset Formula $\Gamma|V\setminus Attr^{x}(\Gamma,\{c_{1}\ldots c_{n}\})$
+\begin_inset Formula $\Gamma|V\setminus Attr^{x}(\Gamma,\{c_{1},c_{2}\ldots,c_{n}\})$
 \end_inset
 
  in the same manner.
@@ -2743,7 +2690,7 @@ i
 \emph on
 i
 \emph default
--cycle if and only if it contains any vertices with priority 
+-cycle if and only if it contains some vertices with priority 
 \emph on
 i
 \emph default
@@ -2760,7 +2707,7 @@ i
 \emph on
 i
 \emph default
- or higher.
+ or greater.
  To find an 
 \emph on
 i
@@ -2769,28 +2716,28 @@ i
 \emph on
 i
 \emph default
- or higher, we can use the connection between strongly connected components
- of the graph and a cycle in the graph: every cycle must lie in a single
+ or greater, we can use the connection between strongly connected components
+ of the graph and cycles in the graph: every cycle must lie in a single
  strongly connected component and if the edge set of a strongly-connected
  component is non-empty, then all vertices in the strongly-connected component
  must lie on a cycle (by the definition of strongly connected components).
 \end_layout
 
 \begin_layout Standard
-To find an even cycle, then, it suffices to try to find an 
+To find an even cycle, then, it suffices to search for 
 \begin_inset Formula $i$
 \end_inset
 
--cycle for all even values of 
+-cycles for all even values of 
 \begin_inset Formula $i$
 \end_inset
 
-, and for each value construct a graph with edges incident only to vertices
+ and for each value construct a graph with edges incident only to vertices
  of priority 
 \begin_inset Formula $i$
 \end_inset
 
- or higher, which is then decomposed into strongly connected components.
+ or greater, which is then decomposed into strongly connected components.
  If a vertex with priority 
 \begin_inset Formula $i$
 \end_inset
@@ -2801,7 +2748,7 @@ To find an even cycle, then, it suffices to try to find an
 \end_layout
 
 \begin_layout Standard
-Because identifying strongly connected components takes at least 
+Because identifying strongly connected components takes 
 \begin_inset Formula $O(E)$
 \end_inset
 
@@ -2848,7 +2795,8 @@ key "tarjan1971depth"
 status open
 
 \begin_layout Plain Layout
-TODO: compare with PGSolver, if that's different.
+Maybe TODO: compare with PGSolver, if that's different.
+ (I think it looks for a single cycle at a time?)
 \end_layout
 
 \end_inset
@@ -2857,25 +2805,12 @@ TODO: compare with PGSolver, if that's different.
 \end_layout
 
 \begin_layout Subsection
-Verification of strategies
+Verification algorithm
 \end_layout
 
 \begin_layout Standard
-Altough it is hard to compute the optimal strategies for the players in
- a parity game, it is much easier to verify that a pair of a winning sets
- and associated strategies are sound.
- To verify winning sets, it would suffice to solve the parity game with
- a known-good algorithm and then verify that it produced the same winning
- sets.
- This isn't possible for strategies, which are generally not unique, so
- even if we obtain an optimal strategy, this does not imply that different
- strategies are invalid.
- Therefore, we need a separate algorithm to verify strategies.
-\end_layout
-
-\begin_layout Standard
-As noted before, we are only interested in the strategy for vertices that
- are in the winning set of the player that controls them.
+We are only interested in the strategy for vertices that are in the winning
+ set of the player that controls them.
  Assume we are verifying the set 
 \begin_inset Formula $W_{x}$
 \end_inset
@@ -2916,12 +2851,19 @@ Less formally, the edge set includes the edges that are consistent with
 
 's strategy, as well as all edges originating at vertices controlled by
  his opponent.
- We must first verify that 
+ We must first check the trivial property that 
 \begin_inset Formula $E|\sigma_{x}\subseteq W_{x}\times W_{x}$
 \end_inset
 
- (otherwise either the player or his opponent can move the token outside
- the winning set).
+ (otherwise either player 
+\begin_inset Formula $x$
+\end_inset
+
+ or his opponent would move the token outside 
+\begin_inset Formula $W_{x}$
+\end_inset
+
+ in which case it cannot be the right winning set).
 \end_layout
 
 \begin_layout Standard
@@ -2934,7 +2876,7 @@ Less formally, the edge set includes the edges that are consistent with
 \bar no
 \noun off
 \color none
-Assuming these hold, then 
+Assuming this property holds, then 
 \begin_inset Formula $\Gamma|\sigma_{x}=(W_{x}\cap V_{x},W_{x}\cap V_{1-x},E|\sigma_{x},\phi|W_{x})$
 \end_inset
 
@@ -2955,12 +2897,7 @@ Assuming these hold, then
 \begin_inset Formula $x$
 \end_inset
 
- has been removed.
- Since every vertex controlled by 
-\begin_inset Formula $x$
-\end_inset
-
- has only one successor, this makes 
+ has been removed, which makes 
 \begin_inset Formula $\Gamma|\sigma_{x}$
 \end_inset
 
@@ -2973,7 +2910,7 @@ Assuming these hold, then
 
 \begin_layout Standard
 To verify that the original strategy was sound, we can solve this single
- player using the method described earlier, and verify that the winning
+ player game using the method described earlier, and verify that the winning
  set for player 
 \begin_inset Formula $W_{1-x}$
 \end_inset
@@ -2983,7 +2920,7 @@ To verify that the original strategy was sound, we can solve this single
 \begin_inset Formula $\sigma_{x}$
 \end_inset
 
- is valid in the given winning set 
+ is valid in 
 \begin_inset Formula $W_{x}$
 \end_inset
 
@@ -2992,26 +2929,31 @@ To verify that the original strategy was sound, we can solve this single
 \end_inset
 
  is maximal.
- To show that, we must also verify 
-\begin_inset Formula $W_{x-1}$
+ To show that, we must verify that 
+\begin_inset Formula $W_{x-1}=V\setminus W_{x}$
 \end_inset
 
- in the original game.
-\end_layout
-
-\begin_layout Standard
-The time required to solve the single player game is bounded by 
-\begin_inset Formula $O(d\left|E\right|)$
+ is a winning set for the opponent 
+\begin_inset Formula $x-1$
 \end_inset
 
 .
+\end_layout
+
+\begin_layout Standard
+Complete verification of winning sets and strategies therefore requires
+ solving two single-player games, each of which takes 
+\begin_inset Formula $O(d\left|E\right|)$
+\end_inset
+
+ time (as described above).
  Since 
 \begin_inset Formula $d\leq\left|V\right|$
 \end_inset
 
- the verification algorithm is indeed polynomial in time and it is fast
- in practice when the game graph is sparse and the number of distinct priorities
- is low, which is often the case.
+ the verification algorithm runs in polynomial time and is fast in practice
+ when the game graph is sparse and the number of distinct priorities is
+ low, as is often the case.
 \end_layout
 
 \begin_layout Chapter
@@ -8712,6 +8654,10 @@ research question
 
 \begin_layout Plain Layout
 - Note that source code + documentation is available online/at request
+\end_layout
+
+\begin_layout Plain Layout
+- Finally: spell check!
 \end_layout
 
 \end_inset
