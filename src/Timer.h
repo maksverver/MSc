@@ -29,4 +29,4 @@ private:
     double last_;
 };
 
-#endif /* nde fTIMER_H_INCLUDED */
+#endif /* ndef TIMER_H_INCLUDED */

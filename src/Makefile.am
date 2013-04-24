@@ -9,17 +9,18 @@
 # set this to 1 to compile in support for concurrency
 # WITH_THREADS=
 
-COMMON_CFLAGS = -Wall
-
-if !WITH_MCRL2
-COMMON_CFLAGS += -Wextra -DUSE_TIMER
-endif
-
 AM_CFLAGS   = $(COMMON_CFLAGS)
 AM_CXXFLAGS = $(COMMON_CFLAGS)
 
+COMMON_CFLAGS = -Wall
+
+if !WITH_MCRL2
+COMMON_CFLAGS += -Wextra
+endif
+
 bin_PROGRAMS = solver
 
+solver_LDADD = 
 solver_SOURCES = \
 	Abortable.cc Abortable.h \
 	attractor.h attractor_impl.h \
@@ -46,7 +47,6 @@ solver_SOURCES = \
 	RefCounted.h \
 	SCC.h SCC_impl.h \
 	SmallProgressMeasures.cc SmallProgressMeasures.h SmallProgressMeasures_impl.h \
-	Timer.h timing.c \
 	VertexPartition.h
 
 #	ConcurrentRecursiveSolver.cc ConcurrentRecursiveSolver.h
@@ -61,7 +61,10 @@ solver_SOURCES = \
 
 #	ParityGame_pbes.h
 
-solver_LIBS = -lrt
+if USE_TIMER
+solver_SOURCES += Timing.h timing.c
+solver_LDADD += -lrt
+endif
 
 #CFLAGS=-Wall -O2 -g  # default flags
 #CFLAGS+=-O0 -D_GLIBCXX_DEBUG  # additional debug flags
