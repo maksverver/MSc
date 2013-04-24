@@ -9,6 +9,15 @@
 # set this to 1 to compile in support for concurrency
 # WITH_THREADS=
 
+COMMON_CFLAGS = -Wall
+
+if !WITH_MCRL2
+COMMON_CFLAGS += -Wextra -DUSE_TIMER
+endif
+
+AM_CFLAGS   = $(COMMON_CFLAGS)
+AM_CXXFLAGS = $(COMMON_CFLAGS)
+
 bin_PROGRAMS = solver
 
 solver_SOURCES = \
