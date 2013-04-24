@@ -22,8 +22,8 @@ struct CycleFinder
                  const std::vector<verti> &mapping );
 
     /*! Search for minimum-priority cycles and vertices in their attractor sets,
-        an update `strategy`, `done_set` and `done_queue` accordingly.
-        Takes up to O(E) time. */
+        and update `strategy`, `done_set` and `done_queue` accordingly.
+        Takes O(E) time. */
     void run( ParityGame::Strategy &strategy,
               DenseSet<verti> &done_set, std::deque<verti> &done_queue );
 

@@ -994,25 +994,27 @@ int main(int argc, char *argv[])
             }
         }
 
+        /* Add preprocessors which wrap the current solver factory.
+
+           Note that wrapping is done inside-out: the last wrapper added will
+           run first.  The proper order is: Deloop -> Decycle -> Component.
+        */
+        if (arg_scc_decomposition)
+        {
+            solver_factory.reset(
+                new ComponentSolverFactory(*solver_factory.release()) );
+        }
         if (arg_decycle)
         {
             solver_factory.reset(
                 new DecycleSolverFactory(*solver_factory.release()) );
         }
-        else
         if (arg_deloop)
         {
             // N.B. current implementation of the DeloopSolver assumes
             //      the game has been preprocessed as done above!
             solver_factory.reset(
                 new DeloopSolverFactory(*solver_factory.release()) );
-        }
-
-        // Wrap component solver, if solving by components requested:
-        if (arg_scc_decomposition)
-        {
-            solver_factory.reset(
-                new ComponentSolverFactory(*solver_factory.release()) );
         }
 
         Timer timer;

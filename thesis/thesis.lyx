@@ -3857,36 +3857,90 @@ Small Progress Measures is a relatively simple, iterative algorithm for
 Small Progress Measures (or SPM for short) is attractive because it is relativel
 y simple which allows it to be implemented easily and provides ample opportunity
  to parallellize the core algorithm.
- Additionally, the algorithm is among those with the lowest complexity bounds
- known for solving parity games, with a worst-case time complexity of 
+ Additionally, the algorithm is among those with the lowest worst-case complexit
+y bounds known for solving parity games, requiring at most 
 \begin_inset Formula $O\left(\left|E\right|\left(\left|V\right|/\left\lfloor \frac{d}{2}\right\rfloor \right)^{\left\lfloor \frac{d}{2}\right\rfloor }\right)$
 \end_inset
 
- and requiring 
+ time and 
 \begin_inset Formula $O(\left|V\right|d)$
 \end_inset
 
- space (in addition to space required to store the parity game itself).
+ space (in addition to the space required to store the parity game itself).
 \end_layout
 
 \begin_layout Standard
-Oliver Friedmann proposed a variation of the algorithm that effectively
- combines the two passes in one, solving both the game and its dual at the
- same time.
+Oliver Friedmann implemented a variation of the algorithm in PGSolver that
+ effectively combines the two passes in one, solving both the game and its
+ dual at the same time.
  This does not improve on the worst-case time bounds (and, in fact, may
  require around twice as much time and memory compared to the standard algorithm
 ), but can avoid some of the pitfalls that cause excessive runtimes with
  the standard algorithm, which makes it a useful alternative in practice.
+ Since this variation has not been published before, it will be described
+ in subsection 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Two-sided-SPM"
+
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Standard
-Small progress measures was previously implemented by Martin Lange and Oliver
- Friedmann in PGSolver (both the regular and two-sided algorithm) and a
- lock-free concurrent version was implemented by Weber and Van de Pol which
- works on shared-memory systems that do not reorder memory store operations.
+A lock-free concurrent version was implemented by Weber and Van de Pol which
+ works on shared-memory systems that do not reorder memory operations.
  A concurrent implementation for the Playstation 3 (taking advantage of
  the capabilities of the multi-core Cell processor) was written by Jorne
- Kandziora and later improved upon by Freark van der Berg.
+ Kandziora 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "kandziora2009ps3"
+
+\end_inset
+
+ and later improved upon by Freark van der Berg.
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "vanderberg2010ps3"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+My main contribution related to Small Progress Measures are:
+\end_layout
+
+\begin_layout Enumerate
+An optimization that reduces the vector space whenever a vertex is lifted
+ to 
+\begin_inset Formula $\top$
+\end_inset
+
+, described in subsection 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Optimization-after-lifting"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+The development of a novel lifting heuristic that reduces the number of
+ lifting attempts required in many cases, described in subsection 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Maximum-Measure-Propagation"
+
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Standard
@@ -3894,8 +3948,13 @@ Small progress measures was previously implemented by Martin Lange and Oliver
 status open
 
 \begin_layout Plain Layout
-Add references for all of these.
- Note the contribution of my implementation: better heuristics.
+parallel and distributed implementations?
+\end_layout
+
+\begin_layout Plain Layout
+3.
+ the combination of different optimizations into a single tool (which no
+ other tool did)
 \end_layout
 
 \end_inset
@@ -3917,19 +3976,16 @@ key "jurdzinski2000spm"
 
 .
  Let's assume we want to solve the game for player even.
- Then, we associate with each vertex a value, which is either a 
-\series bold
-
-\begin_inset Formula $d$
-\end_inset
-
-
-\series default
--vector of nonnegative integers or the special value 
+ Then, we associate with each vertex a value, which is either the special
+ value 
 \begin_inset Formula $\top$
 \end_inset
 
- (top) indexed from 
+ (top) or a vector of 
+\begin_inset Formula $d$
+\end_inset
+
+ nonnegative integers (whose elements have indexes from 
 \begin_inset Formula $0$
 \end_inset
 
@@ -3937,16 +3993,8 @@ key "jurdzinski2000spm"
 \begin_inset Formula $d-1$
 \end_inset
 
-.
- The 
-\series bold
-
-\begin_inset Formula $d$
-\end_inset
-
-
-\series default
--vector is a member of the vector space 
+).
+ The vector is a member of the vector space 
 \begin_inset Formula $M=M_{0}\times M_{1}\times\cdots\times M_{d-1}$
 \end_inset
 
@@ -3984,7 +4032,7 @@ small
 \begin_inset Quotes erd
 \end_inset
 
- is used because they come from a reduced vector space where every even
+ refers to the fact they are drawn from a reduced vector space: every even
  element is fixed to zero) and will be denoted with lower-case Greek letters.
  On these values a comparison operator 
 \begin_inset Formula $<_{i}$
@@ -4100,8 +4148,8 @@ Let
 \begin_inset Formula $\rho:V\rightarrow M$
 \end_inset
 
- be a function that maps progress measures to vertices.
- We will first define a function 
+ be a function that maps vertices to progress measures.
+ First, define a function 
 \begin_inset Formula $Prog(\rho,v,w):(V\rightarrow M)\times E\rightarrow M^{\top}$
 \end_inset
 
@@ -4113,8 +4161,7 @@ Let
 \begin_inset Formula $vw$
 \end_inset
 
- is included in the strategy for player Even.
- It is defined as follows:
+ is included in the strategy for player Even as follows:
 \end_layout
 
 \begin_layout Standard
@@ -4133,7 +4180,7 @@ Prog(\rho,v,w)=\begin{cases}
 \end_layout
 
 \begin_layout Standard
-Next we can define a function 
+Next define a function 
 \begin_inset Formula $Lift(\rho,v)$
 \end_inset
 
@@ -4153,8 +4200,8 @@ Next we can define a function
 \[
 Lift(\rho,v)(u)=\begin{cases}
 \rho(u) & \mbox{if \ensuremath{u\neq v}}\\
-\max\{\rho(v),\min_{vw\in E}Prog(\rho,v,w)\} & \mbox{if \ensuremath{u=v\wedge v\in V_{0}}}\\
-\max\{\rho(v),\max_{vw\in E}Prog(\rho,v,w)\} & \mbox{if }\ensuremath{u=v\wedge v\in V_{1}}
+\max\{\rho(v),\min_{vw\in E}Prog(\rho,v,w)\} & \mbox{if \ensuremath{u=v\ \wedge\ v\in V_{0}}}\\
+\max\{\rho(v),\max_{vw\in E}Prog(\rho,v,w)\} & \mbox{if }\ensuremath{u=v\ \wedge\ v\in V_{1}}
 \end{cases}
 \]
 
@@ -4187,15 +4234,11 @@ Now if we iterate
 \end_inset
 
  starting from a zero progress measure (
-\begin_inset Formula $\rho(v)_{i}=0$
+\begin_inset Formula $\rho(v)=\vec{0}$
 \end_inset
 
  for all 
 \begin_inset Formula $v\in V$
-\end_inset
-
- and 
-\begin_inset Formula $i\in\{0..d-1\}$
 \end_inset
 
 ) we will arrive at a minimum fixed point 
@@ -4233,7 +4276,7 @@ W_{1}=\{v\in V:\;\rho(v)=\top\}
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\sigma_{0}(v)=w\mbox{ if \ensuremath{v\in W_{0}}and}\rho(v)=_{\phi(v)}\rho(w)
+\sigma_{0}(v)=w\mbox{ if }v\in W_{0}\ \wedge\ \rho(v)=_{\phi(v)}\rho(w)
 \]
 
 \end_inset
@@ -4261,15 +4304,15 @@ In the above description it has not been specified how we will select a
 \end_inset
 
 ) when more than one choice of vertex is available.
- This is because, as part of the correctness proof for the algorithm, Jurdziński
- shows that the order in which vertices are lifted does not matter.
+ This is because that the order in which vertices are lifted does not matter
+ (as shown by Jurdziński as part of the correctness proof for the algorithm).
  Regardless of the strategy used, the algorithm will always arrive at the
  unique minimum fixed point, and the worst-case number of applications of
  the 
 \begin_inset Formula $Lift$
 \end_inset
 
- function required to arrive at this fixed point, does not depend on the
+ function required to arrive at this fixed point does not depend on the
  choice of vertices to lift.
 \end_layout
 
@@ -4311,8 +4354,31 @@ In a practical implementation, to find a vertex that can be lifted, one
 
 .
  If the lifting attempt fails, we have achieved nothing, an inappropriate
- strategy may spend a relatively large amount of time on failed lifting
+ strategy may waste a relatively large amount of time on failed lifting
  attempts.
+\end_layout
+
+\begin_layout Standard
+We will assume in the following that the cost of a succesful lifting attempt
+ is constant regardless of the vertex being lifted.
+ In practice, the cost depends at least on the priority of the vertex and
+ how many successors it has
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+refer to actual implementation where this is clear
+\end_layout
+
+\end_inset
+
+, but since both the maximum priority and the average out-degree are typically
+ low, we might ignore this for sake of simplicity.
+ Similarly, we will assume that the cost of a failed lifting attempt does
+ not exceed that of a succesful lifting attempt, as the same successors
+ must be examined, except that no updates are performed.
+ The degree to which these assumptions are accurate in practice depends
+ largely on the memory model used by the implementation.
 \end_layout
 
 \begin_layout Standard
@@ -4324,7 +4390,7 @@ We will call the computation of
 \emph on
 lifting attempt
 \emph default
-, which can either succeed (
+, which either succeeds (
 \family roman
 \series medium
 \shape up
@@ -4333,7 +4399,7 @@ lifting attempt
 \bar no
 \noun off
 \color none
-
+when 
 \begin_inset Formula $Lift(\rho,v)(v)\ne\rho$
 \end_inset
 
@@ -4346,7 +4412,7 @@ lifting attempt
 \bar default
 \noun default
 \color inherit
-) or fail 
+) or fails 
 \family roman
 \series medium
 \shape up
@@ -4355,7 +4421,7 @@ lifting attempt
 \bar no
 \noun off
 \color none
-(
+(when 
 \begin_inset Formula $Lift(\rho,v)(v)=\rho$
 \end_inset
 
@@ -4376,42 +4442,22 @@ lifting attempt
 \end_layout
 
 \begin_layout Standard
-When a lifting attempt at a vertex 
-\begin_inset Formula $v$
+We call a vertex 
+\emph on
+stable
+\emph default
+ whenever an attempt to lift it would fail.
+ When all vertices in the graph are stable, the minimum fixed point has
+ been reached.
+ Trying to lift a stable vertex is pointless, but unfortunately we often
+ don't know if a vertex is stable or not until we try (with the major exception
+ being vertices whose progress measure is 
+\begin_inset Formula $\top$
 \end_inset
 
- does not change its progress measure vector, then we call the vertex (temporari
-ly) stable.
- Eventually, all vertices in the graph become stable when the minimum fixed
- point has been reached.
- In general, we want to avoid trying to lift stable vertices as this doesn't
- progress the algorithm, but in many cases we do not know whether a vertex
- is stable until we try to lift it.
+).
  Typically, we cannot avoid at least one unsuccesful lifting attempt for
- each vertex to prove all progress measures have stabilized.
-\end_layout
-
-\begin_layout Standard
-We will assume in the following that the cost of a succesful lifting attempt
- is constant regardless of the vertex being lifted.
- In practice, the cost depends at least on the priority of the vertex and
- how many successors it has 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-refer to actual implementation where this is clear
-\end_layout
-
-\end_inset
-
-, but since both the maximum priority and the average out-degree is typically
- low, we might ignore this for sake of simplicity.
- Similarly, we will assume that the cost a failed lifting attempt does not
- exceed that of a succesful lifting attempt, as the same successors must
- be examined, except that no updates are performed.
- Whether or not there is a significant difference depends on the underlying
- memory model, and on how expensive updates are.
+ each vertex to prove a solution has been reached.
 \end_layout
 
 \begin_layout Standard
@@ -4420,7 +4466,7 @@ Ideally, the SPM algorithm performs a sequence of succesful lifting attempts
  the solution is stable.
  Unfortunately, there is no easy way to predict such an optimal sequence
  in general, and as Jurdziński already showed, even in cases where an optimal
- sequence is known, it may be quite large.
+ sequence is known, it may be quite long.
 \end_layout
 
 \begin_layout Standard
@@ -4472,19 +4518,27 @@ A sufficient condition for termination is to verify that there are no
 \emph on
 dirty
 \emph default
- vertices, where a vertex is considered dirty if:
+ vertices, where a vertex is considered dirty if it is not set to 
+\begin_inset Formula $\top$
+\end_inset
+
+ and either:
 \end_layout
 
 \begin_layout Enumerate
-it was never selected for lifting, or
+it has never been selected for lifting, or
 \end_layout
 
 \begin_layout Enumerate
-its last lifting attempt succeeded, or
+since the last lifting attempt, one of its successors was succesfully lifted.
 \end_layout
 
-\begin_layout Enumerate
-since its last lifting attempt, one of its successors was succesfully lifted.
+\begin_layout Standard
+In other words, dirty vertices are those that are not known to be stable
+ (though they might be).
+ As long as we keep lifting dirty vertices, we eventually arrive at a stable
+ solution, and we can conclude this from the fact that no dirty vertices
+ remain.
 \end_layout
 
 \begin_layout Standard
@@ -4502,15 +4556,7 @@ Core Algorithm Implementation
 \end_layout
 
 \begin_layout Standard
-To implement the Jurdziński's algorithm, we start with an all-zero progress
- measures, and while a vertex can be found that can be lifted, we lift it.
- Jurdziński notes that to find a suitable vertex to lift we might need to
- consider each vertex in succession, but a suitable lifting strategy will
- do much better, at least in practice.
-\end_layout
-
-\begin_layout Standard
-The top-level algorithm can now be describe very succinctly as in Algorithm
+Jurdziński's core algorithm can now be describe very succinctly as in Algorithm
  
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -4626,7 +4672,14 @@ describe these somewhere else; refer to them here
 \end_layout
 
 \begin_layout Subsection
-Optimization after lifting to top
+Optimization after lifting to top 
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Optimization-after-lifting"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -4653,7 +4706,7 @@ The implemention of
 \end_inset
 
  is effectively determined by the cardinalities of only those vertices with
- values  less than 
+ progress measures less than 
 \begin_inset Formula $\top$
 \end_inset
 
@@ -4693,18 +4746,18 @@ To see that decreasing the vector space is permissible, even without fixing
 \end_inset
 
  with vector space 
-\begin_inset Formula $M''$
+\begin_inset Formula $M"$
 \end_inset
 
  instead.
  However, since 
-\begin_inset Formula $M''_{p}\subseteq M_{p}'$
+\begin_inset Formula $M"{}_{p}\subseteq M_{p}'$
 \end_inset
 
  and since we compute a minimum fixed point in both cases, the final progress
  measures vectors must be the same for corresponding vertices in both games.
  This guarantees that the final value of all vectors will lie in 
-\begin_inset Formula $M''^{\top}$
+\begin_inset Formula $M"{}^{\top}$
 \end_inset
 
  in both games, which means any vectors which exceed it in the original
@@ -5042,6 +5095,17 @@ From 2 and 3 it follows that if
 
  and computing the latter by fixed point iteration suffices to determine
  the former.
+ 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+is this redundant compared to 4.1.4?
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection
@@ -5053,14 +5117,14 @@ One peculiarity of the Small Progress Measures algorithm is that it may
  spend a lot of time lifting vertices with high priority values which lie
  on a cycle.
  The most typical example of this is a vertex which is controlled by player
- Odd, has a high, odd priority and its only edge is a loop (an edge from
- the vertex back to itself).
+ Odd, has a high, odd priority and a loop as its only edge.
  The final progress measure for such a vertex will obviously be 
 \begin_inset Formula $\top$
 \end_inset
 
- (since Odd will keep the token at this vertex indefinitely), but its high
- priority ensures that it is only lifted in very small increments.
+ (since Odd will keep the token at this vertex indefinitely), but its progress
+ measure will increase only in small increments, requiring many liftings
+ to reach its final value.
 \end_layout
 
 \begin_layout Standard
@@ -5070,9 +5134,8 @@ Something similar occurs for vertices of odd priority which are controlled
 \begin_inset Formula $\top$
 \end_inset
 
- (they may still be won by Even) we can and should discard the loop edge,
- to speed up propagation of values from successor vertices through this
- vertex.
+ (they may still be won by Even) we can discard the loop edge to speed up
+ propagation of values from successor vertices through this vertex.
 \end_layout
 
 \begin_layout Subsubsection
@@ -5462,19 +5525,6 @@ It should be noted that in two of the four cases, it is known to which winning
  The resulting game graph then has no more loops.
 \end_layout
 
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-TODO: example pictures for the four cases above?
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
 \begin_layout Subsubsection
 Winner-controlled cycle removal 
 \begin_inset CommandInset label
@@ -5489,33 +5539,50 @@ name "sub:Winner-controlled-cycle-removal"
 \begin_layout Standard
 In his solver, Freark van der Berg introduced a more sophisticated version
  of the loop removal process described above.
- He searches for cycles of vertices controlled by Odd with odd priority.
- Since he uses a simple depth-limited depth-first-search, he is able to
- find small cycles only.
- Despite this, his benchmark results show that this already provides significant
- benefits over the removal of loops only; at least in some random games.
+ He searches for cycles of vertices controlled by Odd with odd priority,
+ using a depth-first-search approach limited to a relatively shallow depth
+ (up to 8 deep, in his experiments).
+ This results in detection of small cycles only but despite this limitation,
+ his benchmark results show that this already provides significant benefits
+ over the removal of loops only; at least in large random games, where small
+ cycles are common.
 \end_layout
 
 \begin_layout Standard
-His approach can be generalized in several ways.
- First, we would like to find cycles of any size, not just small ones.
- Second, we do not need to limit ourselves to cycles of equal parity: if
- the dominant priority for the cycle matches the controlling player, the
- priorities for the other vertices do not matter.
- To find such cycles, a simple depth-first search no longer suffices.
- Third, as with loop removal, we would like to remove cycles for both players,
- not just for Odd.
+This idea can be improved upon in several ways:
+\end_layout
+
+\begin_layout Enumerate
+Search for cycles of any size (not just small ones).
+\end_layout
+
+\begin_layout Enumerate
+Don't limit the search to fixed parity vertices: only the parity of the
+ least priority of a cycle matters; if that matches the controlling player,
+ the priorities for the other vertices is irrelevant.
+\end_layout
+
+\begin_layout Enumerate
+Search for cycles controlled by Even as well as Odd.
+\end_layout
+
+\begin_layout Standard
+The last generalization isn't directly useful to initialize the SPM vector
+ space, but it is beneficial when attractor sets of winning regions are
+ removed from the graph too.
  The general process is called 
 \emph on
-winner controlled cycle removal
+winner-controlled cycle removal
 \emph default
 ; i.e.
- removal of all cycles consisting of vertices for which the winner is equal
- to the controlling player.
+ removal of all cycles which are entirely controlled by their winning player.
+ To find these cycles, depth-first searching through all cycles in the graph
+ would be too slow, but fortunately there is a more efficient solution,
+ which is similar to the approach used to verify strategies.
 \end_layout
 
 \begin_layout Standard
-To remove all 
+To detect all 
 \begin_inset Formula $i$
 \end_inset
 
@@ -5527,36 +5594,39 @@ To remove all
 \begin_inset Formula $p\equiv i\mod{2})$
 \end_inset
 
- in the graph, an approach similar to that used to verify strategies can
- be applied.
- Construct a subgame induced by the vertices controlled by 
+ in the graph, construct the subgraph induced by the vertices controlled
+ by 
 \begin_inset Formula $p$
 \end_inset
 
- (including vertices controlled by 
-\begin_inset Formula $1-p$
-\end_inset
-
- with outdegree 1) with priority greater than or equal to 
+ with priority greater than or equal to 
 \begin_inset Formula $i$
 \end_inset
 
 .
- Decompose the graph into strongly connected components.
+ (Vertices controlled by 
+\begin_inset Formula $1-p$
+\end_inset
+
+ with outdegree 1 may be considered controlled by 
+\begin_inset Formula $p$
+\end_inset
+
+.) Decompose the graph into strongly connected components.
  Vertices with priority 
 \begin_inset Formula $i$
 \end_inset
 
  that occur in a connected component with at least one edge (i.e.
- either the component contains two vertices or the vertex has an edge to
- itself) are part of a cycle with dominant priority 
+ either the component contains at least two vertices or the vertex has a
+ loop) are part of a cycle with dominant priority 
 \begin_inset Formula $i$
 \end_inset
 
 .
  If we collect one such vertex per component (if one exists) and then compute
  the attractor set for these vertices, we have identified all vertices which
- either lie on an 
+ either lie on 
 \begin_inset Formula $p$
 \end_inset
 
@@ -5564,57 +5634,54 @@ To remove all
 \begin_inset Formula $i$
 \end_inset
 
--cycle or which can be reached from there.
+-cycles or in their attractor set.
 \end_layout
 
 \begin_layout Standard
-Strategies for these vertices can be constructed as followes.
- Put the vertices identified as described above in an initial vertex set,
- and then compute the attractor set and associated strategies for these
- vertices in the subgame.
- For the vertices in the initial set, it suffices to select an arbitrary
- successor inside the same component: since it must lie in the attractor
- set (by definition of strongly connected components and the fact that all
- vertices in the subgame are controlled by 
+Strategies can be constructed as follows.
+ For each vertex in the initial vertex set, pick an arbitrary successor
+ 
+\emph on
+in the same component
+\emph default
+.
+ The rest of the strategy is generated as part of attractor set computation.
+ Finally, we can extend the winning regions identified in the subgame to
+ the attractor set in the global game.
+ All vertices identified this way are solved and may be removed from the
+ game.
+\end_layout
+
+\begin_layout Standard
+It may appear redundant to compute attractor sets twice, but this is required
+ to create correct strategies.
+ 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+CHECKME: is this true??
+\end_layout
+
+\end_inset
+
+ Computing only one attractor set (in the global game) does work for purposes
+ of computing the winning sets, but it could create cycles in 
 \begin_inset Formula $p$
 \end_inset
 
-) play will necessarily lead back to either the 
+'s strategy including vertices with priority less than 
 \begin_inset Formula $i$
 \end_inset
 
--vertex itself (completing a cycle) or to another 
-\begin_inset Formula $i$
-\end_inset
-
--vertex that lies on an 
-\begin_inset Formula $i$
-\end_inset
-
--cycle.
- Finally, we can compute another attractor set (with strategy) for all vertices
- solved in the subgame, but this time in the global game, to extend the
- winning set as far as possible.
- All of these vertices can be considered solved and removed from the game.
-\end_layout
-
-\begin_layout Standard
-It may sound inefficient to compute attractor sets twice, but this is required
- to create correct strategies.
- Computing only one attractor set (in the global game) does work for purposes
- of computing the winning sets, but it may create cycles containing vertices
- with priority less than 
-\begin_inset Formula $i$
-\end_inset
-
-, which was to be avoided.
+.
 \end_layout
 
 \begin_layout Standard
 The process is repeated for every priority in the game.
  Every iteration requires constructing a subgraph with the appropriate vertices,
  decomposing it into strongly connected components, computing the attractor
- set in the subgame, then again in the original game, and finally computing
+ set in that subgraph, again in the original game, and finally computing
  a subgame with the remaining vertices.
  Using appropriate data structures, each of these operations takes at most
  time linear in the number of the edges in the graph, for a total runtime
@@ -5623,8 +5690,20 @@ The process is repeated for every priority in the game.
 \end_inset
 
 .
- Although this is considerably more than simple preprocessing on vertices
- with loops only, the potential benefits are larger too.
+\end_layout
+
+\begin_layout Standard
+This is considerably more than the 
+\begin_inset Formula $O(E)$
+\end_inset
+
+ time required for winner-controlled loop removal only, but the potential
+ benefits are much larger too, making this preprocessing step useful in
+ practice.
+ Although cycle removal makes loop removal obsolete (since loops are simply
+ very short cycles) it may still be beneficial to run the loop-removal routine
+ first to remove winner-controlled loops (and vertices in their attractor
+ set) more quickly than the more general procedure could.
 \end_layout
 
 \begin_layout Subsubsection
