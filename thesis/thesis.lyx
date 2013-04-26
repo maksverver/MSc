@@ -3889,7 +3889,7 @@ reference "sub:Two-sided-SPM"
 \end_layout
 
 \begin_layout Standard
-A lock-free concurrent version was implemented by Weber and Van de Pol which
+A lock-free concurrent version was implemented by Van de Pol and Weber which
  works on shared-memory systems that do not reorder memory operations.
  A concurrent implementation for the Playstation 3 (taking advantage of
  the capabilities of the multi-core Cell processor) was written by Jorne
@@ -5775,7 +5775,7 @@ key "antonik2009polynomial"
 
 \end_inset
 
-): we can replace the priority assigned to a vertex with the largest priority
+): we can replace the priority assigned to a vertex with the greatest priority
  among its successors, if the latter is less than the former, without affecting
  winning sets or optimal strategies in the game, and similarly for the predecess
 ors of a vertex.
@@ -5796,23 +5796,21 @@ This can be seen to be correct by considering that if a play passes through
  a vertex infinitely often, it must also pass through at least one of its
  successors infinitely often.
  When the vertex priority is greater than all of its successors', then it
- cannot be the dominant priority of the play, so it is safe to decrement
- it.
+ cannot be the dominant priority of the play, so it can be safely decreased.
  The same argument applies to predecessors, of course.
 \end_layout
 
 \begin_layout Standard
-The rationale for applying this transformation is that it tends to shift
- the distribution of priorities towards lower values (since lower values
- can replace higher values, but not the other way around).
- This tends to reduce the size of the vector space for progress measures,
- and thereby potentially decreases the runtime of the Small Progress Measures
- algorithm.
+The rationale for applying this transformation before running SPM is that
+ it tends to shift the distribution of priorities towards lower values (since
+ lower values can replace higher values, but not the other way around),
+ which may both reduce the size of the vector space for progress measures
+ and make vector comparisons/updates quicker.
 \end_layout
 
 \begin_layout Standard
-In practice the gains of priority propagation seem to be small at best,
- as has also been noted by Keiren in 
+In practice the performance gain derived from priority propagation appears
+ to be small, as has also been noted by Keiren in 
 \begin_inset CommandInset citation
 LatexCommand cite
 key "keiren2009"
@@ -5821,6 +5819,8 @@ key "keiren2009"
 
 .
  Friedmann & Lange report that 
+\emph on
+
 \begin_inset Quotes eld
 \end_inset
 
@@ -5828,7 +5828,22 @@ emperically, the use of priority propagation turns out to be harmful
 \begin_inset Quotes erd
 \end_inset
 
+
+\emph default
 , though their emperical data is not presented.
+ Presumably they mean that the time spend preprocessing the graph exceeds
+ the time saved during solving.
+ 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+experiment!
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection
@@ -5854,13 +5869,13 @@ Linear Lifting Strategy
 \end_layout
 
 \begin_layout Standard
-Arguably the most basic lifting strategy is a strategy that simply picks
- vertices in order of increasing indices, repeating the process as necessary,
- until all vertices in the graph have failed to be lifted in succession.
+Arguably the most basic lifting strategy consists of trying to lift vertices
+ in order of increasing indices, repeating the process as necessary, until
+ all vertices in the graph have failed to be lifted in succession.
  Its advantages are that it is simple to implement, requires almost no additiona
-l memory, and takes very little time.
- However, the main disadvantage is that it ends up spending a lot of time
- attempting (and failing) to lift vertices in stable parts of the game graph.
+l memory, and takes very little time to select vertices.
+ The main disadvantage is that it may spend a majority of the time attempting
+ (and failing) to lift vertices in stable parts of the game graph.
  Algorithm 
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -5984,58 +5999,50 @@ name "alg:Linear-Lifting-Strategy"
 
 \end_inset
 
-
-\end_layout
-
-\begin_layout Standard
-Weber and Van de Pol call this strategy s
+(Van de Pol and Weber call this approach 
 \emph on
-wiping
+swiping
 \emph default
- instead and it is one of the main strategies implemented in their multi-core
- solver.
+.)
 \end_layout
 
 \begin_layout Standard
-One variation of the strategy is to iterate vertices from back to front.
+A variation of the strategy is to iterate vertices in reverse order.
  This can be beneficial in cases where the graph has been constructed in
- a forward fashion, so that a vertex tends to have a higher index than its
- predecessors.
- Since changes in the graph propagate from vertices to their predecessors,
- iterating in reverse may cause many more vertices to be lifted, the pathologica
-l example being a graph which is a simple cycle, with edges 
-\begin_inset Formula $E=\{(v,w):\; w\equiv v+1\mod{\left|V\right|}$
-\end_inset
-
-.
- Iterating in forward direction might cause only a single succesful lift
- on every pass, while the reverse allows all vertices to be lifted.
+ a forward fashion, so that vertices tend to have higher indices than their
+ predecessors, and therefore since changes in the graph propagate from vertices
+ to their predecessors, iterating in reverse may cause more vertices to
+ be lifted in one pass.
+ For example, in a cycle graph with vertices numbered in cycle order, iterating
+ in forward direction would lift only one vertex per pass, while lifting
+ in backward direction would lift all.
 \end_layout
 
 \begin_layout Standard
-If we expect the edges of the graph to be predominantly oriented one way
- or the other, but we do not know which way in advance, another variation
- would be to alternate the direction of iteration on every pass, avoiding
- the bad case mentioned above.
- Even then we can construct cases which cause a lot of failed lifts, but
- these may arise less frequently in practice.
+There are a few things we can do to minimize the number of passes executed:
+\end_layout
+
+\begin_layout Enumerate
+Calculate the ratio of “forward” and “backward” edges and choose the optimal
+ direction accordingly.
+\end_layout
+
+\begin_layout Enumerate
+Permute vertex indices based on the order they are visited by depth-first
+ or breadth-first search through the graph, which should create a more favorable
+ edge ratio.
+\end_layout
+
+\begin_layout Enumerate
+Alternate the direction of iteration on every pass.
 \end_layout
 
 \begin_layout Standard
-In addition to these variations, it is possible to try to reorder vertices
- in the graph at the start, so that the dominant edge direction is optimal
- for the linear lifting strategy.
- 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-mention this as a preprocessing step for SPM
-\end_layout
-
-\end_inset
-
-
+The advantage of the third approach is that it does not require precalculation/p
+reprocessing of the game graph.
+ Compared to the first approach, it will create at most twice as much work.
+ Permuting vertex indices can produce even better results, but even the
+ second approach isn't guaranteed to yield optimal results.
 \end_layout
 
 \begin_layout Subsection
@@ -6043,16 +6050,23 @@ Predecessor Lifting Strategy
 \end_layout
 
 \begin_layout Standard
-A more sophisticated lifting strategy takes into account the fact that a
- known-stable vertex can only become unstable after the progress measure
- vector of one of its successors has been updated.
+A more sophisticated lifting strategy takes into account that a known-stable
+ vertex can only become unstable after the progress measure vector of one
+ of its successors has been updated.
  After all, the value for one vertex depends only on the values for its
  successors.
- The predecessor lifting strategy uses a set datastructure to store potentially
- unstable vertices, which is initialized to all vertices in the graph.
+\end_layout
+
+\begin_layout Standard
+The predecessor lifting strategy uses a set datastructure to store potentially
+ unstable (“dirty”) vertices, which is initialized to all vertices in the
+ graph with progress mesaures less than 
+\begin_inset Formula $\top$
+\end_inset
+
+.
  A vertex is arbitrarily removed from this set to be lifted, and if this
- succeeds, its predecessors are inserted back into the set (if they were
- not yet present).
+ succeeds, its predecessors are added back into the set.
  All vertices not in the set are necessarily stable, so when the set becomes
  empty, lifting is complete.
 \end_layout
@@ -6070,8 +6084,7 @@ The advantage of this strategy is that it prevents a lot of unnecessary
 \end_inset
 
 ) all vertices remain in the set until the game is completely solved.
- Fortunately, in practice parity game graphs tend to be sparse, making this
- an unlikely scenario.
+ Fortunately, graphs with such properties arise rarely in practice.
 \end_layout
 
 \begin_layout Standard
@@ -6080,54 +6093,32 @@ The main disadvantage of the lifting strategy is that it requires maintaining
 \begin_inset Formula $O(\left|V\right|)$
 \end_inset
 
- extra memory.
- In my solver, I choose to implement this set with a linear array of boolean
- variables to indicate whether a vertex is in the set, and another array
- which acts as a circular queue of vertices.
- This implementation has the advantage of allowing constant time insertion
- and deletion of vertices in the queue, though the time required to update
- the queue is still linear in the number of predecessors of the last vertex
- lifted.
+ extra memory, and extra time proportional to the average indegree of lifted
+ vertices.
+ In my solver, this set is implemented with a linear array of Boolean variables
+ to indicate whether a vertex is in the set, and another array which acts
+ as a circular queue of vertices, in order to allow constant time insertion
+ and removal of vertices.
 \end_layout
 
 \begin_layout Standard
-Weber and Van de Pol call this the 
+In PGSolver (which is limited to single-threaded operation) the predecessor
+ lifting strategy is the only lifting strategy implemented.
+ Van de Pol and Weber call this the 
 \emph on
 work list approach
 \emph default
-, but reject it in their multi-core solver making two objections:
-\end_layout
-
-\begin_layout Enumerate
-It requires predecessors of vertices to be stored in addition to successors,
- which requires additional memory.
-\end_layout
-
-\begin_layout Enumerate
-The overhead involved maintaining the set may be too large.
+, but reject it in their multi-core solver because they are worried about
+ the overhead involved in maintaining the data structures, particularly
+ in a concurrent setting.
 \end_layout
 
 \begin_layout Standard
-However, in my experience graphs do not take a prohibitively large amount
- of memory, and the non-blocking primitives required to implement the set
- in a lock-free manner are readily available, and may well have been easier
- to implement than the focus list approach described below.
- 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-So this probably means I should try to implement it instead.
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-In PGSolver, which is limited to single-threaded operation only, the predecessor
- lifting strategy is the only lifting strategy implemented.
+However, in my experience, available memory is rarely the limiting factor
+ when solving parity games, and the data structures used can be implemented
+ efficiently even in a lock-free manner, so I think there is little reason
+ to omit this strategy from a solver, even one where high performance in
+ a concurrent environment is the primary concern.
 \end_layout
 
 \begin_layout Standard
@@ -6154,17 +6145,27 @@ queue = Queue<Vertex>()
 
 \begin_layout Plain Layout
 
-for 0 <= v < V {
+for v in [0..V) {
 \end_layout
 
 \begin_layout Plain Layout
 
-	queued[v] = true
+    if not top(w) {
 \end_layout
 
 \begin_layout Plain Layout
 
-	queue.push(v)
+   	queued[v] = true
+\end_layout
+
+\begin_layout Plain Layout
+
+	   queue.push(v)
+\end_layout
+
+\begin_layout Plain Layout
+
+   }
 \end_layout
 
 \begin_layout Plain Layout
@@ -6188,7 +6189,7 @@ lifted(Vertex v) {
 
 \begin_layout Plain Layout
 
-		if !queued[w] {
+		if not queued[w] and not top(w) {
 \end_layout
 
 \begin_layout Plain Layout
@@ -6307,8 +6308,8 @@ reference "alg:Predecessor-Lifting-Strategy"
  Crucial to the implementation is that every vertex is queued at most once,
  which prevents attempted lifting of vertices which are not dirty, and additiona
 lly allows the queue to be implemented as a fixed-length array.
- Aan invariant is that at any point precisely those vertices are queued
- which are considered dirty (as described earlier); 
+ An invariant maintained by this algorithm is that the set of vertices queued
+ corresponds exactly with the set of dirty vertices; 
 \begin_inset Formula $\texttt{next()}$
 \end_inset
 
@@ -6319,15 +6320,9 @@ lly allows the queue to be implemented as a fixed-length array.
 \begin_layout Standard
 There is some freedom of implementation when deciding which vertex from
  the set of potentially unstable vertices to lift next.
- The maximum measure lifting strategy (described later) uses the current
- progress measures vectors to select a vertex.
  My implementation uses no external information, but can be configured to
  extract vertices from the queue in a first in, first out (FIFO) or last
  in, last out (LIFO) manner, in which case the queue works like a stack.
- Additionally, the vertices can initially be inserted in forward or in reverse
- order, for similar reasons as the linear lifting strategy can change directions.
- This gives a total of four different variations, which perform differently
- depending on the test case.
  Extracting vertices in LIFO order may have the benefit of providing better
  cache locality, even when it doesn't reduce the number of lifts.
  
@@ -6340,7 +6335,8 @@ but I have no practical results that show this clearly
 
 \end_inset
 
-
+ Similar to the linear lifting strategy, vertices can be inserted into the
+ initial queque in forward or reverse order.
 \end_layout
 
 \begin_layout Subsection
@@ -6352,7 +6348,7 @@ The
 \emph on
 focus list approach
 \emph default
- is a strategy designed by Weber and van de Pol to mitigate some of the
+ is a strategy designed by Van de Pol and Weber to mitigate some of the
  problems of the linear lifting strategy without introducing complicated
  data structures that may be hard to parallellize efficiently.
  Solving occurs by alternation of two phases of operation.
@@ -6386,7 +6382,7 @@ The idea behind the work list is that it captures unstable parts of the
 \end_layout
 
 \begin_layout Standard
-Since Weber and van de Pol are the only ones to implement this strategy,
+Since Van de Pol and Weber are the only ones to implement this strategy,
  there is little emperical evidence available about its performance, though
  it seems to perform much better than linear lifting in some cases, and
  not much worse in most other cases, which suggests it meets its design
@@ -6434,8 +6430,8 @@ Some of the parameters in this algorithm are fixed: the initial credit (here:
 \end_inset
 
 ).
- With these parameters, which were taken from Weber & van de Pol's implementatio
-n, a vertex is selected for lifting at least three times, but will stay
+ With these parameters, which were taken from van de Pol and Weber's implementat
+ion, a vertex is selected for lifting at least three times, but will stay
  on the focus list longer if lifting succeeds occassionally (more precesily,
  it needs to be succesfully lifted at least once every three attempts to
  stay on the list).
@@ -6509,7 +6505,7 @@ next_vertex = 0
 
 \begin_layout Plain Layout
 
-focus_list = Queue<Pair<Vertex, Int> >
+focus_list = Queue<Pair<Vertex, Int>>
 \end_layout
 
 \begin_layout Plain Layout
