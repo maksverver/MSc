@@ -1091,6 +1091,25 @@ int main(int argc, char *argv[])
             */
         }
 
+        if (!perm.empty())
+        {
+            // Restore permuted vertices:
+            std::vector<verti> inv_perm(perm.size());
+            for (size_t i = 0; i < perm.size(); ++i) inv_perm[perm[i]] = i;
+            game.shuffle(inv_perm);
+            if (!strategy.empty())
+            {
+                std::vector<verti> new_strategy(strategy.size());
+                for (size_t i = 0; i < strategy.size(); ++i)
+                {
+                    new_strategy[inv_perm[i]] =
+                        (strategy[i] == NO_VERTEX) ? strategy[i]
+                                                   : inv_perm[strategy[i]];
+                }
+                strategy.swap(new_strategy);
+            }
+        }
+
         if (!failed && arg_verify)
         {
             Timer timer;
@@ -1114,25 +1133,6 @@ int main(int argc, char *argv[])
             }
             Logger::message( "Time used to verify:         %10.3f s",
                              timer.elapsed() );
-        }
-
-        if (!perm.empty())
-        {
-            // Restore permuted vertices:
-            std::vector<verti> inv_perm(perm.size());
-            for (size_t i = 0; i < perm.size(); ++i) inv_perm[perm[i]] = i;
-            game.shuffle(inv_perm);
-            if (!strategy.empty())
-            {
-                std::vector<verti> new_strategy(strategy.size());
-                for (size_t i = 0; i < strategy.size(); ++i)
-                {
-                    new_strategy[inv_perm[i]] =
-                        (strategy[i] == NO_VERTEX) ? strategy[i]
-                                                   : inv_perm[strategy[i]];
-                }
-                strategy.swap(new_strategy);
-            }
         }
 
         write_output(game, strategy, stats.get());
