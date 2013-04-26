@@ -52,6 +52,9 @@ public:
     bool backward() const { return backward_; }
     bool stack() const { return stack_; }
 
+protected:
+    void queue_vertex(verti v);
+
 private:
     const SmallProgressMeasures &spm_;
     const bool backward_;

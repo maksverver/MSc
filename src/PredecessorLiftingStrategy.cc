@@ -18,13 +18,15 @@ PredecessorLiftingStrategy::PredecessorLiftingStrategy(
     assert(graph_.edge_dir() & StaticGraph::EDGE_PREDECESSOR);
 
     // Initialize data
-    verti V = game.graph().V();
-    queued_ = new bool[V];
-    std::fill(queued_, queued_ + V, true);
+    const verti V = game.graph().V();
+    queued_ = new bool[V]();
     queue_ = new verti[V];
-    queue_size_ = queue_capacity_ = V;
-    queue_begin_ = queue_end_ = 0;
-    for (verti v = 0; v < V; ++v) queue_[v] = backward ? V - 1 - v : v;
+    queue_capacity_ = V;
+    queue_begin_ = queue_end_ = queue_size_ = 0;
+    for (verti i = 0; i < V; ++i)
+    {
+        queue_vertex(backward ? V - 1 - i : i);
+    }
 }
 
 PredecessorLiftingStrategy::~PredecessorLiftingStrategy()
@@ -33,20 +35,24 @@ PredecessorLiftingStrategy::~PredecessorLiftingStrategy()
     delete[] queue_;
 }
 
+void PredecessorLiftingStrategy::queue_vertex(verti v)
+{
+    if (!queued_[v] && !spm_.is_top(v))
+    {
+        queued_[v] = true;
+        queue_[queue_end_++] = v;
+        if (queue_end_ == queue_capacity_) queue_end_ = 0;
+        ++queue_size_;
+        assert(queue_size_ <= queue_capacity_);
+    }
+}
+
 void PredecessorLiftingStrategy::lifted(verti v)
 {
     for ( StaticGraph::const_iterator it = graph_.pred_begin(v);
           it != graph_.pred_end(v); ++it )
     {
-        if (!queued_[*it] && !spm_.is_top(*it))
-        {
-            // Add predecessor to the queue
-            queued_[*it] = true;
-            queue_[queue_end_++] = *it;
-            if (queue_end_ == queue_capacity_) queue_end_ = 0;
-            ++queue_size_;
-            assert(queue_size_ <= queue_capacity_);
-        }
+        queue_vertex(*it);
     }
 }
 

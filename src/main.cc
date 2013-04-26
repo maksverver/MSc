@@ -981,7 +981,7 @@ int main(int argc, char *argv[])
 
         /* Note: priority propagation is done after preprocessing, because
                  it benefits from removed loops (since priorities can only be
-                 propagated to vertices with loops). */
+                 propagated to vertices without loops). */
         if (arg_priority_propagation)
         {
             Logger::info("Propagating priorities...");
