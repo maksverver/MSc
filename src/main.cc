@@ -728,7 +728,13 @@ void write_output( const ParityGame &game,
     /* Write hot vertices file */
     if (stats != NULL && !arg_hot_vertices_file.empty())
     {
-        // FIXME: make this a parameter?
+        if (arg_reordering != REORDER_NONE)
+        {
+            Logger::error("Vertex reordering has distorted vertex indices!");
+            // FIXME: to fix this, I should re-order vertex statistics after
+            //        solving (see inv_perm in main()).
+        }
+        // FIXME: make threshold a command-line parameter?
         long long threshold = stats->lifts_succeeded()/1000;
         if (arg_hot_vertices_file == "-")
         {
@@ -798,6 +804,7 @@ static void set_timeout(int t)
     Logger::warn("Time-out not available.");
 }
 #endif
+
 //! Application entry point.
 int main(int argc, char *argv[])
 {
@@ -826,7 +833,7 @@ int main(int argc, char *argv[])
     }
     assert(game.proper());
 
-    /* Do priority compression at the start too. */
+    // Do priority compression at the start:
     int old_d = game.d();
     game.compress_priorities();
 
@@ -834,22 +841,6 @@ int main(int argc, char *argv[])
     {
         Logger::info("Switching to dual game...");
         game.make_dual();
-    }
-
-    if (arg_reordering == REORDER_BFS)
-    {
-        Logger::info("Reordering vertices in bread-first search preordering.");
-        std::vector<verti> perm;
-        get_bfs_order(game.graph(), perm);
-        game.shuffle(perm);
-    }
-
-    if (arg_reordering == REORDER_DFS)
-    {
-        Logger::info("Reordering vertices in depth-first search preordering.");
-        std::vector<verti> perm;
-        get_dfs_order(game.graph(), perm);
-        game.shuffle(perm);
     }
 
     /* Print some game info: */
@@ -974,6 +965,27 @@ int main(int argc, char *argv[])
 #endif
 
         if (arg_timeout > 0) set_timeout(arg_timeout);
+
+        // Re-order vertices:
+        // FIXME: this should probably count towards solving time
+        std::vector<verti> perm;
+        if (arg_reordering == REORDER_BFS)
+        {
+            Logger::info("Reordering vertices by breadth-first search.");
+            get_bfs_order(game.graph(), perm);
+        }
+        if (arg_reordering == REORDER_DFS)
+        {
+            Logger::info("Reordering vertices by depth-first search.");
+            std::vector<verti> perm;
+            get_dfs_order(game.graph(), perm);
+        }
+        if (!perm.empty())
+        {
+            game.shuffle(perm);
+            Logger::info( "Forward edge ratio:        %.10f",
+                (double)count_forward_edges(game.graph())/game.graph().E() );
+        }
 
         {
             // FIXME: this should probably count towards solving time
@@ -1102,6 +1114,25 @@ int main(int argc, char *argv[])
             }
             Logger::message( "Time used to verify:         %10.3f s",
                              timer.elapsed() );
+        }
+
+        if (!perm.empty())
+        {
+            // Restore permuted vertices:
+            std::vector<verti> inv_perm(perm.size());
+            for (size_t i = 0; i < perm.size(); ++i) inv_perm[perm[i]] = i;
+            game.shuffle(inv_perm);
+            if (!strategy.empty())
+            {
+                std::vector<verti> new_strategy(strategy.size());
+                for (size_t i = 0; i < strategy.size(); ++i)
+                {
+                    new_strategy[inv_perm[i]] =
+                        (strategy[i] == NO_VERTEX) ? strategy[i]
+                                                   : inv_perm[strategy[i]];
+                }
+                strategy.swap(new_strategy);
+            }
         }
 
         write_output(game, strategy, stats.get());

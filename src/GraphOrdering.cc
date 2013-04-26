@@ -12,23 +12,16 @@
 #include <queue>
 #include <stack>
 
-static int sign(int i)
-{
-    if (i < 0) return -1;
-    if (i > 0) return +1;
-    return 0;
-}
-
 edgei count_ordered_edges(const StaticGraph &g, int dir)
 {
-    dir = sign(dir);
     edgei res = 0;
     for (verti v = 0; v < g.V(); ++v)
     {
         for ( StaticGraph::const_iterator it = g.succ_begin(v);
               it != g.succ_end(v); ++it )
         {
-            res += (sign(*it - v) == dir);
+            res += (dir < 0) ? (*it < v) :
+                   (dir > 0) ? (*it > v) : (*it == v);
         }
     }
     return res;
