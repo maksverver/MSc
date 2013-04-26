@@ -60,45 +60,14 @@ class LiftingStrategyFactory : public RefCounted
 public:
     virtual ~LiftingStrategyFactory();
 
-    /*! Creates a lifting strategy factory from a string description. Returns
-        NULL if the description could not be interpreted.
+    /*! Returns pre-formatted plain-text documentation of the description
+        strings accepted by create(), intended to be shown to the user.
+        \see create(const std::string &description) */
+    static const char *usage();
 
-        String descriptions are as follows:
-
-            linear:backward:alternate
-                Use a linear lifting strategy (swiping).
-                If backward is non-zero, scan vertices backward.
-                If alternate is non-zero, then the direction switches between
-                forward and backward when the end of the list is reached.
-                Default: linear:0
-
-            predecessor:backward:stack
-                Use a predecessor lifting strategy (worklist).
-                If backward is non-zero, scan vertices backward.
-                If stack is non-zero, use a stack instead of a queue.
-                Default: predecessor:0:0
-
-            focuslist:backward:max_size:lift_ratio
-                Use a lifting strategy with a focus list.
-                If backward is non-zero, scan vertices backward.
-                max_size specificies the maximum size of the focus list, either
-                as an absolute size greater than 1, or as a ratio between zero
-                and 1, relative to the total number of vertices in the graph.
-                lift_ratio specifies the maximum number of lifting attempts
-                before switching from the focus list back to swiping, as a
-                ratio of the maximum focus list size.
-                Default: focuslist:0:0.1:10.0
-
-            maxmeasure
-                Variant on the predecessor lifting strategy that prefers to
-                lift vertices with higher current progress measures, thereby
-                (hopefully) increasing the average step size when lifting
-                succeeeds, and decreasing the number of lifting atttempts
-                required to arrive at a fixpoint.
-
-            oldmaxmeasure
-                Older implementation of max. measure lifting strategy.
-    */
+    /*! Creates a lifting strategy factory from a string description.
+    \returns A factory object or NULL if the description could not be parsed.
+    \see usage() for a description of available format strings. */
     static LiftingStrategyFactory *create(const std::string &description);
 
     /*! Create a lifting strategy for the given game, to be used by the given

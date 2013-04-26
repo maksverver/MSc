@@ -24,6 +24,41 @@ LiftingStrategyFactory::~LiftingStrategyFactory()
 {
 }
 
+const char *LiftingStrategyFactory::usage()
+{
+    return
+"linear:backward:alternate\n"
+"   Use a linear lifting strategy (aka swiping).\n"
+"   - backward: if non-zero, scan vertices backward (default: 0)\n"
+"   - alternate: if non-zero, switches direction between forward and backward \n"
+"     whenever the end of the list is reached (default: 0)\n"
+"\n"
+"predecessor:backward:stack\n"
+"   Use a predecessor lifting strategy (aka worklist).\n"
+"   - backward: if non-zero, the queue is initialized in reverse (default: 0)\n"
+"   - stack: if non-zero, removes elements from the end of the queue instead \n"
+"            of the beginning (default: 0)\n"
+"\n"
+"focuslist:backward:alternate:max_size:lift_ratio\n"
+"   Use swiping + focus list lifting strategy.\n"
+"   - backward: see 'linear' (default: 0)\n"
+"   - alternate: see 'linear' (default: 0)\n"
+"   - max_size: the maximum size of the focus list, either as an absolute size\n"
+"     greater than 1, or as a ratio (between 0 and 1) of the total number of\n"
+"     vertices (default: 0.1)\n"
+"   - lift_ratio: the maximum number of lifting attempts performed on the\n"
+"     focus list before switching back to swiping, as a ratio of the maximum\n"
+"     focus list size (default: 10.0)\n"
+"\n"
+"maxmeasure\n"
+"   Maximum measure propagation; a variant of the predecessor lifting strategy\n"
+"   that prefers to lift vertices with higher progress measures.\n"
+"\n"
+"oldmaxmeasure\n"
+"   Old implementation of max. measure lifting strategy.\n"
+"   Included for regression testing purposes only.\n";
+}
+
 LiftingStrategyFactory *
     LiftingStrategyFactory::create(const std::string &description)
 {

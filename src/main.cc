@@ -156,6 +156,7 @@ static void print_usage(const char *argv0)
 "\n"
 "Solving with Small Progress Measures:\n"
 "  --lifting/-l <desc>    Small Progress Measures lifting strategy to use\n"
+"                         ('help' shows available strategies and parameters)\n"
 "  --alternate/-a         use Friedmann's alternating solving approach\n"
 "\n"
 "Solving with Zielonka's recursive algorithm:\n"
@@ -351,6 +352,12 @@ static void parse_args(int argc, char *argv[])
 
         case 'l':   /* Small Progress Measures lifting strategy */
             arg_spm_lifting_strategy = optarg;
+            if (strcasecmp(optarg, "help") == 0)
+            {
+                printf( "Available lifting strategies:\n\n%s",
+                        LiftingStrategyFactory::usage() );
+                exit(EXIT_SUCCESS);
+            }
             break;
 
         case 'a':  /* Alternate SPM solver */
@@ -442,8 +449,8 @@ static void parse_args(int argc, char *argv[])
 
     if (arg_input_format == INPUT_NONE)
     {
-        printf("No input format specified!\n");
-        print_usage(argv[0]);
+        printf("No input format specified! "
+               "(Use --help to print usage information.)\n");
         exit(EXIT_FAILURE);
     }
 
