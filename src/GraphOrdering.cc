@@ -29,8 +29,7 @@ edgei count_ordered_edges(const StaticGraph &g, int dir)
 
 void get_bfs_order(const StaticGraph &graph, std::vector<verti> &perm)
 {
-    assert(perm.empty());
-    perm.resize(graph.V(), (verti)-1);
+    perm.assign(graph.V(), (verti)-1);
 
     std::queue<verti> queue;
     verti new_v = 0;
@@ -60,8 +59,7 @@ void get_bfs_order(const StaticGraph &graph, std::vector<verti> &perm)
 
 void get_dfs_order(const StaticGraph &graph, std::vector<verti> &perm)
 {
-    assert(perm.empty());
-    perm.resize(graph.V(), (verti)-1);
+    perm.assign(graph.V(), (verti)-1);
 
     std::stack<std::pair<verti, StaticGraph::const_iterator> > stack;
     verti new_v = 0;

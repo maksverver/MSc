@@ -977,7 +977,6 @@ int main(int argc, char *argv[])
         if (arg_reordering == REORDER_DFS)
         {
             Logger::info("Reordering vertices by depth-first search.");
-            std::vector<verti> perm;
             get_dfs_order(game.graph(), perm);
         }
         if (!perm.empty())
