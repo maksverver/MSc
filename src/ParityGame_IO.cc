@@ -214,7 +214,10 @@ void ParityGame::write_dot(std::ostream &os) const
             for ( StaticGraph::const_iterator it = graph_.succ_begin(v);
                   it != graph_.succ_end(v); ++it )
             {
-                os << v << " -> " << *it << ";\n";
+                const char *col = (*it < v) ? "red" : "black";
+                os << v << " -> " << *it;
+                if (*it < v) os << " [color=red]";
+                os << ";\n";
             }
         }
         else
