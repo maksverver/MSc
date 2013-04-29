@@ -903,15 +903,18 @@ Given a polynomial-time algorithm to verify the optimality of a pair of
 
 \begin_layout Standard
 NP and co-NP are generally believed to be distinct, and since the existence
- of NP-complete problems in co-NP would imply NP = co-NP, it seems unlikely
- that the problem is NP-complete.
- Whether a polynomial time algorithm exists at all remains an open question,
- despite considerable research interest.
+ of NP-hard problems in co-NP would imply NP = co-NP, it seems unlikely
+ that the problem is NP-hard.
+ This makes it plausible that there should be a polynomial-time algorithm
+ to solve parity games, but despite considerable research interest, none
+ have been found.
 \end_layout
 
 \begin_layout Standard
-The more restricted problem of determining only winning sets has been shown
- to be in UP 
+If there exists a polynomial-time algorithm that determines winning sets
+ only (without associated strategies) then full solutions can be constructed
+ in polynomial time too.
+ This restricted problem has been shown to be in UP 
 \begin_inset Formula $\cap$
 \end_inset
 
@@ -922,7 +925,7 @@ key "jurdzinski1998deciding"
 
 \end_inset
 
-, where UP is the subset of NP containing those problems that are decidable
+ where UP is the subset of NP containing those problems that are decidable
  by an 
 \emph on
 unambiguous
@@ -944,7 +947,7 @@ UP or UP
 \begin_inset Formula $\subset$
 \end_inset
 
-NP.
+NP (or both, or neither).
 \end_layout
 
 \begin_layout Standard
@@ -6046,7 +6049,14 @@ reprocessing of the game graph.
 \end_layout
 
 \begin_layout Subsection
-Predecessor Lifting Strategy
+Predecessor Lifting Strategy 
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Predecessor-Lifting-Strategy"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -6731,14 +6741,14 @@ The maximum measure propagation strategy is a variant of the predecessor
 \end_layout
 
 \begin_layout Standard
-Pathological examples can be constructed in which this order of lifting
- provides obvious benefit.
+Artificial examples can be constructed in which this order of lifting provides
+ obvious benefit.
  Specifically, whenever a vertex is known to be won by player Odd (when
  it is assigned 
 \begin_inset Formula $\top$
 \end_inset
 
-) all vertices in its attractor set will be set to top too, before any other
+) all vertices in its attractor set will be set to top before any other
  vertices are lifted, since 
 \begin_inset Formula $\top$
 \end_inset
@@ -6749,11 +6759,17 @@ Pathological examples can be constructed in which this order of lifting
 \end_layout
 
 \begin_layout Standard
-In practice, maximum measure propagation is not always strictly better than
- the predecessor lifting strategy described above, as will be shown later.
- However, in many cases it does cause fewer (succesful as well as total)
- lifting attempts.
- Its main disadvantage lies in the considerable amount of overhead in the
+In practice, maximum measure propagation does not always outperform the
+ simpler predecessor lifting strategy described in subsection 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Predecessor-Lifting-Strategy"
+
+\end_inset
+
+, but in many cases it does cause fewer (succesful as well as total) lifting
+ attempts.
+ Its main disadvantage lies in the amount of overhead introduced by the
  implementation of the strategy itself.
  To track vertices with high progress measures, it is necessary to implement
  some sort of priority queue structure.
@@ -6984,7 +7000,7 @@ reference "alg:Maximum-Measure-Lifting"
 \end_inset
 
 .
- The successors of queued vertices (not the vertices themselves) are kept
+ The successors of queued vertices (not the vertices themselves!) are kept
  in a complete binary heap structure, ordered by their progress measure
  vectors, so that the vertex with the largest progress measure vector is
  at the top of the heap.
@@ -7010,8 +7026,8 @@ reference "alg:Maximum-Measure-Lifting"
  not yet been assigned top value are marked as queued.
  If there are any, then the vertex itself is inserted into the heap or moved
  up from its current position if it is already present.
- If there are none, then the successor vertex is removed (at this point,
- the vertex was on top of the heap).
+ If there are none, then the vertex is removed (at this point, the vertex
+ was on top of the heap).
  It should be noted that the 
 \begin_inset Formula $\texttt{push()}$
 \end_inset
@@ -7019,11 +7035,6 @@ reference "alg:Maximum-Measure-Lifting"
  operation either inserts the vertex into the queue (if it did not exists)
  or raises it (if it did exist, but its progress measure vector has changed)
  but does not insert a vertex twice.
- Similarly, 
-\begin_inset Formula $\texttt{pop()}$
-\end_inset
-
-only removes the vertex if it exists.
 \end_layout
 
 \begin_layout Standard
@@ -7043,57 +7054,37 @@ One might ask why it is necessary to store successors rather than the vertices
 \begin_layout Standard
 Now, to select the next vertex to be lifted, the highest vertex in the heap
  is consulted, and if any of its predecessors are still marked as queued,
- it is returned.
- If there are no predecessors to be lifted, the vertex is removed from the
- heap, and we repeat the process.
- When the heap is empty, no more vertices are queued and the solution is
- complete.
- Note that for each vertex, on average, we insert one vertex in the heap,
- remove one vertex on the heap, and look up a number of vertices equal to
- half of the in-degree of vertices in the graph.
- Insertion and removal in a binary heap takes at most 
-\begin_inset Formula $O(\log\left|V\right|)$
-\end_inset
-
- time.
- Since we assume the game graph to be sparse, this is also the average overhead
- per 
-\emph on
-succesful
-\emph default
- lift for this strategy.
- Although this overhead is still small, it is considerably more than the
- 
-\begin_inset Formula $O(1)$
-\end_inset
-
- overhead of data structures described previously.
- Like the predecessor lifting strategy, the memory overhead is limited to
- 
-\begin_inset Formula $O(\left|V\right|)$
-\end_inset
-
-, though with a larger constant factor.
-\end_layout
-
-\begin_layout Standard
-As with the predecessor lifting strategies, the 
+ one of them is returned.
+ If there are no queued predecessors, the vertex is removed from the heap,
+ and we repeat the process.
+ As with the predecessor lifting strategies, the 
 \begin_inset Formula $\texttt{queued}$
 \end_inset
 
- array corresponds with the set of dirty vertices.
- Since a vertex is only marked as queued when one of its successors is added
- to the heap, and a vertex is not removed from the heap until none of its
- predecessors are marked as queued, it follows that if the heap is empty,
- the dirty set is as well, and in this case the global algorithm terminates.
+ array corresponds to the set of dirty vertices, and since vertices are
+ only marked as queued when one of their successors is in the heap, it follows
+ that when the heap is empty then the dirty set is empty and therefore the
+ solution is complete.
 \end_layout
 
 \begin_layout Standard
+Note that the amount of overhead introduced per lifting attempt is 
+\begin_inset Formula $O(\log\left|V\right|)$
+\end_inset
+
+ time to insert/move/remove vertices in the heap plus the cost of looping
+ over the predecessors of the vertex under consideration, which is quite
+ a bit more than the 
+\begin_inset Formula $O(1)$
+\end_inset
+
+ overhead incurred by the previously described lifting strategies.
+ 
 \begin_inset Note Note
 status open
 
 \begin_layout Plain Layout
-- Worst cases, if different from predecessor lifting?
+insert reference to benchmarks
 \end_layout
 
 \end_inset
