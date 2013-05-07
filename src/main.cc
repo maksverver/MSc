@@ -144,7 +144,7 @@ static void print_usage(const char *argv0)
 "  --priorities <int>     (random only) number of priorities\n"
 "  --size <int>           (random only) number of vertices\n"
 "  --outdegree <int>      (random only) average out-degree\n"
-"  --seed <int>           (random only) random nubmer generator seed\n"
+"  --seed <int>           (random only) random number generator seed\n"
 "\n"
 "Preprocessing:\n"
 "  --deloop               detect loops won by the controlling player\n"

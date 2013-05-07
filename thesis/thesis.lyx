@@ -356,7 +356,7 @@ dominant priority
 \begin_layout Standard
 \begin_inset Formula 
 \[
-P(\pi)=\min\left\{ p\in\mathbb{N}_{0}:\left|\left\{ i\in\mathbb{N}:\phi(v_{i})=p\right\} \right|=\aleph_{0}\right\} 
+P(\pi)=\min\left\{ p\in\mathbb{N}_{0}:\ \forall i\ \exists j>i:\ \phi(v_{j})=p\right\} 
 \]
 
 \end_inset
@@ -939,15 +939,15 @@ unambiguous
 \begin_inset Formula $\subseteq$
 \end_inset
 
- NP this is a stronger result, although it is not known whether P
+ NP this is a stronger result, although it is not known whether P 
 \begin_inset Formula $\subset$
 \end_inset
 
-UP or UP
+ UP or UP 
 \begin_inset Formula $\subset$
 \end_inset
 
-NP (or both, or neither).
+ NP (or both, or neither).
 \end_layout
 
 \begin_layout Standard
@@ -967,8 +967,8 @@ key "jurdzinski2000spm"
 \begin_inset Formula $O\left(d\left|E\right|\left(\frac{\left|V\right|}{\left\lfloor d/2\right\rfloor }\right)^{\left\lfloor d/2\right\rfloor }\right)$
 \end_inset
 
- ) while others are instead subexponential in the size of the graph (for
- example, Jurdziński, Paterson and Zwick give an 
+ ) while others are instead subexponential in the size of the game graph
+ (for example, Jurdziński, Paterson and Zwick give an 
 \begin_inset Formula $\left|V\right|^{O(\sqrt{\left|V\right|})}$
 \end_inset
 
@@ -990,9 +990,8 @@ Often
  is small and therefore the first category of algorithms provides better
  complexity bounds.
  However, in practice many instances can be solved much faster than the
- worst case time complexity would suggest, and consequently these complexity
- bounds are of little use to answer the question of which algorithms work
- best in practice.
+ worst case time complexity would suggest, and worst-case complexity bounds
+ don't predict which algorithms work best in practice.
 \end_layout
 
 \begin_layout Section
@@ -1000,35 +999,42 @@ Application To Model Checking
 \end_layout
 
 \begin_layout Standard
-Parity games are not just of theoretical interest; they have a practical
- uses too, primarily as a component in model checking systems, which attempt
- to verify whether a model of a system (typically expressed in some high-level
- formal language) satisfies a certain specification (typically captured
- in a temporal logic formula).
+The most notable practical application of parity games is their suitability
+ as a component in model checking systems, which attempt to verify whether
+ a model of a system (typically expressed in some high-level formal language)
+ satisfies a certain specification (typically captured in a temporal logic
+ formula).
 \end_layout
 
 \begin_layout Standard
-Practical model checking tools must balance two concerns: on the one hand,
- the specification language available to the user should be as expressive
- as possible, while on the other hand, the internal representation of the
- resulting model checking problem should be kept simple enough so that it
- can be solved quickly using provably-correct algorithms.
+Model checking tools must balance two concerns: on the one hand, the specificati
+on language available to the user should be as expressive as possible, while
+ on the other hand, the internal representation of the resulting model checking
+ problem should be kept simple enough so that it can be solved quickly using
+ provably-correct algorithms.
 \end_layout
 
 \begin_layout Standard
-Parity games are useful here, because they can encode model checking problems
- resulting from the application of modal 
+Parity games fit these constraints well because they can be used to express
+ whether a property specified in the modal 
 \begin_inset Formula $\mu$
 \end_inset
 
--calculus specifications to labelled transition systems.
+-calculus holds on a labelled transition system (LTS) 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "emerson1991tree"
+
+\end_inset
+
+.
  Since many high-level specification languages can be converted into labelled
  transition systems, and many temporal logics (such as CTL and LTL) can
  be expressed in the modal 
 \begin_inset Formula $\mu$
 \end_inset
 
--calculus 
+-calculus, 
 \begin_inset Note Note
 status open
 
@@ -1038,8 +1044,30 @@ citation?
 
 \end_inset
 
-, efficient algorithms for solving parity games could provide the basis
- of a comprehensive approach to model checking.
+ efficient algorithms for solving parity games could provide the basis of
+ a comprehensive approach to model checking.
+\end_layout
+
+\begin_layout Standard
+Not only are parity games sufficiently powerful to express these problems,
+ but conversion from the model checking problem to parity games yields reasonabl
+y compact games, where the number of vertices equals the product of the
+ number of states in the LTS and the number of subexpressions in the 
+\begin_inset Formula $\mu$
+\end_inset
+
+-calculus formula, and the number of priorities corresponds with the alternation
+ depth of fixed-point operators in the formula (for example, see 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "obdrzalek2006algorithmic"
+
+\end_inset
+
+ for one explicit construction method).
+ Finally, these games can be constructed in linear time, and thus model
+ checking via parity games would be a very practical approach, assuming
+ the resulting parity games can be solved quickly.
 \end_layout
 
 \begin_layout Section
@@ -1107,25 +1135,22 @@ key "zielonka1998igf"
 \end_layout
 
 \begin_layout Standard
-Zielonka also summarizes and improves upon previous results on more general
- classes of games played on infinite labeled graphs, with winning conditions
- that are more complex than the parity condition.
- These games cannot generally be solved by memoryless strategies, but many
- of the concepts he mentions are still applicable to parity games, which
- is why some of his terminology will be used in this report (see section
- 
+Some of the terminology introduced to discuss more general classes of games
+ (like Muller games, which cannot generally be solved with memoryless strategies
+) is also useful for discussing parity games, and these will be repeated
+ in section 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sec:Common-Terminology"
 
 \end_inset
 
-).
+.
 \end_layout
 
 \begin_layout Standard
-Building on these ideas, many different parity game algorithms have been
- proposed, including:
+For parity games specifically, many solving algorithms have been proposed,
+ including:
 \end_layout
 
 \begin_layout Itemize
@@ -1230,7 +1255,8 @@ key "lange2005sat"
 \begin_layout Standard
 This gives plenty of algorithms to choose from, though there is no agreement
  on which algorithms work best in practice.
- Schewe favours strategy improvement, stating they are: 
+ Schewe favours approaches based on strategy improvement, stating these
+ are: 
 \emph on
 
 \begin_inset Quotes eld
@@ -1534,6 +1560,18 @@ TODO: how does verification work in PGsolver‽
 \end_inset
 
 
+\end_layout
+
+\begin_layout Itemize
+An optimization of the small progress measures algorithm (described in subsectio
+n 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Optimization-after-lifting"
+
+\end_inset
+
+)
 \end_layout
 
 \begin_layout Itemize
@@ -4297,7 +4335,14 @@ W_{1}=\{v\in V:\;\rho(v)=\top\}
 \end_layout
 
 \begin_layout Subsection
-Lifting Strategies
+Lifting Strategies 
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Lifting-Strategies"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -7110,7 +7155,7 @@ A noteworthy variant of the Small Progress Measures algorithm was implemented
  In this case, the algorithm is not run for one player at a time, but for
  both players at once.
  In Friedmann's implementation this means that a single vertex is selected,
- and it is lifted both in the normal game and its dual, and if either lift
+ and it is lifted both in the normal game and its dual, and if either attempt
  succeeds, the predecessor vertices are queued.
  Effectively, the queue is shared between the two games.
  Conceivably, the two games could be processed independently, even in parallel
@@ -7129,7 +7174,7 @@ Periodically (in the current implementation after every
 \begin_inset Formula $\top$
 \end_inset
 
- in the corresponding dual game being solved for its opponent.
+ in the corresponding dual game for his opponent.
  These vertices are identified as follows.
 \end_layout
 
@@ -7188,14 +7233,17 @@ less
 \end_inset
 
  means less with respect to the priority of the current vertex.
- Note that these conditions are consistent with the usual criteria when
- vertices can be lifted, where the marked vertices are considered to be
- set to top.
+ Note that these conditions are consistent with the usual criteria for lifting
+ vertices, where the marked vertices are considered to be set to 
+\begin_inset Formula $\top$
+\end_inset
+
+.
  The interpretation of the marks is that marked vertices may be won by Odd,
  and unmarked vertices are known to be won by Even.
  The unmarked vertices therefore are a subset of the winning set of Even,
- and the corresponding vertices in the dual game solved for Odd can be set
- 
+ and the corresponding vertices in the dual game being solved for Odd can
+ be set 
 \begin_inset Formula $\top$
 \end_inset
 
@@ -7205,7 +7253,7 @@ less
 \begin_inset Formula $\top$
 \end_inset
 
- in the main game.
+ in Even's game.
 \end_layout
 
 \begin_layout Standard
@@ -7219,26 +7267,12 @@ To compute a maximal set of marked vertices, a similar approach as in the
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-THIS IS WRONG: If we assume that we tend to examine vertices with average
- outdegree then the main algorithm examines about 
-\begin_inset Formula $\left|E\right|$
+The rationale for propagating this information  every 
+\begin_inset Formula $\left|V\right|$
 \end_inset
 
- vertices before updating the progress measures for both players, which
- ensures the time required to solve a game increases at worst by a constant
- factor (about two or three, presumably).
- THIS IS RIGHT: Additionally, the algorithm requires up to twice as much
- memory, because progress measures for both players must be kept.
- (Maybe delete this?)
-\end_layout
-
-\end_inset
-
-
+ lifting attempts is that this amortizes the overhead involved against the
+ work done lifting vertices, so that the worst-case complexity remains unchanged.
 \end_layout
 
 \begin_layout Subsubsection
@@ -7261,140 +7295,63 @@ In practice, a game and its dual are often not of the same difficulty.
 \end_layout
 
 \begin_layout Standard
-Friedmann's two-sided approach has as the benefit that this approach is
- not applied just on the game level, but also on parts of the games, which
- is beneficial in cases where games contain different parts which are hard
- to solve for different players.
+Friedmann's two-sided approach has the benefit that it is not applied on
+ the entire game, but also on smaller regions of the games, which is beneficial
+ in cases where games contain different parts which are hard to solve for
+ different players.
  In those cases, the two-sided approach can result in both sides being solved
  in less time than would be possible starting from either side.
 \end_layout
 
+\begin_layout Subsubsection
+Implementation differences
+\end_layout
+
 \begin_layout Standard
 Unfortunately, the implementation in PGSolver is flawed.
- It foregoes construction of the subgame entirely, even after one of the
- sides is completely solved.
+ It omits construction of the subgame entirely, even after one of the sides
+ is completely solved.
  When a subgame is constructed this reduces the size of the progress measure
  vector space, which can significantly reduce the solving time for a game.
  Therefore, PGSolver suffers from regressions where some games require orders
- of magnitudes more lifting attempts to be performed compared to the original
- approach, rather than being bound by a factor two as expected.
- A simple solution would be to reset the unsolved game to the appropriate
- subgame after its easier dual is solved, but then some of the work done
- is lost.
- I have implemented a different way to address this issue, as will be described
- later.
+ of magnitudes more lifting attempts before arriving at a solution, compared
+ to the original approach, rather than the overhead being bound by a worst-case
+ factor two as expected.
+ The optimization described in subsection 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Optimization-after-lifting"
+
+\end_inset
+
+ and implemented in my solver remedies this.
 \end_layout
 
 \begin_layout Standard
-Finally, a limitation of the implementation in PGSolver is that it always
+Second, a limitation of the implementation in PGSolver is that it always
  attempts to lift the same vertex in both the normal and dual game.
- There does not seem to be a particular reason to restrict lifting attempts
- in this way.
- On the contrary, it seems plausible that the sets of liftable vertices
- in the normal and dual game will diverge, so it seems more natural to apply
- separate lifting strategies to both games, especially since there seems
- to be little to be gained by synchronizing the vertices selected for lifting,
- except some memory savings (from maintaining one lifting strategy instance
- instead of two) and some cache benefits (when progress measure vectors
- for two games are stored interleaved as is the case in PGSolver).
-\end_layout
-
-\begin_layout Subsubsection
-Implementation
+ Although that works, it seems plausible that the sets of liftable vertices
+ in the normal and dual game will diverge, so it seems more reasonable to
+ instantiate separate lifting strategies for the two games.
 \end_layout
 
 \begin_layout Standard
-My solver tool implements Friedmann's variation of Small Progress Measures
- with three changes which are intended to mitigate the disadvantages outlined
- above.
-\end_layout
-
-\begin_layout Enumerate
-Whenever a vertex is lifted to 
-\begin_inset Formula $\top$
-\end_inset
-
-, the vector space bounds are adjusted as if the vertex had been removed
- from the game.
- This means for example that if we are solving for Even and a vertex with
- priority 1 is lifted to 
-\begin_inset Formula $\top$
-\end_inset
-
-, then the first dimension of the vector space is reduced by one.
- 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-mention that this means existing vectors may temporarily contain values
- that exceed bounds!
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Enumerate
-Separate lifting strategies are created for the two games, to increase the
- probability of succesful lifting.
-\end_layout
-
-\begin_layout Enumerate
-Instead of attempting 
+Finally, in an attempt to propagate information about losing vertices earlier,
+ my solver attempts 
 \begin_inset Formula $\left|V\right|$
 \end_inset
 
- lifts in both games and then exchanging information between the two games,
- my implementation attempts 
-\begin_inset Formula $\left|V\right|$
-\end_inset
-
- lifts in one game, propagates information to the dual game, and then switches
- to that game.
- This is possible because lifting strategies for the two games are independent,
- and ensures that information is exchanged earlier (after every 
-\begin_inset Formula $\left|V\right|$
-\end_inset
-
- rather than 
+ lifts in one game, before propagating information and switching to the
+ dual game (rather than performing 
 \begin_inset Formula $2\left|V\right|$
 \end_inset
 
- lifting attempts).
+ lifting attempts in total before propagating information in both directions).
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-#1 probably needs a proof that it does not change the correctness of the
- algorithm? (also note that #1 helps also for the normal algorithm)
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-- cite parallel implementation by Michael
-\end_layout
-
-\begin_layout Plain Layout
-- cite parallel implementaiton on PS3 [mention/cite Jorne Kandziora, Freark
- van den Berg]
-\end_layout
-
-\end_inset
-
-
+Note that the first of these improvements is crucially important, while
+ the other two are at best small improvements over Friedmann's implementation.
 \end_layout
 
 \begin_layout Chapter
@@ -8594,6 +8551,33 @@ Probably split into sequential/parallel results; depends a bit on what we
 Discussion
 \end_layout
 
+\begin_layout Subsection
+Quantifying lifting strategy overhead
+\end_layout
+
+\begin_layout Standard
+As has been alluded to in subsection 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Lifting-Strategies"
+
+\end_inset
+
+, different lifting strategies may incur different runtime overhead.
+ To quantify this overhead, I have run different lifting strategy configurations
+ on random graphs with 10 million vertices and average outdegrees of 2 or
+ 8, disabling all possible optimizations.
+ Each experiment was allowed to run up to 10 seconds (which was not enough
+ to solve the game in any case).
+ For each configuration ten experiments have been performed with ten different
+ random seeds and the results have been combined.
+\end_layout
+
+\begin_layout Standard
+The focus list strategy was configured to retain 1 million vertices, and
+ perform a maximum of 10 million lifting attempts on a single focus list.
+\end_layout
+
 \begin_layout Chapter
 Conclusion
 \end_layout
@@ -8651,22 +8635,6 @@ TODO LIST
 status open
 
 \begin_layout Plain Layout
-- identify and label lemma's so I can refer to them more easily
-\end_layout
-
-\begin_layout Plain Layout
-- distinguish more clearly between previous work and stuff I came up with
-\end_layout
-
-\begin_layout Plain Layout
-- replace x by a different player variable? (Zielonka uses 
-\begin_inset Formula $\sigma$
-\end_inset
-
- for players, but Jurdziński uses it for strategies instead)
-\begin_inset Newline newline
-\end_inset
-
 - have I described everything I came up with?
 \end_layout
 
@@ -8687,12 +8655,6 @@ The following comes from an old version of the thesis; probably need to
 al complexity doesn't improve.
  (This is critical for motivating research into lifting heuristics and parallel
  algorithms.)
-\end_layout
-
-\begin_layout Plain Layout
-- Relation to other model checking approaches: Why would do model checking
- by solving parity games? What are the alternatives and what's wrong with
- them?
 \end_layout
 
 \begin_layout Plain Layout
@@ -8720,6 +8682,26 @@ research question
 
 \begin_layout Plain Layout
 - Note that source code + documentation is available online/at request
+\end_layout
+
+\begin_layout Plain Layout
+- 
+\begin_inset Quotes eld
+\end_inset
+
+small progress measures
+\begin_inset Quotes erd
+\end_inset
+
+ or 
+\begin_inset Quotes eld
+\end_inset
+
+Small Progress Measures
+\begin_inset Quotes erd
+\end_inset
+
+? (Be consistent!)
 \end_layout
 
 \begin_layout Plain Layout
