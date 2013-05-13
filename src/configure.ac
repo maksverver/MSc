@@ -13,16 +13,38 @@ AC_SUBST(DEBUG_FLAGS)
 
 AC_ARG_WITH( mpi,
     [AS_HELP_STRING( [--with-mpi],
-                     [support distributed solving using MPI] )],,[with_mpi=auto] )
+                     [support distributed solving using MPI] )],
+                     , [with_mpi=auto] )
+
+AC_ARG_WITH( mpiP,
+    [AS_HELP_STRING( [--with-mpiP@<:@=DIR@:>@],
+                     [use mpiP profiler (DIR: installation prefix)])],
+                     , [with_mpiP=no] )
 
 # These checks will set CXXFLAGS, so any modifications to these variables
 # should be done earlier, or I won't be able to identify values set by the user.
-AX_PROG_CXX_MPI([test x"$with_mpi" != xno], [with_mpi=yes], [
-    if test x"$with_mpi" = xyes; then
-        AC_MSG_FAILURE([MPI C++ compiler requested, but couldn't use MPI.])
-    elif test x"$with_mpi" != xno; then
-        AC_MSG_WARN([No MPI C++ compiler found, won't use MPI.])
-    fi
+AX_PROG_CXX_MPI([test x"$with_mpi" != xno], [
+    AS_IF([test x"$with_mpiP" != xno], [
+        AS_IF([test x"$with_mpiP" != xyes], [
+            AS_IF([test -d "${with_mpiP}/lib"], [
+                LDFLAGS="-L${with_mpiP}/lib ${LDFLAGS}"
+            ], [
+                AC_MSG_WARN([--with-mpiP expected ${with_mpiP}/lib to be a directory])
+            ])
+        ])
+        LIBS="-lm -lbfd -liberty -lunwind ${LIBS}"
+        AC_CHECK_LIB([mpiP],[mpiPi],,[AC_MSG_ERROR([mpiP not found])])
+    ])
+    with_mpi=yes
+], [
+    AS_IF([test x"$with_mpi" = xyes], [
+        AC_MSG_FAILURE([MPI C++ compiler requested, but couldn't use MPI])
+    ], [test x"$with_mpi" != xno], [
+        AC_MSG_WARN([No MPI C++ compiler found, won't use MPI])
+    ])
+    AS_IF([test x"$with_mpiP" != xno], [
+        AC_MSG_ERROR([mpiP requires MPI])
+    ])
     with_mpi=no
 ])
 
