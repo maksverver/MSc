@@ -96,12 +96,11 @@ public:
     /*! Reset to an empty graph. */
     void clear();
 
-    /*! Generate a random graph with `V` vertices and an average out-degree of
-        `out_deg` (minimum out degree is 1). This replaces any old data stored.
+    /*! Generate a random graph (replacing the old contents).
         \param V        number of vertices to generate
-        \param out_deg  desired average out degree (at least 1)
+        \param outdeg   desired average outdegree (at least 1)
         \param edge_dir which parts of edges to store */
-    void make_random(verti V, unsigned out_deg, EdgeDirection edge_dir);
+    void make_random(verti V, unsigned outdeg, EdgeDirection edge_dir);
 
     /*! Reset the graph to a copy of `graph`. */
     void assign(const StaticGraph &graph);

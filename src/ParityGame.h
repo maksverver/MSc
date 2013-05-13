@@ -103,9 +103,13 @@ public:
 
     /*! Generate a random parity game, with vertices assigned uniformly at
         random to players, and priority assigned uniformly between 0 and d-1.
+        \param V        number of game vertices
+        \param outdeg   average outdegree (at least 1)
+        \param edge_dir part of edges to store
+        \param d        number of priorities (at least 1)
         \sa void StaticGraph::make_random()
     */
-    void make_random( verti V, unsigned out_deg,
+    void make_random( verti V, unsigned outdeg,
                       StaticGraph::EdgeDirection edge_dir, int d );
 
     /*! Create a subgame containing only the given vertices from the original

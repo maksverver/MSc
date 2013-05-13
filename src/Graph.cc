@@ -82,21 +82,21 @@ static bool edge_cmp_backward( const std::pair<verti, verti> &a,
     return a.second < b.second || (a.second == b.second && a.first < b.first);
 }
 
-void StaticGraph::make_random(verti V, unsigned out_deg, EdgeDirection edge_dir)
+void StaticGraph::make_random(verti V, unsigned outdeg, EdgeDirection edge_dir)
 {
     /* Some assumptions on the RNG output range: */
-    assert(RAND_MAX >= 2*out_deg);
+    assert(RAND_MAX >= 2*outdeg);
     assert(RAND_MAX >= V);
 
     /* Create a random edge set, with at least one outgoing edge per node,
-       and an average out-degree `out_deg`, without any duplicate edges (but
+       and an average outdegree `outdeg`, without any duplicate edges (but
        possibly with self-edges). */
     edge_list edges;
     std::vector<verti> neighbours(V);
     for (verti i = 0; i < V; ++i) neighbours[i] = i;
     for (verti i = 0; i < V; ++i)
     {
-        unsigned N = 1 + rand()%(2*out_deg - 1);
+        unsigned N = 1 + rand()%(2*outdeg - 1);
 
         for (unsigned n = 0; n < N && n < V; ++n)
         {

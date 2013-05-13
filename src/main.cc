@@ -90,7 +90,7 @@ static Reordering   arg_reordering            = REORDER_NONE;
 static bool         arg_priority_propagation  = false;
 static int          arg_random_size           = 1000000;
 static int          arg_random_seed           =       1;
-static int          arg_random_out_degree     =       3;
+static int          arg_random_outdegree      =       3;
 static int          arg_random_priorities     =      20;
 static int          arg_timeout               =       0;
 static bool         arg_verify                = false;
@@ -128,6 +128,35 @@ static double get_vmsize()
     return 0;
 }
 #endif
+
+static const char *bool_to_string(bool value)
+{
+    return value ? "true" : "false";
+}
+
+static const char *input_format_to_string(InputFormat input_format)
+{
+    switch (input_format)
+    {
+    case INPUT_NONE:      return "none";
+    case INPUT_RAW:       return "raw";
+    case INPUT_RANDOM:    return "random";
+    case INPUT_PGSOLVER:  return "pgsolver";
+    case INPUT_PBES:      return "pbes";
+    default:              return "INVALID";
+    }
+}
+
+static const char *reordering_to_string(Reordering reordering)
+{
+    switch (reordering)
+    {
+    case REORDER_NONE:  return "none";
+    case REORDER_BFS:   return "bfs";
+    case REORDER_DFS:   return "dfs";
+    default:            return "INVALID";
+    }
+}
 
 //! Prints usage information (possible command line arguments).
 static void print_usage(const char *argv0)
@@ -302,7 +331,7 @@ static void parse_args(int argc, char *argv[])
             break;
 
         case 2:     /* random graph out-degree */
-            arg_random_out_degree = atoi(optarg);
+            arg_random_outdegree = atoi(optarg);
             break;
 
         case 3:     /* random game number of priorities */
@@ -582,13 +611,16 @@ bool read_input(ParityGame &game)
     switch (arg_input_format)
     {
     case INPUT_RANDOM:
-        Logger::info( "Generating random parity game with %d vertices, "
-                      "out-degree %d, and %d priorities...", arg_random_size,
-                      arg_random_out_degree, arg_random_priorities );
+        Logger::message("## config.random.vertices   = %10d",
+                        arg_random_size);
+        Logger::message("## config.random.outdegree  = %10d",
+                        arg_random_outdegree);
+        Logger::message("## config.random.priorities = %10d",
+                        arg_random_priorities);
+        Logger::message("## config.random.seed       = %10d",
+                        arg_random_seed);
         srand(arg_random_seed);
-
-        game.make_random(
-            arg_random_size, arg_random_out_degree,
+        game.make_random( arg_random_size, arg_random_outdegree,
             StaticGraph::EDGE_BIDIRECTIONAL, arg_random_priorities );
         return true;
 
@@ -826,6 +858,9 @@ int main(int argc, char *argv[])
         setvbuf(stderr, stderr_buf, _IOLBF, sizeof(stderr_buf));
     }
 
+    Logger::message( "## config.input = %s",
+                     input_format_to_string(arg_input_format) );
+
     ParityGame game;
     if (!read_input(game))
     {
@@ -834,27 +869,13 @@ int main(int argc, char *argv[])
     assert(game.proper());
 
     // Do priority compression at the start:
-    int old_d = game.d();
     game.compress_priorities();
 
+    Logger::message("## config.dual = %s", bool_to_string(arg_solve_dual));
     if (arg_solve_dual)
     {
         Logger::info("Switching to dual game...");
         game.make_dual();
-    }
-
-    /* Print some game info: */
-    Logger::info( "Number of vertices:        %12lld",
-                  (long long)game.graph().V() );
-    Logger::info( "Number of edges:           %12lld",
-                  (long long)game.graph().E() );
-    Logger::info( "Forward edge ratio:        %.10f",
-                  (double)count_forward_edges(game.graph())/game.graph().E() );
-    Logger::info( "Number of priorities:      %12d (was %d)",
-                  game.d(), old_d);
-    for (int p = 0; p < game.d(); ++p)
-    {
-        Logger::info("  %2d occurs %d times", p, game.cardinality(p));
     }
 
     bool failed = true;
@@ -869,6 +890,8 @@ int main(int argc, char *argv[])
     {
         std::auto_ptr<LiftingStatistics> stats;
 
+        Logger::message("## config.threads = %d",     arg_threads);
+
         if (arg_threads)
         {
 #ifndef WITH_THREADS
@@ -878,6 +901,7 @@ int main(int argc, char *argv[])
 #endif
         }
 
+        Logger::message("## config.mpi = %s", bool_to_string(arg_mpi));
 #ifndef WITH_MPI
         if (arg_mpi) Logger::fatal("MPI support was not compiled in!");
 #endif
@@ -886,6 +910,8 @@ int main(int argc, char *argv[])
         VertexPartition *vpart = NULL;
         if (arg_mpi)
         {
+            Logger::message("## config.mpi.chunk = %d", arg_chunk_size);
+            Logger::message("## config.mpi.sync  = %s", bool_to_string(arg_mpi_sync));
             vpart = new VertexPartition( mpi_size, arg_chunk_size > 0
                 ? arg_chunk_size : (game.graph().V() + mpi_size - 1)/mpi_size );
         }
@@ -894,11 +920,21 @@ int main(int argc, char *argv[])
         // Create appropriate solver factory:
         std::auto_ptr<ParityGameSolverFactory> solver_factory;
 
+        if (arg_zielonka && !arg_spm_lifting_strategy.empty())
+        {
+            Logger::fatal("Multiple solving algorithms selected!\n");
+        }
+
         // Allocate lifting strategy:
         if (!arg_spm_lifting_strategy.empty())
         {
-            Logger::info( "SPM lifting strategy:      %12s",
-                          arg_spm_lifting_strategy.c_str() );
+            Logger::message("## config.solver = spm");
+            Logger::message("## config.spm.alternate = %s",
+                            bool_to_string(arg_alternate));
+            Logger::message("## config.spm.strategy = %s",
+                            arg_spm_lifting_strategy.c_str());
+            Logger::message("## config.spm.count_lifts = %s",
+                            bool_to_string(arg_collect_stats));
 
             LiftingStrategyFactory *spm_strategy = 
                 LiftingStrategyFactory::create(arg_spm_lifting_strategy);
@@ -909,7 +945,10 @@ int main(int argc, char *argv[])
                                arg_spm_lifting_strategy.c_str() );
             }
 
-            if (arg_collect_stats) stats.reset(new LiftingStatistics(game));
+            if (arg_collect_stats)
+            {
+                stats.reset(new LiftingStatistics(game));
+            }
 
             if (!arg_mpi)
             {
@@ -934,6 +973,7 @@ int main(int argc, char *argv[])
         // Create recursive solver factory if requested:
         if (arg_zielonka)
         {
+            Logger::message("## config.solver = zielonka");
             if (!arg_mpi)
             {
                 if (!arg_threads)
@@ -964,10 +1004,12 @@ int main(int argc, char *argv[])
         }
 #endif
 
+        Logger::message("## config.timeout = %d s", arg_timeout);
         if (arg_timeout > 0) set_timeout(arg_timeout);
 
         // Re-order vertices:
         // FIXME: this should probably count towards solving time
+        Logger::message("## config.reordering = %s", reordering_to_string(arg_reordering));
         std::vector<verti> perm;
         if (arg_reordering == REORDER_BFS)
         {
@@ -979,12 +1021,7 @@ int main(int argc, char *argv[])
             Logger::info("Reordering vertices by depth-first search.");
             get_dfs_order(game.graph(), perm);
         }
-        if (!perm.empty())
-        {
-            game.shuffle(perm);
-            Logger::info( "Forward edge ratio:        %.10f",
-                (double)count_forward_edges(game.graph())/game.graph().E() );
-        }
+        if (!perm.empty()) game.shuffle(perm);
 
         {
             // FIXME: this should probably count towards solving time
@@ -993,23 +1030,38 @@ int main(int argc, char *argv[])
             edgei old_edges = game.graph().E();
             SmallProgressMeasuresSolver::preprocess_game(game);
             edgei rem_edges = old_edges - game.graph().E();
-            Logger::info( "Removed %d edge%s...",
-                            rem_edges, rem_edges == 1 ? "" : "s" );
+            Logger::info("Removed %d edge%s...", rem_edges, rem_edges == 1 ? "" : "s");
         }
 
         /* Note: priority propagation is done after preprocessing, because
                  it benefits from removed loops (since priorities can only be
                  propagated to vertices without loops). */
+        Logger::message("## config.propagate = %s",
+                        bool_to_string(arg_priority_propagation));
         if (arg_priority_propagation)
         {
             Logger::info("Propagating priorities...");
             long long updates = game.propagate_priorities();
             Logger::info("Reduced summed priorities by %lld.", updates);
             game.compress_priorities();
+        }
+
+        /* Print some game info: */
+        Logger::message("## game.vertices   = %12lld", (long long)game.graph().V());
+        Logger::message("## game.edges      = %12lld", (long long)game.graph().E());
+        Logger::message("## game.edge_ratio = %.10lf",
+            (double)count_forward_edges(game.graph())/game.graph().E() );
+        Logger::message("## game.priorities = %12d", game.d());
+        {
+            long long sum = 0;
             for (int p = 0; p < game.d(); ++p)
             {
-                Logger::info("  %2d occurs %d times", p, game.cardinality(p));
+                verti count = game.cardinality(p);
+                Logger::info("  %2d occurs %d times", p, count);
+                sum += (long long)p*count;
             }
+            Logger::message( "## game.average_priority = %.10lf",
+                            (double)sum/game.graph().V() );
         }
 
         /* Add preprocessors which wrap the current solver factory.
@@ -1017,16 +1069,22 @@ int main(int argc, char *argv[])
            Note that wrapping is done inside-out: the last wrapper added will
            run first.  The proper order is: Deloop -> Decycle -> Component.
         */
+        Logger::message( "## config.decompose = %s",
+                         bool_to_string(arg_scc_decomposition) );
         if (arg_scc_decomposition)
         {
             solver_factory.reset(
                 new ComponentSolverFactory(*solver_factory.release()) );
         }
+        Logger::message( "## config.decycle = %s",
+                         bool_to_string(arg_scc_decomposition) );
         if (arg_decycle)
         {
             solver_factory.reset(
                 new DecycleSolverFactory(*solver_factory.release()) );
         }
+        Logger::message( "## config.deloop = %s",
+                         bool_to_string(arg_scc_decomposition) );
         if (arg_deloop)
         {
             // N.B. current implementation of the DeloopSolver assumes
@@ -1055,22 +1113,27 @@ int main(int argc, char *argv[])
 #endif
 
         failed = strategy.empty();
-
         if (failed)
         {
             if (solver->aborted())
             {
                 Logger::error("time limit exceeded!");
+                Logger::message("## solution.result = aborted");
             }
             else
             {
                 Logger::error("solving failed!");
             }
+            Logger::message("## solution.result = failure");
+        }
+        else
+        {
+            Logger::message("## solution.result = success");
         }
 
         // Print some statistics
-        Logger::message("Time used to solve:          %10.3f s", timer.elapsed());
-        Logger::message("Current memory use:          %10.3f MB", get_vmsize());
+        Logger::message("## solution.time   = %10.3f s", timer.elapsed());
+        Logger::message("## solution.memory = %10.3f MB", get_vmsize());
 
         if (stats.get() != NULL)
         {
@@ -1078,12 +1141,9 @@ int main(int argc, char *argv[])
             long long lifts_successful  = stats->lifts_succeeded();
             long long lifts_failed      = lifts_total - lifts_successful;
 
-            Logger::message( "Lifting attempts failed:      %12lld",
-                             lifts_failed );
-            Logger::message( "Lifting attempts succeeded:   %12lld",
-                             lifts_successful );
-            Logger::message( "Total lifting attempts:       %12lld",
-                             lifts_total );
+            Logger::message("## lifts.failure = %12lld", lifts_failed);
+            Logger::message("## lifts.success = %12lld", lifts_successful);
+            Logger::message("## lifts.total   = %12lld", lifts_total);
             /*
             Logger::message( "Minimum lifts required:       %12lld",
                              0LL);  // TODO
@@ -1117,7 +1177,7 @@ int main(int argc, char *argv[])
             Logger::info("Starting verification...");
             if (game.verify(strategy, &error))
             {
-                Logger::message("Verification succeeded.");
+                Logger::message("## verification = success");
             }
             else
             {
@@ -1129,11 +1189,14 @@ int main(int argc, char *argv[])
                 Logger::error("!!                                    !!");
                 Logger::error("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
                 Logger::error("Error at vertex: %d", (int)error);
+                Logger::message("## verification = failure");
             }
-            Logger::message( "Time used to verify:         %10.3f s",
-                             timer.elapsed() );
+            Logger::message("## verification.time = %10.3f s", timer.elapsed());
         }
-
+        else
+        {
+            Logger::message("## verification = skipped");
+        }
         write_output(game, strategy, stats.get());
     }
 

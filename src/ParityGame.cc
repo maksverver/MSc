@@ -66,10 +66,10 @@ void ParityGame::recalculate_cardinalities(verti num_vertices)
     }
 }
 
-void ParityGame::make_random( verti V, unsigned out_deg,
+void ParityGame::make_random( verti V, unsigned outdeg,
                               StaticGraph::EdgeDirection edge_dir, int d )
 {
-    graph_.make_random(V, out_deg, edge_dir);
+    graph_.make_random(V, outdeg, edge_dir);
     reset(V, d);
     for (verti v = 0; v < V; ++v)
     {
