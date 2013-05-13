@@ -13,7 +13,7 @@
 /*! Returns the current time in seconds since the Unix epoch as a floating
     point number.  Although the unit is seconds, the actual resolution is much
     higher (though platform-dependent). */
-extern "C" double time_now();
+double time_now();
 
 //! A simple timer class to keep track of elapsed wall clock time.
 class Timer

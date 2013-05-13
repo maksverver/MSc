@@ -911,7 +911,8 @@ int main(int argc, char *argv[])
         if (arg_mpi)
         {
             Logger::message("## config.mpi.chunk = %d", arg_chunk_size);
-            Logger::message("## config.mpi.sync  = %s", bool_to_string(arg_mpi_sync));
+            Logger::message("## config.mpi.sync  = %s",
+                            bool_to_string(arg_zielonka_sync));
             vpart = new VertexPartition( mpi_size, arg_chunk_size > 0
                 ? arg_chunk_size : (game.graph().V() + mpi_size - 1)/mpi_size );
         }

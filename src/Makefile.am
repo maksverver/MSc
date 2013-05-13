@@ -3,9 +3,6 @@
 # set this to 1 to compile in support for mCRL2 (and link to mCRL2 libs)
 # WITH_MCRL2=
 
-# set this to 1 to compile in support for MPI
-# WITH_MPI=
-
 # set this to 1 to compile in support for concurrency
 # WITH_THREADS=
 
@@ -49,22 +46,26 @@ solver_SOURCES = \
 	SmallProgressMeasures.cc SmallProgressMeasures.h SmallProgressMeasures_impl.h \
 	VertexPartition.h
 
-#	ConcurrentRecursiveSolver.cc ConcurrentRecursiveSolver.h
-
-#	AsyncMpiAttractorAlgorithm.cc AsyncMpiAttractorAlgorithm.h \
-#	MpiAttractorAlgorithm.h \
-#	MpiRecursiveSolver.cc MpiRecursiveSolver.h \
-#	MpiSpmSolver.cc MpiSpmSolver.h \
-#	MpiUtils.cc MpiUtils.h \
-#	SyncMpiAttractorAlgorithm.h
-#	SyncMpiAttractorAlgorithm.cc 
-
-#	ParityGame_pbes.h
-
 if USE_TIMER
-solver_SOURCES += Timing.h timing.c
+solver_SOURCES += Timing.h timing.cc
 solver_LDADD += -lrt
 endif
+
+if WITH_MPI
+solver_SOURCES += \
+	AsyncMpiAttractorAlgorithm.cc AsyncMpiAttractorAlgorithm.h \
+	MpiAttractorAlgorithm.h \
+	MpiRecursiveSolver.cc MpiRecursiveSolver.h \
+	MpiSpmSolver.cc MpiSpmSolver.h \
+	MpiUtils.cc MpiUtils.h \
+	SyncMpiAttractorAlgorithm.h SyncMpiAttractorAlgorithm.cc
+endif
+
+# TODO: add when compiling with threads: (requires OpenMP + Intel TBB)
+#	ConcurrentRecursiveSolver.cc ConcurrentRecursiveSolver.h
+
+# TODO: add when linking against with mCRL2 libs:
+#	ParityGame_pbes.h
 
 #CFLAGS=-Wall -O2 -g  # default flags
 #CFLAGS+=-O0 -D_GLIBCXX_DEBUG  # additional debug flags
@@ -78,16 +79,6 @@ endif
 #OBJS+=ConcurrentRecursiveSolver.o
 #endif
 
-#ifdef WITH_MPI
-#CFLAGS+=-DWITH_MPI
-#OBJS+=	AsyncMpiAttractorAlgorithm.o \
-#	GamePart.o \
-#	MpiRecursiveSolver.o \
-#	MpiSpmSolver.o \
-#	MpiUtils.o \
-#	SyncMpiAttractorAlgorithm.o
-#endif
-
 #ifndef WITH_MCRL2
 #CFLAGS+=-Wextra -DUSE_TIMER
 #endif
@@ -97,11 +88,6 @@ endif
 #	-I../../mcrl2/include \
 #	-I../../mcrl2/include/dparser
 #LDLIBS+=-L../../mcrl2/lib/mcrl2 -lmcrl2_atermpp -lmcrl2_bes -lmcrl2_core -lmcrl2_data -lmcrl2_lps -lmcrl2_lts -lmcrl2_pbespgsolve -lmcrl2_pbes -lmcrl2_process -lmcrl2_syntax -lmcrl2_utilities -ldparser -lsvc -ldot_syntax -lfsm_syntax
-#endif
-
-#ifdef WITH_MPI
-#CC=mpicc
-#CXX=mpicxx
 #endif
 
 #docs:
