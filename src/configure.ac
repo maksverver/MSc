@@ -30,7 +30,7 @@ AC_ARG_WITH( openmp,
 AC_ARG_ENABLE( threads,
     [AS_HELP_STRING( [--enable-threads],
                      [support multithreaded solving using OpenMP and TBB])],
-    , [with_threads=auto] )
+    [with_threads=$enableval], [with_threads=auto] )
 
 dnl These checks will set CXXFLAGS, so any modifications to these variables
 dnl should be done earlier, or I won't be able to identify values set by the user.
@@ -38,7 +38,7 @@ AX_PROG_CXX_MPI([test x"$with_mpi" != xno], [
     AS_IF([test x"$with_mpiP" != xno], [
         AS_IF([test x"$with_mpiP" != xyes], [
             AS_IF([test -d "${with_mpiP}/lib"], [
-                LDFLAGS="-L\"${with_mpiP}/lib\" ${LDFLAGS}"
+                LDFLAGS="-L${with_mpiP}/lib ${LDFLAGS}"
             ], [
                 AC_MSG_WARN([--with-mpiP expected $with_mpiP/lib to be a directory])
             ])
@@ -78,12 +78,12 @@ AS_IF([test x"$with_threads" != xno], [
         dnl Add any user-specified header and library paths:
         AS_IF([test x"$with_tbb" != xyes && test x"$with_tbb" != xauto], [
             AS_IF([test -d "${with_tbb}/include"], [
-                TBB_CXXFLAGS="-I\"${with_tbb}/include\" ${CXXFLAGS}"
+                CXXFLAGS="-I${with_tbb}/include ${CXXFLAGS}"
             ], [
                 AC_MSG_WARN([--with-tbb expected $with_tbb/include to be a directory])
             ])
             AS_IF([test -d "${with_tbb}/lib"], [
-                LDFLAGS="-L\"${with_tbb}/lib\" ${LDFLAGS}"
+                LDFLAGS="-L${with_tbb}/lib ${LDFLAGS}"
             ], [
                 AC_MSG_WARN([--with-tbb expected $with_tbb/lib to be a directory])
             ])
