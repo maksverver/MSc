@@ -3,9 +3,6 @@
 # set this to 1 to compile in support for mCRL2 (and link to mCRL2 libs)
 # WITH_MCRL2=
 
-# set this to 1 to compile in support for concurrency
-# WITH_THREADS=
-
 AM_CFLAGS   = $(COMMON_CFLAGS)
 AM_CXXFLAGS = $(COMMON_CFLAGS)
 
@@ -61,8 +58,10 @@ solver_SOURCES += \
 	SyncMpiAttractorAlgorithm.h SyncMpiAttractorAlgorithm.cc
 endif
 
-# TODO: add when compiling with threads: (requires OpenMP + Intel TBB)
-#	ConcurrentRecursiveSolver.cc ConcurrentRecursiveSolver.h
+if WITH_THREADS
+solver_SOURCES += \
+	ConcurrentRecursiveSolver.cc ConcurrentRecursiveSolver.h
+endif
 
 # TODO: add when linking against with mCRL2 libs:
 #	ParityGame_pbes.h
@@ -71,13 +70,6 @@ endif
 #CFLAGS+=-O0 -D_GLIBCXX_DEBUG  # additional debug flags
 #CFLAGS=-Wall -O3 -DNDEBUG  # for optimal performance
 #LDLIBS+=-L$(HOME)/google-perftools/lib -lprofiler -lunwind
-#LDLIBS+=-L$(HOME)/mpiP/lib -lmpiP -lm -lbfd -liberty -lunwind # mpiP
-
-#ifdef WITH_THREADS
-#CFLAGS+=-DWITH_THREADS -I../../tbb/include -fopenmp
-#LDLIBS+=-L../../tbb/lib -ltbb
-#OBJS+=ConcurrentRecursiveSolver.o
-#endif
 
 #ifndef WITH_MCRL2
 #CFLAGS+=-Wextra -DUSE_TIMER
