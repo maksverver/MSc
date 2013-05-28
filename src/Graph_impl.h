@@ -43,6 +43,13 @@ std::pair<verti, verti> EdgeIterator::operator++(int)
 }
 #endif
 
+#ifndef HAVE_CXX11
+
+/* C++11 specifies a function that has the exact same name, parameter types and
+   functionality as this one!  I'd use my own version, but due to argument-
+   dependent lookup this one conflicts with the standard library implementation
+   even without using namespace std. */
+
 template<class It, class Cmp>
 bool is_sorted(It i, It j, Cmp cmp)
 {
@@ -55,6 +62,8 @@ bool is_sorted(It i, It j, Cmp cmp)
         i = k;
     }
 }
+
+#endif
 
 template<class ForwardIterator>
 void StaticGraph::make_subgraph( const StaticGraph &graph,

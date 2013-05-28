@@ -1,5 +1,5 @@
 #!/bin/sh -e
 
-aclocal -I m4
+aclocal
 automake --add-missing --copy
 autoconf

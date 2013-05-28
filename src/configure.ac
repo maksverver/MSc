@@ -1,6 +1,7 @@
 AC_INIT(ParityGameSolver, 0.1)
 AM_INIT_AUTOMAKE([-Wall -Werror foreign no-define])
 AC_CONFIG_SRCDIR([main.cc])
+AC_CONFIG_MACRO_DIR([m4])
 AC_LANG(C++)
 
 AC_ARG_ENABLE( debug,
@@ -31,6 +32,11 @@ AC_ARG_ENABLE( threads,
     [AS_HELP_STRING( [--enable-threads],
                      [support multithreaded solving using OpenMP and TBB])],
     [with_threads=$enableval], [with_threads=auto] )
+
+AC_ARG_WITH( mcrl2,
+    [AS_HELP_STRING( [--with-mcrl2@<:@=DIR@:>@],
+                     [support reading PBES files with mCRL2])],
+    , [with_mcrl2=no] )
 
 dnl These checks will set CXXFLAGS, so any modifications to these variables
 dnl should be done earlier, or I won't be able to identify values set by the user.
@@ -121,7 +127,48 @@ AS_IF([test x"$with_threads" != xno], [
     ])
 ])
 
-AM_CONDITIONAL([WITH_MCRL2],   [false])  dnl TODO
+AS_IF([test x"$with_mcrl2" != xno], [
+
+    dnl mCRL2 requires building with C++11 support (just the PBES module,
+    dnl technically, but it's easier to build everything with the same setting)
+    AX_CXX_COMPILE_STDCXX_11
+
+    dnl Add any user-specified header and library paths:
+    AS_IF([test x"$with_mcrl2" != xyes && test x"$with_mcrl2" != xauto], [
+        AS_IF([test -d "${with_mcrl2}/include"], [
+            CXXFLAGS="-I${with_mcrl2}/include -I${with_mcrl2}/include/dparser ${CXXFLAGS}"
+        ], [
+            AC_MSG_WARN([--with-mcrl2 expected $with_mcrl2/include to be a directory])
+        ])
+        AS_IF([test -d "${with_mcrl2}/lib/mcrl2"], [
+            LDFLAGS="-L${with_mcrl2}/lib/mcrl2 ${LDFLAGS}"
+        ], [
+            AC_MSG_WARN([--with_mcrl2 expected with_mcrl2/lib to be a directory])
+        ])
+    ])
+
+    dnl Prepend required mCRL2 libraries.
+    LIBS="-lmcrl2_atermpp -lmcrl2_core -lmcrl2_data -lmcrl2_pbes -lmcrl2_utilities ${LIBS}"
+
+    AC_MSG_CHECKING([for mCRL2 support])
+    AC_LINK_IFELSE([
+        AC_LANG_PROGRAM([
+#include <mcrl2/pbes/pbes.h>
+#include <mcrl2/pbes/parity_game_generator.h>
+        ], [
+mcrl2::pbes_system::pbes pbes;
+pbes.load("/dev/null");
+mcrl2::pbes_system::parity_game_generator pgg(pbes, true, true);
+        ])
+    ], [
+        AC_MSG_RESULT([yes])
+    ], [
+        AC_MSG_RESULT([no])
+        AC_MSG_FAILURE([building with mCRL2 support failed])
+    ])
+])
+
+AM_CONDITIONAL([WITH_MCRL2],   [test x"$with_mcrl2" != xno])
 AM_CONDITIONAL([WITH_MPI],     [test x"$with_mpi" != xno])
 AM_CONDITIONAL([WITH_THREADS], [test x"$with_threads" != xno])
 AM_CONDITIONAL([USE_TIMER],    [true])   dnl TODO

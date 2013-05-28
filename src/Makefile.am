@@ -1,16 +1,9 @@
-# N.B. this Makefile uses gmake conditionals
-
-# set this to 1 to compile in support for mCRL2 (and link to mCRL2 libs)
-# WITH_MCRL2=
+ACLOCAL_AMFLAGS = -I m4
 
 AM_CFLAGS   = $(COMMON_CFLAGS)
 AM_CXXFLAGS = $(COMMON_CFLAGS)
 
 COMMON_CFLAGS = $(DEBUG_FLAGS) -Wall
-
-if !WITH_MCRL2
-COMMON_CFLAGS += -Wextra
-endif
 
 bin_PROGRAMS = solver
 
@@ -63,24 +56,10 @@ solver_SOURCES += \
 	ConcurrentRecursiveSolver.cc ConcurrentRecursiveSolver.h
 endif
 
-# TODO: add when linking against with mCRL2 libs:
-#	ParityGame_pbes.h
-
 #CFLAGS=-Wall -O2 -g  # default flags
 #CFLAGS+=-O0 -D_GLIBCXX_DEBUG  # additional debug flags
 #CFLAGS=-Wall -O3 -DNDEBUG  # for optimal performance
 #LDLIBS+=-L$(HOME)/google-perftools/lib -lprofiler -lunwind
-
-#ifndef WITH_MCRL2
-#CFLAGS+=-Wextra -DUSE_TIMER
-#endif
-
-#ifdef WITH_MCRL2
-#CFLAGS+=-DWITH_MCRL2=$(WITH_MCRL2) \
-#	-I../../mcrl2/include \
-#	-I../../mcrl2/include/dparser
-#LDLIBS+=-L../../mcrl2/lib/mcrl2 -lmcrl2_atermpp -lmcrl2_bes -lmcrl2_core -lmcrl2_data -lmcrl2_lps -lmcrl2_lts -lmcrl2_pbespgsolve -lmcrl2_pbes -lmcrl2_process -lmcrl2_syntax -lmcrl2_utilities -ldparser -lsvc -ldot_syntax -lfsm_syntax
-#endif
 
 #docs:
 #	doxygen

@@ -14,12 +14,9 @@
 #include "ComponentSolver.h"
 #include <memory>
 #include <stdio.h>
-#include <aterm_init.h>
 
 int main(int argc, char *argv[])
 {
-    MCRL2_ATERMPP_INIT(argc, argv);
-
     // you get these values from where-ever:
     bool use_spm = true;    // use SPM solver?
     bool use_rec = false;   // use recursive solver?
@@ -44,7 +41,7 @@ int main(int argc, char *argv[])
 
         // Create a SPM solver factory:
         solver_factory.reset(
-            new SmallProgressMeasuresFactory(*lift_strat_factory) );
+            new SmallProgressMeasuresSolverFactory(lift_strat_factory.get(), true) );
     }
     else
     if (use_rec)
@@ -85,7 +82,7 @@ int main(int argc, char *argv[])
     }
 
     // Optional: verify the solution
-    if (verify && !pg.verify(solution))
+    if (verify && !pg.verify(solution, NULL))
     {
         printf("verification failed!\n");
         return 1;

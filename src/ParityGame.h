@@ -14,9 +14,9 @@
 #include <iostream>
 #include <vector>
 
-#ifdef WITH_MCRL2
-#include <mcrl2/pbes/pbes.h>
-#endif
+// Forward declaration of mcrl2::pbes_system::pbes, which may or may not be
+// defined later depending on whether mCRL2 support is compiled in.
+namespace mcrl2 { namespace pbes_system { class pbes; } }
 
 #if __GNUC__ >= 3
 #   define ATTR_PACKED  __attribute__((__packed__))
@@ -251,13 +251,9 @@ public:
     bool verify(const Strategy &s, verti *error) const;
     //!@}
 
-#ifdef WITH_MCRL2
     /*! Generate a parity game from an mCRL2 PBES. */
-    template <typename Container>
-    void assign_pbes(
-        mcrl2::pbes_system::pbes<Container> &pbes, verti *goal_vertex = 0,
+    void assign_pbes( mcrl2::pbes_system::pbes &pbes, verti *goal_vertex = 0,
         StaticGraph::EdgeDirection edge_dir = StaticGraph::EDGE_BIDIRECTIONAL );
-#endif
 
 protected:
     /*! Re-allocate memory to store information on V vertices with priorities
@@ -297,10 +293,6 @@ namespace std
         a.swap(b);
     }
 }
-
-#ifdef WITH_MCRL2
-#include "ParityGame_pbes.h"
-#endif
 
 #include "ParityGame_impl.h"
 
