@@ -157,7 +157,8 @@ void MaxMeasureLiftingStrategy::pop()
 
 int MaxMeasureLiftingStrategy::cmp(verti i, verti j)
 {
-    return spm_.vector_cmp(pq_[i], pq_[j], spm_.len_);
+    int d = spm_.vector_cmp(pq_[i], pq_[j], spm_.len_);
+    return (d != 0) ? d : (i > j) - (i < j);  // tie-break on vertex index
 }
 
 bool MaxMeasureLiftingStrategy::check()
