@@ -37,7 +37,7 @@ solver_SOURCES = \
 	VertexPartition.h
 
 if USE_TIMER
-solver_SOURCES += Timing.h timing.cc
+solver_SOURCES += Timer.h timing.cc
 solver_LDADD += -lrt
 endif
 
