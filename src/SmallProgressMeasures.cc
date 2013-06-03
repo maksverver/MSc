@@ -110,7 +110,7 @@ std::pair<verti, bool> SmallProgressMeasures::solve_one()
     bool success = false;
     if (!is_top(v))
     {
-        verti w = get_ext_succ(v, (int)game_.player(v) != p_);
+        verti w = get_ext_succ(v, take_max(v));
         if (lift_to(v, vec(w), game_.priority(v)%2 != p_))
         {
             ls_->lifted(v);

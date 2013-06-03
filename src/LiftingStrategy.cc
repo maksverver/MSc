@@ -59,7 +59,10 @@ const char *LiftingStrategyFactory::usage()
 "\n"
 "oldmaxmeasure\n"
 "   Old implementation of max. measure lifting strategy.\n"
-"   Included for regression testing purposes only.\n";
+"   Included for regression testing purposes only.\n"
+"\n"
+"linpred\n"
+"   Obsolete (roughly equivalent to predecessor:0:0).\n";
 }
 
 LiftingStrategyFactory *
