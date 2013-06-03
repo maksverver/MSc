@@ -31,8 +31,11 @@
 class MaxMeasureLiftingStrategy : public LiftingStrategy
 {
 public:
+    enum Order { QUEUE = 0, STACK = 1, HEAP = 2 }; 
+    
     MaxMeasureLiftingStrategy( const ParityGame &game,
-                               const SmallProgressMeasures &spm );
+                               const SmallProgressMeasures &spm,
+                               bool backward, Order order );
     ~MaxMeasureLiftingStrategy();
 
     void lifted(verti v);
@@ -75,10 +78,12 @@ private:
     MaxMeasureLiftingStrategy &operator=(const MaxMeasureLiftingStrategy &);
 
 private:
-    //! the SPM instance using this strategy
-    const SmallProgressMeasures &spm_;
+    const SmallProgressMeasures &spm_;  //!< SPM instance being solved
+    const Order order_;                 //!< vertex extraction order
 
-    bool * const queued_;       //!< for each vertex: is it queued?
+    bool * const queued_;            //!< for each vertex: is it queued?
+    compat_uint64_t next_id_;        //!< number of insertions
+    compat_uint64_t * insert_id_;    //!< for each vertex: last insertion time
 
     verti * const pq_pos_;      //!< for each vertex: position in the p.q. or -1
     verti * const pq_;          //!< priority queue of lifted vertices
@@ -90,9 +95,17 @@ private:
 class MaxMeasureLiftingStrategyFactory : public LiftingStrategyFactory
 {
 public:
+    MaxMeasureLiftingStrategyFactory( bool backward = false,
+        MaxMeasureLiftingStrategy::Order order = MaxMeasureLiftingStrategy::HEAP )
+        : backward_(backward), order_(order) { };
+
     //! Return a new MaxMeasureLiftingStrategy instance. 
     LiftingStrategy *create( const ParityGame &game,
                              const SmallProgressMeasures &spm );
+
+private:
+    const bool backward_;
+    const MaxMeasureLiftingStrategy::Order order_;
 };
 
 #endif /* ndef PREDECESSOR_LIFTING_STRATEGY_H_INCLUDED */

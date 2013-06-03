@@ -29,14 +29,20 @@
 */
 
 MaxMeasureLiftingStrategy::MaxMeasureLiftingStrategy(
-    const ParityGame &game, const SmallProgressMeasures &spm )
-        : LiftingStrategy(game), spm_(spm), queued_(new bool[graph_.V()]),
+    const ParityGame &game, const SmallProgressMeasures &spm,
+    bool backward, Order order )
+        : LiftingStrategy(game), spm_(spm), order_(order),
+          queued_(new bool[graph_.V()]), next_id_(0),
+          insert_id_(order < HEAP ? new compat_uint64_t[graph_.V()] : NULL),
           pq_pos_(new verti[graph_.V()]), pq_(new verti[graph_.V()])
 {
+    const verti V = graph_.V();
+
     // Initialize queue
     pq_size_ = 0;
-    for (verti v = 0; v < graph_.V(); ++v)
+    for (verti i = 0; i < V; ++i)
     {
+        const verti v = backward ? V - 1 - i : i;
         queued_[v] = true;
         pq_pos_[v] = (verti)-1;
         push(v);
@@ -49,6 +55,7 @@ MaxMeasureLiftingStrategy::MaxMeasureLiftingStrategy(
 MaxMeasureLiftingStrategy::~MaxMeasureLiftingStrategy()
 {
     delete[] queued_;
+    delete[] insert_id_;
     delete[] pq_pos_;
     delete[] pq_;
 }
@@ -124,6 +131,7 @@ void MaxMeasureLiftingStrategy::push(verti v)
         i = pq_size_++;
         pq_[i] = v;
         pq_pos_[v] = i;
+        if (insert_id_) insert_id_[v] = next_id_++;
     }
     move_up(i);
 }
@@ -157,8 +165,18 @@ void MaxMeasureLiftingStrategy::pop()
 
 int MaxMeasureLiftingStrategy::cmp(verti i, verti j)
 {
-    int d = spm_.vector_cmp(pq_[i], pq_[j], spm_.len_);
-    return (d != 0) ? d : (i > j) - (i < j);  // tie-break on vertex index
+    verti v = pq_[i], w = pq_[j];
+    int d = spm_.vector_cmp(v, w, spm_.len_);
+    //return (d != 0) ? d : (i > j) - (i < j);  // tie-break on vertex index
+    if (d == 0 && insert_id_ != NULL)
+    {
+        // Tie-break on insertion order: smallest insert-id first in queue
+        // mode, or largest insert-id first in stack mode.
+        compat_uint64_t x = insert_id_[v], y = insert_id_[w];
+        d = (x > y) - (x < y);
+        if (order_ == STACK) d = -d;
+    }
+    return d;
 }
 
 bool MaxMeasureLiftingStrategy::check()
@@ -241,5 +259,5 @@ verti MaxMeasureLiftingStrategy::next()
 LiftingStrategy *MaxMeasureLiftingStrategyFactory::create(
     const ParityGame &game, const SmallProgressMeasures &spm )
 {
-    return new MaxMeasureLiftingStrategy(game, spm);
+    return new MaxMeasureLiftingStrategy(game, spm, backward_, order_);
 }

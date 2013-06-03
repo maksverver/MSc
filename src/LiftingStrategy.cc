@@ -29,14 +29,14 @@ const char *LiftingStrategyFactory::usage()
     return
 "linear:backward:alternate\n"
 "   Use a linear lifting strategy (aka swiping).\n"
-"   - backward: if non-zero, scan vertices backward (default: 0)\n"
-"   - alternate: if non-zero, switches direction between forward and backward \n"
+"   - backward: if 1, scan vertices backward (default: 0)\n"
+"   - alternate: if 1, switches direction between forward and backward \n"
 "     whenever the end of the list is reached (default: 0)\n"
 "\n"
 "predecessor:backward:stack\n"
 "   Use a predecessor lifting strategy (aka worklist).\n"
-"   - backward: if non-zero, the queue is initialized in reverse (default: 0)\n"
-"   - stack: if non-zero, removes elements from the end of the queue instead \n"
+"   - backward: if 1, the queue is initialized in reverse (default: 0)\n"
+"   - stack: if 1, removes elements from the end of the queue instead \n"
 "            of the beginning (default: 0)\n"
 "\n"
 "focuslist:backward:alternate:max_size:lift_ratio\n"
@@ -50,9 +50,12 @@ const char *LiftingStrategyFactory::usage()
 "     focus list before switching back to swiping, as a ratio of the maximum\n"
 "     focus list size (default: 10.0)\n"
 "\n"
-"maxmeasure\n"
+"maxmeasure:backward:order\n"
 "   Maximum measure propagation; a variant of the predecessor lifting strategy\n"
 "   that prefers to lift vertices with higher progress measures.\n"
+"   - backward: see 'predecessor' (default: 0)\n"
+"   - order: tie-breaking lifting order: 0 (queue-like), 1 (stack-like)\n"
+"            or 2 (heap order) (default: 2)\n"
 "\n"
 "oldmaxmeasure\n"
 "   Old implementation of max. measure lifting strategy.\n"
@@ -102,7 +105,10 @@ LiftingStrategyFactory *
     else
     if (strcasecmp(parts[0].c_str(), "maxmeasure") == 0)
     {
-        return new MaxMeasureLiftingStrategyFactory();
+        bool backward = (parts.size() > 1 ? atoi(parts[1].c_str()) : 0);
+        int  order    = (parts.size() > 2 ? atoi(parts[2].c_str()) : 2);
+        return new MaxMeasureLiftingStrategyFactory(
+            backward, (MaxMeasureLiftingStrategy::Order)order );
     }
     else
     if (strcasecmp(parts[0].c_str(), "oldmaxmeasure") == 0)
