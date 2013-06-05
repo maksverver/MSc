@@ -32,7 +32,7 @@ class MaxMeasureLiftingStrategy : public LiftingStrategy
 {
 public:
     enum Order { QUEUE = 0, STACK = 1, HEAP = 2 }; 
-    
+
     MaxMeasureLiftingStrategy( const ParityGame &game,
                                const SmallProgressMeasures &spm,
                                bool backward, Order order );
@@ -59,7 +59,7 @@ protected:
     void push(verti v);
 
     /*! Removes the vertex from the queue, if it is present. */
-    void remove(verti v);
+    //void remove(verti v);
 
     /*! Returns the top element in the heap. */
     verti top() { return pq_[0]; }
@@ -81,7 +81,6 @@ private:
     const SmallProgressMeasures &spm_;  //!< SPM instance being solved
     const Order order_;                 //!< vertex extraction order
 
-    bool * const queued_;            //!< for each vertex: is it queued?
     compat_uint64_t next_id_;        //!< number of insertions
     compat_uint64_t * insert_id_;    //!< for each vertex: last insertion time
 

@@ -53,6 +53,24 @@ protected:
     const ParityGame &game_;            //!< the parity game to work on
 };
 
+class LiftingStrategy2
+{
+public:
+
+    LiftingStrategy2(const ParityGame &game)
+        : graph_(game.graph()), game_(game) { };
+
+    virtual ~LiftingStrategy2() { };
+
+    virtual void push(verti vertex) = 0;
+    virtual void bump(verti vertex) = 0;
+    virtual verti pop() = 0;
+
+protected:
+    const StaticGraph &graph_;          //!< the game graph to work on
+    const ParityGame &game_;            //!< the parity game to work on
+};
+
 /*! \ingroup LiftingStrategies
     Abstract base class for lifting strategy factories. */
 class LiftingStrategyFactory : public RefCounted
@@ -74,6 +92,9 @@ public:
         Small Progress Measures solver. */
     virtual LiftingStrategy *create( const ParityGame &game,
                                      const SmallProgressMeasures &spm ) = 0;
+
+    virtual LiftingStrategy2 *create2( const ParityGame &game,
+                                       const SmallProgressMeasures &spm ) { return 0; }
 };
 
 

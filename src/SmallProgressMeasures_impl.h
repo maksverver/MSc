@@ -148,7 +148,6 @@ bool SmallProgressMeasures::lift_to_top(verti v)
 {
     if (is_top(v)) return false;
     set_top(v);
-    ls_->lifted(v);
     return true;
 }
 

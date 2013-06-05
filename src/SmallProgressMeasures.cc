@@ -39,7 +39,7 @@ SmallProgressMeasures::SmallProgressMeasures(
         const ParityGame &game, ParityGame::Player player,
         LiftingStatistics *stats, const verti *vmap, verti vmap_size )
     : game_(game), p_((int)player), ls_(0), stats_(stats),
-      vmap_(vmap), vmap_size_(vmap_size)
+      vmap_(vmap), vmap_size_(vmap_size), dirty_(0)
 {
     assert(p_ == 0 || p_ == 1);
 
@@ -56,6 +56,13 @@ SmallProgressMeasures::SmallProgressMeasures(
 
 void SmallProgressMeasures::initialize(LiftingStrategyFactory *lsf)
 {
+    // Allocate solution data:
+    verti V = game_.graph().V();
+    assert(dirty_ == 0);
+    dirty_ = new bool[V];
+    assert(strategy_.empty());
+    strategy_.assign(V, (verti)-1);
+
     // Initialize vertices won by the opponent to Top. This is designed to work
     // in conjunction with preprocess_game() which should have removed the
     // non-loop outgoing edges for such vertices.
@@ -68,6 +75,7 @@ void SmallProgressMeasures::initialize(LiftingStrategyFactory *lsf)
              game_.graph().outdegree(v) == 1 &&
              *game_.graph().succ_begin(v) == v )
         {
+            strategy_[v] = v;
             set_top(v);
             ++cnt;
         }
@@ -75,14 +83,28 @@ void SmallProgressMeasures::initialize(LiftingStrategyFactory *lsf)
     info("Initialized %d vert%s to top.", cnt, cnt == 1 ? "ex" : "ices");
 
     // Create lifting strategy
-    ls_ = lsf->create(game_, *this);
+    ls_ = lsf->create2(game_, *this);
     assert(ls_);
+
+    // Initialize partial solution
+    for (verti v = 0; v < V; ++v)
+    {
+        if (!is_top(v))
+        {
+            verti w = get_ext_succ(v, take_max(v));
+            bool dirty = less_than(v, vec(w), game_.priority(v)%2 != p_);
+            strategy_[v] = w;
+            dirty_[v]    = dirty;
+            if (dirty) ls_->push(v);
+        }
+    }
 }
 
 SmallProgressMeasures::~SmallProgressMeasures()
 {
     delete ls_;
     delete[] M_;
+    delete[] dirty_;
 }
 
 bool SmallProgressMeasures::solve()
@@ -104,24 +126,75 @@ long long SmallProgressMeasures::solve_part(long long max_attempts)
 
 std::pair<verti, bool> SmallProgressMeasures::solve_one()
 {
-    verti v = ls_->next();
+    verti v = ls_->pop();
     if (v == NO_VERTEX) return std::make_pair(NO_VERTEX, false);
 
-    bool success = false;
-    if (!is_top(v))
+    assert(!is_top(v));
+
+    bool success = lift_to(v, vec(successor(v)), game_.priority(v)%2 != p_);
+    assert(success);
+    dirty_[v] = false;
+
+    for ( const verti *it  = game_.graph().pred_begin(v),
+                      *end = game_.graph().pred_end(v); it != end; ++it )
     {
-        verti w = get_ext_succ(v, take_max(v));
-        if (lift_to(v, vec(w), game_.priority(v)%2 != p_))
+        verti u = *it;
+        if (is_top(u)) continue;
+
+        bool changed;
+        if (!take_max(u))  // even-controlled vertex: minimize
         {
-            ls_->lifted(v);
-            success = true;
+            if (successor(u) == v)  // minimum successor increased
+            {
+                verti w = get_min_succ(u);
+                strategy_[u] = w;
+                changed = true;
+            }
+            else  // non-minimum successor increased -- no change!
+            {
+                changed = false;
+            }
+        }
+        else  // odd-controlled vertex: maximize
+        {
+            if (successor(u) == v)  // maximum successor increased
+            {
+                changed = true;
+            }
+            else
+            if (vector_cmp(vec(v), vec(successor(u)), len(v)) > 0)
+            {   // maximum successor changed
+                strategy_[u] = v;
+                changed = true;
+            }
+            else  // non-maximum successor doesn't beat current maximum
+            {
+                changed = false;
+            }
+        }
+        if (changed)
+        {
+            if (dirty(u))
+            {
+                ls_->bump(u);
+            }
+            else
+            {
+                bool dirty = less_than(u, vec(successor(u)), game_.priority(u)%2 != p_);
+                if (dirty)
+                {
+                    dirty_[u] = true;
+                    ls_->push(u);
+                }
+            }
         }
     }
+
     if (stats_ != NULL)
     {
-        stats_->record_lift(vmap_ && v < vmap_size_ ? vmap_[v] : v, success);
+        stats_->record_lift(vmap_ && v < vmap_size_ ? vmap_[v] : v, true);
     }
-    return std::make_pair(v, success);
+    return std::make_pair(v, true);
 }
 
 verti SmallProgressMeasures::get_strategy(verti v) const
@@ -138,6 +211,14 @@ void SmallProgressMeasures::get_strategy(ParityGame::Strategy &strat) const
         verti w = get_strategy(v);
         if (w != NO_VERTEX) strat[v] = w;
     }
+}
+
+// Returns the same result as lift_to, but doesn't actually change anything:
+bool SmallProgressMeasures::less_than(verti v, const verti vec2[], bool carry)
+{
+    if (is_top(v)) return false;
+    if (is_top(vec2)) return true;
+    return vector_cmp(vec(v), vec2, len(v)) < carry;
 }
 
 bool SmallProgressMeasures::lift_to(verti v, const verti vec2[], bool carry)

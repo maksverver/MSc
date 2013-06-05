@@ -13,26 +13,12 @@
 
 #include <stdio.h>  /* debug */
 
-/* Updated implementation:
-
-    Whenever a vertex is lifted, it is pushed into a priority queue (with its
-    own progress measure vector as a priority) and its predecessors are marked
-    candidates for lifting.
-
-    Then, to select a next vertex to be lifted, the predecessors of the top node
-    in the priority queue are examined, and the first one marked for lifting is
-    returned. If there is no such predecessor, the top node is popped, and the
-    process is repeated, until the queue is empty.
-
-    (Initially, all vertices are pushed into the queue, and all vertices are
-    marked candidates for lifting.)
-*/
+/* TODO: write short description of how this works! */
 
 MaxMeasureLiftingStrategy::MaxMeasureLiftingStrategy(
     const ParityGame &game, const SmallProgressMeasures &spm,
     bool backward, Order order )
-        : LiftingStrategy(game), spm_(spm), order_(order),
-          queued_(new bool[graph_.V()]), next_id_(0),
+        : LiftingStrategy(game), spm_(spm), order_(order), next_id_(0),
           insert_id_(order < HEAP ? new compat_uint64_t[graph_.V()] : NULL),
           pq_pos_(new verti[graph_.V()]), pq_(new verti[graph_.V()])
 {
@@ -43,9 +29,11 @@ MaxMeasureLiftingStrategy::MaxMeasureLiftingStrategy(
     for (verti i = 0; i < V; ++i)
     {
         const verti v = backward ? V - 1 - i : i;
-        queued_[v] = true;
-        pq_pos_[v] = (verti)-1;
-        push(v);
+        if (!spm_.is_top(v))
+        {
+            pq_pos_[v] = (verti)-1;
+            push(v);
+        }
     }
     /* FIXME: pushing everything takes O(V log V) time; we can sort the
               queue array faster than that by using our knowledge that
@@ -54,7 +42,6 @@ MaxMeasureLiftingStrategy::MaxMeasureLiftingStrategy(
 
 MaxMeasureLiftingStrategy::~MaxMeasureLiftingStrategy()
 {
-    delete[] queued_;
     delete[] insert_id_;
     delete[] pq_pos_;
     delete[] pq_;
@@ -135,7 +122,7 @@ void MaxMeasureLiftingStrategy::push(verti v)
     }
     move_up(i);
 }
-
+/*
 void MaxMeasureLiftingStrategy::remove(verti v)
 {
     verti i = pq_pos_[v];
@@ -150,7 +137,7 @@ void MaxMeasureLiftingStrategy::remove(verti v)
         }
     }
 }
-
+*/
 void MaxMeasureLiftingStrategy::pop()
 {
     assert(pq_size_ > 0);
@@ -166,8 +153,8 @@ void MaxMeasureLiftingStrategy::pop()
 int MaxMeasureLiftingStrategy::cmp(verti i, verti j)
 {
     verti v = pq_[i], w = pq_[j];
-    int d = spm_.vector_cmp(v, w, spm_.len_);
-    //return (d != 0) ? d : (i > j) - (i < j);  // tie-break on vertex index
+    int d = 0; // spm_.vector_cmp(v, w, spm_.len_);
+
     if (d == 0 && insert_id_ != NULL)
     {
         // Tie-break on insertion order: smallest insert-id first in queue
@@ -204,56 +191,22 @@ bool MaxMeasureLiftingStrategy::check()
 
 void MaxMeasureLiftingStrategy::lifted(verti v)
 {
-    bool queued_any = false;
-
     // Queue predecessors with measure less than top:
     for ( StaticGraph::const_iterator it = graph_.pred_begin(v);
           it != graph_.pred_end(v); ++it )
     {
-        if (!spm_.is_top(*it))
-        {
-            queued_any = true;
-            queued_[*it] = true;
-        }
-    }
-
-    if (queued_any)
-    {
-        // Add to (or move up in) queue
-        push(v);
-    }
-    else
-    {
-        // No eligible predecessors, remove from queue:
-        remove(v);
+        // TODO: update successor
+        push(*it);
     }
 }
 
 verti MaxMeasureLiftingStrategy::next()
 {
-    // assert(check());  // debug
-
-    // Find a predecessor to lift
-    while (pq_size_ > 0)
-    {
-        verti w = top();
-        for (StaticGraph::const_iterator it = graph_.pred_begin(w);
-             it != graph_.pred_end(w); ++it)
-        {
-            verti v = *it;
-            if (queued_[v])
-            {
-                queued_[v] = false;
-                return v;
-            }
-        }
-
-        // None of the predecessors of w are queued anymore; remove it.
-        pop();
-        // assert(check());  // debug
-    }
-
-    return NO_VERTEX;
+    assert(check());  // debug
+    verti v = top();
+    pop();
+    assert(check());  // debug
+    return v;
 }
 
 LiftingStrategy *MaxMeasureLiftingStrategyFactory::create(

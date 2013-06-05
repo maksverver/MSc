@@ -79,8 +79,63 @@ verti PredecessorLiftingStrategy::next()
     return res;
 }
 
+PredecessorLiftingStrategy2::PredecessorLiftingStrategy2(
+    const ParityGame &game, const SmallProgressMeasures &spm,
+    bool backward, bool stack )
+    : LiftingStrategy2(game), spm_(spm), backward_(backward), stack_(stack)
+{
+    assert(graph_.edge_dir() & StaticGraph::EDGE_PREDECESSOR);
+
+    // Initialize data
+    const verti V = game.graph().V();
+    queue_ = new verti[V];
+    queue_capacity_ = V;
+    queue_begin_ = queue_end_ = queue_size_ = 0;
+}
+
+PredecessorLiftingStrategy2::~PredecessorLiftingStrategy2()
+{
+    delete[] queue_;
+}
+
+void PredecessorLiftingStrategy2::push(verti v)
+{
+    queue_[queue_end_++] = v;
+    if (queue_end_ == queue_capacity_) queue_end_ = 0;
+    ++queue_size_;
+    assert(queue_size_ <= queue_capacity_);
+}
+
+verti PredecessorLiftingStrategy2::pop()
+{
+    if (queue_size_ == 0) return NO_VERTEX;
+
+    // Remove an element from the queue
+    verti res;
+    if (stack_)
+    {
+        // Remove from the back of the queue
+        if (queue_end_ == 0) queue_end_ = queue_capacity_;
+        res = queue_[--queue_end_];
+    }
+    else
+    {
+        // Remove from the front of the queue
+        res = queue_[queue_begin_++];
+        if (queue_begin_ == queue_capacity_) queue_begin_ = 0;
+    }
+    --queue_size_;
+    return res;
+}
+
 LiftingStrategy *PredecessorLiftingStrategyFactory::create(
     const ParityGame &game, const SmallProgressMeasures &spm )
 {
     return new PredecessorLiftingStrategy(game, spm, backward_, stack_);
+}
+
+LiftingStrategy2 *PredecessorLiftingStrategyFactory::create2(
+    const ParityGame &game, const SmallProgressMeasures &spm )
+{
+    return new PredecessorLiftingStrategy2(game, spm, backward_, stack_);
 }

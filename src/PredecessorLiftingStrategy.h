@@ -44,8 +44,10 @@ public:
     */
     PredecessorLiftingStrategy( const ParityGame &game,
                                 const SmallProgressMeasures &spm,
-                                bool backward, bool stack );
+                                bool backward, bool stack);
     ~PredecessorLiftingStrategy();
+
+    // v1 API
     void lifted(verti v);
     verti next();
 
@@ -64,6 +66,39 @@ private:
     size_t queue_size_, queue_capacity_, queue_begin_, queue_end_;
 };
 
+class PredecessorLiftingStrategy2 : public LiftingStrategy2
+{
+public:
+    /*! Construct a new predecessor lifting strategy instance.
+
+        If `stack` is set to true, vertices are removed in last-in-first-out
+        order (instead of the default first-in-first-out order).
+
+        If `backward` is set to true, initial nodes are pushed in the queue
+        backward (for a stack, this actually causes the nodes to be extracted
+        in forward order instead of in reverse).
+    */
+    PredecessorLiftingStrategy2( const ParityGame &game,
+                                const SmallProgressMeasures &spm,
+                                bool backward, bool stack );
+    ~PredecessorLiftingStrategy2();
+
+    // v2 API
+    void push(verti v);
+    verti pop();
+    void bump(verti vertex) { }
+
+    bool backward() const { return backward_; }
+    bool stack() const { return stack_; }
+
+private:
+    const SmallProgressMeasures &spm_;
+    const bool backward_;
+    const bool stack_;
+    verti *queue_;
+    size_t queue_size_, queue_capacity_, queue_begin_, queue_end_;
+};
+
 /*! \ingroup LiftingStrategies
     Factory class for PredecessorLiftingStrategy instances. */
 class PredecessorLiftingStrategyFactory : public LiftingStrategyFactory
@@ -75,6 +110,8 @@ public:
     //! Returns a new PredecessorLiftingStrategy instance.
     LiftingStrategy *create( const ParityGame &game,
                              const SmallProgressMeasures &spm );
+    LiftingStrategy2 *create2( const ParityGame &game,
+                               const SmallProgressMeasures &spm );
 
 private:
     const bool backward_, stack_;

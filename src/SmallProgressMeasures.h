@@ -134,6 +134,10 @@ public:
         value must be strictly greater (or top). */
     bool lift_to(verti v, const verti vec[], bool carry = 0);
 
+    /*! Returns the same result as lift_to() but without changing any
+        progress measure vectors. */
+    bool less_than(verti v, const verti vec[], bool carry = 0);
+
     /*! For debugging: print current state to stdout */
     void debug_print(bool verify = true);
 
@@ -168,9 +172,6 @@ public:
 
     /*! Return whether the SPM vector for vertex `v` has top value. */
     bool is_top(verti v) const { return is_top(vec(v)); }
-
-    /*! Returns the lifting strategy used. */
-    const LiftingStrategy *lifting_strategy() const { return ls_; }
 
     // The following functions are implemented in derived classes that
     // implement the actual storage of progress measure vectors:
@@ -230,20 +231,32 @@ private:
     /*! Returns the maximum successor for vertex `v`. */
     inline verti get_max_succ(verti v) const { return get_ext_succ(v, true); }
 
+    /*! Returns whether the succesor with the extreme progress measure for the
+        given vertex.  (`Extreme` means minimal for even-controlled vertices,
+        and maximal for odd-controlled vertices.) */
+    inline verti successor(verti v) const { return strategy_[v]; }
+
+    /*! Returns whether the given vertex is dirty; i.e. its progress measure
+        is less than its successor (or less than or equal to, if its priority
+        is odd). */
+    inline bool dirty(verti v) const { return dirty_[v]; }
+
     // Allow selected lifting strategies to access the SPM internals:
     friend class PredecessorLiftingStrategy;
     friend class MaxMeasureLiftingStrategy;
     friend class OldMaxMeasureLiftingStrategy;
 
 protected:
-    const ParityGame    &game_;     //!< the game being solved
-    const int           p_;         //!< the player to solve for
-    LiftingStrategy     *ls_;       //!< lifting strategy used
-    LiftingStatistics   *stats_;    //!< statistics object to record lifts
-    const verti         *vmap_;     //!< active vertex map (if any)
-    verti               vmap_size_; //!< size of vertex map
-    int                 len_;       //!< length of SPM vectors
-    verti               *M_;        //!< bounds on the SPM vector components
+    const ParityGame      &game_;     //!< the game being solved
+    const int             p_;         //!< the player to solve for
+    LiftingStrategy2      *ls_;       //!< lifting strategy used
+    LiftingStatistics     *stats_;    //!< statistics object to record lifts
+    const verti           *vmap_;     //!< active vertex map (if any)
+    verti                 vmap_size_; //!< size of vertex map
+    int                   len_;       //!< length of SPM vectors
+    verti                 *M_;        //!< bounds on the SPM vector components
+    ParityGame::Strategy  strategy_;  //!< current strategy
+    bool                  *dirty_;    //!< marks unstable vertices
 };
 
 /*! \ingroup SmallProgressMeasures
