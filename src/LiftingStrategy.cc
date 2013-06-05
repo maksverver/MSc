@@ -111,7 +111,7 @@ LiftingStrategyFactory *
         bool backward = (parts.size() > 1 ? atoi(parts[1].c_str()) : 0);
         int  order    = (parts.size() > 2 ? atoi(parts[2].c_str()) : 2);
         return new MaxMeasureLiftingStrategyFactory(
-            backward, (MaxMeasureLiftingStrategy::Order)order );
+            backward, (MaxMeasureLiftingStrategy2::Order)order );
     }
     else
     if (strcasecmp(parts[0].c_str(), "oldmaxmeasure") == 0)

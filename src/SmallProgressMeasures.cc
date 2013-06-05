@@ -162,7 +162,7 @@ std::pair<verti, bool> SmallProgressMeasures::solve_one()
                 changed = true;
             }
             else
-            if (vector_cmp(vec(v), vec(successor(u)), len(v)) > 0)
+            if (vector_cmp(vec(v), vec(successor(u)), len_) > 0)
             {   // maximum successor changed
                 strategy_[u] = v;
                 changed = true;
@@ -199,7 +199,7 @@ std::pair<verti, bool> SmallProgressMeasures::solve_one()
 
 verti SmallProgressMeasures::get_strategy(verti v) const
 {
-    return (!is_top(v) && game_.player(v) == p_) ? get_min_succ(v) : NO_VERTEX;
+    return (!is_top(v) && game_.player(v) == p_) ? successor(v) : NO_VERTEX;
 }
 
 void SmallProgressMeasures::get_strategy(ParityGame::Strategy &strat) const

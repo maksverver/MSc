@@ -15,45 +15,31 @@
 
 /* TODO: write short description of how this works! */
 
-MaxMeasureLiftingStrategy::MaxMeasureLiftingStrategy(
+MaxMeasureLiftingStrategy2::MaxMeasureLiftingStrategy2(
     const ParityGame &game, const SmallProgressMeasures &spm,
     bool backward, Order order )
-        : LiftingStrategy(game), spm_(spm), order_(order), next_id_(0),
+        : LiftingStrategy2(game), spm_(spm), order_(order), next_id_(0),
           insert_id_(order < HEAP ? new compat_uint64_t[graph_.V()] : NULL),
-          pq_pos_(new verti[graph_.V()]), pq_(new verti[graph_.V()])
+          pq_pos_(new verti[graph_.V()]), pq_(new verti[graph_.V()]),
+          pq_size_(0)
 {
-    const verti V = graph_.V();
-
-    // Initialize queue
-    pq_size_ = 0;
-    for (verti i = 0; i < V; ++i)
-    {
-        const verti v = backward ? V - 1 - i : i;
-        if (!spm_.is_top(v))
-        {
-            pq_pos_[v] = (verti)-1;
-            push(v);
-        }
-    }
-    /* FIXME: pushing everything takes O(V log V) time; we can sort the
-              queue array faster than that by using our knowledge that
-              all progress measures are either zero or top. */
+    std::fill(&pq_pos_[0], &pq_pos_[graph_.V()], NO_VERTEX);
 }
 
-MaxMeasureLiftingStrategy::~MaxMeasureLiftingStrategy()
+MaxMeasureLiftingStrategy2::~MaxMeasureLiftingStrategy2()
 {
     delete[] insert_id_;
     delete[] pq_pos_;
     delete[] pq_;
 }
 
-void MaxMeasureLiftingStrategy::move_up(verti i)
+void MaxMeasureLiftingStrategy2::move_up(verti i)
 {
     // FIXME: this can be implemented with less swapping if I think harder.
     for (verti  j; i > 0 && cmp(i, j = (i - 1)/2) > 0; i = j) swap(i, j);
 }
 
-void MaxMeasureLiftingStrategy::move_down(verti i)
+void MaxMeasureLiftingStrategy2::move_down(verti i)
 {
     // FIXME: this can be implemented with less swapping if I think harder.
     for (;;)
@@ -101,7 +87,7 @@ void MaxMeasureLiftingStrategy::move_down(verti i)
     }
 }
 
-void MaxMeasureLiftingStrategy::swap(verti i, verti j)
+void MaxMeasureLiftingStrategy2::swap(verti i, verti j)
 {
     verti v = pq_[i], w = pq_[j];
     pq_[i] = w;
@@ -110,25 +96,35 @@ void MaxMeasureLiftingStrategy::swap(verti i, verti j)
     pq_pos_[v] = j;
 }
 
-void MaxMeasureLiftingStrategy::push(verti v)
+void MaxMeasureLiftingStrategy2::push(verti v)
 {
+    Logger::debug("push(%d)", v);
+    assert(pq_pos_[v] == NO_VERTEX);
+    pq_[pq_size_] = v;
+    pq_pos_[v] = pq_size_;
+    ++pq_size_;
+    if (insert_id_) insert_id_[v] = next_id_++;
+    bump(v);
+}
+
+void MaxMeasureLiftingStrategy2::bump(verti v)
+{
+    bumped_.push_back(v);
+    Logger::debug("bump(%d)", v);
+/*
     verti i = pq_pos_[v];
-    if (i == (verti)-1)
-    {
-        i = pq_size_++;
-        pq_[i] = v;
-        pq_pos_[v] = i;
-        if (insert_id_) insert_id_[v] = next_id_++;
-    }
+    assert(i != NO_VERTEX && pq_[i] == v);
     move_up(i);
+    assert(check());  // DEBUG
+*/
 }
 /*
 void MaxMeasureLiftingStrategy::remove(verti v)
 {
     verti i = pq_pos_[v];
-    if (i != (verti)-1)
+    if (i != NO_VERTEX)
     {
-        pq_pos_[v] = (verti)-1;
+        pq_pos_[v] = NO_VERTEX;
         if (i < --pq_size_)
         {
             pq_[i] = pq_[pq_size_];
@@ -138,35 +134,70 @@ void MaxMeasureLiftingStrategy::remove(verti v)
     }
 }
 */
-void MaxMeasureLiftingStrategy::pop()
+verti MaxMeasureLiftingStrategy2::pop()
 {
-    assert(pq_size_ > 0);
-    pq_pos_[pq_[0]] = (verti)-1;
-    if (0 < --pq_size_)
+    if (!bumped_.empty())
+    {
+        /*
+        std::cerr << "bumped:";
+        for (size_t i = 0; i < bumped_.size(); ++i)
+            std::cerr << ' ' << bumped_[i];
+        std::cerr << std::endl;
+        */
+        for ( std::vector<verti>::iterator it = bumped_.begin();
+              it != bumped_.end(); ++it )
+        {
+            *it = pq_pos_[*it];
+            assert(*it != NO_VERTEX);
+        }
+        std::sort(bumped_.begin(), bumped_.end());
+        bumped_.erase( std::unique(bumped_.begin(), bumped_.end()),
+                       bumped_.end() );
+        for ( std::vector<verti>::iterator it = bumped_.begin();
+              it != bumped_.end(); ++it )
+        {
+            move_up(*it);
+        }
+        //assert(check());  // DEBUG
+        bumped_.clear();
+    }
+
+    if (pq_size_ == 0) return NO_VERTEX;
+    verti v = pq_[0];
+    pq_pos_[v] = (verti)-1;
+    if (--pq_size_ > 0)
     {
         pq_[0] = pq_[pq_size_];
         pq_pos_[pq_[0]] = 0;
         move_down(0);
     }
+    //assert(check());  // DEBUG
+    Logger::debug("pop() -> %d", v);
+    return v;
 }
 
-int MaxMeasureLiftingStrategy::cmp(verti i, verti j)
+static int cmp_ids(compat_uint64_t x, compat_uint64_t y)
+{
+    return (x > y) - (x < y);
+}
+
+int MaxMeasureLiftingStrategy2::cmp(verti i, verti j)
 {
     verti v = pq_[i], w = pq_[j];
-    int d = 0; // spm_.vector_cmp(v, w, spm_.len_);
+    int d = spm_.vector_cmp(spm_.successor(v), spm_.successor(w), spm_.len_);
+    if (d != 0) return d;
 
-    if (d == 0 && insert_id_ != NULL)
+    // Tie-break on insertion order: smallest insert-id first in queue
+    // mode, or largest insert-id first in stack mode.
+    switch (order_)
     {
-        // Tie-break on insertion order: smallest insert-id first in queue
-        // mode, or largest insert-id first in stack mode.
-        compat_uint64_t x = insert_id_[v], y = insert_id_[w];
-        d = (x > y) - (x < y);
-        if (order_ == STACK) d = -d;
+    case STACK: return cmp_ids(insert_id_[v], insert_id_[w]);
+    case QUEUE: return cmp_ids(insert_id_[w], insert_id_[v]);
+    default:    return d;
     }
-    return d;
 }
 
-bool MaxMeasureLiftingStrategy::check()
+bool MaxMeasureLiftingStrategy2::check()
 {
     for (verti i = 1; i < pq_size_; ++i)
     {
@@ -189,28 +220,14 @@ bool MaxMeasureLiftingStrategy::check()
     return true;
 }
 
-void MaxMeasureLiftingStrategy::lifted(verti v)
-{
-    // Queue predecessors with measure less than top:
-    for ( StaticGraph::const_iterator it = graph_.pred_begin(v);
-          it != graph_.pred_end(v); ++it )
-    {
-        // TODO: update successor
-        push(*it);
-    }
-}
-
-verti MaxMeasureLiftingStrategy::next()
-{
-    assert(check());  // debug
-    verti v = top();
-    pop();
-    assert(check());  // debug
-    return v;
-}
-
 LiftingStrategy *MaxMeasureLiftingStrategyFactory::create(
     const ParityGame &game, const SmallProgressMeasures &spm )
 {
-    return new MaxMeasureLiftingStrategy(game, spm, backward_, order_);
+    return 0;
+}
+
+LiftingStrategy2 *MaxMeasureLiftingStrategyFactory::create2(
+    const ParityGame &game, const SmallProgressMeasures &spm )
+{
+    return new MaxMeasureLiftingStrategy2(game, spm, backward_, order_);
 }

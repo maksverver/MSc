@@ -243,7 +243,7 @@ private:
 
     // Allow selected lifting strategies to access the SPM internals:
     friend class PredecessorLiftingStrategy;
-    friend class MaxMeasureLiftingStrategy;
+    friend class MaxMeasureLiftingStrategy2;
     friend class OldMaxMeasureLiftingStrategy;
 
 protected:

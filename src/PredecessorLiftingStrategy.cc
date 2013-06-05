@@ -100,6 +100,7 @@ PredecessorLiftingStrategy2::~PredecessorLiftingStrategy2()
 
 void PredecessorLiftingStrategy2::push(verti v)
 {
+    Logger::debug("push(%d)", v);
     queue_[queue_end_++] = v;
     if (queue_end_ == queue_capacity_) queue_end_ = 0;
     ++queue_size_;
@@ -125,6 +126,7 @@ verti PredecessorLiftingStrategy2::pop()
         if (queue_begin_ == queue_capacity_) queue_begin_ = 0;
     }
     --queue_size_;
+    Logger::debug("pop() -> %d", res);
     return res;
 }
 
