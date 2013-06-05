@@ -1492,12 +1492,21 @@ It should come as no surprise that my contributions lie in this area.
 \end_layout
 
 \begin_layout Itemize
-For mCRL2, my tool offers a faster and more memory-efficient alternative
- to 
+For mCRL2 my tool provides an alternative to 
 \family typewriter
 pbes2bool
 \family default
- (the default solver for PBES).
+ (the default solver for PBES) 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+any examples of where my tool is faster / uses less memory?
+\end_layout
+
+\end_inset
+
+.
  My solver has already been integrated into mCRL2 as an experimental tool
  called 
 \family typewriter
@@ -1510,7 +1519,7 @@ pbespgsolve
 Compared to PGSolver, my tool features fewer different solver algorithms,
  but better preprocessing routines and heuristics.
  My tool typically uses less time and space to solve testcases, sometimes
- by a small margin, sometimes dramatically so.
+ dramatically so.
 \end_layout
 
 \begin_layout Standard
@@ -8522,11 +8531,40 @@ Copy description of games from log (Sunday 19 December)
 \end_layout
 
 \begin_layout Section
-Data set
+Small Progress Measures
 \end_layout
 
-\begin_layout Section
-Execution
+\begin_layout Standard
+Data set:
+\end_layout
+
+\begin_layout Itemize
+random graphs
+\end_layout
+
+\begin_layout Itemize
+spgip cases (decision procedures and elevator verification from SPGIP generated
+ with MLSolver/PGSolver)
+\end_layout
+
+\begin_layout Standard
+I want to show three things:
+\end_layout
+
+\begin_layout Itemize
+maximum measure propagation is a valid strategy
+\end_layout
+
+\begin_layout Itemize
+decrement after lifting to top improves SPM in two-sided approach
+\end_layout
+
+\begin_layout Itemize
+decycle solver works great (also compare with deloop solver)
+\end_layout
+
+\begin_layout Standard
+(Really emphasize my contributions here!)
 \end_layout
 
 \begin_layout Section
