@@ -184,7 +184,8 @@ static int cmp_ids(compat_uint64_t x, compat_uint64_t y)
 int MaxMeasureLiftingStrategy2::cmp(verti i, verti j)
 {
     verti v = pq_[i], w = pq_[j];
-    int d = spm_.vector_cmp(spm_.successor(v), spm_.successor(w), spm_.len_);
+    int d = spm_.vector_cmp( spm_.get_successor(v),
+                             spm_.get_successor(w), spm_.len_ );
     if (d != 0) return d;
 
     // Tie-break on insertion order: smallest insert-id first in queue
