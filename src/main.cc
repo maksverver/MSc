@@ -80,6 +80,7 @@ static std::string  arg_paritysol_file        = "";
 static std::string  arg_hot_vertices_file     = "";
 static std::string  arg_debug_file            = "";
 static std::string  arg_spm_lifting_strategy  = "";
+static int          arg_spm_version           = 0;
 static bool         arg_collect_stats         = false;
 static bool         arg_alternate             = false;
 static bool         arg_decycle               = false;
@@ -186,7 +187,8 @@ static void print_usage(const char *argv0)
 "Solving with Small Progress Measures:\n"
 "  --lifting/-l <desc>    Small Progress Measures lifting strategy to use\n"
 "                         ('help' shows available strategies and parameters)\n"
-"  --alternate/-a         use Friedmann's alternating solving approach\n"
+"  --lifting2/-L <desc>   The same but using the v2 algorithm implementation\n"
+"  --alternate/-a         use Friedmann's two-sided solving approach\n"
 "\n"
 "Solving with Zielonka's recursive algorithm:\n"
 "  --zielonka/-z          use Zielonka's recursive algorithm\n"
@@ -235,6 +237,7 @@ static void parse_args(int argc, char *argv[])
         { "propagate",  no_argument,       NULL, 10  },
 
         { "lifting",    required_argument, NULL, 'l' },
+        { "lifting2",   required_argument, NULL, 'L' },
         { "alternate",  no_argument,       NULL, 'a' },
 
         { "zielonka",   no_argument,       NULL, 'z' },
@@ -379,7 +382,9 @@ static void parse_args(int argc, char *argv[])
             arg_priority_propagation = true;
             break;
 
-        case 'l':   /* Small Progress Measures lifting strategy */
+        case 'l':   /* Small Progress Measures v1 lifting strategy */
+        case 'L':   /* Small Progress Measures v2 lifting strategy  */
+            arg_spm_version = ch == 'l' ? 1 : ch == 'L' ? 2 : 0;
             arg_spm_lifting_strategy = optarg;
             if (strcasecmp(optarg, "help") == 0)
             {
@@ -954,7 +959,7 @@ int main(int argc, char *argv[])
             if (!arg_mpi)
             {
                 solver_factory.reset(new SmallProgressMeasuresSolverFactory(
-                        spm_strategy, arg_alternate, stats.get() ));
+                    spm_strategy, arg_spm_version, arg_alternate, stats.get() ));
             }
 #ifdef WITH_MPI
             else

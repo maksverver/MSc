@@ -654,8 +654,9 @@ ParityGame::Strategy SmallProgressMeasuresSolver2::solve_alternate()
 //
 
 SmallProgressMeasuresSolverFactory::SmallProgressMeasuresSolverFactory(
-        LiftingStrategyFactory *lsf, bool alt, LiftingStatistics *stats )
-    : lsf_(lsf), alt_(alt), stats_(stats)
+        LiftingStrategyFactory *lsf, int version, bool alt,
+        LiftingStatistics *stats )
+    : lsf_(lsf), version_(version), alt_(alt), stats_(stats)
 {
     lsf_->ref();
 }
@@ -668,9 +669,23 @@ SmallProgressMeasuresSolverFactory::~SmallProgressMeasuresSolverFactory()
 ParityGameSolver *SmallProgressMeasuresSolverFactory::create(
     const ParityGame &game, const verti *vmap, verti vmap_size )
 {
-    return new SmallProgressMeasuresSolver(
-        game, lsf_, alt_, stats_, vmap, vmap_size );
+    assert(version_ == 1 || version_ == 2);
+    if (version_ == 1)
+    {
+        return new SmallProgressMeasuresSolver(
+            game, lsf_, alt_, stats_, vmap, vmap_size );
+    }
+    if (version_ == 2)
+    {
+        return new SmallProgressMeasuresSolver2(
+            game, lsf_, alt_, stats_, vmap, vmap_size );
+    }
+    return 0;
 }
+
+//
+//  DenseSPM
+//
 
 DenseSPM::DenseSPM( const ParityGame &game, ParityGame::Player player,
                     LiftingStatistics *stats,

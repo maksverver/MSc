@@ -397,7 +397,7 @@ class SmallProgressMeasuresSolverFactory : public ParityGameSolverFactory
 {
 public:
     SmallProgressMeasuresSolverFactory( LiftingStrategyFactory *lsf,
-        bool alt = false, LiftingStatistics *stats = 0 );
+        int version = 1, bool alt = false, LiftingStatistics *stats = 0 );
     ~SmallProgressMeasuresSolverFactory();
 
     ParityGameSolver *create( const ParityGame &game,
@@ -406,6 +406,7 @@ public:
 
 private:
     LiftingStrategyFactory  *lsf_;
+    int                     version_;
     bool                    alt_;
     LiftingStatistics       *stats_;
 };
