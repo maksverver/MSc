@@ -37,7 +37,7 @@ inline verti SmallProgressMeasures::get_ext_succ(verti v, bool take_max) const
     const verti *it  = game_.graph().succ_begin(v),
                 *end = game_.graph().succ_end(v);
 
-    assert(it != end);  /* assume we have at least one successor */
+    assert(it < end);  /* assume we have at least one successor */
 
     int N = len(v);
     verti res = *it++;

@@ -161,7 +161,7 @@ void ParityGame::write_pgsolver(std::ostream &os) const
         os << v << ' ' << (max_prio - priority(v)) << ' ' << player(v);
         StaticGraph::const_iterator it  = graph_.succ_begin(v),
                                     end = graph_.succ_end(v);
-        assert(it != end);
+        assert(it < end);
         os << ' ' << *it++;
         while (it != end) os << ',' << *it++;
         os << ";\n";

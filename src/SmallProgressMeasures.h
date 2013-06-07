@@ -82,9 +82,12 @@ private:
     Note that this is an abstract base class: subclasses may implement different
     storage formats for the progress measure vectors.
 */
-class SmallProgressMeasures : public Abortable, public virtual Logger
+class SmallProgressMeasures : public virtual Logger
 {
 public:
+    //! Maximum number of lifting attempts in a row before checking timer.
+    static const int work_size = 10000;
+
     SmallProgressMeasures(
         const ParityGame &game, ParityGame::Player player,
         LiftingStatistics *stats = 0,
@@ -92,21 +95,24 @@ public:
 
     virtual ~SmallProgressMeasures();
 
-    /*! Solves the current game for one player using the given lifting strategy
-        and returns whether the game was completely solved (in particular, the
-        game is not solved if the solver is aborted). */
-    bool solve(LiftingStrategy2 &ls);
+    /*! Performs some work on the game using the given lifting strategy (which
+        must have been initialized).
 
-    /*! Solves part of the game by doing attemping at most `max_attempts` lifts
-        using the given lifting strategy. Returns how many lifting attempts
-        were actually performed, which will be less than `max_attempts` when
-        the game is solved. */
-    long long solve_part(LiftingStrategy2 &ls, long long max_attempts);
+        @param max_attempts Maximum number of lifts attempted.
+        @return How many attempts remain; i.e. if the result is greater than
+                zero, the game is succesfully solved.
+        @see initialize_lifting_strategy
+    */
+    long long solve_some( LiftingStrategy &ls,
+                          long long max_attempts = work_size );
+    long long solve_some( LiftingStrategy2 &ls,
+                          long long max_attempts = work_size );
 
     /*! Performs one lifting attempt, and returns the index of the vertex and
         whether lifting succeeded. Returns NO_VERTEX if no more vertices were
         candidates for lifting. */
-    std::pair<verti, bool> solve_one(LiftingStrategy2 &ls);
+    std::pair<verti, bool> solve_one(LiftingStrategy &ls);
+    verti solve_one(LiftingStrategy2 &ls);
 
     /*! After the game is solved, this returns the strategy at vertex `v` for
         the current player, or NO_VERTEX if the vertex is controlled by his
@@ -297,6 +303,7 @@ protected:
 class SmallProgressMeasuresSolver
     : public ParityGameSolver, public virtual Logger
 {
+protected:
     /*! Helper class which is an OutputIterator that sets vertices assigned
         through it to top in the given SPM representation (which in turn updates
         the corresponding lifting strategy). */
@@ -324,7 +331,7 @@ public:
                                  LiftingStatistics *stats = 0,
                                  const verti *vertex_map = 0,
                                  verti vertex_map_size = 0 );
-    ~SmallProgressMeasuresSolver();
+    virtual ~SmallProgressMeasuresSolver();
 
     ParityGame::Strategy solve();
 
@@ -332,13 +339,13 @@ public:
         the game for one player only, and then solves a subgame with the
         remaining vertices. This algorithm is most efficient when the original
         game is easier to solve than its dual. */
-    ParityGame::Strategy solve_normal();
+    virtual ParityGame::Strategy solve_normal();
 
     /*! Solves the game using Friedmann's alternate strategy. This allocates
         solving algorithms for both the normal game and its dual at once, and
         alternates working on each, exchanging information about solved vertices
         in the process. */
-    ParityGame::Strategy solve_alternate();
+    virtual ParityGame::Strategy solve_alternate();
 
     /*! Preprocess the game so that vertices with loops either have the loop
         removed, or have all other edges removed. In the latter case, the vertex
@@ -359,6 +366,28 @@ protected:
     LiftingStatistics *stats_;      //!< object to record lifting statistics
     const verti *vmap_;             //!< current vertex map
     const verti vmap_size_;         //!< size of vertex map
+};
+
+/*! \ingroup SmallProgressMeasures
+
+    TODO: document this class. */
+class SmallProgressMeasuresSolver2 : public SmallProgressMeasuresSolver
+{
+public:
+    SmallProgressMeasuresSolver2( const ParityGame &game,
+                                  LiftingStrategyFactory *lsf,
+                                  bool alternate = false,
+                                  LiftingStatistics *stats = 0,
+                                  const verti *vertex_map = 0,
+                                  verti vertex_map_size = 0 );
+    ~SmallProgressMeasuresSolver2();
+
+    ParityGame::Strategy solve_normal();
+    ParityGame::Strategy solve_alternate();
+
+private:
+    SmallProgressMeasuresSolver2(const SmallProgressMeasuresSolver2&);
+    SmallProgressMeasuresSolver2 &operator=(const SmallProgressMeasuresSolver2&);
 };
 
 /*! \ingroup SmallProgressMeasures
