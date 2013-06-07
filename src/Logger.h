@@ -82,6 +82,11 @@ private:
 
 void Logger::debug(const char *fmt, ...)
 {
+    /* Note: this is conditionally compiled in only if DEBUG is defined, so
+       that semi-frequent calls to Logger::debug() don't slow down non-debug
+       builds too much.  (For this to work, make sure arguments passed are
+       simple enough that the compiler can optimize them away entirely!) */
+#ifdef DEBUG
     if (enabled(LOG_DEBUG))
     {
         va_list ap;
@@ -89,6 +94,9 @@ void Logger::debug(const char *fmt, ...)
         print_message(LOG_DEBUG, fmt, ap);
         va_end(ap);
     }
+#else  /* ndef DEBUG */
+    (void)fmt;  // unused
+#endif
 }
 
 void Logger::info(const char *fmt, ...)

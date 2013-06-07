@@ -104,66 +104,47 @@ void MaxMeasureLiftingStrategy2::push(verti v)
     pq_pos_[v] = pq_size_;
     ++pq_size_;
     if (insert_id_) insert_id_[v] = next_id_++;
-    bump(v);
+    bumped_.push_back(pq_pos_[v]);
 }
 
 void MaxMeasureLiftingStrategy2::bump(verti v)
 {
-    bumped_.push_back(v);
     Logger::debug("bump(%d)", v);
-/*
-    verti i = pq_pos_[v];
-    assert(i != NO_VERTEX && pq_[i] == v);
-    move_up(i);
-    assert(check());  // DEBUG
-*/
+    bumped_.push_back(pq_pos_[v]);
 }
-/*
-void MaxMeasureLiftingStrategy::remove(verti v)
-{
-    verti i = pq_pos_[v];
-    if (i != NO_VERTEX)
-    {
-        pq_pos_[v] = NO_VERTEX;
-        if (i < --pq_size_)
-        {
-            pq_[i] = pq_[pq_size_];
-            pq_pos_[pq_[i]] = i;
-            move_down(i);
-        }
-    }
-}
-*/
+
 verti MaxMeasureLiftingStrategy2::pop()
 {
+#ifdef DEBUG
+    static long long ops;
+    ops += bumped_.size() + 1;
+#endif
+
     if (!bumped_.empty())
     {
-        /*
-        std::cerr << "bumped:";
+        // Move bumped vertices up into the heap.
+        std::sort(bumped_.begin(), bumped_.end(), compare_heap_level);
         for (size_t i = 0; i < bumped_.size(); ++i)
-            std::cerr << ' ' << bumped_[i];
-        std::cerr << std::endl;
-        */
-        for ( std::vector<verti>::iterator it = bumped_.begin();
-              it != bumped_.end(); ++it )
         {
-            *it = pq_pos_[*it];
-            assert(*it != NO_VERTEX);
+            if (i == 0 || bumped_[i] > bumped_[i - 1]) move_up(bumped_[i]);
         }
-        std::sort(bumped_.begin(), bumped_.end());
-        bumped_.erase( std::unique(bumped_.begin(), bumped_.end()),
-                       bumped_.end() );
-        for ( std::vector<verti>::iterator it = bumped_.begin();
-              it != bumped_.end(); ++it )
-        {
-            move_up(*it);
-        }
-        //assert(check());  // DEBUG
         bumped_.clear();
     }
 
     if (pq_size_ == 0) return NO_VERTEX;
+
+#ifdef DEBUG
+    if (ops >= pq_size_)
+    {
+        Logger::debug("checking heap integrity");
+        assert(check());
+        ops -= pq_size_;
+    }
+#endif
+
+    // Extract top element from the heap.
     verti v = pq_[0];
+    Logger::debug("pop() -> %d", v);
     pq_pos_[v] = (verti)-1;
     if (--pq_size_ > 0)
     {
@@ -171,8 +152,6 @@ verti MaxMeasureLiftingStrategy2::pop()
         pq_pos_[pq_[0]] = 0;
         move_down(0);
     }
-    //assert(check());  // DEBUG
-    Logger::debug("pop() -> %d", v);
     return v;
 }
 

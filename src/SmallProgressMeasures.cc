@@ -391,10 +391,10 @@ ParityGame::Strategy SmallProgressMeasuresSolver::solve_normal()
         spm.get_strategy(strategy);
         spm.get_winning_set( ParityGame::PLAYER_ODD,
             std::back_insert_iterator<std::vector<verti> >(won_by_odd) );
-        /*
-        info("DEBUG: verifying small progress measures.");
+#ifdef DEBUG
+        info("Verifying small progress measures.");
         assert(spm.verify_solution());
-        */
+#endif
     }
 
     if (!won_by_odd.empty())
@@ -429,10 +429,10 @@ ParityGame::Strategy SmallProgressMeasuresSolver::solve_normal()
         ParityGame::Strategy substrat(won_by_odd.size(), NO_VERTEX);
         spm.get_strategy(substrat);
         merge_strategies(strategy, substrat, won_by_odd);
-        /*
-        info("DEBUG: verifying small progress measures.");
+#ifdef DEBUG
+        debug("Verifying small progress measures.");
         assert(spm.verify_solution());
-        */
+#endif
     }
 
     return strategy;
@@ -552,10 +552,10 @@ ParityGame::Strategy SmallProgressMeasuresSolver2::solve_normal()
         spm.get_strategy(strategy);
         spm.get_winning_set( ParityGame::PLAYER_ODD,
             std::back_insert_iterator<std::vector<verti> >(won_by_odd) );
-        /*
-        info("DEBUG: verifying small progress measures.");
+#ifdef DEBUG
+        debug("Verifying small progress measures.");
         assert(spm.verify_solution());
-        */
+#endif
     }
 
     if (!won_by_odd.empty())
@@ -591,10 +591,10 @@ ParityGame::Strategy SmallProgressMeasuresSolver2::solve_normal()
         ParityGame::Strategy substrat(won_by_odd.size(), NO_VERTEX);
         spm.get_strategy(substrat);
         merge_strategies(strategy, substrat, won_by_odd);
-        /*
-        info("DEBUG: verifying small progress measures.");
+#ifdef DEBUG
+        debug("Verifying small progress measures.");
         assert(spm.verify_solution());
-        */
+#endif
     }
 
     return strategy;

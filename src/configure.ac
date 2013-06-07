@@ -9,7 +9,7 @@ AC_ARG_ENABLE( debug,
                      [enable debugging (slower but safer)] )],
     [   # Only override CXXFLAGS if they haven't been set by the user:
         CXXFLAGS=${CXXFLAGS:--O0 -g}
-        DEBUG_FLAGS=-D_GLIBCXX_DEBUG ])
+        DEBUG_FLAGS="-D_GLIBCXX_DEBUG -DDEBUG" ])
 AC_SUBST(DEBUG_FLAGS)
 
 AC_ARG_WITH( mpi,
