@@ -145,7 +145,7 @@ verti MaxMeasureLiftingStrategy2::pop()
     // Extract top element from the heap.
     verti v = pq_[0];
     Logger::debug("pop() -> %d", v);
-    pq_pos_[v] = (verti)-1;
+    pq_pos_[v] = NO_VERTEX;
     if (--pq_size_ > 0)
     {
         pq_[0] = pq_[pq_size_];
@@ -191,7 +191,7 @@ bool MaxMeasureLiftingStrategy2::check()
 
     for (verti v = 0; v < graph_.V(); ++v)
     {
-        if (pq_pos_[v] != (verti)-1)
+        if (pq_pos_[v] != NO_VERTEX)
         {
             if (pq_[pq_pos_[v]] != v) return false;
         }

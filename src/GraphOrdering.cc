@@ -29,13 +29,13 @@ edgei count_ordered_edges(const StaticGraph &g, int dir)
 
 void get_bfs_order(const StaticGraph &graph, std::vector<verti> &perm)
 {
-    perm.assign(graph.V(), (verti)-1);
+    perm.assign(graph.V(), NO_VERTEX);
 
     std::queue<verti> queue;
     verti new_v = 0;
     for (verti root = 0; root < graph.V(); ++root)
     {
-        if (perm[root] != (verti)-1) continue;
+        if (perm[root] != NO_VERTEX) continue;
         perm[root] = new_v++;
         queue.push(root);
         while (!queue.empty())
@@ -46,7 +46,7 @@ void get_bfs_order(const StaticGraph &graph, std::vector<verti> &perm)
             while (it != graph.succ_end(v))
             {
                 verti w = *it++;
-                if (perm[w] == (verti)-1)
+                if (perm[w] == NO_VERTEX)
                 {
                     perm[w] = new_v++;
                     queue.push(w);
@@ -59,13 +59,13 @@ void get_bfs_order(const StaticGraph &graph, std::vector<verti> &perm)
 
 void get_dfs_order(const StaticGraph &graph, std::vector<verti> &perm)
 {
-    perm.assign(graph.V(), (verti)-1);
+    perm.assign(graph.V(), NO_VERTEX);
 
     std::stack<std::pair<verti, StaticGraph::const_iterator> > stack;
     verti new_v = 0;
     for (verti root = 0; root < graph.V(); ++root)
     {
-        if (perm[root] != (verti)-1) continue;
+        if (perm[root] != NO_VERTEX) continue;
         perm[root] = new_v++;
         stack.push(std::make_pair(root, graph.succ_begin(root)));
         while (!stack.empty())
@@ -79,7 +79,7 @@ void get_dfs_order(const StaticGraph &graph, std::vector<verti> &perm)
             else
             {
                 verti w = *it++;
-                if (perm[w] == (verti)-1)
+                if (perm[w] == NO_VERTEX)
                 {
                     perm[w] = new_v++;
                     stack.push(std::make_pair(w, graph.succ_begin(w)));

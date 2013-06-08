@@ -23,8 +23,8 @@
     index, which gives the lowest index of a vertex that is reachable from the
     current vertex.
 
-    When a vertex has not yet been visited, its index is set to (verti)-1.
-    Furthermore, the lowest link index is set to (verti)-1 if the vertex is not
+    When a vertex has not yet been visited, its index is set to NO_VERTEX.
+    Furthermore, the lowest link index is set to NO_VERTEX if the vertex is not
     part of the current component.
 
     Worst-case memory use: 5*sizeof(verti) + c.
@@ -44,13 +44,13 @@ public:
         next_index = 0;
         info.clear();
         info.insert( info.end(), graph_.V(),
-                     std::make_pair((verti)-1, (verti)-1) );
+                     std::make_pair(NO_VERTEX, NO_VERTEX) );
         stack.clear();
 
         // Process all vertices
         for (verti v = 0; v < graph_.V();++v)
         {
-            if (info[v].first == (verti)-1)
+            if (info[v].first == NO_VERTEX)
             {
                 assert(stack.empty());
                 add(v);
@@ -92,12 +92,12 @@ private:
                 // Find next successor `w` of `v`
                 verti w = *edge_it;
 
-                if (info[w].first == (verti)-1)  // unvisited?
+                if (info[w].first == NO_VERTEX)  // unvisited?
                 {
                     add(w);
                 }
                 else
-                if (info[w].second != (verti)-1)  // part of current component?
+                if (info[w].second != NO_VERTEX)  // part of current component?
                 {
                     /* Check if w's index is lower than v's lowest link, if so,
                        set it to be our lowest link index. */
@@ -124,7 +124,7 @@ private:
                     std::vector<verti>::iterator it = component.end();
                     do {
                         assert(it != component.begin());
-                        info[*--it].second = (verti)-1;  // mark as removed
+                        info[*--it].second = NO_VERTEX;  // mark as removed
                     } while (*it != v);
 
                     // Call callback functor to handle this component
