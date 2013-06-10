@@ -68,8 +68,6 @@ enum InputFormat {
     INPUT_NONE = 0, INPUT_RAW, INPUT_RANDOM, INPUT_PGSOLVER, INPUT_PBES
 };
 
-enum Reordering { REORDER_NONE = 0, REORDER_BFS, REORDER_DFS };
-
 static InputFormat  arg_input_format          = INPUT_NONE;
 static std::string  arg_dot_file              = "";
 static std::string  arg_pgsolver_file         = "";
@@ -87,7 +85,7 @@ static bool         arg_decycle               = false;
 static bool         arg_deloop                = false;
 static bool         arg_scc_decomposition     = false;
 static bool         arg_solve_dual            = false;
-static Reordering   arg_reordering            = REORDER_NONE;
+static std::string  arg_reordering;
 static bool         arg_priority_propagation  = false;
 static int          arg_random_size           = 1000000;
 static int          arg_random_seed           =       1;
@@ -148,17 +146,6 @@ static const char *input_format_to_string(InputFormat input_format)
     }
 }
 
-static const char *reordering_to_string(Reordering reordering)
-{
-    switch (reordering)
-    {
-    case REORDER_NONE:  return "none";
-    case REORDER_BFS:   return "bfs";
-    case REORDER_DFS:   return "dfs";
-    default:            return "INVALID";
-    }
-}
-
 //! Prints usage information (possible command line arguments).
 static void print_usage(const char *argv0)
 {
@@ -177,12 +164,13 @@ static void print_usage(const char *argv0)
 "  --seed <int>           (random only) random number generator seed\n"
 "\n"
 "Preprocessing:\n"
+"  --dual                 solve the dual game\n"
+"  --reorder <desc>       reorder vertices before solving (comma-separated\n"
+"                         list; possible values: bfs, dfs, reverse)\n"
+"  --propagate            propagate minimum priorities to predecessors\n"
 "  --deloop               detect loops won by the controlling player\n"
 "  --decycle              detect cycles won and controlled by a single player\n"
 "  --scc                  solve strongly connected components individually\n"
-"  --dual                 solve the dual game\n"
-"  --reorder (bfs|dfs)    order vertices by breadth-/depth-first-search order\n"
-"  --propagate            propagate minimum priorities to predecessors\n"
 "\n"
 "Solving with Small Progress Measures:\n"
 "  --lifting/-l <desc>    Small Progress Measures lifting strategy to use\n"
@@ -211,6 +199,19 @@ static void print_usage(const char *argv0)
 "  --verify/-V            verify solution after solving\n"
 "  --hot/-H <file>        write 'hot' vertices in GraphViz format to <file>\n"
 "  --debug/-D <file>      write solution in debug format to <file>\n");
+}
+
+//! Splits a string by a character, returning all non-empty (!) parts
+std::vector<std::string> split(const std::string &s, char sep = ',')
+{
+    std::vector<std::string> values;
+    for (size_t i = 0, j; i < s.size(); i = j + 1)
+    {
+        j = s.find(sep, i);
+        if (j == std::string::npos) j = s.size();
+        if (i < j) values.push_back(s.substr(i, j - i));
+    }
+    return values;
 }
 
 //! Parses command line arguments. Exits on failure.
@@ -362,20 +363,7 @@ static void parse_args(int argc, char *argv[])
             break;
 
         case 9:    /* reorder vertices */
-            if (strcasecmp(optarg, "bfs") == 0)
-            {
-                arg_reordering = REORDER_BFS;
-            }
-            else
-            if (strcasecmp(optarg, "dfs") == 0)
-            {
-                arg_reordering = REORDER_DFS;
-            }
-            else
-            {
-                printf("Invalid reordering: %s\n", optarg);
-                exit(EXIT_FAILURE);
-            }
+            arg_reordering = optarg;
             break;
 
         case 10:    /* enable priority propagation */
@@ -765,7 +753,7 @@ void write_output( const ParityGame &game,
     /* Write hot vertices file */
     if (stats != NULL && !arg_hot_vertices_file.empty())
     {
-        if (arg_reordering != REORDER_NONE)
+        if (!split(arg_reordering).empty())
         {
             Logger::error("Vertex reordering has distorted vertex indices!");
             // FIXME: to fix this, I should re-order vertex statistics after
@@ -1022,21 +1010,54 @@ int main(int argc, char *argv[])
         Logger::message("## config.timeout = %d s", arg_timeout);
         if (arg_timeout > 0) set_timeout(arg_timeout);
 
-        // Re-order vertices:
-        // FIXME: this should probably count towards solving time
-        Logger::message("## config.reordering = %s", reordering_to_string(arg_reordering));
+        // Vertex reordering:
+        std::vector<std::string> parts = split(arg_reordering);
         std::vector<verti> perm;
-        if (arg_reordering == REORDER_BFS)
+        if (!parts.empty())
         {
-            Logger::info("Reordering vertices by breadth-first search.");
-            get_bfs_order(game.graph(), perm);
+            // FIXME: this should probably count towards solving time
+            Logger::message("## config.reordering = %s", arg_reordering.c_str());
+            const verti V = game.graph().V();
+            std::vector<verti> next_perm(V);
+            for (size_t i = 0; i < parts.size(); ++i)
+            {
+                if (parts[i] == "bfs")
+                {
+                    Logger::info("Reordering vertices by "
+                                 "breadth-first search order...");
+                    get_bfs_order(game.graph(), next_perm);
+                }
+                else
+                if (parts[i] == "dfs")
+                {
+                    Logger::info("Reordering vertices by "
+                                 "depth-first search order...");
+                    get_dfs_order(game.graph(), next_perm);
+                }
+                else
+                if (parts[i] == "reverse" || parts[i] == "rev")
+                {
+                    Logger::info("Reordering vertices by reverse index...");
+                    for (verti v = 0; v < V; ++v) next_perm[v] = V - v - 1;
+                }
+                else
+                {
+                    Logger::fatal("Invalid graph reordering: \"%s\"",
+                                  parts[i].c_str());
+                }
+                game.shuffle(next_perm);
+
+                if (i == 0)
+                {
+                    perm = next_perm;
+                }
+                else
+                {
+                    std::vector<verti> old = perm;
+                    for (verti v = 0; v < V; ++v) perm[v] = next_perm[old[v]];
+                }
+            }
         }
-        if (arg_reordering == REORDER_DFS)
-        {
-            Logger::info("Reordering vertices by depth-first search.");
-            get_dfs_order(game.graph(), perm);
-        }
-        if (!perm.empty()) game.shuffle(perm);
 
         {
             // FIXME: this should probably count towards solving time

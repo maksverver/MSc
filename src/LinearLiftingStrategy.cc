@@ -10,8 +10,8 @@
 #include "LinearLiftingStrategy.h"
 
 LinearLiftingStrategy::LinearLiftingStrategy(
-    const ParityGame &game, bool backward, bool alternate )
-    : LiftingStrategy(game), backward_(backward), alternate_(alternate),
+    const ParityGame &game, bool alternate )
+    : LiftingStrategy(game), alternate_(alternate),
       dir_(0), vertex_(NO_VERTEX), failed_lifts_(0)
 {
     max_failed_ = game.graph().V();
@@ -38,9 +38,8 @@ verti LinearLiftingStrategy::next()
 
     if (vertex_ == NO_VERTEX)
     {
-        // First vertex; pick either first or last depending on direction.
-        dir_ = backward_;
-        vertex_ = dir_ ? last_vertex : 0;
+        dir_ = 0;
+        vertex_ = 0;
     }
     else
     if (dir_ == 0)  // forward
@@ -84,5 +83,5 @@ LiftingStrategy *LinearLiftingStrategyFactory::create(
     const ParityGame &game, const SmallProgressMeasures &spm )
 {
     (void)spm;  // unused
-    return new LinearLiftingStrategy(game, backward_, alternate_);
+    return new LinearLiftingStrategy(game, alternate_);
 }

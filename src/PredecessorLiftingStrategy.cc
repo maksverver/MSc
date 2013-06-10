@@ -11,9 +11,8 @@
 #include "assert.h"
 
 PredecessorLiftingStrategy::PredecessorLiftingStrategy(
-    const ParityGame &game, const SmallProgressMeasures &spm,
-    bool backward, bool stack )
-    : LiftingStrategy(game), spm_(spm), backward_(backward), stack_(stack)
+    const ParityGame &game, const SmallProgressMeasures &spm, bool stack )
+    : LiftingStrategy(game), spm_(spm), stack_(stack)
 {
     assert(graph_.edge_dir() & StaticGraph::EDGE_PREDECESSOR);
 
@@ -23,10 +22,7 @@ PredecessorLiftingStrategy::PredecessorLiftingStrategy(
     queue_ = new verti[V];
     queue_capacity_ = V;
     queue_begin_ = queue_end_ = queue_size_ = 0;
-    for (verti i = 0; i < V; ++i)
-    {
-        queue_vertex(backward ? V - 1 - i : i);
-    }
+    for (verti v = 0; v < V; ++v) queue_vertex(v);
 }
 
 PredecessorLiftingStrategy::~PredecessorLiftingStrategy()
@@ -80,9 +76,8 @@ verti PredecessorLiftingStrategy::next()
 }
 
 PredecessorLiftingStrategy2::PredecessorLiftingStrategy2(
-    const ParityGame &game, const SmallProgressMeasures &spm,
-    bool backward, bool stack )
-    : LiftingStrategy2(game), spm_(spm), backward_(backward), stack_(stack)
+    const ParityGame &game, const SmallProgressMeasures &spm, bool stack )
+    : LiftingStrategy2(game), spm_(spm), stack_(stack)
 {
     assert(graph_.edge_dir() & StaticGraph::EDGE_PREDECESSOR);
 
@@ -138,11 +133,11 @@ bool PredecessorLiftingStrategyFactory::supports_version(int version)
 LiftingStrategy *PredecessorLiftingStrategyFactory::create(
     const ParityGame &game, const SmallProgressMeasures &spm )
 {
-    return new PredecessorLiftingStrategy(game, spm, backward_, stack_);
+    return new PredecessorLiftingStrategy(game, spm, stack_);
 }
 
 LiftingStrategy2 *PredecessorLiftingStrategyFactory::create2(
     const ParityGame &game, const SmallProgressMeasures &spm )
 {
-    return new PredecessorLiftingStrategy2(game, spm, backward_, stack_);
+    return new PredecessorLiftingStrategy2(game, spm, stack_);
 }

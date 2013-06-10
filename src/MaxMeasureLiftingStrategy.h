@@ -35,7 +35,7 @@ public:
 
     MaxMeasureLiftingStrategy2( const ParityGame &game,
                                 const SmallProgressMeasures &spm,
-                                bool backward, Order order );
+                                Order order );
     ~MaxMeasureLiftingStrategy2();
 
     void push(verti v);
@@ -87,9 +87,9 @@ private:
 class MaxMeasureLiftingStrategyFactory : public LiftingStrategyFactory
 {
 public:
-    MaxMeasureLiftingStrategyFactory( bool backward = false,
-        MaxMeasureLiftingStrategy2::Order order = MaxMeasureLiftingStrategy2::HEAP )
-        : backward_(backward), order_(order) { };
+    MaxMeasureLiftingStrategyFactory( MaxMeasureLiftingStrategy2::Order order
+                                        = MaxMeasureLiftingStrategy2::HEAP )
+        : order_(order) { };
 
     bool supports_version(int version);
 
@@ -100,7 +100,6 @@ public:
                                const SmallProgressMeasures &spm );
 
 private:
-    const bool backward_;
     const MaxMeasureLiftingStrategy2::Order order_;
 };
 

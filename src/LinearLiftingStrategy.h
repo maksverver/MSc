@@ -17,11 +17,6 @@
     A simple lifting strategy that attempts to lift vertices in order and stops
     when no more vertices can be lifted.
 
-    The initial direction in in which vertices are selected for lifting can
-    be selected (either "forward" or "backward" for increasing or decreasing
-    vertex indices) as well as whether the direction should be reversed at
-    every iteration.
-
     The Multi-Core Solver for Parity Games paper calls this "Swiping", but
     only examines forward, non-reversing order.
 */
@@ -29,15 +24,13 @@
 class LinearLiftingStrategy : public LiftingStrategy
 {
 public:
-    LinearLiftingStrategy(const ParityGame &game, bool backward, bool alternate);
+    LinearLiftingStrategy(const ParityGame &game, bool alternate);
     void lifted(verti v);
     verti next();
 
-    bool backward() const { return backward_; }
     bool alternate() const { return alternate_; }
 
 private:
-    const bool backward_;       //!< initial direction of iteration
     const bool alternate_;      //!< alternate direction after each pass
     bool dir_;                  //!< current direction of iteration
     verti vertex_;              //!< next vertex to lift
@@ -50,15 +43,15 @@ private:
 class LinearLiftingStrategyFactory : public LiftingStrategyFactory
 {
 public:
-    LinearLiftingStrategyFactory(bool backward = false, bool alternate = false)
-        : backward_(backward), alternate_(alternate) { };
+    LinearLiftingStrategyFactory(bool alternate = false)
+        : alternate_(alternate) { };
 
     //! Return a new LinearLiftingStrategy instance.
     LiftingStrategy *create( const ParityGame &game,
                              const SmallProgressMeasures &spm );
 
 private:
-    const bool backward_, alternate_;
+    const bool alternate_;
 };
 
 #endif /* ndef LINEAR_LIFTING_STRATEGY_H_INCLUDED */

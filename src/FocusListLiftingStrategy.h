@@ -44,18 +44,16 @@ class FocusListLiftingStrategy : public LiftingStrategy, public virtual Logger
 public:
     /*! Constructor.
 
-        \param backward     passed to the LinearLiftingStrategy constructor.
         \param alternate    passed to the LinearLiftingStrategy constructor.
         \param max_size     maximum size of the focus list.
         \param max_lifts    maximum number of lifts per second phase.
     */
-    FocusListLiftingStrategy( const ParityGame &game,
-        bool backward, bool alternate, verti max_size, long long max_lifts );
+    FocusListLiftingStrategy( const ParityGame &game, bool alternate,
+                              verti max_size, long long max_lifts );
 
     void lifted(verti vertex);
     verti next();
 
-    bool backward() const { return lls_.backward(); }
     bool max_size() const { return focus_list_.capacity(); }
 
 protected:
@@ -86,7 +84,6 @@ class FocusListLiftingStrategyFactory : public LiftingStrategyFactory
 public:
     /*! Constructor.
 
-        \param backward     passed to the LinearLiftingStrategy constructor.
         \param alternate    passed to the LinearLiftingStrategy constructor.
         \param size_ratio   determines the maximum size of the focus list.
             If greater than 1, it is used as the focus list size. If between 0
@@ -98,9 +95,9 @@ public:
 
         \see FocusListLiftingStrategy::FocusListLiftingStrategy()
     */
-    FocusListLiftingStrategyFactory( bool backward, bool alternate,
-            double size_ratio = 0, double lift_ratio = 0 )
-        : backward_(backward), alternate_(alternate),
+    FocusListLiftingStrategyFactory(
+            bool alternate, double size_ratio = 0, double lift_ratio = 0 )
+        : alternate_(alternate),
           size_ratio_(size_ratio > 0 ? size_ratio :  0.1),
           lift_ratio_(lift_ratio > 0 ? lift_ratio : 10.0) { };
 
@@ -109,7 +106,7 @@ public:
                              const SmallProgressMeasures &spm );
 
 private:
-    const bool   backward_, alternate_;
+    const bool   alternate_;
     const double size_ratio_, lift_ratio_;
 };
 

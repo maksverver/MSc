@@ -16,8 +16,7 @@
 /* TODO: write short description of how this works! */
 
 MaxMeasureLiftingStrategy2::MaxMeasureLiftingStrategy2(
-    const ParityGame &game, const SmallProgressMeasures &spm,
-    bool backward, Order order )
+    const ParityGame &game, const SmallProgressMeasures &spm, Order order )
         : LiftingStrategy2(game), spm_(spm), order_(order), next_id_(0),
           insert_id_(order < HEAP ? new compat_uint64_t[graph_.V()] : NULL),
           pq_pos_(new verti[graph_.V()]), pq_(new verti[graph_.V()]),
@@ -214,5 +213,5 @@ LiftingStrategy *MaxMeasureLiftingStrategyFactory::create(
 LiftingStrategy2 *MaxMeasureLiftingStrategyFactory::create2(
     const ParityGame &game, const SmallProgressMeasures &spm )
 {
-    return new MaxMeasureLiftingStrategy2(game, spm, backward_, order_);
+    return new MaxMeasureLiftingStrategy2(game, spm, order_);
 }

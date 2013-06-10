@@ -37,21 +37,15 @@ public:
 
         If `stack` is set to true, vertices are removed in last-in-first-out
         order (instead of the default first-in-first-out order).
-
-        If `backward` is set to true, initial nodes are pushed in the queue
-        backward (for a stack, this actually causes the nodes to be extracted
-        in forward order instead of in reverse).
     */
-    PredecessorLiftingStrategy( const ParityGame &game,
-                                const SmallProgressMeasures &spm,
-                                bool backward, bool stack);
+    PredecessorLiftingStrategy(
+        const ParityGame &game, const SmallProgressMeasures &spm, bool stack );
     ~PredecessorLiftingStrategy();
 
     // v1 API
     void lifted(verti v);
     verti next();
 
-    bool backward() const { return backward_; }
     bool stack() const { return stack_; }
 
 protected:
@@ -59,7 +53,6 @@ protected:
 
 private:
     const SmallProgressMeasures &spm_;
-    const bool backward_;
     const bool stack_;
     bool *queued_;
     verti *queue_;
@@ -73,14 +66,9 @@ public:
 
         If `stack` is set to true, vertices are removed in last-in-first-out
         order (instead of the default first-in-first-out order).
-
-        If `backward` is set to true, initial nodes are pushed in the queue
-        backward (for a stack, this actually causes the nodes to be extracted
-        in forward order instead of in reverse).
     */
-    PredecessorLiftingStrategy2( const ParityGame &game,
-                                const SmallProgressMeasures &spm,
-                                bool backward, bool stack );
+    PredecessorLiftingStrategy2(
+        const ParityGame &game, const SmallProgressMeasures &spm, bool stack );
     ~PredecessorLiftingStrategy2();
 
     // v2 API
@@ -88,12 +76,10 @@ public:
     verti pop();
     void bump(verti vertex) { }
 
-    bool backward() const { return backward_; }
     bool stack() const { return stack_; }
 
 private:
     const SmallProgressMeasures &spm_;
-    const bool backward_;
     const bool stack_;
     verti *queue_;
     size_t queue_size_, queue_capacity_, queue_begin_, queue_end_;
@@ -104,8 +90,7 @@ private:
 class PredecessorLiftingStrategyFactory : public LiftingStrategyFactory
 {
 public:
-    PredecessorLiftingStrategyFactory(bool backward = false, bool stack = false)
-        : backward_(backward), stack_(stack) { };
+    PredecessorLiftingStrategyFactory(bool stack = false) : stack_(stack) { };
 
     bool supports_version(int version);
     LiftingStrategy *create( const ParityGame &game,
@@ -114,7 +99,7 @@ public:
                                const SmallProgressMeasures &spm );
 
 private:
-    const bool backward_, stack_;
+    const bool stack_;
 };
 
 #endif /* ndef PREDECESSOR_LIFTING_STRATEGY_H_INCLUDED */
