@@ -21,21 +21,22 @@ class SmallProgressMeasures;
     Lifting strategies for the Small Progress Measures solving algorithm.
 */
 
+
 /*! \ingroup LiftingStrategies
+
+    Version 1 API for lifting strategies.
 
     Instances of this class encapsulate vertex lifting strategies to be used
     with the small progress measures parity game solver.
+
+    These are expected to initialize and maintain the set of dirty vertices
+    themselves, and inform the SPM implementation when the set becomes empty by
+    returning NO_VERTEX from next().
 */
 class LiftingStrategy
 {
 public:
-
-    /*! Construct a strategy for the given parity game. */
-    LiftingStrategy(const ParityGame &game)
-        : graph_(game.graph()), game_(game) { };
-
-    /*! Destroy the strategy */
-    virtual ~LiftingStrategy() { };
+    virtual ~LiftingStrategy() { }
 
     /*! Record that the given vertex was lifted: */
     virtual void lifted(verti vertex) = 0;
@@ -47,29 +48,32 @@ public:
         \see lifted(verti vertex)
     */
     virtual verti next() = 0;
-
-protected:
-    const StaticGraph &graph_;          //!< the game graph to work on
-    const ParityGame &game_;            //!< the parity game to work on
 };
 
+
+/*! \ingroup LiftingStrategies
+
+    Version 2 API for lifting strategies.
+
+    Instances of this class encapsulate vertex lifting strategies to be used
+    with the small progress measures parity game solver.
+
+    The SPM implementation manages the set of dirty vertices; it will call
+    push() to add a vertex to the set, pop() to remove one (which one is at the
+    discretion of the lifting strategy implementation) and bump() when an
+    already-queued vertex's progress measure has been increased.
+*/
 class LiftingStrategy2
 {
 public:
+    virtual ~LiftingStrategy2() { }
 
-    LiftingStrategy2(const ParityGame &game)
-        : graph_(game.graph()), game_(game) { };
-
-    virtual ~LiftingStrategy2() { };
-
+    // TODO: document each separately like LiftingStrategy above
     virtual void push(verti vertex) = 0;
     virtual void bump(verti vertex) = 0;
     virtual verti pop() = 0;
-
-protected:
-    const StaticGraph &graph_;          //!< the game graph to work on
-    const ParityGame &game_;            //!< the parity game to work on
 };
+
 
 /*! \ingroup LiftingStrategies
     Abstract base class for lifting strategy factories. */

@@ -11,89 +11,45 @@
 #include "assert.h"
 
 PredecessorLiftingStrategy::PredecessorLiftingStrategy(
-    const ParityGame &game, const SmallProgressMeasures &spm, bool stack )
-    : LiftingStrategy(game), spm_(spm), stack_(stack)
+    const ParityGame &game, const SmallProgressMeasures &spm,
+    bool stack, int version )
+    : LiftingStrategy(), LiftingStrategy2(), spm_(spm), stack_(stack)
 {
-    assert(graph_.edge_dir() & StaticGraph::EDGE_PREDECESSOR);
+    assert(game.graph().edge_dir() & StaticGraph::EDGE_PREDECESSOR);
 
     // Initialize data
     const verti V = game.graph().V();
-    queued_ = new bool[V]();
     queue_ = new verti[V];
     queue_capacity_ = V;
     queue_begin_ = queue_end_ = queue_size_ = 0;
-    for (verti v = 0; v < V; ++v) queue_vertex(v);
+
+    if (version == 1)
+    {
+        // v1 API requires explicit tracking of queued vertices.
+        queued_ = new bool[V]();
+        for (verti v = 0; v < V; ++v)
+        {
+            if (!spm_.is_top(v))
+            {
+                queued_[v] = true;
+                push(v);
+            }
+        }
+    }
+    else  // version != 1
+    {
+        assert(version == 2);
+        queued_ = NULL;
+    }
 }
 
 PredecessorLiftingStrategy::~PredecessorLiftingStrategy()
 {
+    delete[] queue_;
     delete[] queued_;
-    delete[] queue_;
 }
 
-void PredecessorLiftingStrategy::queue_vertex(verti v)
-{
-    if (!queued_[v] && !spm_.is_top(v))
-    {
-        queued_[v] = true;
-        queue_[queue_end_++] = v;
-        if (queue_end_ == queue_capacity_) queue_end_ = 0;
-        ++queue_size_;
-        assert(queue_size_ <= queue_capacity_);
-    }
-}
-
-void PredecessorLiftingStrategy::lifted(verti v)
-{
-    for ( StaticGraph::const_iterator it = graph_.pred_begin(v);
-          it != graph_.pred_end(v); ++it )
-    {
-        queue_vertex(*it);
-    }
-}
-
-verti PredecessorLiftingStrategy::next()
-{
-    if (queue_size_ == 0) return NO_VERTEX;
-
-    // Remove an element from the queue
-    verti res;
-    if (stack_)
-    {
-        // Remove from the back of the queue
-        if (queue_end_ == 0) queue_end_ = queue_capacity_;
-        res = queue_[--queue_end_];
-    }
-    else
-    {
-        // Remove from the front of the queue
-        res = queue_[queue_begin_++];
-        if (queue_begin_ == queue_capacity_) queue_begin_ = 0;
-    }
-    --queue_size_;
-    queued_[res] = false;
-    return res;
-}
-
-PredecessorLiftingStrategy2::PredecessorLiftingStrategy2(
-    const ParityGame &game, const SmallProgressMeasures &spm, bool stack )
-    : LiftingStrategy2(game), spm_(spm), stack_(stack)
-{
-    assert(graph_.edge_dir() & StaticGraph::EDGE_PREDECESSOR);
-
-    // Initialize data
-    const verti V = game.graph().V();
-    queue_ = new verti[V];
-    queue_capacity_ = V;
-    queue_begin_ = queue_end_ = queue_size_ = 0;
-}
-
-PredecessorLiftingStrategy2::~PredecessorLiftingStrategy2()
-{
-    delete[] queue_;
-}
-
-void PredecessorLiftingStrategy2::push(verti v)
+void PredecessorLiftingStrategy::push(verti v)
 {
     Logger::debug("push(%d)", v);
     queue_[queue_end_++] = v;
@@ -102,7 +58,7 @@ void PredecessorLiftingStrategy2::push(verti v)
     assert(queue_size_ <= queue_capacity_);
 }
 
-verti PredecessorLiftingStrategy2::pop()
+verti PredecessorLiftingStrategy::pop()
 {
     if (queue_size_ == 0) return NO_VERTEX;
 
@@ -125,6 +81,28 @@ verti PredecessorLiftingStrategy2::pop()
     return res;
 }
 
+void PredecessorLiftingStrategy::lifted(verti v)
+{
+    const StaticGraph &graph = spm_.game().graph();
+    for ( StaticGraph::const_iterator it = graph.pred_begin(v);
+          it != graph.pred_end(v); ++it )
+    {
+        verti u = *it;
+        if (!queued_[u] && !spm_.is_top(u))
+        {
+            queued_[u] = true;
+            push(u);
+        }
+    }
+}
+
+verti PredecessorLiftingStrategy::next()
+{
+    verti res = pop();
+    if (res != NO_VERTEX) queued_[res] = false;
+    return res;
+}
+
 bool PredecessorLiftingStrategyFactory::supports_version(int version)
 {
     return version == 1 || version == 2;
@@ -133,11 +111,11 @@ bool PredecessorLiftingStrategyFactory::supports_version(int version)
 LiftingStrategy *PredecessorLiftingStrategyFactory::create(
     const ParityGame &game, const SmallProgressMeasures &spm )
 {
-    return new PredecessorLiftingStrategy(game, spm, stack_);
+    return new PredecessorLiftingStrategy(game, spm, stack_, 1);
 }
 
 LiftingStrategy2 *PredecessorLiftingStrategyFactory::create2(
     const ParityGame &game, const SmallProgressMeasures &spm )
 {
-    return new PredecessorLiftingStrategy2(game, spm, stack_);
+    return new PredecessorLiftingStrategy(game, spm, stack_, 2);
 }

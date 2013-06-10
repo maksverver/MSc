@@ -31,7 +31,7 @@ class LinPredLiftingStrategy : public LiftingStrategy
 public:
     LinPredLiftingStrategy( const ParityGame &game,
                             const SmallProgressMeasures &spm )
-        : LiftingStrategy(game)
+        : LiftingStrategy(), graph_(game.graph())
     {
         (void)spm;  // unused
         cur_queue.reserve(graph_.V());
@@ -61,6 +61,9 @@ public:
     }
 
 private:
+    //! Graph for the game being solved.
+    const StaticGraph &graph_;
+
     //! List of vertices to be lifted in the current pass.
     std::vector<verti> cur_queue;
 

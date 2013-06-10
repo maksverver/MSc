@@ -17,12 +17,12 @@
 
 MaxMeasureLiftingStrategy2::MaxMeasureLiftingStrategy2(
     const ParityGame &game, const SmallProgressMeasures &spm, Order order )
-        : LiftingStrategy2(game), spm_(spm), order_(order), next_id_(0),
-          insert_id_(order < HEAP ? new compat_uint64_t[graph_.V()] : NULL),
-          pq_pos_(new verti[graph_.V()]), pq_(new verti[graph_.V()]),
-          pq_size_(0)
+        : LiftingStrategy2(), spm_(spm), order_(order), next_id_(0),
+          insert_id_(order < HEAP ? new compat_uint64_t[game.graph().V()] : 0),
+          pq_pos_(new verti[game.graph().V()]),
+          pq_(new verti[game.graph().V()]), pq_size_(0)
 {
-    std::fill(&pq_pos_[0], &pq_pos_[graph_.V()], NO_VERTEX);
+    std::fill(&pq_pos_[0], &pq_pos_[game.graph().V()], NO_VERTEX);
 }
 
 MaxMeasureLiftingStrategy2::~MaxMeasureLiftingStrategy2()
@@ -35,7 +35,7 @@ MaxMeasureLiftingStrategy2::~MaxMeasureLiftingStrategy2()
 void MaxMeasureLiftingStrategy2::move_up(verti i)
 {
     // FIXME: this can be implemented with less swapping if I think harder.
-    for (verti  j; i > 0 && cmp(i, j = (i - 1)/2) > 0; i = j) swap(i, j);
+    for (verti j; i > 0 && cmp(i, j = (i - 1)/2) > 0; i = j) swap(i, j);
 }
 
 void MaxMeasureLiftingStrategy2::move_down(verti i)
@@ -188,7 +188,8 @@ bool MaxMeasureLiftingStrategy2::check()
         if (pq_pos_[pq_[i]] != i) return false;
     }
 
-    for (verti v = 0; v < graph_.V(); ++v)
+    const verti V = spm_.game().graph().V();
+    for (verti v = 0; v < V; ++v)
     {
         if (pq_pos_[v] != NO_VERTEX)
         {

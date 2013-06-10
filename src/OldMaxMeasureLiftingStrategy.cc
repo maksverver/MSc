@@ -16,10 +16,11 @@
 
 OldMaxMeasureLiftingStrategy::OldMaxMeasureLiftingStrategy(
     const ParityGame &game, const SmallProgressMeasures &spm )
-        : LiftingStrategy(game), spm_(spm), queue_pos_(graph_.V(), queue_.end())
+        : LiftingStrategy(), spm_(spm),
+          queue_pos_(game.graph().V(), queue_.end())
 {
     // Initialize queue
-    for (verti v = 0; v < graph_.V(); ++v)
+    for (verti v = 0; v < game.graph().V(); ++v)
     {
         queue_pos_[v] =
             queue_.insert(std::make_pair(std::vector<verti>(), v)).first;
@@ -35,8 +36,9 @@ void OldMaxMeasureLiftingStrategy::lifted(verti v)
     std::vector<verti> m = vec(v);
 
     // Add predecessors to queue
-    for ( StaticGraph::const_iterator it = graph_.pred_begin(v);
-          it != graph_.pred_end(v); ++it )
+    const StaticGraph &graph = spm_.game().graph();
+    for ( StaticGraph::const_iterator it = graph.pred_begin(v);
+          it != graph.pred_end(v); ++it )
     {
         verti u = *it;
         queue_t::iterator it1 = queue_pos_[u];

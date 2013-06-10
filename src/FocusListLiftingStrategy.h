@@ -63,6 +63,8 @@ protected:
 private:
     typedef std::vector<std::pair<verti, unsigned> > focus_list;
 
+    const verti V_;                     //!< game graph vertex count
+
     long long max_lift_attempts_;       //!< maximum lift attempts per list
     int phase_;                         //!< current phase
     long long num_lift_attempts_;       //!< number of consecutive lift attempts

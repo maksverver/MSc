@@ -33,6 +33,7 @@ public:
 private:
     const bool alternate_;      //!< alternate direction after each pass
     bool dir_;                  //!< current direction of iteration
+    const verti last_vertex_;   //!< last vertex index
     verti vertex_;              //!< next vertex to lift
     verti failed_lifts_;        //!< number of consecutive failed lift attempts
     verti max_failed_;          //!< max. failures possible in unsolved game

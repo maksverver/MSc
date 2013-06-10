@@ -11,8 +11,8 @@
 
 LinearLiftingStrategy::LinearLiftingStrategy(
     const ParityGame &game, bool alternate )
-    : LiftingStrategy(game), alternate_(alternate),
-      dir_(0), vertex_(NO_VERTEX), failed_lifts_(0)
+    : LiftingStrategy(), alternate_(alternate), dir_(0),
+      last_vertex_(game.graph().V() - 1), vertex_(NO_VERTEX), failed_lifts_(0)
 {
     max_failed_ = game.graph().V();
     if (alternate_) max_failed_ += max_failed_ - 1;
@@ -33,8 +33,7 @@ verti LinearLiftingStrategy::next()
     }
     ++failed_lifts_;
 
-    const verti last_vertex = graph_.V() - 1;
-    if (last_vertex == 0) return 0;
+    if (last_vertex_ == 0) return 0;
 
     if (vertex_ == NO_VERTEX)
     {
@@ -44,7 +43,7 @@ verti LinearLiftingStrategy::next()
     else
     if (dir_ == 0)  // forward
     {
-        if (vertex_ < last_vertex)
+        if (vertex_ < last_vertex_)
         {
             ++vertex_;
         }
@@ -68,7 +67,7 @@ verti LinearLiftingStrategy::next()
         else
         if (!alternate_)
         {
-            vertex_ = last_vertex;
+            vertex_ = last_vertex_;
         }
         else
         {

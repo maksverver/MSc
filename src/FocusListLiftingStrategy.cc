@@ -19,7 +19,7 @@ static const unsigned credit_increase = 2;
 
 FocusListLiftingStrategy::FocusListLiftingStrategy( const ParityGame &game,
     bool alternate, verti max_size, long long max_lifts )
-    : LiftingStrategy(game), max_lift_attempts_(max_lifts),
+    : LiftingStrategy(), V_(game.graph().V()), max_lift_attempts_(max_lifts),
       phase_(1), num_lift_attempts_(0), lls_(game, alternate)
 {
     focus_list_.reserve(max_size);
@@ -51,11 +51,11 @@ verti FocusListLiftingStrategy::next()
 verti FocusListLiftingStrategy::phase1()
 {
     if (focus_list_.size() == focus_list_.capacity() ||
-        num_lift_attempts_ >= graph_.V())
+        num_lift_attempts_ >= V_)
     {
         if (focus_list_.empty())
         {
-            /* This can only happen if lls_.num_failed >= graph_.V() too */
+            /* This can only happen if lls_.num_failed >= V too */
             assert(lls_.next() == NO_VERTEX);
             return NO_VERTEX;
         }
