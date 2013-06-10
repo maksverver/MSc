@@ -91,7 +91,8 @@ public:
         MaxMeasureLiftingStrategy2::Order order = MaxMeasureLiftingStrategy2::HEAP )
         : backward_(backward), order_(order) { };
 
-    //! Return a new MaxMeasureLiftingStrategy instance. 
+    bool supports_version(int version);
+
     LiftingStrategy *create( const ParityGame &game,
                              const SmallProgressMeasures &spm );
 

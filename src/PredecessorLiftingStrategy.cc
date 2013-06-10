@@ -130,6 +130,11 @@ verti PredecessorLiftingStrategy2::pop()
     return res;
 }
 
+bool PredecessorLiftingStrategyFactory::supports_version(int version)
+{
+    return version == 1 || version == 2;
+}
+
 LiftingStrategy *PredecessorLiftingStrategyFactory::create(
     const ParityGame &game, const SmallProgressMeasures &spm )
 {

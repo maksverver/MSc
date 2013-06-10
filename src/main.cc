@@ -934,7 +934,8 @@ int main(int argc, char *argv[])
         // Allocate lifting strategy:
         if (!arg_spm_lifting_strategy.empty())
         {
-            Logger::message("## config.solver = spm");
+            Logger::message("## config.solver = %s",
+                            arg_spm_version < 2 ? "spm" : "spm2");
             Logger::message("## config.spm.alternate = %s",
                             bool_to_string(arg_alternate));
             Logger::message("## config.spm.strategy = %s",
@@ -949,6 +950,14 @@ int main(int argc, char *argv[])
             {
                 Logger::fatal( "Invalid lifting strategy description: %s",
                                arg_spm_lifting_strategy.c_str() );
+            }
+
+            if (!spm_strategy->supports_version(arg_spm_version))
+            {
+                Logger::fatal( "Lifting strategy does not SPM version %d. "
+                                "(Try %s %s instead.)", arg_spm_version,
+                                arg_spm_version == 1 ? "-L" : "-l",
+                                arg_spm_lifting_strategy.c_str() );
             }
 
             if (arg_collect_stats)

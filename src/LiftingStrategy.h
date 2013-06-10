@@ -88,6 +88,8 @@ public:
     \see usage() for a description of available format strings. */
     static LiftingStrategyFactory *create(const std::string &description);
 
+    virtual bool supports_version(int version) { return version == 1; }
+
     /*! Create a lifting strategy for the given game, to be used by the given
         Small Progress Measures solver. */
     virtual LiftingStrategy *create( const ParityGame &game,

@@ -107,7 +107,7 @@ public:
     PredecessorLiftingStrategyFactory(bool backward = false, bool stack = false)
         : backward_(backward), stack_(stack) { };
 
-    //! Returns a new PredecessorLiftingStrategy instance.
+    bool supports_version(int version);
     LiftingStrategy *create( const ParityGame &game,
                              const SmallProgressMeasures &spm );
     LiftingStrategy2 *create2( const ParityGame &game,

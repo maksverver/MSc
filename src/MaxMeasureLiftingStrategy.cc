@@ -200,6 +200,11 @@ bool MaxMeasureLiftingStrategy2::check()
     return true;
 }
 
+bool MaxMeasureLiftingStrategyFactory::supports_version(int version)
+{
+    return version == 2;
+}
+
 LiftingStrategy *MaxMeasureLiftingStrategyFactory::create(
     const ParityGame &game, const SmallProgressMeasures &spm )
 {
