@@ -123,7 +123,7 @@ verti MaxMeasureLiftingStrategy2::pop()
     if (!bumped_.empty())
     {
         // Move bumped vertices up into the heap.
-        std::sort(bumped_.begin(), bumped_.end(), compare_heap_level);
+        std::sort(bumped_.begin(), bumped_.end());
         for (size_t i = 0; i < bumped_.size(); ++i)
         {
             if (i == 0 || bumped_[i] > bumped_[i - 1]) move_up(bumped_[i]);
