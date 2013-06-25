@@ -14,7 +14,7 @@
 \fontencoding global
 \font_roman default
 \font_sans default
-\font_typewriter default
+\font_typewriter beramono
 \font_default_family default
 \use_non_tex_fonts false
 \font_sc false
@@ -1219,14 +1219,14 @@ key "jurdzinski2006deterministic"
 \end_layout
 
 \begin_layout Itemize
-A “big steps” improvement of the recursive algorithm by Schewe 
+A “big steps” improvement by Schewe 
 \begin_inset CommandInset citation
 LatexCommand cite
 key "schewe2007solving"
 
 \end_inset
 
-
+ that combines both McNaughton's and Jurdziński's algorithms
 \end_layout
 
 \begin_layout Itemize
@@ -5975,6 +5975,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset listings
+lstparams "basicstyle={\footnotesize\ttfamily},language={C++},numbers=left,tabsize=4"
 inline false
 status open
 
@@ -5985,42 +5986,52 @@ for (verti v = 0; v < V; ++v) {
 
 \begin_layout Plain Layout
 
-  if (is_top(v)) {
+	if (is_top(v)) {
 \end_layout
 
 \begin_layout Plain Layout
 
-     // strategy may not be valid for top vertices!
+		stable[v] = true;
 \end_layout
 
 \begin_layout Plain Layout
 
-    stable_[v] = true;
+	} else {
 \end_layout
 
 \begin_layout Plain Layout
 
-  } else {
+		if v is controlled by Even:
 \end_layout
 
 \begin_layout Plain Layout
 
-    strategy_[v] = get_ext_succ(v, take_max(v));
+			strategy[v] = minimum successor
 \end_layout
 
 \begin_layout Plain Layout
 
-    stable_[v]   = !(spm[v] <? spm[strategy[v]])
+		else:
 \end_layout
 
 \begin_layout Plain Layout
 
-    if (!stable[v]) q.push(v);
+			strategy[v] = maximum successor
 \end_layout
 
 \begin_layout Plain Layout
 
-  }
+		stable[v]  = !(spm[v] <? spm[strategy[v]])
+\end_layout
+
+\begin_layout Plain Layout
+
+		if (!stable[v]) q.push(v);
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
 \end_layout
 
 \begin_layout Plain Layout
@@ -6044,67 +6055,67 @@ while (!queue.empy())
 
 \begin_layout Plain Layout
 
-    verti w = queue.pop()
+	verti w = queue.pop()
 \end_layout
 
 \begin_layout Plain Layout
 
-    for each predecessor v:
+	for each predecessor v:
 \end_layout
 
 \begin_layout Plain Layout
 
-       if v is not top:
+		if v is not top:
 \end_layout
 
 \begin_layout Plain Layout
 
-           if v controlled by Even:
+			if v controlled by Even:
 \end_layout
 
 \begin_layout Plain Layout
 
-                if strategy[v] = w:
+				if strategy[v] = w:
 \end_layout
 
 \begin_layout Plain Layout
 
-                    strategy[v] = get_min_succ(v)
+					strategy[v] = get_min_succ(v)
 \end_layout
 
 \begin_layout Plain Layout
 
-                    stable[v] = !(spm[v] <? spm[strategy[v]])
+					stable[v] = !(spm[v] <? spm[strategy[v]])
 \end_layout
 
 \begin_layout Plain Layout
 
-           if v is controlled by Odd:
+			if v is controlled by Odd:
 \end_layout
 
 \begin_layout Plain Layout
 
-                if strategy[v] = w or spm[w] > spm[strategy[v]]:
+				if strategy[v] = w or spm[w] > spm[strategy[v]]:
 \end_layout
 
 \begin_layout Plain Layout
 
-                    strategy[v] = w
+					strategy[v] = w
 \end_layout
 
 \begin_layout Plain Layout
 
-                    stable[v] = !(spm[v] <? spm[strategy[v]])
+					stable[v] = !(spm[v] <? spm[strategy[v]])
 \end_layout
 
 \begin_layout Plain Layout
 
-           if !stable[v]:
+			if !stable[v]:
 \end_layout
 
 \begin_layout Plain Layout
 
-                 queue.push(v)
+				queue.push(v)
 \end_layout
 
 \begin_layout Plain Layout
@@ -6121,7 +6132,7 @@ while (!queue.empy())
 \begin_inset Caption
 
 \begin_layout Plain Layout
-xxx
+SPMv2 (TODO)
 \end_layout
 
 \end_inset
@@ -6576,13 +6587,23 @@ is this redundant compared to 4.1.4?
 \end_layout
 
 \begin_layout Subsection
-Graph Preprocessing
+Game/Graph Preprocessing
 \end_layout
 
 \begin_layout Standard
-One peculiarity of the Small Progress Measures algorithm is that it may
- spend a lot of time lifting vertices with high priority values which lie
- on a cycle.
+Instead of improving SPM itself, there are a few transformations that can
+ be applied to the parity game before passing it to the solver.
+ These preprocessing operations are intended to be relatively cheap compared
+ to solving the game itself (at least in the worst case).
+\end_layout
+
+\begin_layout Subsubsection
+Loop removal
+\end_layout
+
+\begin_layout Standard
+One peculiarity of Small Progress Measures is that it may spend a lot of
+ time lifting vertices with high priority values which lie on a cycle.
  The most typical example of this is a vertex which is controlled by player
  Odd, has a high, odd priority and a loop as its only edge.
  The final progress measure for such a vertex will obviously be 
@@ -6590,8 +6611,8 @@ One peculiarity of the Small Progress Measures algorithm is that it may
 \end_inset
 
  (since Odd will keep the token at this vertex indefinitely), but its progress
- measure will increase only in small increments, requiring many liftings
- to reach its final value.
+ measure will change only in small increments, requiring many lifts to reach
+ its final value.
 \end_layout
 
 \begin_layout Standard
@@ -6605,31 +6626,10 @@ Something similar occurs for vertices of odd priority which are controlled
  propagation of values from successor vertices through this vertex.
 \end_layout
 
-\begin_layout Subsubsection
-Vertex reordering
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-TO WRITE.
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Subsubsection
-Loop removal
-\end_layout
-
 \begin_layout Standard
 All known implementations of Small Progress Measures do some form of preprocessi
-ng, where such cases are detected and the progress measures of vertices
- won by Odd are set to 
+ng where such cases are detected and the progress measures of vertices won
+ by Odd are set to 
 \begin_inset Formula $\top$
 \end_inset
 
@@ -6989,14 +6989,12 @@ name "tab:SPM-preprocessing"
 (Note that when a vertex has only one outgoing edge, then it can be considered
  to belong to either player; in this case it's most beneficial to assign
  it to the player corresponding to the parity of its priority.) There are
- different ways to use this information.
- The simplest is to remove some of the vertices and initialize the progress
- measure vector to 
+ different ways to use this information; the simplest is to remove the useless
+ edges and initialize the progress measure vector to 
 \begin_inset Formula $\top$
 \end_inset
 
- in the fourth case, and solve the rest of the game as usual.
- This is the approach used by the existing solvers.
+ for the fourth case, and then solve the rest of the game as usual.
 \end_layout
 
 \begin_layout Standard
@@ -7330,6 +7328,66 @@ experiment!
 
 \end_layout
 
+\begin_layout Subsubsection
+Vertex reordering
+\end_layout
+
+\begin_layout Standard
+The vertices of a graph are not intrinsically ordered.
+ However, algorithms that iterate over vertices one by one (such as the
+ linear lifting strategy) must assign some order to the vertices, at least
+ implicitly.
+\end_layout
+
+\begin_layout Standard
+With Small Progress Measures, information is propagated backwards against
+ the direction of edges: when a vertex is lifted, this may cause some of
+ its predecessors to become unstable and suitable for lifting too.
+ As a result, the linear lifting strategy is more efficient when vertices
+ are ordered such that predecessors are lifted after their successors.
+ In order to make such algorithms more efficient, my tool supports several
+ options to reorder vertices before running the solving algorithm:
+\end_layout
+
+\begin_layout Enumerate
+Re-order vertices by depth-first search order.
+\end_layout
+
+\begin_layout Enumerate
+Re-order vertices by breadth-first search order.
+\end_layout
+
+\begin_layout Enumerate
+Reverse the order of vertices.
+\end_layout
+
+\begin_layout Standard
+Reversing the order of vertices is useful when the graph has been constructed
+ in a forward fashion, which occurs for example when exploring a state space
+ explicitly.
+ These reordering operations can also be combined; for example, it may make
+ sense to use reverse search order to maximize the ratio of backward to
+ forward edges.
+\end_layout
+
+\begin_layout Standard
+Although vertex reordering makes little difference in practice, it is a
+ cheap preprocessing pass that is useful to have as an option.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+benchmark
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Subsection
 Two-sided SPM 
 \begin_inset CommandInset label
@@ -7496,20 +7554,58 @@ Friedmann's two-sided approach has the benefit that it is not applied on
  in less time than would be possible starting from either side.
 \end_layout
 
+\begin_layout Standard
+There is some similarity with Schewe's “big step
+\begin_inset Quotes erd
+\end_inset
+
+ approach 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "schewe2007solving"
+
+\end_inset
+
+ to solving parity games, which also tries to find small winning regions
+ first in order to reduce the rest of the problem to simpler terms.
+ The similarity is that both approaches provide a way to avoid “getting
+ stuck” repeatedly lifting vertices by very small increments.
+ Schewe achieves this by using a reduced vector space to find small winning
+ regions, obtaining only a partial solution using Small Progress Measures,
+ and relies on the recursive algorithm (see chapter 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "chap:Zielonka's-Recursive-Algorithm"
+
+\end_inset
+
+) to solve the remainder of the game.
+\end_layout
+
+\begin_layout Standard
+The two-sided approach solves games entirely with Small Progress Measures
+ and is therefore simpler, but doesn't benefit from the theoretical speedup
+ achieved by reducing the vector space.
+ It should be noted however, that in PGSolver the two approaches are combined:
+ the “big steps” solver uses the SPM implementation with the two-sided optimizat
+ion.
+\end_layout
+
 \begin_layout Subsubsection
 Implementation differences
 \end_layout
 
 \begin_layout Standard
-Unfortunately, the implementation in PGSolver is flawed.
- It omits construction of the subgame entirely, even after one of the sides
- is completely solved.
- When a subgame is constructed this reduces the size of the progress measure
- vector space, which can significantly reduce the solving time for a game.
- Therefore, PGSolver suffers from regressions where some games require orders
- of magnitudes more lifting attempts before arriving at a solution, compared
- to the original approach, rather than the overhead being bound by a worst-case
- factor two as expected.
+Unfortunately, there is one flaw in the PGSolver implementation that I tried
+ to rectify in my solver.
+ PGSolver suffers from regressions where some games require orders of magnitudes
+ more lifting attempts before arriving at a solution, compared to the original
+ approach (implemented in older versions), rather than the overhead being
+ bound by a worst-case factor two as expected.
+ This is caused by the fact that PGsolver omits construction of subgames
+ entirely, even after one of the sides is completely solved, and as a result
+ misses out on the reduction in progress measure vector space that can reduce
+ the solving time necessary to solve the harder part of the game.
  The optimization described in subsection 
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -7517,15 +7613,17 @@ reference "sub:Optimization-after-lifting"
 
 \end_inset
 
- and implemented in my solver remedies this.
+ remedies this.
 \end_layout
 
 \begin_layout Standard
-Second, a limitation of the implementation in PGSolver is that it always
- attempts to lift the same vertex in both the normal and dual game.
+Another difference between PGSolver and my implementation is that PGSolver
+ uses a single lifting strategy for both the normal and dual game, and when
+ lifting vertices, recomputes progress measures for both games at once.
  Although that works, it seems plausible that the sets of liftable vertices
  in the normal and dual game will diverge, so it seems more reasonable to
- instantiate separate lifting strategies for the two games.
+ instantiate separate lifting strategies for the two games in order to do
+ more useful work.
 \end_layout
 
 \begin_layout Standard
@@ -7543,8 +7641,9 @@ Finally, in an attempt to propagate information about losing vertices earlier,
 \end_layout
 
 \begin_layout Standard
-Note that the first of these improvements is crucially important, while
- the other two are at best small improvements over Friedmann's implementation.
+Of these three differences, the first is crucial for optimal performance,
+ while the other two are at best small improvements over Friedmann's implementat
+ion.
 \end_layout
 
 \begin_layout Section
@@ -7566,7 +7665,14 @@ Partition graph, process independently, propagate changes at overlapping
 \end_layout
 
 \begin_layout Chapter
-Zielonka's Recursive Algorithm
+Zielonka's Recursive Algorithm 
+\begin_inset CommandInset label
+LatexCommand label
+name "chap:Zielonka's-Recursive-Algorithm"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
