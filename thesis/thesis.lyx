@@ -20,7 +20,7 @@
 \font_sc false
 \font_osf false
 \font_sf_scale 100
-\font_tt_scale 100
+\font_tt_scale 80
 
 \graphics default
 \default_output_format default
@@ -5975,7 +5975,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset listings
-lstparams "basicstyle={\footnotesize\ttfamily},language={C++},numbers=left,tabsize=4"
+lstparams "basicstyle={\small\ttfamily},language={C++},numbers=left,tabsize=4"
 inline false
 status open
 
