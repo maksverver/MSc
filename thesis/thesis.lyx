@@ -8839,6 +8839,152 @@ Copy description of games from log (Sunday 19 December)
 \end_layout
 
 \begin_layout Section
+Benchmark games
+\end_layout
+
+\begin_layout Subsection
+Generating random games 
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Random-games"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+To obtain meaningful results using randomly-generated data, the random graphs
+ used for benchmarking are generated in a way that is intended to withstand
+ at least a few of the most common preprocessing techniques.
+\end_layout
+
+\begin_layout Standard
+Random games are characterized by the size of the vertex set 
+\begin_inset Formula $|V|$
+\end_inset
+
+, the average outdegree (or, equivalently, average indegree), and the number
+ of priorities 
+\begin_inset Formula $d$
+\end_inset
+
+.
+ For each vertex, the outdegree is chosen uniformly at random between 
+\begin_inset Formula $1$
+\end_inset
+
+ and 
+\begin_inset Formula $2\times outdegree-1$
+\end_inset
+
+ (to guarantee each vertex has at least one outgoing edge) and then adjacent
+ vertices are chosen uniformly at random from the vertex set without duplicates
+ and exluding the vertex itself (to exclude the possibility of loops).
+ Finally, a priority for the vertex is chosen uniformly at random between
+ 
+\begin_inset Formula $0$
+\end_inset
+
+ and 
+\begin_inset Formula $d-1$
+\end_inset
+
+ (inclusive).
+\end_layout
+
+\begin_layout Standard
+Graphs generated in this way typically consist of one large, strongly-connected
+ component, and several small (usually single-vertex) components.
+ For very small graphs there is even a risk of disconnecting the game graph
+ entirely! To remedy this, after graph generation, strongly-connected components
+ are identified, and those components that have either no incoming or no
+ outgoing edges (i.e.
+ they lie at the top or bottom of the hierarchy of strongly-connected components
+) are connected to each other in a cycle in random order.
+ This guarantees the output consists of a single, strongly-connected component
+ (at the cost of introducing some extra edges).
+\end_layout
+
+\begin_layout Subsection
+Generating clustered random games 
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Clustered-random-games"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+To create games with a little less uniform graph structure (which more closely
+ resemble instances arising in practice, as well as being somewhat less
+ likely to be solved completely by the cycle-removal preprocessor) it is
+ useful to structure the game graph around clusters of some fixed size.
+ To generate a game with 
+\begin_inset Formula $|V|$
+\end_inset
+
+ vertices and clusters of size 
+\begin_inset Formula $C$
+\end_inset
+
+, first 
+\begin_inset Formula $\left\lfloor \frac{|V|}{C}\right\rfloor $
+\end_inset
+
+ clusters of size 
+\begin_inset Formula $C$
+\end_inset
+
+ are randomly-generated using the procedure described in the previous subsection.
+ Then, clusters are grouped together, at most 
+\begin_inset Formula $C$
+\end_inset
+
+ at a time, and connected together according to a randomly-generated game
+ with the same parameters.
+\end_layout
+
+\begin_layout Standard
+For example, if 
+\begin_inset Formula $|V|=50$
+\end_inset
+
+ and 
+\begin_inset Formula $C=10$
+\end_inset
+
+, then 5 clusters of 10 vertices each are generated, as well as one 5-vertex
+ top-level game that is used to connect these clusters: if there is an edge
+ from, say, vertex 1 to 2 in the top-level game, then an edge is added from
+ a random vertex in the first cluster to a random vertex in the second cluster.
+ If 
+\begin_inset Formula $|V|>C^{2}$
+\end_inset
+
+ then a third level is needed to combine groups of clusters, and so on,
+ for a hierarchy of 
+\begin_inset Formula $\left\lceil ^{C}\log\left|V\right|\right\rceil $
+\end_inset
+
+ levels in the final graph.
+\end_layout
+
+\begin_layout Standard
+Since all games generated were strongly-connected, the combined graph will
+ be strongly-connected as well.
+ However, it does contain somewhat more edges, limited by a factor 
+\begin_inset Formula $\frac{C}{C-1}$
+\end_inset
+
+ (as the sum of a geometric series).
+ Consequently, if few extra edges are desired, the cluster size should not
+ be set too small.
+\end_layout
+
+\begin_layout Section
 Small Progress Measures
 \end_layout
 

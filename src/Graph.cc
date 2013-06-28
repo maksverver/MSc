@@ -141,6 +141,8 @@ void StaticGraph::make_random_scc(edge_list &edges)
             vertis.push_back(sccs[i][rand()%sccs[i].size()]);
         }
     }
+    Logger::debug("Connecting %ld of %ld vertices to create an SCC.",
+                  (long)vertis.size(), (long)V_);
     shuffle_vector(vertis);
     for (verti i = 0; i < sccs.size(); ++i)
     {
