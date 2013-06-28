@@ -4486,6 +4486,78 @@ status open
 \end_layout
 
 \begin_layout Standard
+To talk about lifting strategies and their efficiency, it is useful to establish
+ some terminology.
+ A vertex for which 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+
+\begin_inset Formula $Lift(\rho,v)=\rho$
+\end_inset
+
+ is called stable (with respect to progress measure 
+\begin_inset Formula $\rho$
+\end_inset
+
+), and unstable if 
+\begin_inset Formula $Lift(\rho,v)\neq\rho$
+\end_inset
+
+.
+ A lifting attempt at vertex 
+\begin_inset Formula $v$
+\end_inset
+
+ consists of calculating 
+\begin_inset Formula $Lift(\rho,v)$
+\end_inset
+
+ and is called succesful if 
+\begin_inset Formula $Lift(\rho,v)\neq\rho$
+\end_inset
+
+ (and we can update our progress measure) and unsuccesful (or failed) otherwise.
+ In other words: the set of stable vertices corresponds with the set of
+ vertices at which lifting attempts would succeed.
+ Finally, a vertex is called 
+\family default
+\series default
+\shape default
+\size default
+\emph on
+\bar default
+\strikeout default
+\uuline default
+\uwave default
+\noun default
+\color inherit
+dirty
+\emph default
+ if it has not been lifted since one of its successors has been lifted,
+ and clean otherwise.
+ As a result, unstable vertices are a subset of dirty vertices, and the
+ difference is relevant because most implementations track 
+\emph on
+dirty
+\emph default
+ but not 
+\emph on
+unstable
+\emph default
+ vertices explicitly, and must attempt lifting of dirty vertices to determine
+ whether they are stable or not.
+\end_layout
+
+\begin_layout Standard
 To summarize: a 
 \emph on
 lifting strategy
