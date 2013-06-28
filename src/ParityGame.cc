@@ -66,10 +66,12 @@ void ParityGame::recalculate_cardinalities(verti num_vertices)
     }
 }
 
-void ParityGame::make_random( verti V, unsigned outdeg,
+void ParityGame::make_random( verti V, unsigned clustersize, unsigned outdeg,
                               StaticGraph::EdgeDirection edge_dir, int d )
 {
-    graph_.make_random(V, outdeg, edge_dir);
+    graph_.make_random_clustered(clustersize > 0 ? clustersize : V,
+                                 V, outdeg, edge_dir);
+    if (clustersize > 0) graph_.shuffle_vertices();
     reset(V, d);
     for (verti v = 0; v < V; ++v)
     {
@@ -106,24 +108,12 @@ void ParityGame::shuffle(const std::vector<verti> &perm)
 
     /* NOTE: shuffling could probably be done more efficiently (in-place?)
              if performance becomes an issue. */
-
-    // Create new edge list
-    StaticGraph::edge_list edges;
-    for (verti v = 0; v < graph_.V(); ++v)
-    {
-        for ( StaticGraph::const_iterator it = graph_.succ_begin(v);
-              it != graph_.succ_end(v); ++it )
-        {
-            verti w = *it;
-            edges.push_back(std::make_pair(perm[v], perm[w]));
-        }
-    }
-    graph_.assign(edges, graph_.edge_dir());
+    graph_.shuffle_vertices(perm);
 
     // Create new vertex info
     ParityGameVertex *new_vertex = new ParityGameVertex[graph_.V()];
     for (verti v = 0; v < graph_.V(); ++v) new_vertex[perm[v]] = vertex_[v];
-    delete vertex_;
+    delete[] vertex_;
     vertex_ = new_vertex;
 }
 

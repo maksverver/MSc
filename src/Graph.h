@@ -97,10 +97,46 @@ public:
     void clear();
 
     /*! Generate a random graph (replacing the old contents).
+        The resulting game does not contain loops.
+
         \param V        number of vertices to generate
         \param outdeg   desired average outdegree (at least 1)
-        \param edge_dir which parts of edges to store */
-    void make_random(verti V, unsigned outdeg, EdgeDirection edge_dir);
+        \param edge_dir which parts of edges to store
+        \param scc      create a single strongly-connected component */
+    void make_random(verti V, unsigned outdeg, EdgeDirection edge_dir,
+                     bool scc);
+
+    /*! Generate a random clustered game, which is based on random games of
+        size `cluster_size` each, which are connected recursively by being
+        substituting for the vertices of another game of size `cluster_size`,
+        repeatedly, until a single game remains.
+
+        The resulting game is always a single connected component without loops.
+
+        Passing `V` <= `cluster_size` is equivalent to calling make_random()
+        with `scc` = true. Choosing `V` = `cluster_size`<sup>d</sup>
+        creates a game with recursion depth <em>d</em>.
+
+        @param cluster_size number of vertices per cluster
+        @param V            total number of vertices to generate
+        @param outdeg       average outdegree (at least 1)
+        @param edge_dir     which parts of the edges to store 
+
+        \see make_random
+    */
+    void make_random_clustered(verti cluster_size, verti V,
+                               unsigned outdeg, EdgeDirection edge_dir);
+
+    /*! Randomly shuffles vertex indices.  This is useful to obfuscate some of
+        the structure remaining after make_random_clustered(). */
+    void shuffle_vertices();
+
+    /*! Shuffle vertex indices by the given permutation.
+        Vertex v becomes perm[v], for all v.
+
+        \see ParityGame::shuffle
+    */
+    void shuffle_vertices(const std::vector<verti> &perm);
 
     /*! Reset the graph to a copy of `graph`. */
     void assign(const StaticGraph &graph);
@@ -203,6 +239,11 @@ public:
 #endif
 
 protected:
+    /*! Turn the current graph (with current edge list passed in `edges`) into
+        a strongly connected component by randomly adding edges where necessary.
+    */
+    void make_random_scc(edge_list &edges);
+
     /*! Frees allocated memory and then reallocates memory to store a graph
         with `V` vertices and `E` edges. */
     void reset(verti V, edgei E, EdgeDirection edge_dir);

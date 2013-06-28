@@ -8,11 +8,26 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #include "Graph.h"
+#include "SCC.h"
+#include "Logger.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <algorithm>
 #include <utility>
 #include <vector>
+
+/* Randomly shuffle the given vector.  This is similar to std::random_shuffle
+   except that this uses rand() while the random source for std::random_shuffle
+   is unspecified. */
+template<class T>
+static void shuffle_vector(std::vector<T> &v)
+{
+    size_t n = v.size();
+    for (size_t i = 0; i < n; ++i)
+    {
+        std::swap(v[i], v[i + rand()%(n - i)]);
+    }
+}
 
 StaticGraph::StaticGraph()
     : successors_(NULL), predecessors_(NULL),
@@ -82,8 +97,69 @@ static bool edge_cmp_backward( const std::pair<verti, verti> &a,
     return a.second < b.second || (a.second == b.second && a.first < b.first);
 }
 
-void StaticGraph::make_random(verti V, unsigned outdeg, EdgeDirection edge_dir)
+void StaticGraph::make_random_scc(edge_list &edges)
 {
+    SCCs sccs;
+    decompose_graph(*this, sccs);
+
+    /* If we happen to have a single SCC by luck, we are done too: */
+    if (sccs.size() <= 1) return;
+
+    /* Otherwise, identify `top` and `bottom` components: */
+    std::vector<verti> index(V_, NO_VERTEX);
+    for (verti i = 0; i < sccs.size(); ++i)
+    {
+        const std::vector<verti> scc;
+        for (verti j = 0; j < scc.size(); ++j)
+        {
+            index[scc[j]] = i;
+        }
+    }
+    std::vector<char> is_top(sccs.size(), 1),
+                      is_bot(sccs.size(), 1);
+    for (verti v = 0; v < V_; ++v)
+    {
+        for (const_iterator it = succ_begin(v); it != succ_end(v); ++it)
+        {
+            verti w = *it;
+            if (index[v] != index[w])
+            {
+                is_bot[index[v]] = 0;
+                is_top[index[w]] = 0;
+            }
+        }
+    }
+
+    /* Pick one vertex per SCC at random (excluding SCCs that are neither on top
+       nor at the bottom of the hierarchy) and connect them in a cycle. */
+    // FIXME: this creates more edges than strictly necessary!
+    std::vector<verti> vertis;
+    for (verti i = 0; i < sccs.size(); ++i)
+    {
+        if (is_top[i] || is_bot[i])
+        {
+            vertis.push_back(sccs[i][rand()%sccs[i].size()]);
+        }
+    }
+    shuffle_vector(vertis);
+    for (verti i = 0; i < sccs.size(); ++i)
+    {
+        const verti v = vertis[i],
+                    w = vertis[(i + 1)%sccs.size()];
+        edges.push_back(std::make_pair(v, w));
+    }
+}
+
+void StaticGraph::make_random(verti V, unsigned outdeg, EdgeDirection edge_dir,
+                              bool scc)
+{
+    if (V < 2)
+    {
+        edge_list edges;
+        assign(edges, edge_dir);
+        return;
+    }
+
     /* Some assumptions on the RNG output range: */
     assert(RAND_MAX >= 2*outdeg);
     assert(RAND_MAX >= V);
@@ -97,16 +173,129 @@ void StaticGraph::make_random(verti V, unsigned outdeg, EdgeDirection edge_dir)
     for (verti i = 0; i < V; ++i)
     {
         unsigned N = 1 + rand()%(2*outdeg - 1);
-
-        for (unsigned n = 0; n < N && n < V; ++n)
+        if (N >= V - 1) N = V - 1;
+        for (unsigned n = 0; n < N; ++n)
         {
             std::swap(neighbours[n], neighbours[n + rand()%(V - n)]);
+            if (neighbours[n] == i)  // don't generate loops
+            {
+                std::swap( neighbours[n],
+                           neighbours[n + 1 + rand()%(V - n - 1)] );
+            }
             edges.push_back(std::make_pair(i, neighbours[n]));
         }
     }
 
     /* Create graph from edge set */
     assign(edges, edge_dir);
+
+    if (scc)
+    {
+        /* Turn graph into a single strongly connected component: */
+        make_random_scc(edges);
+        assign(edges, edge_dir);
+#ifdef DEBUG
+        /* Check the resulting graph: */
+        SCCs new_sccs;
+        decompose_graph(*this, new_sccs);
+        assert(new_sccs.size() == 1);
+#endif
+    }
+}
+
+void StaticGraph::make_random_clustered( verti cluster_size, verti V,
+        unsigned outdeg, EdgeDirection edge_dir)
+{
+    assert(cluster_size > 1);
+    size_t clusters = V/cluster_size;
+    if (clusters <= 1)
+    {
+        make_random(V, outdeg, edge_dir, true);
+        return;
+    }
+
+    // Build `clusters` initial random graphs of cluster_size each:
+    StaticGraph *subgraphs = new StaticGraph[clusters];
+    for (size_t i = 0; i < clusters; ++i)
+    {
+        subgraphs[i].make_random( cluster_size + (i < V%cluster_size),
+                                  outdeg, edge_dir, true );
+    }
+
+    // Iteratively merge clusters:
+    for (int i = 0; clusters > 1; ++i)
+    {
+        Logger::info("Generating clustered random game level %d...", i);
+        size_t next_clusters = (clusters + cluster_size - 1)/cluster_size;
+        StaticGraph *next_subgraphs = new StaticGraph[next_clusters];
+        std::vector<verti> offset(clusters, 0);
+        for (size_t c = 0; c < next_clusters; ++c)
+        {
+            /* Combine clusters [i:j) into one: */
+            size_t i = c*clusters/next_clusters,
+                   j = (c + 1)*clusters/next_clusters;
+            Logger::debug("combining %ld subgraphs (%ld through %ld of %ld)",
+                          (long)(j - i), (long)i , (long)j, (long)clusters);
+
+            /* Calculate offsets to apply to vertex indices: */
+            for (size_t k = i + 1; k < j; ++k)
+            {
+                offset[k] = offset[k - 1] + subgraphs[k - 1].V();
+            }
+
+            /* Build edge list of combined subgraphs: */
+            edge_list edges;
+            for (size_t k = i; k < j; ++k)
+            {
+                edge_list subedges = subgraphs[k].get_edges();
+                for ( edge_list::const_iterator it = subedges.begin();
+                      it != subedges.end(); ++it )
+                {
+                    edges.push_back(std::make_pair( it->first  + offset[k],
+                                                    it->second + offset[k] ));
+                }
+            }
+
+            /* Create parent graph and use its edges to connect subgraphs: */
+            StaticGraph parent;
+            parent.make_random(j - i, outdeg, edge_dir, true);
+            edge_list paredges = parent.get_edges();
+            for (size_t e = 0; e < paredges.size(); ++e)
+            {
+                verti v = paredges[e].first,
+                      w = paredges[e].second;
+                edges.push_back(std::make_pair(
+                    offset[i + v] + rand()%subgraphs[i + v].V(),
+                    offset[i + w] + rand()%subgraphs[i + w].V() ));
+            }
+            next_subgraphs[c].assign(edges, edge_dir);
+        }
+        delete[] subgraphs;
+        subgraphs = next_subgraphs;
+        clusters  = next_clusters;
+    }
+    assert(clusters == 1);
+    swap(subgraphs[0]);
+    delete[] subgraphs;
+}
+
+void StaticGraph::shuffle_vertices()
+{
+    std::vector<verti> perm(V_);
+    for (verti i = 0; i < V_; ++i) perm[i] = i;
+    shuffle_vector(perm);
+    shuffle_vertices(perm);
+}
+
+void StaticGraph::shuffle_vertices(const std::vector<verti> &perm)
+{
+    edge_list edges = get_edges();
+    for (edge_list::iterator it = edges.begin(); it != edges.end(); ++it)
+    {
+        it->first  = perm[it->first];
+        it->second = perm[it->second];
+    }
+    assign(edges, edge_dir_);
 }
 
 void StaticGraph::assign(const StaticGraph &graph)

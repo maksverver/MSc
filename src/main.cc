@@ -91,6 +91,7 @@ static int          arg_random_size           = 1000000;
 static int          arg_random_seed           =       1;
 static int          arg_random_outdegree      =       3;
 static int          arg_random_priorities     =      20;
+static int          arg_random_clustersize    =       0;
 static int          arg_timeout               =       0;
 static bool         arg_verify                = false;
 static bool         arg_zielonka              = false;
@@ -158,9 +159,10 @@ static void print_usage(const char *argv0)
 "\n"
 "Input:\n"
 "  --input/-i <format>    input format: random, raw, PGSolver or PBES\n"
-"  --priorities <int>     (random only) number of priorities\n"
 "  --size <int>           (random only) number of vertices\n"
+"  --clustersize <int>    (random only) graph cluster size\n"
 "  --outdegree <int>      (random only) average out-degree\n"
+"  --priorities <int>     (random only) number of priorities\n"
 "  --seed <int>           (random only) random number generator seed\n"
 "\n"
 "Preprocessing:\n"
@@ -226,26 +228,27 @@ static void parse_args(int argc, char *argv[])
 
         { "input",      required_argument, NULL, 'i' },
         { "size",       required_argument, NULL,  1  },
-        { "outdegree",  required_argument, NULL,  2  },
-        { "priorities", required_argument, NULL,  3  },
-        { "seed",       required_argument, NULL,  4  },
+        { "clustersize",required_argument, NULL,  2  },
+        { "outdegree",  required_argument, NULL,  3  },
+        { "priorities", required_argument, NULL,  4  },
+        { "seed",       required_argument, NULL,  5  },
 
-        { "decycle",    no_argument,       NULL,  5  },
-        { "deloop",     no_argument,       NULL,  6  },
-        { "scc",        no_argument,       NULL,  7  },
-        { "dual",       no_argument,       NULL,  8  },
-        { "reorder",    required_argument, NULL,  9  },
-        { "propagate",  no_argument,       NULL, 10  },
+        { "decycle",    no_argument,       NULL,  6  },
+        { "deloop",     no_argument,       NULL,  7  },
+        { "scc",        no_argument,       NULL,  8  },
+        { "dual",       no_argument,       NULL,  9  },
+        { "reorder",    required_argument, NULL, 10  },
+        { "propagate",  no_argument,       NULL, 11  },
 
         { "lifting",    required_argument, NULL, 'l' },
         { "lifting2",   required_argument, NULL, 'L' },
         { "alternate",  no_argument,       NULL, 'a' },
 
         { "zielonka",   no_argument,       NULL, 'z' },
-        { "threads",    required_argument, NULL, 11  },
-        { "mpi",        no_argument,       NULL, 12  },
+        { "threads",    required_argument, NULL, 12  },
+        { "mpi",        no_argument,       NULL, 13  },
         { "chunk",      required_argument, NULL, 'c' },
-        { "sync",       no_argument,       NULL, 13  },
+        { "sync",       no_argument,       NULL, 14  },
 
         { "dot",        required_argument, NULL, 'd' },
         { "pgsolver",   required_argument, NULL, 'p' },
@@ -334,39 +337,49 @@ static void parse_args(int argc, char *argv[])
             arg_random_size = atoi(optarg);
             break;
 
-        case 2:     /* random graph out-degree */
+        case 2:     /* random graph cluster size */
+            arg_random_clustersize = atoi(optarg);
+            if (arg_random_clustersize < 2)
+            {
+                fprintf(stderr, "Invalid cluster size: %d (must be "
+                                "greater than 1)\n", arg_random_clustersize);
+                exit(EXIT_FAILURE);
+            }
+            break;
+
+        case 3:     /* random graph out-degree */
             arg_random_outdegree = atoi(optarg);
             break;
 
-        case 3:     /* random game number of priorities */
+        case 4:     /* random game number of priorities */
             arg_random_priorities = atoi(optarg);
             break;
 
-        case 4:     /* random seed */
+        case 5:     /* random seed */
             arg_random_seed = atoi(optarg);
             break;
 
-        case 5:     /* remove p-controlled i-cycles when p == i%2 */
+        case 6:     /* remove p-controlled i-cycles when p == i%2 */
             arg_decycle = true;
             break;
 
-        case 6:     /* preprocess vertices with loops */
+        case 7:     /* preprocess vertices with loops */
             arg_deloop = true;
             break;
 
-        case 7:     /* decompose into strongly connected components */
+        case 8:     /* decompose into strongly connected components */
             arg_scc_decomposition = true;
             break;
 
-        case 8:     /* solve dual game */
+        case 9:     /* solve dual game */
             arg_solve_dual = true;
             break;
 
-        case 9:    /* reorder vertices */
+        case 10:    /* reorder vertices */
             arg_reordering = optarg;
             break;
 
-        case 10:    /* enable priority propagation */
+        case 11:    /* enable priority propagation */
             arg_priority_propagation = true;
             break;
 
@@ -390,7 +403,7 @@ static void parse_args(int argc, char *argv[])
             arg_zielonka = true;
             break;
 
-        case 11:    /* concurrent solving */
+        case 12:    /* concurrent solving */
             arg_threads = atoi(optarg);
             if (arg_threads < 1)
             {
@@ -399,7 +412,7 @@ static void parse_args(int argc, char *argv[])
             }
             break;
 
-        case 12:    /* parallize solving with MPI */
+        case 13:    /* parallize solving with MPI */
             arg_mpi = true;
             break;
 
@@ -412,7 +425,7 @@ static void parse_args(int argc, char *argv[])
             }
             break;
 
-        case 13:    /* use synchronized algorithm */
+        case 14:    /* use synchronized algorithm */
             arg_zielonka_sync = true;
             break;
 
@@ -604,16 +617,19 @@ bool read_input(ParityGame &game)
     switch (arg_input_format)
     {
     case INPUT_RANDOM:
-        Logger::message("## config.random.vertices   = %10d",
+        Logger::message("## config.random.vertices    = %10d",
                         arg_random_size);
-        Logger::message("## config.random.outdegree  = %10d",
+        Logger::message("## config.random.clustersize = %10d",
+                        arg_random_clustersize);
+        Logger::message("## config.random.outdegree   = %10d",
                         arg_random_outdegree);
-        Logger::message("## config.random.priorities = %10d",
+        Logger::message("## config.random.priorities  = %10d",
                         arg_random_priorities);
-        Logger::message("## config.random.seed       = %10d",
+        Logger::message("## config.random.seed        = %10d",
                         arg_random_seed);
         srand(arg_random_seed);
-        game.make_random( arg_random_size, arg_random_outdegree,
+        game.make_random(
+            arg_random_size, arg_random_clustersize, arg_random_outdegree,
             StaticGraph::EDGE_BIDIRECTIONAL, arg_random_priorities );
         return true;
 

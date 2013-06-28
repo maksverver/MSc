@@ -103,13 +103,18 @@ public:
 
     /*! Generate a random parity game, with vertices assigned uniformly at
         random to players, and priority assigned uniformly between 0 and d-1.
-        \param V        number of game vertices
-        \param outdeg   average outdegree (at least 1)
-        \param edge_dir part of edges to store
-        \param d        number of priorities (at least 1)
+
+        The generated game is a clustered random game if clustersize > 0, or
+        an unclustered random game otherwise.
+
+        \param V            number of game vertices
+        \param clustersize  cluster size (or 0 for no clustering)
+        \param outdeg       average outdegree (at least 1)
+        \param edge_dir     part of edges to store
+        \param d            number of priorities (at least 1)
         \sa void StaticGraph::make_random()
     */
-    void make_random( verti V, unsigned outdeg,
+    void make_random( verti V, unsigned clustersize, unsigned outdeg,
                       StaticGraph::EdgeDirection edge_dir, int d );
 
     /*! Create a subgame containing only the given vertices from the original

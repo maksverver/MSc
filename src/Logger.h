@@ -30,10 +30,7 @@
     (e.g. as Logger::warn("foo")) or classes may inherit from this class so
     that the static methods can be called without prefixing them with the
     name of the class.
-
-    The logger keeps track of a 
 */
-
 class Logger
 {
 public:
