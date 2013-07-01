@@ -35,7 +35,7 @@ public:
 
     MaxMeasureLiftingStrategy2( const ParityGame &game,
                                 const SmallProgressMeasures &spm,
-                                Order order );
+                                Order order, bool minimize );
     ~MaxMeasureLiftingStrategy2();
 
     void push(verti v);
@@ -71,6 +71,7 @@ private:
 private:
     const SmallProgressMeasures &spm_;  //!< SPM instance being solved
     const Order order_;                 //!< vertex extraction order
+    const bool minimize_;               //!< minimize instead of maximize?
 
     compat_uint64_t next_id_;        //!< number of insertions
     compat_uint64_t * insert_id_;    //!< for each vertex: last insertion time
@@ -88,8 +89,9 @@ class MaxMeasureLiftingStrategyFactory : public LiftingStrategyFactory
 {
 public:
     MaxMeasureLiftingStrategyFactory( MaxMeasureLiftingStrategy2::Order order
-                                        = MaxMeasureLiftingStrategy2::HEAP )
-        : order_(order) { };
+                                        = MaxMeasureLiftingStrategy2::HEAP,
+                                      bool minimize = false )
+        : order_(order), minimize_(minimize) { };
 
     bool supports_version(int version);
 
@@ -101,6 +103,7 @@ public:
 
 private:
     const MaxMeasureLiftingStrategy2::Order order_;
+    const bool minimize_;
 };
 
 #endif /* ndef PREDECESSOR_LIFTING_STRATEGY_H_INCLUDED */

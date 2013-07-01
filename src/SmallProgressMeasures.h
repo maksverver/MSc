@@ -145,7 +145,8 @@ public:
     bool less_than(verti v, const verti vec[], bool carry = 0);
 
     /*! For debugging: print current state to stdout */
-    void debug_print(bool verify = true);
+    void debug_print();
+    void debug_print_vertex(int v);
 
     /*! For debugging: verify that the current state describes a valid SPM */
     bool verify_solution();

@@ -53,6 +53,11 @@ const char *LiftingStrategyFactory::usage()
 "   - order: tie-breaking lifting order: 0 (queue-like), 1 (stack-like)\n"
 "            or 2 (heap order) (default: 2)\n"
 "\n"
+"minmeasure:order\n"
+"   Minimum measure propagation.\n"
+"   - order: see 'maxmeasure'\n"
+"\n"
+"\n"
 "oldmaxmeasure\n"
 "   Old implementation of max. measure lifting strategy.\n"
 "   Included for regression testing purposes only.\n"
@@ -103,7 +108,14 @@ LiftingStrategyFactory *
     {
         int  order = (parts.size() > 1 ? atoi(parts[1].c_str()) : 2);
         return new MaxMeasureLiftingStrategyFactory(
-            (MaxMeasureLiftingStrategy2::Order)order );
+            (MaxMeasureLiftingStrategy2::Order)order, false);
+    }
+    else
+    if (strcasecmp(parts[0].c_str(), "minmeasure") == 0)
+    {
+        int  order = (parts.size() > 1 ? atoi(parts[1].c_str()) : 2);
+        return new MaxMeasureLiftingStrategyFactory(
+            (MaxMeasureLiftingStrategy2::Order)order, true );
     }
     else
     if (strcasecmp(parts[0].c_str(), "oldmaxmeasure") == 0)

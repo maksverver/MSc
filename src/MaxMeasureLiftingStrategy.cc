@@ -16,8 +16,10 @@
 /* TODO: write short description of how this works! */
 
 MaxMeasureLiftingStrategy2::MaxMeasureLiftingStrategy2(
-    const ParityGame &game, const SmallProgressMeasures &spm, Order order )
-        : LiftingStrategy2(), spm_(spm), order_(order), next_id_(0),
+    const ParityGame &game, const SmallProgressMeasures &spm,
+    Order order, bool minimize )
+        : LiftingStrategy2(), spm_(spm), order_(order), minimize_(minimize),
+          next_id_(0),
           insert_id_(order < HEAP ? new compat_uint64_t[game.graph().V()] : 0),
           pq_pos_(new verti[game.graph().V()]),
           pq_(new verti[game.graph().V()]), pq_size_(0)
@@ -164,7 +166,7 @@ int MaxMeasureLiftingStrategy2::cmp(verti i, verti j)
     verti v = pq_[i], w = pq_[j];
     int d = spm_.vector_cmp( spm_.get_successor(v),
                              spm_.get_successor(w), spm_.len_ );
-    if (d != 0) return d;
+    if (d != 0) return minimize_ ? -d : +d;
 
     // Tie-break on insertion order: smallest insert-id first in queue
     // mode, or largest insert-id first in stack mode.
@@ -214,5 +216,5 @@ LiftingStrategy *MaxMeasureLiftingStrategyFactory::create(
 LiftingStrategy2 *MaxMeasureLiftingStrategyFactory::create2(
     const ParityGame &game, const SmallProgressMeasures &spm )
 {
-    return new MaxMeasureLiftingStrategy2(game, spm, order_);
+    return new MaxMeasureLiftingStrategy2(game, spm, order_, minimize_);
 }

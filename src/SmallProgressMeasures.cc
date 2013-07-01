@@ -159,6 +159,7 @@ verti SmallProgressMeasures::solve_one(LiftingStrategy2 &ls)
     bool success = lift_to(v, vec(get_successor(v)), game_.priority(v)%2 != p_);
     assert(success);
     dirty_[v] = false;
+    // debug_print_vertex(v);
 
     for ( const verti *it  = game_.graph().pred_begin(v),
                       *end = game_.graph().pred_end(v); it != end; ++it )
@@ -263,40 +264,32 @@ bool SmallProgressMeasures::lift_to(verti v, const verti vec2[], bool carry)
     return true;
 }
 
-void SmallProgressMeasures::debug_print(bool verify)
+void SmallProgressMeasures::debug_print_vertex(int v)
 {
-    printf("M =");
-    for (int p = 0; p < game_.d(); ++p)
+    printf ( "%6d %c p=%d:", (int)v,
+                game_.player(v) == ParityGame::PLAYER_EVEN ? 'E' :
+                game_.player(v) == ParityGame::PLAYER_ODD  ? 'O' : '?',
+                (int)game_.priority(v) );
+    if (is_top(v))
     {
-        printf(" %d", (p%2 == p_) ? 0 : M_[p/2]);
+        printf(" T");
+    }
+    else
+    {
+        for (int p = 0; p < game_.d(); ++p)
+        {
+            printf(" %d", (p%2 == p_) ? 0 : vec(v)[p/2]);
+        }
     }
     printf("\n");
+}
 
-    for (verti v = 0; v < game_.graph().V(); ++v)
-    {
-        printf ( "%6d %c p=%d:", (int)v,
-                 game_.player(v) == ParityGame::PLAYER_EVEN ? 'E' :
-                 game_.player(v) == ParityGame::PLAYER_ODD  ? 'O' : '?',
-                 (int)game_.priority(v) );
-        if (is_top(v))
-        {
-            printf(" T");
-        }
-        else
-        {
-            for (int p = 0; p < game_.d(); ++p)
-            {
-                printf(" %d", (p%2 == p_) ? 0 : vec(v)[p/2]);
-            }
-        }
-        printf("\n");
-    }
-
-    if (verify)
-    {
-        printf( "Internal verification %s\n",
-                verify_solution() ? "succeeded." : "failed!" );
-    }
+void SmallProgressMeasures::debug_print()
+{
+    printf("M =");
+    for (int p = 0; p < game_.d(); ++p) printf(" %d", (p%2 == p_) ? 0 : M_[p/2]);
+    printf("\n");
+    for (verti v = 0; v < game_.graph().V(); ++v) debug_print_vertex(v);
 }
 
 bool SmallProgressMeasures::verify_solution()
