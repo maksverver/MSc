@@ -4,13 +4,32 @@ AC_CONFIG_SRCDIR([main.cc])
 AC_CONFIG_MACRO_DIR([m4])
 AC_LANG(C++)
 
-AC_ARG_ENABLE( debug,
-    [AS_HELP_STRING( [--enable-debug], 
-                     [enable debugging (slower but safer)] )],
-    [   # Only override CXXFLAGS if they haven't been set by the user:
-        CXXFLAGS=${CXXFLAGS:--O0 -g}
-        DEBUG_FLAGS="-D_GLIBCXX_DEBUG -DDEBUG"
-        with_debug=yes ], [ with_debug=no ])
+dnl Check for --enable-debug / enable-optimized first, because we want to
+dnl override the default CXXFLAGS before they are set by AC_PROG_CXX.
+
+AC_ARG_ENABLE( debug, [ AS_HELP_STRING( [--enable-debug], 
+        [create a debug build (slower but safer)] )], [
+    # Only override CXXFLAGS if they haven't been set by the user:
+    CXXFLAGS=${CXXFLAGS:--O0 -g}
+    DEBUG_FLAGS="-D_GLIBCXX_DEBUG -DDEBUG"
+    enable_debug=yes
+], [
+    enable_debug=no
+])
+
+AC_ARG_ENABLE( optimized, [AS_HELP_STRING( [--enable-optimized],
+        [create a heavily optimized build (faster)] )], [
+    AS_IF([test x"$enable_debug" != xno], [
+        AC_MSG_FAILURE([can specify at most one of --enable-debug and --enable-optimized])
+    ])
+    # Only override CXXFLAGS if they haven't been set by the user:
+    CXXFLAGS=${CXXFLAGS:--O3}
+    DEBUG_FLAGS="-DNDEBUG"
+    enable_optimized=yes
+], [
+    enable_optimized=no
+])
+
 AC_SUBST(DEBUG_FLAGS)
 
 AC_ARG_WITH( mpi,
@@ -192,7 +211,8 @@ AC_DEFUN([ECHO_ENABLED], [
 echo ""
 echo "  Build configuration summary:"
 echo ""
-ECHO_ENABLED([    Debug build:                    ], [with_debug])
+ECHO_ENABLED([    Debug build:                    ], [enable_debug])
+ECHO_ENABLED([    Optimized build:                ], [enable_optimized])
 ECHO_ENABLED([    PBES input using mCRL2:         ], [with_mcrl2])
 ECHO_ENABLED([    Multithreaded solving:          ], [with_threads])
 ECHO_ENABLED([    Distributed solving using MPI:  ], [with_mpi])
