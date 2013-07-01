@@ -123,11 +123,33 @@ verti MaxMeasureLiftingStrategy2::pop()
 
     if (!bumped_.empty())
     {
-        // Move bumped vertices up into the heap.
+        // Move bumped vertices up the heap.
         std::sort(bumped_.begin(), bumped_.end());
         for (size_t i = 0; i < bumped_.size(); ++i)
         {
             if (i == 0 || bumped_[i] > bumped_[i - 1]) move_up(bumped_[i]);
+            move_up(bumped_[i]);
+        }
+        if (minimize_)
+        {
+            /* Note: minimization is a bit trickier than maximization, since
+               we need to move bumped vertices down the heap (rather than up
+               when maximizing) but pushed vertices still need to move up.
+
+               Unfortunately, we can't easily distinguish between bumped or
+               pushed or pushed-and-then-bumped vertices, so the easiest safe
+               way to handle the situation is to move up first, and then down.
+
+               FIXME: optimize this.
+            */
+
+            // Move bumped vertices down the heap.
+            std::reverse(bumped_.rbegin(), bumped_.rend());
+            for (size_t i = 0; i < bumped_.size(); ++i)
+            {
+                if (i == 0 || bumped_[i] < bumped_[i - 1]) move_down(bumped_[i]);
+                move_down(bumped_[i]);
+            }
         }
         bumped_.clear();
     }
@@ -174,7 +196,7 @@ int MaxMeasureLiftingStrategy2::cmp(verti i, verti j)
     {
     case STACK: return cmp_ids(insert_id_[v], insert_id_[w]);
     case QUEUE: return cmp_ids(insert_id_[w], insert_id_[v]);
-    default:    return d;
+    default:    return 0;
     }
 }
 

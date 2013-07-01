@@ -9,7 +9,8 @@ AC_ARG_ENABLE( debug,
                      [enable debugging (slower but safer)] )],
     [   # Only override CXXFLAGS if they haven't been set by the user:
         CXXFLAGS=${CXXFLAGS:--O0 -g}
-        DEBUG_FLAGS="-D_GLIBCXX_DEBUG -DDEBUG" ])
+        DEBUG_FLAGS="-D_GLIBCXX_DEBUG -DDEBUG"
+        with_debug=yes ], [ with_debug=no ])
 AC_SUBST(DEBUG_FLAGS)
 
 AC_ARG_WITH( mpi,
@@ -22,7 +23,7 @@ AC_ARG_WITH( mpiP,
     , [with_mpiP=no] )
 
 AC_ARG_WITH( tbb,
-    [AS_HELP_STRING( [--with-tbb<:@=DIR@:>@],
+    [AS_HELP_STRING( [--with-tbb@<:@=DIR@:>@],
         [compile with Intel Thread Building Blocks (DIR: installation prefix)])],
     , [with_tbb=auto] )
 AC_ARG_WITH( openmp,
@@ -180,3 +181,22 @@ AM_COND_IF([USE_TIMER],    AC_DEFINE([USE_TIMER]))
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
+
+AC_DEFUN([ECHO_ENABLED], [
+    if test "x$[$2]" = xno; then
+        echo ["$1" disabled]
+    else
+        echo ["$1" enabled]
+    fi
+])
+echo ""
+echo "  Build configuration summary:"
+echo ""
+ECHO_ENABLED([    Debug build:                    ], [with_debug])
+ECHO_ENABLED([    PBES input using mCRL2:         ], [with_mcrl2])
+ECHO_ENABLED([    Multithreaded solving:          ], [with_threads])
+ECHO_ENABLED([    Distributed solving using MPI:  ], [with_mpi])
+echo ""
+echo "  If this is not as expected, consult the output of the configure script"
+echo "  or the detailed information in config.log to see what went wrong!"
+echo ""
