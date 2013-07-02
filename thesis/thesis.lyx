@@ -5,6 +5,10 @@
 \textclass book
 \begin_preamble
 \usepackage {a4wide}
+\usepackage {longtable}
+\usepackage {tabu}
+
+\newcommand*\ExpandableInput[1]{\@@input#1 }
 \end_preamble
 \use_default_options true
 \maintain_unincluded_children false
@@ -9102,8 +9106,269 @@ Results
 status open
 
 \begin_layout Plain Layout
-Probably split into sequential/parallel results; depends a bit on what we
- have and what is new.
+Google how to center these tables horizontally (with negatize left-margin?)
+\end_layout
+
+\begin_layout Plain Layout
+Put them in appendices!
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+footnotesize
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{longtable}{l|r r r r r r r r r r r r|r r r r r r r r r r r r}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{Small Progress Measure benchmark on random graphs (seconds)}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+label{somelabelshouldgohere} 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+& l:0 & l:1 & p:0 & p:1 & P:0 & P:1 & M:0 & M:1 & M:2 & m:0 & m:1 & m:2
+ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+hline
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+endhead
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+multicolumn{25}{r}{{Continued on next page...}} 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+endfoot
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+hline 
+\backslash
+hline
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+endlastfoot
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+ExpandableInput{results-tests4-seconds.tex}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{longtable}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+footnotesize
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{longtable}{l|r r r r r r r r r r r r|r r r r r r r r r r r r}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{Small Progress Measure benchmark on random graphs (lifts/second)}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+label{somelabelshouldgohere} 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+& l:0 & l:1 & p:0 & p:1 & P:0 & P:1 & M:0 & M:1 & M:2 & m:0 & m:1 & m:2
+ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+hline
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+endhead
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+multicolumn{25}{r}{{Continued on next page...}} 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+endfoot
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+hline 
+\backslash
+hline
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+endlastfoot
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+ExpandableInput{results-tests4-lifts-per-second.tex}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{longtable}
 \end_layout
 
 \end_inset
