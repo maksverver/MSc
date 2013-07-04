@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 
+from operator import mul
 import sys
 import re
 
@@ -62,8 +63,7 @@ def format_number(num, grp = 3, sep = ','):
         i += grp + len(sep)
     return s
 
-def test4(what):
-    assert what in ('time','lifts_per_second')
+def test4():
     inputs  = []  # triple of vertices, clustersize, seed
     configs = []  # triple of solver, strategy, alternate
     for result in results:
@@ -77,6 +77,28 @@ def test4(what):
     configs = list(sorted(set(configs),
         key = lambda (solver, strategy, alternate): (alternate,solver,strategy.replace('predecessor','maa')) ))
 
+    # This prints summarized output with solvers on the rows, and inputs on the columns.
+    # For each solver/input combo, there are multiple seeds. We report how many cases
+    # are solved, and the geometric mean time of the **solved** cases.
+    for (solver, strategy, alternate) in configs:
+        print solver,strategy, "a"*alternate,
+        for (vertices, clustersize) in sorted(set((vertices, clustersize) for (vertices, clustersize,seed) in inputs)):
+            matched = [ result for result in results if
+                            int(result['config.random.vertices'])    == vertices and
+                            int(result['config.random.clustersize']) == clustersize and
+                            result['config.solver']         == solver and
+                            result['config.spm.strategy']   == strategy and
+                            result['config.spm.alternate']  == ['false','true'][alternate] ]
+            times = [ float(record['solution.time'].rstrip('s')) for record in matched
+                        if record['solution.result'] == 'success' ]
+            count = len(times)
+            time = 0 if count == 0 else reduce(mul, times) ** (1.0/count)
+            print '&', count, '&', ('%.3f'%time),
+        print '\\\\'
+
+    return
+
+    # This prints table with inputs on the rows, and solvers on the columns:
     for (vertices, clustersize, seed) in inputs:
         if seed == 1:
             print '\\hline'
@@ -94,16 +116,15 @@ def test4(what):
             assert len(matched) == 1
             record, = matched
             time = float(record['solution.time'].rstrip(' s'))
-            if what == 'time':
+
+            if 0:
+                # Report time
                 if record['solution.result'] == 'success':
                     value = str(time)
                 else:
                     value = 't/o'
-            else:
-                value = "%.3f"%(int(record['lifts.total'])/time/1e6)
-                if record['solution.result'] != 'success':
-                    value = '*' + value
-            print '&', value,
+                print '&', value,
+
         print '\\\\'
 
-test4('time')
+test4()
