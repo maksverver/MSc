@@ -16,8 +16,9 @@
 #include <string.h>
 #include <stdio.h>  /* printf() */
 
-LiftingStatistics::LiftingStatistics(const ParityGame &game)
-    : lifts_attempted_(0), lifts_succeeded_(0)
+LiftingStatistics::LiftingStatistics( const ParityGame &game,
+                                      long long max_lifts )
+    : lifts_attempted_(0), lifts_succeeded_(0), max_lifts_(max_lifts)
 {
     vertex_stats_.resize(game.graph().V());
 }
@@ -27,6 +28,7 @@ void LiftingStatistics::record_lift(verti v, bool success)
     assert(v == NO_VERTEX || v < vertex_stats_.size());
 
     ++lifts_attempted_;
+    if (lifts_attempted_ == max_lifts_) Abortable::abort_all();
     if (v != NO_VERTEX) ++vertex_stats_[v].first;
     if (success)
     {

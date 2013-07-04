@@ -28,7 +28,7 @@ class LiftingStatistics
 {
 public:
     /*! Construct a statistics object for the given game. */
-    LiftingStatistics(const ParityGame &game);
+    LiftingStatistics(const ParityGame &game, long long max_lifts = -1);
 
 #if 0
     /*! Merge statistics from a given object into this object, using the given
@@ -60,6 +60,7 @@ private:
 private:
     long long lifts_attempted_, lifts_succeeded_;
     std::vector<std::pair<long long, long long> > vertex_stats_;
+    long long max_lifts_;
 };
 
 /*! \ingroup SmallProgressMeasures

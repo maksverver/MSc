@@ -99,6 +99,7 @@ static bool         arg_zielonka_sync         = false;
 static int          arg_threads               = 0;
 static bool         arg_mpi                   = false;
 static int          arg_chunk_size            = -1;
+static long long    arg_max_lifts             = -1;
 
 static const double MB = 1048576.0;  // one megabyte
 
@@ -198,6 +199,7 @@ static void print_usage(const char *argv0)
 "Benchmarking/testing:\n"
 "  --stats/-S             collect lifting statistics during SPM solving\n"
 "  --timeout/-t <t>       abort solving after <t> seconds\n"
+"  --maxlifts <n>         abort solving after <n> lifting attempts\n"
 "  --verify/-V            verify solution after solving\n"
 "  --hot/-H <file>        write 'hot' vertices in GraphViz format to <file>\n"
 "  --debug/-D <file>      write solution in debug format to <file>\n");
@@ -259,6 +261,7 @@ static void parse_args(int argc, char *argv[])
 
         { "stats",      no_argument,       NULL, 'S' },
         { "timeout",    required_argument, NULL, 't' },
+        { "maxlifts",   required_argument, NULL, 15  },
         { "verify",     no_argument,       NULL, 'V' },
         { "hot",        required_argument, NULL, 'H' },
         { "debug",      required_argument, NULL, 'D' },
@@ -459,6 +462,10 @@ static void parse_args(int argc, char *argv[])
 
         case 't':   /* time limit (in seconds) */
             arg_timeout = atoi(optarg);
+            break;
+
+        case 15:   /* maximum lifts (in attempts) */
+            arg_max_lifts = atoll(optarg);
             break;
 
         case 'V':   /* verify solution */
@@ -966,7 +973,7 @@ int main(int argc, char *argv[])
 
             if (arg_collect_stats)
             {
-                stats.reset(new LiftingStatistics(game));
+                stats.reset(new LiftingStatistics(game, arg_max_lifts));
             }
 
             if (!arg_mpi)
