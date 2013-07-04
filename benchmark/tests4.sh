@@ -5,14 +5,14 @@
 # These are intended to show the effectiveness of various lifting strategies on (clustered) random games.
 
 run_on() {
-	for seed in {1..10}
+	for seed in {1..20}
 	do
 		for lift in -llinear:0 -llinear:1 -Lpredecessor:0 -lpredecessor:0 -lpredecessor:1 -Lpredecessor:1 -Lminmeasure:0 -Lminmeasure:1 -Lminmeasure:2 -Lmaxmeasure:0 -Lmaxmeasure:1 -Lmaxmeasure:2
 		do
 			for alternate in '' -a
 			do
 				name=random-seed=$seed-size=$1-clustersize=${2:-0}$lift$alternate run \
-				../run-test.sh -i random --priorities=10 --seed=$seed $lift $alternate --size=$1 ${2:+--clustersize=$2} --timeout=600 --stats --verify
+				../run-test.sh -i random --priorities=10 --seed=$seed $lift $alternate --size=$1 ${2:+--clustersize=$2} --maxlifts=10e10 --stats --verify
 			done
 		done
 	done
