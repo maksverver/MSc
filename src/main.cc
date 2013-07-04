@@ -218,6 +218,40 @@ std::vector<std::string> split(const std::string &s, char sep = ',')
     return values;
 }
 
+/*! Parses a long long integer in decimal notation followed by an optional
+    exponent that signifies multiplications by a power of ten. For example,
+    "12e3" represents 12,000.
+
+    This function is similar to atoi() in that virtually no syntax checking
+    is performed; if the argument is not formatted correctly, or exceeds the
+    range of a long integer, the result will probably be wrong.
+
+    If `str`cannot be parsed at all, false is result, and `res` is unchanged.
+*/
+static bool parse_long(const char *str, long long *res)
+{
+    int exp;
+    switch (sscanf(str, "%llde%d", res, &exp))
+    {
+    case 2: for ( ; exp > 0; --exp) *res *= 10;
+            for ( ; exp < 0; ++exp) *res /= 10;
+    case 1: return true;
+    }
+    return false;
+}
+
+/*! Similar to the parse_long() above, but stores the result as an integer. */
+static bool parse_int(const char *str, int *res)
+{
+    long long val;
+    if (parse_long(str, &val))
+    {
+        *res = val;
+        return true;
+    }
+    return false;
+}
+
 //! Parses command line arguments. Exits on failure.
 static void parse_args(int argc, char *argv[])
 {
@@ -337,11 +371,11 @@ static void parse_args(int argc, char *argv[])
             break;
 
         case 1:     /* random graph size */
-            arg_random_size = atoi(optarg);
+            parse_int(optarg, &arg_random_size);
             break;
 
         case 2:     /* random graph cluster size */
-            arg_random_clustersize = atoi(optarg);
+            parse_int(optarg, &arg_random_clustersize);
             if (arg_random_clustersize < 2)
             {
                 fprintf(stderr, "Invalid cluster size: %d (must be "
@@ -465,7 +499,7 @@ static void parse_args(int argc, char *argv[])
             break;
 
         case 15:   /* maximum lifts (in attempts) */
-            arg_max_lifts = atoll(optarg);
+            parse_long(optarg, &arg_max_lifts);
             break;
 
         case 'V':   /* verify solution */
