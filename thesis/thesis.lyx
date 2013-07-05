@@ -94,6 +94,85 @@ LatexCommand tableofcontents
 Introduction
 \end_layout
 
+\begin_layout Standard
+My final project deals with 
+\emph on
+parity games
+\emph default
+.
+ Let me start by disappointing the readers to which the word 
+\emph on
+game 
+\emph default
+implies a fun activity: parity games are actually a mathematical formalism
+ involving games that literally go on forever and are not much fun to play
+ by hand.
+ Fortunately, however, they 
+\emph on
+are
+\emph default
+ an interesting subject to study.
+\end_layout
+
+\begin_layout Standard
+One reason to study parity games is the observation that, despite considerable
+ research interest, the computational complexity of parity games is not
+ yet known.
+ Perhaps as a result, previous research tended to focus on theoretic aspects
+ related to parity games, somewhat neglecting practical considerations.
+\end_layout
+
+\begin_layout Standard
+This is a pity, since parity games have practical applications too, most
+ notably as a vehicle for formal verification (by reduction from model checking
+ and bisimulation problems).
+ Formal verification tools are important since engineers use them to create
+ reliable hardware and software components.
+ Parity game algorithms have the potential to improve these tools considerably
+ — that is, if they can be made to work well in practice.
+\end_layout
+
+\begin_layout Standard
+Perhaps surprisingly, there is comparatively little research that focuses
+ on parity games as a practical tool rather than a mathematical formalism.
+ Few implementations of parity game algorithms exist, and the strengths
+ and weaknesses of these tools are often poorly understood.
+\end_layout
+
+\begin_layout Standard
+The goal of my final project was to develop a framework for experimentation
+ with parity games, in order to better understand the performance of a variety
+ of parity game algorithms, and to push the boundaries of the range of parity
+ game problems that can be solved in practice.
+ Along the way I discovered several techniques to improve the standard algorithm
+s; these improvements are documented in this report.
+\end_layout
+
+\begin_layout Standard
+Although I met several hurdles while executing the project, I believe the
+ final result is quite good.
+ The tool I developed is orders of magnitude more efficient than the (few)
+ existing competitors, which demonstrates a practical contribution to the
+ state of the art.
+ Indeed, the observation that such large performance gains are possible
+ at all shows that [[ bla bla practical performance is not 
+\begin_inset Quotes eld
+\end_inset
+
+uitgekristalliseerd
+\begin_inset Quotes erd
+\end_inset
+
+ ]]
+\end_layout
+
+\begin_layout Standard
+It is my hope that my contributions not only prove beneficial to practitioners
+ today, but will also increase the confidence in parity games as a useful
+ formalism for other, higher level problems, as well as inspire the ongoing
+ development of new developments in high-performance parity game solvers.
+\end_layout
+
 \begin_layout Section
 Parity Games
 \end_layout
@@ -1576,8 +1655,15 @@ TODO: how does verification work in PGsolver‽
 \end_layout
 
 \begin_layout Itemize
-An optimization of the small progress measures algorithm (described in subsectio
-n 
+Two optimizations of the small progress measures algorithm (described in
+ subsections 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Optimization-after-lifting"
+
+\end_inset
+
+ and 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sub:Optimization-after-lifting"
@@ -5921,7 +6007,14 @@ Apart from implementing better lifting strategies, some improvements to
 \end_layout
 
 \begin_layout Subsection
-Eliminating failed lifting attempts
+Eliminating failed lifting attempts 
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Eliminating-failed-lifting"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -6005,26 +6098,23 @@ It should be clear that the amount of work done per lifting attempt is roughly
  However, since this variant algorithm eliminates all failed lifting attempts
  (which make up a considerable part of lifting attempts in most test cases)
  this variation is faster in practice.
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-REFER TO BENCHMARK RESULTS!
 \end_layout
+
+\begin_layout Standard
+I will call the earlier formulation of the core algorithm the “standard
+ framework” since it matches Jurdziński's description and is implemented
+ in earlier solving tools, and call this variation the “improved framework”
+ since it turns out (as will be shown in Chapter 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "chap:Empirical-Evaluation"
 
 \end_inset
 
-
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-pseudo-code of SmallProgressMeasures2?
-\end_layout
-
-\end_inset
-
-
+) that moving the responsibility of tracking stable vertices from the lifting
+ strategy to the core algorithm is a strict improvement, at least for lifting
+ strategies that are at least as sophisticated as the predecessor lifting
+ strategy.
 \end_layout
 
 \begin_layout Standard
@@ -6032,10 +6122,7 @@ pseudo-code of SmallProgressMeasures2?
 status open
 
 \begin_layout Plain Layout
-In my opinion, this approach should be the default, rather than the exception
- to the rule.
- However, all prior implementations seem to follow the more simplistic approach
- described above.
+pseudo-code of SmallProgressMeasures2?
 \end_layout
 
 \end_inset
@@ -7622,12 +7709,12 @@ In practice, a game and its dual are often not of the same difficulty.
 \end_layout
 
 \begin_layout Standard
-Friedmann's two-sided approach has the benefit that it is not applied on
- the entire game, but also on smaller regions of the games, which is beneficial
- in cases where games contain different parts which are hard to solve for
- different players.
- In those cases, the two-sided approach can result in both sides being solved
- in less time than would be possible starting from either side.
+The main advantage of Friedmann's two-sided approach over just solving a
+ game and its dual independently, is that it can propagate information between
+ games even when neither is completely solved.
+ This is useful because even in cases where both games are equally hard,
+ they each may contain small regions that can be solved relatively easily
+ and then used to simplify the other game.
 \end_layout
 
 \begin_layout Standard
@@ -7660,11 +7747,11 @@ reference "chap:Zielonka's-Recursive-Algorithm"
 
 \begin_layout Standard
 The two-sided approach solves games entirely with Small Progress Measures
- and is therefore simpler, but doesn't benefit from the theoretical speedup
- achieved by reducing the vector space.
- It should be noted however, that in PGSolver the two approaches are combined:
+ and is therefore simpler than Schewe, but doesn't benefit from the theoretical
+ speedup achieved by reducing the vector space.
+ (It should be noted however, that in PGSolver the two approaches are combined:
  the “big steps” solver uses the SPM implementation with the two-sided optimizat
-ion.
+ion.)
 \end_layout
 
 \begin_layout Subsubsection
@@ -7672,24 +7759,33 @@ Implementation differences
 \end_layout
 
 \begin_layout Standard
-Unfortunately, there is one flaw in the PGSolver implementation that I tried
- to rectify in my solver.
- PGSolver suffers from regressions where some games require orders of magnitudes
- more lifting attempts before arriving at a solution, compared to the original
- approach (implemented in older versions), rather than the overhead being
- bound by a worst-case factor two as expected.
+Although it might appear that the two-sided approach will use at worst twice
+ as much time and space as the standard algorithm, this is not automatically
+ true.
+ Perhaps surprisingly, PGSolver can take orders of magnitude longer to solve
+ games with the two-sided approach than without it.
  This is caused by the fact that PGsolver omits construction of subgames
  entirely, even after one of the sides is completely solved, and as a result
  misses out on the reduction in progress measure vector space that can reduce
  the solving time necessary to solve the harder part of the game.
- The optimization described in subsection 
+\end_layout
+
+\begin_layout Standard
+This problem can be rectified by reducing vector spaces whenever vertices
+ are lifted to 
+\begin_inset Formula $\top$
+\end_inset
+
+, which is a new optimization that will be described in subsection 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sub:Optimization-after-lifting"
 
 \end_inset
 
- remedies this.
+).
+ This reduces the worst-case overhead of two-sided solving to a factor of
+ two.
 \end_layout
 
 \begin_layout Standard
@@ -9102,6 +9198,432 @@ Results
 \end_layout
 
 \begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{table}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begingroup
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+setlength{
+\backslash
+LTleft}{-20cm plus -1fill}
+\backslash
+setlength{
+\backslash
+LTright}{
+\backslash
+LTleft}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+footnotesize
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{longtable}{l|r r|r r|r r|r r|r r|r r|}
+\end_layout
+
+\begin_layout Plain Layout
+
+    & 
+\backslash
+multicolumn{2}{c|}{1000/0}
+\end_layout
+
+\begin_layout Plain Layout
+
+    & 
+\backslash
+multicolumn{2}{c|}{1000/10}
+\end_layout
+
+\begin_layout Plain Layout
+
+    & 
+\backslash
+multicolumn{2}{c|}{4000/0}
+\end_layout
+
+\begin_layout Plain Layout
+
+    & 
+\backslash
+multicolumn{2}{c|}{4000/200}
+\end_layout
+
+\begin_layout Plain Layout
+
+    & 
+\backslash
+multicolumn{2}{c|}{8000/0}
+\end_layout
+
+\begin_layout Plain Layout
+
+    & 
+\backslash
+multicolumn{2}{c|}{8000/20} 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	& count & time
+\end_layout
+
+\begin_layout Plain Layout
+
+	& count & time
+\end_layout
+
+\begin_layout Plain Layout
+
+	& count & time
+\end_layout
+
+\begin_layout Plain Layout
+
+	& count & time
+\end_layout
+
+\begin_layout Plain Layout
+
+	& count & time
+\end_layout
+
+\begin_layout Plain Layout
+
+	& count & time 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+hline
+\end_layout
+
+\begin_layout Plain Layout
+
+spm linear:0  & 10 & 0.022 & 2 & 416.193 & 8 & 0.830 & 2 & 22.599 & 10 & 4.179
+ & 0 & 0.000 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+spm linear:1  & 10 & 0.032 & 0 & 0.000 & 8 & 1.218 & 2 & 25.856 & 10 & 6.053
+ & 0 & 0.000 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+spm predecessor:0  & 10 & 0.018 & 10 & 50.546 & 10 & 0.606 & 6 & 14.317 & 10
+ & 1.256 & 0 & 0.000 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+spm predecessor:1  & 10 & 0.017 & 4 & 120.051 & 10 & 0.668 & 1 & 8.767 & 10
+ & 0.067 & 0 & 0.000 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+spm2 predecessor:0  & 10 & 0.010 & 10 & 29.438 & 10 & 0.319 & 6 & 7.682 & 10
+ & 0.715 & 0 & 0.000 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+spm2 predecessor:1  & 10 & 0.022 & 5 & 65.111 & 10 & 0.149 & 1 & 13.385 & 10
+ & 0.037 & 0 & 0.000 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+spm2 maxmeasure:0  & 10 & 0.019 & 5 & 224.357 & 10 & 0.357 & 2 & 179.477 & 10
+ & 0.108 & 0 & 0.000 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+spm2 maxmeasure:1  & 10 & 0.005 & 3 & 215.254 & 10 & 0.205 & 4 & 31.068 & 10
+ & 0.196 & 0 & 0.000 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+spm2 maxmeasure:2  & 10 & 0.006 & 5 & 86.717 & 10 & 0.230 & 3 & 14.915 & 10
+ & 0.071 & 0 & 0.000 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+spm2 minmeasure:0  & 9 & 0.768 & 1 & 579.025 & 7 & 40.093 & 0 & 0.000 & 9 &
+ 31.397 & 0 & 0.000 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+spm2 minmeasure:1  & 9 & 0.748 & 0 & 0.000 & 7 & 34.740 & 0 & 0.000 & 9 & 30.317
+ & 0 & 0.000 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+spm2 minmeasure:2  & 9 & 0.632 & 1 & 431.017 & 8 & 39.637 & 1 & 475.606 & 9
+ & 24.803 & 0 & 0.000 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+hline
+\end_layout
+
+\begin_layout Plain Layout
+
+spm linear:0 a & 10 & 0.005 & 10 & 3.015 & 10 & 0.047 & 4 & 9.928 & 10 & 0.179
+ & 0 & 0.000 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+spm linear:1 a & 10 & 0.006 & 10 & 5.304 & 10 & 0.070 & 4 & 16.444 & 0 & 0.000
+ & 0 & 0.000 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+spm predecessor:0 a & 10 & 0.004 & 10 & 0.092 & 10 & 0.010 & 10 & 1.651 & 10
+ & 0.023 & 2 & 360.445 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+spm predecessor:1 a & 10 & 0.004 & 10 & 1.416 & 10 & 0.033 & 8 & 60.771 & 10
+ & 0.037 & 0 & 0.000 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+spm2 predecessor:0 a & 10 & 0.004 & 10 & 0.072 & 10 & 0.010 & 10 & 1.103 & 10
+ & 0.018 & 2 & 171.536 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+spm2 predecessor:1 a & 10 & 0.004 & 10 & 1.635 & 10 & 0.014 & 8 & 15.658 & 10
+ & 0.028 & 0 & 0.000 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+spm2 maxmeasure:0 a & 10 & 0.017 & 10 & 39.250 & 10 & 0.037 & 8 & 75.500 & 10
+ & 0.075 & 0 & 0.000 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+spm2 maxmeasure:1 a & 10 & 0.005 & 9 & 27.859 & 10 & 0.034 & 6 & 24.093 & 10
+ & 0.067 & 0 & 0.000 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+spm2 maxmeasure:2 a & 10 & 0.005 & 10 & 22.306 & 10 & 0.029 & 7 & 44.627 & 10
+ & 0.053 & 0 & 0.000 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+spm2 minmeasure:0 a & 10 & 0.016 & 10 & 0.355 & 10 & 0.049 & 7 & 5.527 & 10
+ & 0.058 & 0 & 0.000 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+spm2 minmeasure:1 a & 10 & 0.015 & 10 & 0.249 & 10 & 0.053 & 8 & 8.593 & 10
+ & 0.068 & 0 & 0.000 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+spm2 minmeasure:2 a & 10 & 0.012 & 10 & 0.255 & 10 & 0.041 & 8 & 8.475 & 10
+ & 0.050 & 0 & 0.000 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+hline
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{longtable}
+\end_layout
+
+\begin_layout Plain Layout
+
+% TODO: should have a number + label here
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+endgroup
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{Summary of Small Progress Measure benchmark on random graphs}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{table}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 \begin_inset Note Note
 status open
 
@@ -9119,6 +9641,119 @@ Put them in appendices!
 \end_layout
 
 \begin_layout Standard
+Columns:
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+l
+\emph default
+: Linear lifting strategy; 
+\emph on
+0
+\emph default
+: swiping, 
+\emph on
+1
+\emph default
+: alternating direction.
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+p: 
+\emph default
+Predecessor lifting using old framework: 
+\emph on
+0
+\emph default
+: queue, 
+\emph on
+1
+\emph default
+: stack.
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+P
+\emph default
+: Predecosser lfiting using new framework: 
+\emph on
+0
+\emph default
+: queue, 
+\emph on
+1
+\emph default
+: stack.
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+M
+\emph default
+: Maximum-measure propagation: 
+\emph on
+0:
+\emph default
+ queue, 
+\emph on
+1
+\emph default
+: stack, 
+\emph on
+2:
+\emph default
+ heap.
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+m
+\emph default
+: Minimum-measure propagation: 
+\emph on
+0:
+\emph default
+ queue, 
+\emph on
+1
+\emph default
+: stack, 
+\emph on
+2:
+\emph default
+ heap.
+\end_layout
+
+\begin_layout Standard
+Rows:
+\end_layout
+
+\begin_layout Standard
+Each testcase is a clustered random game with average outdegree 3 and 10
+ priorities, but with different number of vertices, cluster size, and random
+ number generator seed.
+ Each row lists the 
+\emph on
+size/clustersize/seed
+\emph default
+ used.
+\end_layout
+
+\begin_layout Standard
+For each intersection between row and column, two results are reported.
+ The first is the result obtained with the standard SPM algorithm (either
+ old or new framework) and the second using the two-way solving approach.
+\end_layout
+
+\begin_layout Standard
 \begin_inset ERT
 status open
 
@@ -9126,7 +9761,29 @@ status open
 
 
 \backslash
-footnotesize
+begingroup
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+setlength{
+\backslash
+LTleft}{-20cm plus -1fill}
+\backslash
+setlength{
+\backslash
+LTright}{
+\backslash
+LTleft}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+scriptsize
 \end_layout
 
 \begin_layout Plain Layout
@@ -9242,6 +9899,13 @@ ExpandableInput{results-tests4-seconds.tex}
 end{longtable}
 \end_layout
 
+\begin_layout Plain Layout
+
+
+\backslash
+endgroup
+\end_layout
+
 \end_inset
 
 
@@ -9255,7 +9919,29 @@ status open
 
 
 \backslash
-footnotesize
+begingroup
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+setlength{
+\backslash
+LTleft}{-20cm plus -1fill}
+\backslash
+setlength{
+\backslash
+LTright}{
+\backslash
+LTleft}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+scriptsize
 \end_layout
 
 \begin_layout Plain Layout
@@ -9371,9 +10057,34 @@ ExpandableInput{results-tests4-lifts-per-second.tex}
 end{longtable}
 \end_layout
 
+\begin_layout Plain Layout
+
+
+\backslash
+endgroup
+\end_layout
+
 \end_inset
 
 
+\end_layout
+
+\begin_layout Standard
+Observations:
+\end_layout
+
+\begin_layout Itemize
+Clustered random games are a lot more difficult to solve than random games
+ of the same size without clusters.
+\end_layout
+
+\begin_layout Itemize
+As expected, the linear lifting strategy is unlikely to get completely stuck
+ on problems, though it rarely is the fastest solution available.
+\end_layout
+
+\begin_layout Itemize
+TODO: more!
 \end_layout
 
 \begin_layout Section
@@ -9418,8 +10129,11 @@ status open
 \begin_layout Plain Layout
 Quickly summarize results and explain how they relate to the research question;
  describe how my research improved the state of the art (which was the research
- goal).
- Hopefully, we can get some useful conclusion like "I've found a lifting
+ goal): better understanding what works for SPM.
+\end_layout
+
+\begin_layout Plain Layout
+Hopefully, we can get some useful conclusion like "I've found a lifting
  strategy that works well" and "I found an efficient way to solve a parity
  game concurrently" (this can be quantified pretty well since we have a
  serial algorithm to compare with).
@@ -9452,7 +10166,15 @@ Describe any untested hypotheses (things I thought about but don't have
 \end_layout
 
 \begin_layout Standard
--- solving parametrized parity games symbolically.
+-- solving parametrized parity games symbolically
+\end_layout
+
+\begin_layout Standard
+-- concurrent/distributed solving
+\end_layout
+
+\begin_layout Standard
+-- efficient implementation of strategy improvement
 \end_layout
 
 \begin_layout Chapter
