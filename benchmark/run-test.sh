@@ -4,7 +4,7 @@
 # If there is an input file, it must be the last argument.
 
 DIR=$(dirname "$(readlink -f "$0")")
-SOLVER=$(readlink -f "${DIR}/../src/solver")
+SOLVER=$HOME/solver/bin/solver
 
 if [ ! -x "$SOLVER" ]
 then

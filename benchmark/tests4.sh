@@ -12,7 +12,7 @@ run_on() {
 			for alternate in '' -a
 			do
 				name=random-seed=$seed-size=$1-clustersize=${2:-0}$lift$alternate run \
-				../run-test.sh -i random --priorities=10 --seed=$seed $lift $alternate --size=$1 ${2:+--clustersize=$2} --maxlifts=10e10 --stats --verify
+				../run-test.sh -i random --priorities=10 --seed=$seed $lift $alternate --size=$1 ${2:+--clustersize=$2} --maxlifts=10e9 --stats --verify
 			done
 		done
 	done
