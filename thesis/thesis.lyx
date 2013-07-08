@@ -151,26 +151,19 @@ s; these improvements are documented in this report.
 \begin_layout Standard
 Although I met several hurdles while executing the project, I believe the
  final result is quite good.
- The tool I developed is orders of magnitude more efficient than the (few)
- existing competitors, which demonstrates a practical contribution to the
- state of the art.
+ The tool I developed is orders of magnitude more efficient than the competitors
+ (though few exist) which demonstrates a practical contribution to the state
+ of the art.
  Indeed, the observation that such large performance gains are possible
- at all shows that [[ bla bla practical performance is not 
-\begin_inset Quotes eld
-\end_inset
-
-uitgekristalliseerd
-\begin_inset Quotes erd
-\end_inset
-
- ]]
+ at all supports the notion that further research on practical perfomance
+ is useful.
 \end_layout
 
 \begin_layout Standard
-It is my hope that my contributions not only prove beneficial to practitioners
- today, but will also increase the confidence in parity games as a useful
- formalism for other, higher level problems, as well as inspire the ongoing
- development of new developments in high-performance parity game solvers.
+Finally, it is my hope that my contributions not only prove beneficial to
+ practitioners today, but will also increase the confidence in parity games
+ as a useful formalism for other, higher-level problems, as well as inspire
+ new developments in high-performance parity game solvers.
 \end_layout
 
 \begin_layout Section
@@ -338,10 +331,9 @@ index of the game
 \end_layout
 
 \begin_layout Standard
-Parity games can be played on finite as well as infinite graphs.
- A finite parity game is played on a graph with a finite number of vertices;
- in this case, the number of edges and the index of the game will be finite
- as well.
+Parity games can be played on finite as well as infinite graphs, although
+ I will consider finite graphs exclusively.
+ The index of the game is always assumed to be finite.
 \end_layout
 
 \begin_layout Subsection
@@ -350,8 +342,9 @@ Game Play and Winning Conditions
 
 \begin_layout Standard
 A parity game is played by placing a token on some initial vertex.
- The player controlling that vertex moves the token to an adjacent vertex,
- which may belong to either player, who then makes the next move.
+ The player controlling that vertex moves the token along an edge to an
+ adjacent vertex, which may belong to either player, who then makes the
+ next move.
  When the token lands on a vertex without any outgoing edges, the game ends.
  However, it is more common for a game to continue indefinitely, causing
  an infinite sequence of moves.
@@ -400,8 +393,8 @@ play
 \end_inset
 
 .
- A subsequence of a play (ending on some vertex with outgoing edges) is
- called a 
+ A prefix of a play (ending on some vertex with outgoing edges) is called
+ a 
 \emph on
 partial play
 \emph default
@@ -450,8 +443,8 @@ P(\pi)=\min\left\{ p\in\mathbb{N}_{0}:\ \forall i\ \exists j>i:\ \phi(v_{j})=p\r
 \begin_layout Standard
 A play is won by player Even if the dominant priority for the play is even,
  and won by Odd otherwise (hence their names).
- When the set of priorities is finite, the dominant priority is well-defined,
- assigning a winner to every infinite play.
+ Since the set of priorities is finite, the dominant priority is well-defined
+ for any play, and thus every play has a winner.
 \end_layout
 
 \begin_layout Standard
@@ -693,7 +686,7 @@ In many practical applications, determination of winning sets is enough
  to constitute a solution.
  For example, when using parity games as a vehicle for model checking, the
  question whether a formal property holds corresponds with the question
- wether a particular vertex in a game graph is won by player Even.
+ whether a particular vertex in a game graph is won by player Even.
  In this case it suffices to determine the winner for this particular vertex
  only, without computing associated strategies, and even without fully determini
 ng winning sets.
@@ -778,7 +771,8 @@ infinite-memory strategies
 \emph on
 memoryless strategies
 \emph default
- are strategies which depend only on the current position of token, i.e.
+ are strategies which depend only on the current position of the token,
+ i.e.
  
 \family roman
 \series medium
@@ -894,7 +888,7 @@ It turns out that for all games of finite index optimal memoryless strategies
 \end_layout
 
 \begin_layout Standard
-This report is about finding optimal strategies to finite parity games,
+This report is about finding optimal strategies for finite parity games,
  and therefore the term 
 \emph on
 strategy
@@ -1071,10 +1065,10 @@ Often
 \end_inset
 
  is small and therefore the first category of algorithms provides better
- complexity bounds.
+ worst-case time complexity bounds.
  However, in practice many instances can be solved much faster than the
- worst case time complexity would suggest, and worst-case complexity bounds
- don't predict which algorithms work best in practice.
+ best available bound would suggest, and as a result these bounds cannot
+ be used to predict which algorithms work best in practice.
 \end_layout
 
 \begin_layout Section
@@ -1110,8 +1104,7 @@ key "emerson1991tree"
 
 \end_inset
 
-.
- Since many high-level specification languages can be converted into labelled
+, and many high-level specification languages can be converted into labelled
  transition systems, and many temporal logics (such as CTL and LTL) can
  be expressed in the modal 
 \begin_inset Formula $\mu$
@@ -1302,14 +1295,15 @@ key "jurdzinski2006deterministic"
 \end_layout
 
 \begin_layout Itemize
-A “big steps” improvement by Schewe 
+A combination of McNaughton's and Jurdziński's algorithms that proceeds
+ in “big steps” by Schewe 
 \begin_inset CommandInset citation
 LatexCommand cite
 key "schewe2007solving"
 
 \end_inset
 
- that combines both McNaughton's and Jurdziński's algorithms
+
 \end_layout
 
 \begin_layout Itemize
@@ -1533,8 +1527,8 @@ key "keiren2009"
 \end_layout
 
 \begin_layout Standard
-It should be mentioned that Van de Pol and Weber developed a multi-core
- implementation of Small Progress Measures 
+Van de Pol and Weber developed a multi-core implementation of Small Progress
+ Measures 
 \begin_inset CommandInset citation
 LatexCommand cite
 key "vandepol2008multicore"
@@ -1612,8 +1606,8 @@ I want to stress that improving upon PGSolver was not a goal of the project
  (in different programming languages and using different data structures)
  is very useful to put empirical data such as reported by Friedmann and
  Lange in perspective, because it helps quantify to which extent results
- depend on the performance of the algorithms themselves and to which extent
- they are influenced by implementation techniques.
+ depend on the performance of the algorithms themselves and how much they
+ are influenced by implementation techniques.
 \end_layout
 
 \begin_layout Standard
@@ -1734,20 +1728,20 @@ Building blocks for parity game solvers
 Before discussing algorithms used to solve parity games, it is useful to
  establish some common terminology related to parity game theory.
  Most of this terminology comes from literature, but since the terms used
- and their meaning varies considerably, it is necessary to definite the
- concepts and terms that will be used in the rest of this report.
+ and their meaning varies considerably, it is necessary to define the concepts
+ and terms that will be used in the rest of this report.
 \end_layout
 
 \begin_layout Standard
-First, a number of restrictions on the game structure will be given, that
- simplify the definition and discussion of the algorithms and datastructures
- that follow.
+First, a number of restrictions on the game structure will be made to simplify
+ the definition and discussion of the algorithms and datastructures that
+ follow.
  Second, a number of useful properties of parity games will be presented;
  none of these are new, but they will be defined in a manner consistent
  with the preceding definitions.
  Third, a number of notable special cases of parity games will be discussed;
  these deserve to be mentioned but are otherwise outside the scope of this
- report.
+ report, which focuses on general cases.
 \end_layout
 
 \begin_layout Standard
@@ -8995,19 +8989,83 @@ key "friedmann2009solving"
  progress measures algorithm, Zielonka's recursive algorithm and Jurdziński
  & Vöge's strategy improvement algorithm.
  Their solver is written in OCaml and does not support concurrency.
+ In their benchmarks, they include four kinds of games:
+\end_layout
+
+\begin_layout Enumerate
+
+\emph on
+Decision procedures:
+\emph default
+ two classes of games constructed from recursively defined 
+\begin_inset Formula $\mu$
+\end_inset
+
+-calculus formulae.
+\end_layout
+
+\begin_layout Enumerate
+
+\emph on
+Elevator verification:
+\emph default
+ two model checking problems, consisting of checking the fairness of two
+ similar elevator models (one fair, one unfair).
+\end_layout
+
+\begin_layout Enumerate
+
+\emph on
+Towers of Hanoi
+\emph default
+: a simple model checking problem which verifies whether a position in the
+ solitary Towers of Hanoi game is solveable.
+\end_layout
+
+\begin_layout Enumerate
+
+\emph on
+Random games
+\emph default
+: large games generated randomly.
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-Copy description of games from log (Sunday 19 December)
+All of these can be varied in size, but only random games allow easy generation
+ of different cases of the same size by changing the seed of the random
+ number generator.
 \end_layout
+
+\begin_layout Standard
+The third class of games can be solved entirely using either decomposition
+ into strongly connected components (as Friedmann and Lange also reported)
+ or by owner-controlled cycle removal.
+ This means the games are not very interesting as benchmark cases of parity
+ game solvers (though they do show the utility of preprocessing) and I will
+ not include them in my results.
+\end_layout
+
+\begin_layout Standard
+For the fourth class of games, a sufficiently detailed description is not
+ available in order to replicate them exactly.
+ It should be noted that 
+\emph on
+unclustered
+\emph default
+ random games can typically be solved with cycle removal (a preprocessing
+ operation which was not available in PGSolver) which makes them also uninterest
+ing except to show off the benefits of cycle removal.
+ I will use clustered random games as described in subsection 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Clustered-random-games"
 
 \end_inset
 
-
+, which cannot be reduced by decomposition into strongly connected components,
+ and for which cycle removal has only limited effect.
+ One notable difference with the random games used by Friedemann and Lange
+ is that these consist of a single component only.
 \end_layout
 
 \begin_layout Section
@@ -10085,6 +10143,143 @@ As expected, the linear lifting strategy is unlikely to get completely stuck
 
 \begin_layout Itemize
 TODO: more!
+\end_layout
+
+\begin_layout Subsection
+Comparison with 
+\emph on
+Solving Parity Games in Practice
+\end_layout
+
+\begin_layout Standard
+To compare our results with the state of the art, it seems reasonable to
+ start from the results reported by Friedmann and Lange in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "friedmann2009solving"
+
+\end_inset
+
+, which were obtained using PGSolver with various preprocessing operations
+ and three of the many supported solving algorithms: Small Progress Measures,
+ Zielonka's recursive algorithm and Strategy Improvement.
+\end_layout
+
+\begin_layout Standard
+Friedmann and Lange use four different classes of games:
+\end_layout
+
+\begin_layout Enumerate
+
+\emph on
+Decision procedures:
+\emph default
+ two subclasses of games constructed from recursively defined 
+\begin_inset Formula $\mu$
+\end_inset
+
+-calculus formulae.
+\end_layout
+
+\begin_layout Enumerate
+
+\emph on
+Elevator verification:
+\emph default
+ two model checking problems, consisting of checking the fairness of two
+ similar elevator models (one fair, one unfair).
+\end_layout
+
+\begin_layout Enumerate
+
+\emph on
+Towers of Hanoi
+\emph default
+: a simple model checking problem which verifies whether a position in the
+ solitary Towers of Hanoi game is solveable.
+\end_layout
+
+\begin_layout Enumerate
+
+\emph on
+Random games
+\emph default
+: large games generated randomly.
+\end_layout
+
+\begin_layout Standard
+The third class of games can be solved entirely using either decomposition
+ into strongly connected components (as Friedmann and Lange already reported)
+ or by owner-controlled cycle removal.
+ This means the games are not very interesting as benchmark cases.
+\end_layout
+
+\begin_layout Standard
+The fourth class of games could be interesting, but the exact parameters
+ used to generate them (especially how they are clustered) are not provided.
+ It should be noted that unclustered random games can typically be solved
+ completely using cycle removal, which is a preprocessing operation that
+ is not available in PGSolver.
+ Instead, I will use clustered random games as described in subsection 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Clustered-random-games"
+
+\end_inset
+
+.
+ One notable differences with the random games used by Friedemann and Lange
+ is that these will consist of a single strongly-connected component only.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+TODO:
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+benchmarks to include:
+\end_layout
+
+\begin_layout Plain Layout
+- decision / elevator: include maxmeasures, +/- alternate, predecessor,
+ linear
+\end_layout
+
+\begin_layout Plain Layout
+- results on SPGIP (maxmeasure without alternating works really well on
+ decision procedures)
+\end_layout
+
+\begin_layout Plain Layout
+- effect of preprocessing (SCC/decycle)
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
