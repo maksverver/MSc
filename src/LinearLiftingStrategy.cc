@@ -11,11 +11,10 @@
 
 LinearLiftingStrategy::LinearLiftingStrategy(
     const ParityGame &game, bool alternate )
-    : LiftingStrategy(), alternate_(alternate), dir_(0),
-      last_vertex_(game.graph().V() - 1), vertex_(NO_VERTEX), failed_lifts_(0)
+    : LiftingStrategy(), alternate_(alternate),
+      last_vertex_(game.graph().V() - 1),
+      dir_(0), vertex_(NO_VERTEX), failed_lifts_(0) 
 {
-    max_failed_ = game.graph().V();
-    if (alternate_) max_failed_ += max_failed_ - 1;
 }
 
 void LinearLiftingStrategy::lifted(verti v)
@@ -26,53 +25,55 @@ void LinearLiftingStrategy::lifted(verti v)
 
 verti LinearLiftingStrategy::next()
 {
-    if (failed_lifts_ >= max_failed_)
+    if (failed_lifts_ >= last_vertex_)
     {
         vertex_ = NO_VERTEX;
         return NO_VERTEX;
     }
-    ++failed_lifts_;
-
-    if (last_vertex_ == 0) return 0;
 
     if (vertex_ == NO_VERTEX)
     {
-        dir_ = 0;
-        vertex_ = 0;
+        dir_          = 0;
+        vertex_       = 0;
+        failed_lifts_ = 0;
     }
     else
-    if (dir_ == 0)  // forward
     {
-        if (vertex_ < last_vertex_)
+        ++failed_lifts_;  // count last vertex being lifted
+
+        if (dir_ == 0)  // forward
         {
-            ++vertex_;
+            if (vertex_ < last_vertex_)
+            {
+                ++vertex_;
+            }
+            else
+            if (!alternate_)
+            {
+                vertex_ = 0;
+            }
+            else
+            {
+                dir_ = 1;
+                vertex_ = vertex_ - failed_lifts_ - 1;
+            }
         }
-        else
-        if (!alternate_)
+        else  // backward
         {
-            vertex_ = 0;
-        }
-        else
-        {
-            dir_ = 1;
-            --vertex_;
-        }
-    }
-    else  // backward
-    {
-        if (vertex_ > 0)
-        {
-            --vertex_;
-        }
-        else
-        if (!alternate_)
-        {
-            vertex_ = last_vertex_;
-        }
-        else
-        {
-            dir_ = 0;
-            vertex_ = 1;
+            if (vertex_ > 0)
+            {
+                --vertex_;
+            }
+            else
+            if (!alternate_)
+            {
+                vertex_ = last_vertex_;
+            }
+            else
+            {
+                dir_ = 0;
+                vertex_ = failed_lifts_;
+            }
         }
     }
     return vertex_;
