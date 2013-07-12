@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 
+from math import *
 from operator import mul
 import sys
 import re
@@ -7,14 +8,26 @@ import re
 results = []
 
 def mean(vals):
+    if not vals: return 0
     return 1.0*sum(vals)/len(vals)
 
 def variance(vals):
+    if not vals: return 0
     m = mean(vals)
     return mean([ (v - m)**2 for v in vals ])
 
 def stddev(vals):
-    return variance(vals)**0.5
+    if not vals: return 0
+    return sqrt(variance(vals))
+
+def geom_mean(vals):
+    if not vals: return 0
+    return reduce(mul, vals) ** (1.0/len(vals))
+
+def geom_stddev(vals):
+    if not vals: return 0
+    m = geom_mean(vals)
+    return exp(sqrt(sum(log(v/m)**2 for v in vals)/len(vals)))
 
 def values_for_key(key):
     values = []
@@ -91,9 +104,9 @@ def test4():
                             result['config.spm.alternate']  == ['false','true'][alternate] ]
             times = [ float(record['solution.time'].rstrip('s')) for record in matched
                         if record['solution.result'] == 'success' ]
-            count = len(times)
-            time = 0 if count == 0 else reduce(mul, times) ** (1.0/count)
-            print '&', count, '&', ('%.3f'%time),
+            lifts = [ float(record['lifts.total']) for record in matched
+                        if record['solution.result'] == 'success' ]
+            print '&', len(times), '&', ('%.3f'%mean(lifts)), #'&', ('%.3f'%stddev(times))
         print '\\\\'
 
     return
