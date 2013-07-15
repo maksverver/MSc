@@ -699,12 +699,15 @@ DenseSPM::~DenseSPM()
 void DenseSPM::set_vec(verti v, const verti src[], bool carry)
 {
     verti *dst = &spm_[(size_t)len_*v];
-    for (int n = len(v) - 1; n >= 0; --n)
+    const int l = len(v);                   // l: vector length
+    int k = l;                              // k: position of last overflow
+    for (int n = l - 1; n >= 0; --n)
     {
         dst[n] = src[n] + carry;
         carry = (dst[n] >= M_[n]);
-        if (carry) dst[n] = 0;
+        if (carry) k = n;
     }
+    while (k < l) dst[k++] = 0;
     if (carry) set_top(v);
 }
 
