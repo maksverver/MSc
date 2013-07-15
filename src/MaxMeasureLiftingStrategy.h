@@ -32,10 +32,11 @@ class MaxMeasureLiftingStrategy2 : public LiftingStrategy2
 {
 public:
     enum Order { QUEUE = 0, STACK = 1, HEAP = 2 }; 
+    enum Metric { MAX_VALUE = 0, MIN_VALUE = 1, MAX_STEP = 2 };
 
     MaxMeasureLiftingStrategy2( const ParityGame &game,
                                 const SmallProgressMeasures &spm,
-                                Order order, bool minimize );
+                                Order order, Metric metric );
     ~MaxMeasureLiftingStrategy2();
 
     void push(verti v);
@@ -71,7 +72,7 @@ private:
 private:
     const SmallProgressMeasures &spm_;  //!< SPM instance being solved
     const Order order_;                 //!< vertex extraction order
-    const bool minimize_;               //!< minimize instead of maximize?
+    const Metric metric_;               //!< comparison metric
 
     compat_uint64_t next_id_;        //!< number of insertions
     compat_uint64_t * insert_id_;    //!< for each vertex: last insertion time
@@ -88,10 +89,12 @@ private:
 class MaxMeasureLiftingStrategyFactory : public LiftingStrategyFactory
 {
 public:
-    MaxMeasureLiftingStrategyFactory( MaxMeasureLiftingStrategy2::Order order
-                                        = MaxMeasureLiftingStrategy2::HEAP,
-                                      bool minimize = false )
-        : order_(order), minimize_(minimize) { };
+    MaxMeasureLiftingStrategyFactory(
+            MaxMeasureLiftingStrategy2::Order order =
+                MaxMeasureLiftingStrategy2::HEAP,
+            MaxMeasureLiftingStrategy2::Metric metric =
+                MaxMeasureLiftingStrategy2::MAX_VALUE )
+        : order_(order), metric_(metric) { };
 
     bool supports_version(int version);
 
@@ -102,8 +105,8 @@ public:
                                const SmallProgressMeasures &spm );
 
 private:
-    const MaxMeasureLiftingStrategy2::Order order_;
-    const bool minimize_;
+    const MaxMeasureLiftingStrategy2::Order  order_;
+    const MaxMeasureLiftingStrategy2::Metric metric_;
 };
 
 #endif /* ndef PREDECESSOR_LIFTING_STRATEGY_H_INCLUDED */

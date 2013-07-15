@@ -101,7 +101,7 @@ void SmallProgressMeasures::initialize_lifting_strategy(LiftingStrategy2 &ls)
         else
         {
             verti w = get_ext_succ(v, take_max(v));
-            bool dirty = less_than(v, vec(w), game_.priority(v)%2 != p_);
+            bool dirty = less_than(v, vec(w), compare_strict(v));
             strategy_[v] = w;
             dirty_[v]    = dirty;
             if (dirty) ls.push(v);
@@ -138,7 +138,7 @@ std::pair<verti, bool> SmallProgressMeasures::solve_one(LiftingStrategy &ls)
     if (!is_top(v))
     {
         verti w = get_ext_succ(v, take_max(v));
-        if (lift_to(v, vec(w), game_.priority(v)%2 != p_))
+        if (lift_to(v, vec(w), compare_strict(v)))
         {
             ls.lifted(v);
             success = true;
@@ -158,7 +158,7 @@ verti SmallProgressMeasures::solve_one(LiftingStrategy2 &ls)
 
     assert(!is_top(v));
 
-    bool success = lift_to(v, vec(get_successor(v)), game_.priority(v)%2 != p_);
+    bool success = lift_to(v, vec(get_successor(v)), compare_strict(v));
     assert(success);
     dirty_[v] = false;
     // debug_print_vertex(v);
@@ -328,7 +328,7 @@ bool SmallProgressMeasures::verify_solution()
               it != graph.succ_end(v); ++it )
         {
             bool ok = is_top(v) ||
-                vector_cmp(v, *it, len(v)) >= (game_.priority(v)%2 != p_);
+                      vector_cmp(v, *it, len(v)) >= compare_strict(v);
             one_ok = one_ok || ok;
             all_ok = all_ok && ok;
         }
@@ -450,6 +450,8 @@ ParityGame::Strategy SmallProgressMeasuresSolver::solve_alternate()
         info("Switching to %s game...", player == 0 ? "normal" : "dual");
         std::auto_ptr<LiftingStrategy> ls(lsf_->create(game_, *spm[player]));
 
+        /* Note: work size should be large enough so that dumb strategies like
+                 linear lifting are still able to detect termination! */
         for ( long long work = game_.graph().V(); work > 0 && !half_solved;
               work -= SmallProgressMeasures::work_size )
         {

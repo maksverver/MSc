@@ -17,8 +17,8 @@
 
 MaxMeasureLiftingStrategy2::MaxMeasureLiftingStrategy2(
     const ParityGame &game, const SmallProgressMeasures &spm,
-    Order order, bool minimize )
-        : LiftingStrategy2(), spm_(spm), order_(order), minimize_(minimize),
+    Order order, Metric metric )
+        : LiftingStrategy2(), spm_(spm), order_(order), metric_(metric),
           next_id_(0),
           insert_id_(order < HEAP ? new compat_uint64_t[game.graph().V()] : 0),
           pq_pos_(new verti[game.graph().V()]),
@@ -130,7 +130,7 @@ verti MaxMeasureLiftingStrategy2::pop()
             if (i == 0 || bumped_[i] > bumped_[i - 1]) move_up(bumped_[i]);
             move_up(bumped_[i]);
         }
-        if (minimize_)
+        if (metric_ != MAX_VALUE)
         {
             /* Note: minimization is a bit trickier than maximization, since
                we need to move bumped vertices down the heap (rather than up
@@ -183,21 +183,75 @@ static int cmp_ids(compat_uint64_t x, compat_uint64_t y)
     return (x > y) - (x < y);
 }
 
+/* This returns +1 if lifting v1 to v2 would increase the progress measure
+   by a larger difference than lifting w1 to w2.
+
+   Assumes v1 >= v2 and w1 >= w2 (for the first v_len and w_len elements
+   respectively) and that all vectors are within bounds.  (If they are not,
+   the results are still somewhat sensible, but it may be possible that two
+   vectors compare unequal even though their steps are equally large.)
+*/
+static int cmp_step( const verti *v1, const verti *v2, int v_len, bool v_carry,
+                     const verti *w1, const verti *w2, int w_len, bool w_carry )
+{
+    for (int i = 0; i < v_len || i < w_len; ++i)
+    {
+        int a = i < v_len ? v2[i] - v1[i] : 0;
+        int b = i < w_len ? w2[i] - w1[i] : 0;
+        if (a != b) return (a > b) - (a < b);
+    }
+    if (v_carry || w_carry)
+    {
+        if (!w_carry) return +1;
+        if (!v_carry) return -1;
+        if (v_len < w_len) return +1;
+        if (v_len > w_len) return -1;
+    }
+    return 0;
+}
+
 int MaxMeasureLiftingStrategy2::cmp(verti i, verti j)
 {
     verti v = pq_[i], w = pq_[j];
-    int d = spm_.vector_cmp( spm_.get_successor(v),
-                             spm_.get_successor(w), spm_.len_ );
-    if (d != 0) return minimize_ ? -d : +d;
+    int d = 0;
 
-    // Tie-break on insertion order: smallest insert-id first in queue
-    // mode, or largest insert-id first in stack mode.
-    switch (order_)
+    switch (metric_)
     {
-    case STACK: return cmp_ids(insert_id_[v], insert_id_[w]);
-    case QUEUE: return cmp_ids(insert_id_[w], insert_id_[v]);
-    default:    return 0;
+    case MAX_VALUE:
+        d = spm_.vector_cmp( spm_.get_successor(v),
+                             spm_.get_successor(w), spm_.len_ );
+        break;
+
+    case MIN_VALUE:
+        d = spm_.vector_cmp( spm_.get_successor(v),
+                             spm_.get_successor(w), spm_.len_ );
+        break;
+
+    case MAX_STEP:
+#ifdef DEBUG
+        assert(vector_cmp(v, spm_.get_successor(v), spm_.len(v)) >= 0);
+        assert(vector_cmp(w, spm_.get_successor(w), spm_.len(w)) >= 0);
+#endif
+        d = cmp_step( spm_.vec(v), spm_.vec(spm_.get_successor(v)),
+                      spm_.len(v), spm_.compare_strict(v),
+                      spm_.vec(w), spm_.vec(spm_.get_successor(w)),
+                      spm_.len(w), spm_.compare_strict(w) );
+        break;
     }
+
+    if (d == 0)
+    {
+        // Tie-break on insertion order: smallest insert-id first in queue
+        // mode, or largest insert-id first in stack mode.
+        switch (order_)
+        {
+        case STACK: d = cmp_ids(insert_id_[v], insert_id_[w]);
+        case QUEUE: d = cmp_ids(insert_id_[w], insert_id_[v]);
+        default:    break;
+        }
+    }
+
+    return d;
 }
 
 bool MaxMeasureLiftingStrategy2::check()
@@ -238,5 +292,5 @@ LiftingStrategy *MaxMeasureLiftingStrategyFactory::create(
 LiftingStrategy2 *MaxMeasureLiftingStrategyFactory::create2(
     const ParityGame &game, const SmallProgressMeasures &spm )
 {
-    return new MaxMeasureLiftingStrategy2(game, spm, order_, minimize_);
+    return new MaxMeasureLiftingStrategy2(game, spm, order_, metric_);
 }

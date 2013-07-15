@@ -15,7 +15,7 @@ class InternalLiftingStrategy : public LiftingStrategy
 {
 public:
     InternalLiftingStrategy(const GamePart &part, LiftingStrategy *other)
-        : LiftingStrategy(part.game()), part_(part), ls_(other)
+        : part_(part), ls_(other)
     {
     }
 

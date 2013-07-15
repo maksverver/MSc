@@ -108,14 +108,24 @@ LiftingStrategyFactory *
     {
         int  order = (parts.size() > 1 ? atoi(parts[1].c_str()) : 2);
         return new MaxMeasureLiftingStrategyFactory(
-            (MaxMeasureLiftingStrategy2::Order)order, false);
+            (MaxMeasureLiftingStrategy2::Order)order,
+            MaxMeasureLiftingStrategy2::MIN_VALUE);
     }
     else
     if (strcasecmp(parts[0].c_str(), "minmeasure") == 0)
     {
         int  order = (parts.size() > 1 ? atoi(parts[1].c_str()) : 2);
         return new MaxMeasureLiftingStrategyFactory(
-            (MaxMeasureLiftingStrategy2::Order)order, true );
+            (MaxMeasureLiftingStrategy2::Order)order, 
+            MaxMeasureLiftingStrategy2::MIN_VALUE );
+    }
+    else
+    if (strcasecmp(parts[0].c_str(), "maxstep") == 0)
+    {
+        int  order = (parts.size() > 1 ? atoi(parts[1].c_str()) : 2);
+        return new MaxMeasureLiftingStrategyFactory(
+            (MaxMeasureLiftingStrategy2::Order)order, 
+            MaxMeasureLiftingStrategy2::MAX_STEP );
     }
     else
     if (strcasecmp(parts[0].c_str(), "oldmaxmeasure") == 0)
