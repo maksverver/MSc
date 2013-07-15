@@ -7903,12 +7903,75 @@ The algorithm is based on a proof by induction on the number of different
 \end_layout
 
 \begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+ 
+\backslash
+centerline{
+\end_layout
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename illustrations/zielonka-steps.svg
+	lyxscale 50
+	width 17cm
+
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+One iteration of Zielonka's algorithm 
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:zielonka-steps"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 Without loss of generality (using priority compression if necessary) suppose
  we start with a game 
 \begin_inset Formula $\Gamma$
 \end_inset
 
- in wich some vertices have priority 0.
+ with some vertices having priority 0.
  Then, we can compute the attractor set of these vertices for player Even
  (
 \begin_inset Formula $U=Attr^{0}(\Gamma,\phi^{-1}(0)$
@@ -7932,7 +7995,7 @@ Without loss of generality (using priority compression if necessary) suppose
 \bar default
 \noun default
 \color inherit
- and its complement 
+ and take its complement 
 \begin_inset Formula $V'$
 \end_inset
 
@@ -7989,7 +8052,7 @@ Since there are no vertices with priority
 \begin_inset Formula $0$
 \end_inset
 
- in 
+ left in 
 \begin_inset Formula $\Gamma'$
 \end_inset
 
@@ -8002,7 +8065,7 @@ Since there are no vertices with priority
 \bar no
 \noun off
 \color none
- left, it has at most 
+, it has at most 
 \begin_inset Formula $d$
 \end_inset
 
@@ -8091,28 +8154,24 @@ At this point, we know that
 \begin_inset Formula $U'=Attr^{1}(\Gamma,W'_{1})$
 \end_inset
 
- then since 
+; then 
+\begin_inset Formula $U'\subseteq W'_{1}$
+\end_inset
+
+ (since it is the attractor of a winning region) and 
 \begin_inset Formula $V\setminus U'$
 \end_inset
 
- is a trap for Odd, we can solve the subgame 
-\begin_inset Formula $\Gamma|(V\setminus U')$
+ is a trap for Odd in 
+\begin_inset Formula $\Gamma$
 \end_inset
 
- independently to determine the remainder of the winning sets.
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-TODO: picture!
-\end_layout
-
+ (as the complement of an Odd-attractor).
+ Consequently it suffices to solve the subgame 
+\begin_inset Formula $\Gamma|\left(V\setminus U'\right)$
 \end_inset
 
-
+ to determine the remainder of the winning sets.
 \end_layout
 
 \begin_layout Standard
@@ -8126,7 +8185,7 @@ We thus repeat the process to solve increasingly smaller subgames, until
 \bar no
 \noun off
 \color none
-either 
+
 \begin_inset Formula $U=\emptyset$
 \end_inset
 
@@ -8138,8 +8197,23 @@ s to solve it) or
 
  (i.e.
  all remaining vertices are won by Even).
- Winning strategies can be constructed along the way by combing the strategies
- obtained recursively with those found by computing attractor sets.
+ Winning strategies can be constructed along the way.
+ In the base case (when there is only a single priority left) the winning
+ player can pick abritrary successors for his strategy.
+ Otherwise, recursive solving and attractor set computation yield strategies
+ which can be combined into a global strategy.
+\end_layout
+
+\begin_layout Standard
+Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:zielonka-steps"
+
+\end_inset
+
+ shows the steps taken for each iteration of Zielonka's algorithm; the unsolved
+ part of the game after the third step is used in the next iteration.
 \end_layout
 
 \begin_layout Standard
@@ -8147,11 +8221,11 @@ From the above, it is clear that to solve a game with
 \begin_inset Formula $d$
 \end_inset
 
- priorities, we must recursively call the solver at most 
-\begin_inset Formula $V$
+ priorities, we must recursively call the solver 
+\begin_inset Formula $O(V)$
 \end_inset
 
- times for a worst-case runtime of 
+ times, giving a worst-case runtime of 
 \begin_inset Formula $O(V^{d})$
 \end_inset
 
@@ -8269,14 +8343,17 @@ reference "alg:Zielonka's-Recursive-Algorithm"
 \end_inset
 
 .
- Recall that Strategy is maps vertices to successor vertices (where the
- value 
+ Recall that 
+\family typewriter
+strategy
+\family default
+ maps vertices to successor vertex indices (where the value 
 \begin_inset Formula $\texttt{NO\_VERTEX}$
 \end_inset
 
  is used to indicate that a vertex is not in the controller's winning set).
- This requires that subgame construction preserves vertex indices, at least
- conceptually.
+ In the implementation this is a simple array of vertex indices, which requires
+ that subgame construction preserves vertex indices.
 \end_layout
 
 \begin_layout Standard
@@ -8483,24 +8560,6 @@ name "alg:Zielonka's-Recursive-Algorithm"
 \end_inset
 
 
-\end_layout
-
-\begin_layout Standard
-The solver function itself takes an initial parity game and a strategy array;
- the initial contents of the array are irrelevant, but after completion,
- the strategy will be filled in with the optimal strategy for both players,
- but only for the vertices in the initial game graph.
- Note that the strategy is passed by reference: all invocations of 
-\begin_inset Formula $\texttt{solve}$
-\end_inset
-
- share the same array, and entries in the array are updated at different
- invocations, and sometimes overwritten.
- It remains to be shown that the when 
-\begin_inset Formula $\texttt{solve}$
-\end_inset
-
- terminates, a complete strategy for both players has been computed.
 \end_layout
 
 \begin_layout Standard
@@ -9391,8 +9450,8 @@ hline
 
 \begin_layout Plain Layout
 
-spm linear:0  & 10 & 0.022 & 2 & 416.193 & 8 & 0.830 & 2 & 22.599 & 10 & 4.179
- & 0 & 0.000 
+spm linear:0  & 20 & 0.059 & 12 & 430.163 & 20 & 311.118 & 3 & 22.287 & 20 &
+ 13.656 & 0 & 0.000 
 \backslash
 
 \backslash
@@ -9401,8 +9460,8 @@ spm linear:0  & 10 & 0.022 & 2 & 416.193 & 8 & 0.830 & 2 & 22.599 & 10 & 4.179
 
 \begin_layout Plain Layout
 
-spm linear:1  & 10 & 0.032 & 0 & 0.000 & 8 & 1.218 & 2 & 25.856 & 10 & 6.053
- & 0 & 0.000 
+spm linear:1  & 20 & 0.074 & 12 & 768.593 & 20 & 444.833 & 3 & 24.714 & 20 &
+ 20.080 & 0 & 0.000 
 \backslash
 
 \backslash
@@ -9411,8 +9470,8 @@ spm linear:1  & 10 & 0.032 & 0 & 0.000 & 8 & 1.218 & 2 & 25.856 & 10 & 6.053
 
 \begin_layout Plain Layout
 
-spm predecessor:0  & 10 & 0.018 & 10 & 50.546 & 10 & 0.606 & 6 & 14.317 & 10
- & 1.256 & 0 & 0.000 
+spm predecessor:0  & 20 & 0.015 & 20 & 61.110 & 20 & 1.094 & 9 & 104.439 & 20
+ & 1.056 & 0 & 0.000 
 \backslash
 
 \backslash
@@ -9421,8 +9480,8 @@ spm predecessor:0  & 10 & 0.018 & 10 & 50.546 & 10 & 0.606 & 6 & 14.317 & 10
 
 \begin_layout Plain Layout
 
-spm predecessor:1  & 10 & 0.017 & 4 & 120.051 & 10 & 0.668 & 1 & 8.767 & 10
- & 0.067 & 0 & 0.000 
+spm predecessor:1  & 20 & 1.555 & 20 & 903.112 & 20 & 4.518 & 3 & 253.498 &
+ 20 & 6.150 & 0 & 0.000 
 \backslash
 
 \backslash
@@ -9431,8 +9490,8 @@ spm predecessor:1  & 10 & 0.017 & 4 & 120.051 & 10 & 0.668 & 1 & 8.767 & 10
 
 \begin_layout Plain Layout
 
-spm2 predecessor:0  & 10 & 0.010 & 10 & 29.438 & 10 & 0.319 & 6 & 7.682 & 10
- & 0.715 & 0 & 0.000 
+spm2 predecessor:0  & 20 & 0.007 & 20 & 30.768 & 20 & 0.529 & 16 & 249.059 &
+ 20 & 0.564 & 0 & 0.000 
 \backslash
 
 \backslash
@@ -9441,8 +9500,8 @@ spm2 predecessor:0  & 10 & 0.010 & 10 & 29.438 & 10 & 0.319 & 6 & 7.682 & 10
 
 \begin_layout Plain Layout
 
-spm2 predecessor:1  & 10 & 0.022 & 5 & 65.111 & 10 & 0.149 & 1 & 13.385 & 10
- & 0.037 & 0 & 0.000 
+spm2 predecessor:1  & 20 & 1.498 & 20 & 448.389 & 20 & 1.716 & 3 & 342.546 &
+ 20 & 0.079 & 0 & 0.000 
 \backslash
 
 \backslash
@@ -9451,8 +9510,8 @@ spm2 predecessor:1  & 10 & 0.022 & 5 & 65.111 & 10 & 0.149 & 1 & 13.385 & 10
 
 \begin_layout Plain Layout
 
-spm2 maxmeasure:0  & 10 & 0.019 & 5 & 224.357 & 10 & 0.357 & 2 & 179.477 & 10
- & 0.108 & 0 & 0.000 
+spm2 maxmeasure:0  & 20 & 10.325 & 20 & 2023.303 & 20 & 13.984 & 9 & 2069.674
+ & 20 & 0.175 & 0 & 0.000 
 \backslash
 
 \backslash
@@ -9461,8 +9520,8 @@ spm2 maxmeasure:0  & 10 & 0.019 & 5 & 224.357 & 10 & 0.357 & 2 & 179.477 & 10
 
 \begin_layout Plain Layout
 
-spm2 maxmeasure:1  & 10 & 0.005 & 3 & 215.254 & 10 & 0.205 & 4 & 31.068 & 10
- & 0.196 & 0 & 0.000 
+spm2 maxmeasure:1  & 20 & 0.285 & 20 & 2055.037 & 20 & 2.758 & 11 & 2207.628
+ & 20 & 0.659 & 0 & 0.000 
 \backslash
 
 \backslash
@@ -9471,8 +9530,8 @@ spm2 maxmeasure:1  & 10 & 0.005 & 3 & 215.254 & 10 & 0.205 & 4 & 31.068 & 10
 
 \begin_layout Plain Layout
 
-spm2 maxmeasure:2  & 10 & 0.006 & 5 & 86.717 & 10 & 0.230 & 3 & 14.915 & 10
- & 0.071 & 0 & 0.000 
+spm2 maxmeasure:2  & 20 & 0.018 & 20 & 896.029 & 20 & 32.869 & 7 & 1102.452
+ & 20 & 0.317 & 0 & 0.000 
 \backslash
 
 \backslash
@@ -9481,8 +9540,8 @@ spm2 maxmeasure:2  & 10 & 0.006 & 5 & 86.717 & 10 & 0.230 & 3 & 14.915 & 10
 
 \begin_layout Plain Layout
 
-spm2 minmeasure:0  & 9 & 0.768 & 1 & 579.025 & 7 & 40.093 & 0 & 0.000 & 9 &
- 31.397 & 0 & 0.000 
+spm2 minmeasure:0  & 20 & 403.272 & 20 & 7448.687 & 20 & 1762.198 & 3 & 2916.765
+ & 20 & 960.947 & 0 & 0.000 
 \backslash
 
 \backslash
@@ -9491,8 +9550,8 @@ spm2 minmeasure:0  & 9 & 0.768 & 1 & 579.025 & 7 & 40.093 & 0 & 0.000 & 9 &
 
 \begin_layout Plain Layout
 
-spm2 minmeasure:1  & 9 & 0.748 & 0 & 0.000 & 7 & 34.740 & 0 & 0.000 & 9 & 30.317
- & 0 & 0.000 
+spm2 minmeasure:1  & 20 & 354.341 & 20 & 7432.074 & 20 & 1977.894 & 2 & 1769.341
+ & 20 & 975.890 & 0 & 0.000 
 \backslash
 
 \backslash
@@ -9501,135 +9560,8 @@ spm2 minmeasure:1  & 9 & 0.748 & 0 & 0.000 & 7 & 34.740 & 0 & 0.000 & 9 & 30.317
 
 \begin_layout Plain Layout
 
-spm2 minmeasure:2  & 9 & 0.632 & 1 & 431.017 & 8 & 39.637 & 1 & 475.606 & 9
- & 24.803 & 0 & 0.000 
-\backslash
-
-\backslash
-
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-hline
-\end_layout
-
-\begin_layout Plain Layout
-
-spm linear:0 a & 10 & 0.005 & 10 & 3.015 & 10 & 0.047 & 4 & 9.928 & 10 & 0.179
- & 0 & 0.000 
-\backslash
-
-\backslash
-
-\end_layout
-
-\begin_layout Plain Layout
-
-spm linear:1 a & 10 & 0.006 & 10 & 5.304 & 10 & 0.070 & 4 & 16.444 & 0 & 0.000
- & 0 & 0.000 
-\backslash
-
-\backslash
-
-\end_layout
-
-\begin_layout Plain Layout
-
-spm predecessor:0 a & 10 & 0.004 & 10 & 0.092 & 10 & 0.010 & 10 & 1.651 & 10
- & 0.023 & 2 & 360.445 
-\backslash
-
-\backslash
-
-\end_layout
-
-\begin_layout Plain Layout
-
-spm predecessor:1 a & 10 & 0.004 & 10 & 1.416 & 10 & 0.033 & 8 & 60.771 & 10
- & 0.037 & 0 & 0.000 
-\backslash
-
-\backslash
-
-\end_layout
-
-\begin_layout Plain Layout
-
-spm2 predecessor:0 a & 10 & 0.004 & 10 & 0.072 & 10 & 0.010 & 10 & 1.103 & 10
- & 0.018 & 2 & 171.536 
-\backslash
-
-\backslash
-
-\end_layout
-
-\begin_layout Plain Layout
-
-spm2 predecessor:1 a & 10 & 0.004 & 10 & 1.635 & 10 & 0.014 & 8 & 15.658 & 10
- & 0.028 & 0 & 0.000 
-\backslash
-
-\backslash
-
-\end_layout
-
-\begin_layout Plain Layout
-
-spm2 maxmeasure:0 a & 10 & 0.017 & 10 & 39.250 & 10 & 0.037 & 8 & 75.500 & 10
- & 0.075 & 0 & 0.000 
-\backslash
-
-\backslash
-
-\end_layout
-
-\begin_layout Plain Layout
-
-spm2 maxmeasure:1 a & 10 & 0.005 & 9 & 27.859 & 10 & 0.034 & 6 & 24.093 & 10
- & 0.067 & 0 & 0.000 
-\backslash
-
-\backslash
-
-\end_layout
-
-\begin_layout Plain Layout
-
-spm2 maxmeasure:2 a & 10 & 0.005 & 10 & 22.306 & 10 & 0.029 & 7 & 44.627 & 10
- & 0.053 & 0 & 0.000 
-\backslash
-
-\backslash
-
-\end_layout
-
-\begin_layout Plain Layout
-
-spm2 minmeasure:0 a & 10 & 0.016 & 10 & 0.355 & 10 & 0.049 & 7 & 5.527 & 10
- & 0.058 & 0 & 0.000 
-\backslash
-
-\backslash
-
-\end_layout
-
-\begin_layout Plain Layout
-
-spm2 minmeasure:1 a & 10 & 0.015 & 10 & 0.249 & 10 & 0.053 & 8 & 8.593 & 10
- & 0.068 & 0 & 0.000 
-\backslash
-
-\backslash
-
-\end_layout
-
-\begin_layout Plain Layout
-
-spm2 minmeasure:2 a & 10 & 0.012 & 10 & 0.255 & 10 & 0.041 & 8 & 8.475 & 10
- & 0.050 & 0 & 0.000 
+spm2 minmeasure:2  & 20 & 278.084 & 20 & 5391.739 & 20 & 1321.052 & 2 & 863.418
+ & 20 & 704.088 & 0 & 0.000 
 \backslash
 
 \backslash
@@ -9641,6 +9573,142 @@ spm2 minmeasure:2 a & 10 & 0.012 & 10 & 0.255 & 10 & 0.041 & 8 & 8.475 & 10
 
 \backslash
 hline
+\end_layout
+
+\begin_layout Plain Layout
+
+spm linear:0 a & 20 & 0.070 & 20 & 47.477 & 20 & 94.931 & 9 & 17.095 & 20 &
+ 5.168 & 0 & 0.000 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+spm linear:1 a & 20 & 0.068 & 20 & 92.176 & 20 & 196.078 & 9 & 29.033 & 0 &
+ 0.000 & 0 & 0.000 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+spm predecessor:0 a & 20 & 0.004 & 20 & 0.442 & 20 & 0.584 & 17 & 89.644 & 20
+ & 0.027 & 4 & 332.919 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+spm predecessor:1 a & 20 & 0.005 & 20 & 3.976 & 20 & 3.182 & 16 & 279.941 &
+ 20 & 0.039 & 0 & 0.000 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+spm2 predecessor:0 a & 20 & 0.005 & 20 & 0.321 & 20 & 0.343 & 20 & 153.300 &
+ 20 & 0.020 & 4 & 165.047 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+spm2 predecessor:1 a & 20 & 0.005 & 20 & 2.576 & 20 & 0.230 & 17 & 224.500 &
+ 20 & 0.029 & 0 & 0.000 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+spm2 maxmeasure:0 a & 20 & 1.513 & 20 & 61.567 & 20 & 1.486 & 17 & 1193.438
+ & 20 & 0.088 & 0 & 0.000 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+spm2 maxmeasure:1 a & 20 & 0.009 & 20 & 89.944 & 20 & 1.301 & 18 & 1936.534
+ & 20 & 0.071 & 0 & 0.000 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+spm2 maxmeasure:2 a & 20 & 0.008 & 20 & 60.175 & 20 & 1.015 & 15 & 973.841 &
+ 20 & 0.082 & 0 & 0.000 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+spm2 minmeasure:0 a & 20 & 0.018 & 20 & 1.146 & 20 & 1.782 & 17 & 591.006 &
+ 20 & 0.072 & 4 & 1845.579 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+spm2 minmeasure:1 a & 20 & 0.017 & 20 & 1.027 & 20 & 1.716 & 19 & 552.293 &
+ 20 & 0.079 & 4 & 1440.281 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+spm2 minmeasure:2 a & 20 & 0.014 & 20 & 0.906 & 20 & 1.008 & 18 & 282.799 &
+ 20 & 0.061 & 4 & 1340.158 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+hline	
 \end_layout
 
 \begin_layout Plain Layout
@@ -10178,7 +10246,15 @@ Decision procedures:
 \begin_inset Formula $\mu$
 \end_inset
 
--calculus formulae.
+-calculus formulae (
+\begin_inset Formula $\phi$
+\end_inset
+
+ and 
+\begin_inset Formula $\phi'$
+\end_inset
+
+).
 \end_layout
 
 \begin_layout Enumerate
@@ -10187,7 +10263,15 @@ Decision procedures:
 Elevator verification:
 \emph default
  two model checking problems, consisting of checking the fairness of two
- similar elevator models (one fair, one unfair).
+ similar elevator models (one fair, 
+\begin_inset Formula $G$
+\end_inset
+
+, one unfair, 
+\begin_inset Formula $G'$
+\end_inset
+
+).
 \end_layout
 
 \begin_layout Enumerate
@@ -10228,8 +10312,9 @@ reference "sub:Clustered-random-games"
 \end_inset
 
 .
- One notable differences with the random games used by Friedemann and Lange
- is that these will consist of a single strongly-connected component only.
+ One notable difference with the random games used by Friedemann and Lange
+ is that our games will consist of a single strongly-connected component
+ only.
 \end_layout
 
 \begin_layout Standard
@@ -10239,10 +10324,1220 @@ sideways false
 status open
 
 \begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="23" columns="5">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top" width="0">
+<column alignment="right" valignment="top" width="0">
+<column alignment="right" valignment="top" width="0">
+<column alignment="right" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Game
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Vertices
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Edges
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Priorities
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Largest component
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\phi_{2}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+435
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+584
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+9
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+131
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\phi_{3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2,677
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3,530
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+11
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+368
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\phi_{4}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+13,815
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+18,330
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+13
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1,068
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\phi_{5}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+60,674
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+79,591
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+15
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2,658
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\phi_{6}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+259,170
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+340,982
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+17
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+6,515
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\phi_{7}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1,011,979
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1,316,640
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+19
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+15,991
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\phi_{8}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3,939,223
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+5,128,098
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+21
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+36,606
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\phi'_{10}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4,590
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+6,520
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+11
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1,812
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\phi'_{50}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+21,910
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+31,320
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+11
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+8,652
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\phi'_{100}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+43,560
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+62,320
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+11
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+17,202
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\phi'_{500}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+216,760
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+310,320
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+11
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+85,602
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\phi'_{1000}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+433,260
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+620,320
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+11
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+171,102
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\phi'_{2000}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+866,260
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1,240,320
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+11
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+342,102
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\phi'_{5000}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2,165,260
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3,100,320
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+11
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+855,102
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $G_{5}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+15,684
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+26,354
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+10,973
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+\begin_inset Formula $G'_{5}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+16,356
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+38,194
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+11,456
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $G_{6}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+108,336
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+180,898
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+78,818
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+\begin_inset Formula $G'_{6}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+111,456
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+287,964
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+81,121
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $G_{7}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+861,780
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1,431,610
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+643,756
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+\begin_inset Formula $G'_{7}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+876,780
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2,484,252
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="right" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+655,073
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $G_{8}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+7,744,224
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+12,810,736
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+5,894,533
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+\begin_inset Formula $G'_{8}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+7,814,016
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+24,093,264
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+5,948,026
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
 \begin_inset Caption
 
 \begin_layout Plain Layout
-TODO:
+Properties of testcases from 
+\emph on
+Solving Parity Games in Practice
 \end_layout
 
 \end_inset
@@ -10280,37 +11575,53 @@ benchmarks to include:
 \end_inset
 
 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+add table with effectiveness of priority propagation (also on random games)
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
 Discussion
 \end_layout
 
-\begin_layout Subsection
-Quantifying lifting strategy overhead
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Lifting strategies have different overhead
 \end_layout
 
-\begin_layout Standard
-As has been alluded to in subsection 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "sub:Lifting-Strategies"
+\begin_layout Plain Layout
+When it comes to SPM, two-way method is a major improvement
+\end_layout
+
+\begin_layout Plain Layout
+Effects of varying the lifting strategy are mixed; improvements in some
+ cases are detrimental in others.
+ Linear lifting and predecessor lifting have the advantage that they do
+ not.
+\end_layout
+
+\begin_layout Plain Layout
+Compared to SPGIP: much more efficient! Efficiency matters a lot.
+\end_layout
+
+\begin_layout Plain Layout
+For predecessor lifting, the improved SPM framework is strictly faster.
+ (This is of little academic interest, but useful to know for implementors.)
+\end_layout
 
 \end_inset
 
-, different lifting strategies may incur different runtime overhead.
- To quantify this overhead, I have run different lifting strategy configurations
- on random graphs with 10 million vertices and average outdegrees of 2 or
- 8, disabling all possible optimizations.
- Each experiment was allowed to run up to 10 seconds (which was not enough
- to solve the game in any case).
- For each configuration ten experiments have been performed with ten different
- random seeds and the results have been combined.
-\end_layout
 
-\begin_layout Standard
-The focus list strategy was configured to retain 1 million vertices, and
- perform a maximum of 10 million lifting attempts on a single focus list.
 \end_layout
 
 \begin_layout Chapter
