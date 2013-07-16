@@ -125,11 +125,13 @@ verti MaxMeasureLiftingStrategy2::pop()
     {
         // Move bumped vertices up the heap.
         std::sort(bumped_.begin(), bumped_.end());
-        for (size_t i = 0; i < bumped_.size(); ++i)
-        {
-            if (i == 0 || bumped_[i] > bumped_[i - 1]) move_up(bumped_[i]);
-            move_up(bumped_[i]);
-        }
+        bumped_.erase( std::unique(bumped_.begin(), bumped_.end()),
+                       bumped_.end() );
+        for (std::vector<verti>::iterator it = bumped_.begin();
+             it != bumped_.end(); ++it) move_up(*it);
+
+        // CHECKME: why is this necessary for MAX_STEP too?
+        //          shouldn't this just be for MIN_STEP?
         if (metric_ != MAX_VALUE)
         {
             /* Note: minimization is a bit trickier than maximization, since
@@ -140,16 +142,12 @@ verti MaxMeasureLiftingStrategy2::pop()
                pushed or pushed-and-then-bumped vertices, so the easiest safe
                way to handle the situation is to move up first, and then down.
 
-               FIXME: optimize this.
+               FIXME: optimize this?
             */
 
             // Move bumped vertices down the heap.
-            std::reverse(bumped_.rbegin(), bumped_.rend());
-            for (size_t i = 0; i < bumped_.size(); ++i)
-            {
-                if (i == 0 || bumped_[i] < bumped_[i - 1]) move_down(bumped_[i]);
-                move_down(bumped_[i]);
-            }
+            for (std::vector<verti>::reverse_iterator it = bumped_.rbegin();
+                 it != bumped_.rend(); ++it) move_down(*it);
         }
         bumped_.clear();
     }
@@ -223,14 +221,18 @@ int MaxMeasureLiftingStrategy2::cmp(verti i, verti j)
         break;
 
     case MIN_VALUE:
-        d = spm_.vector_cmp( spm_.get_successor(v),
-                             spm_.get_successor(w), spm_.len_ );
+        d = -spm_.vector_cmp( spm_.get_successor(v),
+                              spm_.get_successor(w), spm_.len_ );
         break;
 
     case MAX_STEP:
 #ifdef DEBUG
-        assert(vector_cmp(v, spm_.get_successor(v), spm_.len(v)) >= 0);
-        assert(vector_cmp(w, spm_.get_successor(w), spm_.len(w)) >= 0);
+        // We assume vertices are only queued when they can be lifted;
+        // i.e. their value is less than (or equal to) their successor:
+        assert(spm_.vector_cmp(v, spm_.get_successor(v), spm_.len(v))
+                    < spm_.compare_strict(v));
+        assert(spm_.vector_cmp(w, spm_.get_successor(w), spm_.len(w))
+                    < spm_.compare_strict(w));
 #endif
         d = cmp_step( spm_.vec(v), spm_.vec(spm_.get_successor(v)),
                       spm_.len(v), spm_.compare_strict(v),

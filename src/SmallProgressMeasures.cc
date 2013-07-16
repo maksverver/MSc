@@ -266,7 +266,7 @@ bool SmallProgressMeasures::lift_to(verti v, const verti vec2[], bool carry)
     return true;
 }
 
-void SmallProgressMeasures::debug_print_vertex(int v)
+void SmallProgressMeasures::debug_print_vertex(int v) const
 {
     printf ( "%6d %c p=%d:", (int)v,
                 game_.player(v) == ParityGame::PLAYER_EVEN ? 'E' :
@@ -286,7 +286,7 @@ void SmallProgressMeasures::debug_print_vertex(int v)
     printf("\n");
 }
 
-void SmallProgressMeasures::debug_print()
+void SmallProgressMeasures::debug_print() const
 {
     printf("M =");
     for (int p = 0; p < game_.d(); ++p) printf(" %d", (p%2 == p_) ? 0 : M_[p/2]);

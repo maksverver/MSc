@@ -32,7 +32,7 @@ class MaxMeasureLiftingStrategy2 : public LiftingStrategy2
 {
 public:
     enum Order { QUEUE = 0, STACK = 1, HEAP = 2 }; 
-    enum Metric { MAX_VALUE = 0, MIN_VALUE = 1, MAX_STEP = 2 };
+    enum Metric { MAX_VALUE = 0, MAX_STEP = 1, MIN_VALUE = 2 };
 
     MaxMeasureLiftingStrategy2( const ParityGame &game,
                                 const SmallProgressMeasures &spm,
