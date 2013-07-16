@@ -144,8 +144,9 @@ The goal of my final project was to develop a framework for experimentation
  with parity games, in order to better understand the performance of a variety
  of parity game algorithms, and to push the boundaries of the range of parity
  game problems that can be solved in practice.
- Along the way I discovered several techniques to improve the standard algorithm
-s; these improvements are documented in this report.
+ Consequently, my project mixes theory  with Along the way I discovered
+ several techniques to improve the standard algorithms; these improvements
+ are documented in this report.
 \end_layout
 
 \begin_layout Standard
@@ -5026,6 +5027,17 @@ However, in my experience, available memory is rarely the limiting factor
  efficiently even in a lock-free manner, so I think there is little reason
  to omit this strategy from a solver, even one where high performance in
  a concurrent environment is the primary concern.
+ 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+do I have a concurrent implementation?
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -5232,18 +5244,8 @@ There is some freedom of implementation when deciding which vertex from
  in, last out (LIFO) manner, in which case the queue works like a stack.
  Extracting vertices in LIFO order may have the benefit of providing better
  cache locality, even when it doesn't reduce the number of lifts.
- 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-but I have no practical results that show this clearly
-\end_layout
-
-\end_inset
-
- Similar to the linear lifting strategy, vertices can be inserted into the
- initial queque in forward or reverse order.
+ The benchmark results presented later will show the performance difference
+ between the two policies in practice.
 \end_layout
 
 \begin_layout Subsection
@@ -5291,9 +5293,15 @@ The idea behind the work list is that it captures unstable parts of the
 \begin_layout Standard
 Since Van de Pol and Weber are the only ones to implement this strategy,
  there is little emperical evidence available about its performance, though
- it seems to perform much better than linear lifting in some cases, and
- not much worse in most other cases, which suggests it meets its design
- goals.
+ they report in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "vandepol2008multicore"
+
+\end_inset
+
+ that it performs much better than linear lifting in some cases, and not
+ much worse in most other cases, which suggests it meets its design goals.
  Compared to the predecessor lifting strategy, it has the advantage of being
  able to postpone difficult parts of the game, which may help in some hard
  cases.
@@ -5626,27 +5634,32 @@ name "sub:Maximum-Measure-Propagation"
 \end_layout
 
 \begin_layout Standard
-The maximum measure propagation strategy is a variant of the predecessor
- lifting strategy that at each iteration attempts to lift a vertex with
- a successor that has a maximal progress measure vector assigned to it.
- The rationale behind this strategy is the observation that since we increase
- the progress measure vector for at most one vertex every iteration, and
- since the final progress measure for this vertex does not depend on the
- order of lifting, then in order to perform as few (succesful) lifts as
- possible, it makes sense to try to lift vertices with the largest increments
- possible.
+The maximum measure propagation strategy is a context-aware variant of the
+ predecessor lifting strategy.
+ It returns a vertex from the queue for which the minimum successor (for
+ Even-controlled vertices) or the maximum successor (for Odd-controlled
+ vertices) is maximal over all queued vertices.
+ In other words: it picks a vertex such that the value assigned by a succesful
+ lifting attempt is as large as possible.
+ The rationale behind this strategy is that since the final progress measure
+ for a vertex does not depend on the order of lifting, it makes sense to
+ try to propagate higher values first rather than waste time on updating
+ lower values, which might be overwritten later.
 \end_layout
 
 \begin_layout Standard
-Artificial examples can be constructed in which this order of lifting provides
- obvious benefit.
- Specifically, whenever a vertex is known to be won by player Odd (when
- it is assigned 
+It is not difficult to imagine scenarios where this order of lifting provides
+ benefit.
+ For example, whenever a vertex is known to be won by player Odd (when it
+ is assigned 
 \begin_inset Formula $\top$
 \end_inset
 
-) all vertices in its attractor set will be set to top before any other
- vertices are lifted, since 
+) all vertices in its attractor set will be set to 
+\begin_inset Formula $\top$
+\end_inset
+
+ before any other vertices are lifted, since 
 \begin_inset Formula $\top$
 \end_inset
 
@@ -5656,337 +5669,83 @@ Artificial examples can be constructed in which this order of lifting provides
 \end_layout
 
 \begin_layout Standard
-In practice, maximum measure propagation does not always outperform the
- simpler predecessor lifting strategy described in subsection 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "sub:Predecessor-Lifting-Strategy"
-
-\end_inset
-
-, but in many cases it does cause fewer (succesful as well as total) lifting
- attempts.
- Its main disadvantage lies in the amount of overhead introduced by the
- implementation of the strategy itself.
- To track vertices with high progress measures, it is necessary to implement
- some sort of priority queue structure.
- Additionally, it must be possible to (quickly) move queued vertices when
- the value for their successor changes.
+Maximum measure propagation can be viewed as a context-aware variant of
+ predecessor lifting in that it still returns vertices from a queue, but
+ rather than using insertion order to determine which vertex to lift next,
+ it considers the values assigned to vertices so far.
 \end_layout
 
 \begin_layout Standard
-\begin_inset Float algorithm
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset listings
-lstparams "basicstyle={\ttfamily},language={C++},numbers=left,tabsize=4"
-inline false
-status open
-
-\begin_layout Plain Layout
-
-queued = Vector<bool>(V)
+Three variations of this idea are implemented:
 \end_layout
 
-\begin_layout Plain Layout
-
-queue = BinaryHeap<Vertex>()
+\begin_layout Enumerate
+Maximum measure metric: prioritize vertices with 
+\emph on
+greatest
+\emph default
+ successor value (described above)
 \end_layout
 
-\begin_layout Plain Layout
-
-for 0 <= v < V {
+\begin_layout Enumerate
+Maximum step metric: prioritize vertices with 
+\emph on
+greatest difference
+\emph default
+ compared to their successor
 \end_layout
 
-\begin_layout Plain Layout
-
-	queued[v] = true
-\end_layout
-
-\begin_layout Plain Layout
-
-	queue.push(v)
-\end_layout
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-lifted(Vertex v) {
-\end_layout
-
-\begin_layout Plain Layout
-
-	queued_predecessors = false
-\end_layout
-
-\begin_layout Plain Layout
-
-	for u in predecessors(v) {
-\end_layout
-
-\begin_layout Plain Layout
-
-		if !is_top(spm[u]) {
-\end_layout
-
-\begin_layout Plain Layout
-
-			queued[u] = true
-\end_layout
-
-\begin_layout Plain Layout
-
-			queued_predecessors = true
-\end_layout
-
-\begin_layout Plain Layout
-
-		}
-\end_layout
-
-\begin_layout Plain Layout
-
-	}
-\end_layout
-
-\begin_layout Plain Layout
-
-	if queued_predecessors {
-\end_layout
-
-\begin_layout Plain Layout
-
-		queue.push(v)
-\end_layout
-
-\begin_layout Plain Layout
-
-	} else {
-\end_layout
-
-\begin_layout Plain Layout
-
-		queue.pop(v)
-\end_layout
-
-\begin_layout Plain Layout
-
-	}
-\end_layout
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-Vertex next() {
-\end_layout
-
-\begin_layout Plain Layout
-
-	while not queue.empty() {
-\end_layout
-
-\begin_layout Plain Layout
-
-		v = queue.top()
-\end_layout
-
-\begin_layout Plain Layout
-
-		for u in predecessors(v) {
-\end_layout
-
-\begin_layout Plain Layout
-
-			if queued[u] {
-\end_layout
-
-\begin_layout Plain Layout
-
-				queued[u] = false
-\end_layout
-
-\begin_layout Plain Layout
-
-				return u
-\end_layout
-
-\begin_layout Plain Layout
-
-			}
-\end_layout
-
-\begin_layout Plain Layout
-
-		}
-\end_layout
-
-\begin_layout Plain Layout
-
-		queue.pop(v)
-\end_layout
-
-\begin_layout Plain Layout
-
-	}
-\end_layout
-
-\begin_layout Plain Layout
-
-	return NO_VERTEX
-\end_layout
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-Maximum Measure Lifting Strategy 
-\begin_inset CommandInset label
-LatexCommand label
-name "alg:Maximum-Measure-Lifting"
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
+\begin_layout Enumerate
+Minimum measure: prioritize vertices with 
+\emph on
+least
+\emph default
+ successor value
 \end_layout
 
 \begin_layout Standard
-An outline of the implementation is given in Algorithm 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "alg:Maximum-Measure-Lifting"
-
-\end_inset
-
-.
- The successors of queued vertices (not the vertices themselves!) are kept
- in a complete binary heap structure, ordered by their progress measure
- vectors, so that the vertex with the largest progress measure vector is
- at the top of the heap.
- The heap is stored in a vertex array of size 
-\begin_inset Formula $\left|V\right|$
-\end_inset
-
-.
- In order to be able to move vertices up in the heap whenever they are lifted,
- another array of size 
-\begin_inset Formula $\left|V\right|$
-\end_inset
-
- keeps track of the position of vertices in the heap.
- (Since progress measure vectors are only ever increased, never decreased,
- moving down is not necessary).
- Finally, for each predecessor in the heap the 
-\begin_inset Formula $\texttt{queued}$
-\end_inset
-
- array keeps track of whether it is queued.
- Whenever a vertex is succesfully lifted, all of its predecessors that have
- not yet been assigned top value are marked as queued.
- If there are any, then the vertex itself is inserted into the heap or moved
- up from its current position if it is already present.
- If there are none, then the vertex is removed (at this point, the vertex
- was on top of the heap).
- It should be noted that the 
-\begin_inset Formula $\texttt{push()}$
-\end_inset
-
- operation either inserts the vertex into the queue (if it did not exists)
- or raises it (if it did exist, but its progress measure vector has changed)
- but does not insert a vertex twice.
+As with predecessor lifting, ties between queued vertices can be broken
+ in two ways based on insertion order.
+ (Predecessor lifting itself can be viewed as a variant that does not prioritize
+ queued vertices at all.)
 \end_layout
 
 \begin_layout Standard
-One might ask why it is necessary to store successors rather than the vertices
- themselves in the heap.
- The reason is that we want to keep vertices ordered not by their own progress
- measure vector, but by the maximum of their successors.
- If we would store vertices directly, then when one vertex is lifted, this
- could cause multiple of its predecessors in the heap to violate the ordering
- in the heap.
- This is hard to fix efficiently.
- However, if we store the successor only, then after each lifting, at most
- one vertex (the one just lifted) can violate the heap property and this
- can be resolved easily by moving the vertex up in the heap if necessary.
+A disadvantage of the context-aware lifting strategy is that it incurs more
+ overhead, since a priority queue data structure must be maintained in order
+ to efficiently select vertices for lifting.
+ An in-place binary heap of vertex indices is used for this purpose, while
+ the predecessor lifting strategy required only a circular buffer.
+ The overhead incurred by maintaining the heap can be alleviated somewhat
+ by removing the insertion-order tie-breaking rule (so that queued vertices
+ are only partially ordered).
 \end_layout
 
 \begin_layout Standard
-Now, to select the next vertex to be lifted, the highest vertex in the heap
- is consulted, and if any of its predecessors are still marked as queued,
- one of them is returned.
- If there are no queued predecessors, the vertex is removed from the heap,
- and we repeat the process.
- As with the predecessor lifting strategies, the 
-\begin_inset Formula $\texttt{queued}$
-\end_inset
-
- array corresponds to the set of dirty vertices, and since vertices are
- only marked as queued when one of their successors is in the heap, it follows
- that when the heap is empty then the dirty set is empty and therefore the
- solution is complete.
+The in-place heap itself causes no memory overhead compared to a circular
+ buffer, but requires more work to keep it balanced, especially since the
+ proper position of a vertex in the heap depends not only on the value assigned
+ to it, but also on the values assigned to its successor vertices.
+ That means that whenever a vertex is removed from the queue to be lifted,
+ the heap structure may be invalidated at multiple locations.
+ To resolve this, the predecessors of the lifted vertex must be located
+ in the heap and be moved up (for the maximum measure and step metric) or
+ down (for the minimum measure metric) in the heap as necessary to restore
+ the heap property.
+ This necessitates storing the position of queued vertices in the heap.
+ Finally, restoring the heap property requires that vertices are processed
+ in the correct order based on their position in the heap: when moving vertices
+ up, vertices higher in the heap should be processed first.
 \end_layout
 
 \begin_layout Standard
-Note that the amount of overhead introduced per lifting attempt is 
-\begin_inset Formula $O(\log\left|V\right|)$
-\end_inset
-
- time to insert/move/remove vertices in the heap plus the cost of looping
- over the predecessors of the vertex under consideration, which is quite
- a bit more than the 
-\begin_inset Formula $O(1)$
-\end_inset
-
- overhead incurred by the previously described lifting strategies.
- 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-insert reference to benchmarks
-\end_layout
-
-\end_inset
-
-
+From the above description, it should be clear that maximum measure propagation
+ (and its variants) is quite a bit more complicated than simple predecessor
+ lifting, both in terms of implementation difficulty and the amount of computati
+onal overhead added to each lifting attempt.
+ However; this might be worth it if the final progress measure can be computed
+ more quickly.
+ This will be assessed later on.
 \end_layout
 
 \begin_layout Section
@@ -5994,9 +5753,9 @@ Improvements
 \end_layout
 
 \begin_layout Standard
-Apart from implementing better lifting strategies, some improvements to
- the core algorithm are possible too.
- I will discuss the techniques I implemented below; some are novel, and
+Apart from choosing better lifting strategies, improvements to the core
+ algorithm are possible too.
+ I will discuss the improvements I implemented below; some are novel, and
  others have been previously implemented.
 \end_layout
 
@@ -6021,7 +5780,8 @@ reference "alg:SPM v1 Core"
 
 \end_inset
 
- (and as implemented in all tools that I know of) is rather wasteful.
+ (and as implemented in all tools that I know of) is not as efficient as
+ it could be.
  To determine if a vertex is stable, it must be lifted.
  In order to lift it, the minimum (or maximum) successor must be found,
  and its progress measure vector must be compared with that of the predecessor.
