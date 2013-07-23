@@ -669,7 +669,6 @@ bool read_input(ParityGame &game)
                         arg_random_priorities);
         Logger::message("## config.random.seed        = %10d",
                         arg_random_seed);
-        srand(arg_random_seed);
         game.make_random(
             arg_random_size, arg_random_clustersize, arg_random_outdegree,
             StaticGraph::EDGE_BIDIRECTIONAL, arg_random_priorities );
@@ -911,6 +910,10 @@ int main(int argc, char *argv[])
 
     Logger::message( "## config.input = %s",
                      input_format_to_string(arg_input_format) );
+
+    // Always seed the RNG, even if input is not randomly generated,
+    // so other randomized algorithms like --reorder shuffle can be seeded.
+    srand(arg_random_seed);
 
     ParityGame game;
     if (!read_input(game))
