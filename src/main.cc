@@ -31,6 +31,7 @@ Overview goes here.
 #include "RecursiveSolver.h"
 #include "SmallProgressMeasures.h"
 #include "Timer.h"
+#include "shuffle.h"
 
 #include <assert.h>
 #include <getopt.h>
@@ -169,7 +170,7 @@ static void print_usage(const char *argv0)
 "Preprocessing:\n"
 "  --dual                 solve the dual game\n"
 "  --reorder <desc>       reorder vertices before solving (comma-separated\n"
-"                         list; possible values: bfs, dfs, reverse)\n"
+"                         list; possible values: bfs, dfs, reverse, shuffle)\n"
 "  --propagate            propagate minimum priorities to predecessors\n"
 "  --deloop               detect loops won by the controlling player\n"
 "  --decycle              detect cycles won and controlled by a single player\n"
@@ -1096,6 +1097,13 @@ int main(int argc, char *argv[])
                 {
                     Logger::info("Reordering vertices by reverse index...");
                     for (verti v = 0; v < V; ++v) next_perm[v] = V - v - 1;
+                }
+                else
+                if (parts[i] == "shuffle")
+                {
+                    Logger::info("Reordering vertices randomly...");
+                    for (verti v = 0; v < V; ++v) next_perm[v] = v;
+                    shuffle_vector(next_perm);
                 }
                 else
                 {
