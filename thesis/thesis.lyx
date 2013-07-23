@@ -7,7 +7,8 @@
 \usepackage {a4wide}
 \usepackage {longtable}
 \usepackage {tabu}
-
+\usepackage {pgfplots}
+\usepackage {multicol}
 \newcommand*\ExpandableInput[1]{\@@input#1 }
 \end_preamble
 \use_default_options true
@@ -1564,9 +1565,10 @@ From the above it should be clear that there is a gap between theory and
 
 \begin_layout Standard
 It should come as no surprise that my contributions lie in this area.
- The main deliverable of my master's project, besides this report, is an
- efficient parity game solving tool which improves upon the state of the
- art in several ways:
+ They consist of a variety of ideas to improve the upon the design and implement
+ation of parity game solvers, empirical evaluation of these ideas, and,
+ as a by-product, an efficient parity game solving tool which improves upon
+ the state of the art in several ways:
 \end_layout
 
 \begin_layout Itemize
@@ -1650,18 +1652,11 @@ TODO: how does verification work in PGsolver‽
 \end_layout
 
 \begin_layout Itemize
-Two optimizations of the small progress measures algorithm (described in
- subsections 
+An improved set of heuristic for the small progress measures algorithm (describe
+d in subsection 
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "sub:Optimization-after-lifting"
-
-\end_inset
-
- and 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "sub:Optimization-after-lifting"
+reference "sub:Maximum-Measure-Propagation"
 
 \end_inset
 
@@ -1669,11 +1664,18 @@ reference "sub:Optimization-after-lifting"
 \end_layout
 
 \begin_layout Itemize
-A new heuristic for the small progress measures algorithm (described in
- subsection 
+Two optimizations of the small progress measures algorithm (described in
+ subsections 
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "sub:Maximum-Measure-Propagation"
+reference "sub:Eliminating-failed-lifting"
+
+\end_inset
+
+ and 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Optimization-after-lifting"
 
 \end_inset
 
@@ -9970,7 +9972,472 @@ As expected, the linear lifting strategy is unlikely to get completely stuck
 \end_layout
 
 \begin_layout Itemize
+Max.measure is more resilient to shuffling of vertices?
+\end_layout
+
+\begin_layout Itemize
 TODO: more!
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{figure}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+centering
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+makebox[0pt][c]{% 
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{minipage}{10cm}   % phi
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{tikzpicture}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{semilogyaxis}[xlabel=$
+\backslash
+phi_n$,ylabel={Lifting attempts},legend pos=south east]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+addplot coordinates { (2,16607) (3,224636) (4,1877461) (5,14747070) (6,86691229)
+ (7,516661819) (8,2559768119) };% -llinear:0
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+addplot coordinates { (2,2529) (3,15152) (4,77215) (5,352826) (6,1479140)
+ (7,6111354) (8,23477267) };% -Lpredecessor:0
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+addplot coordinates { (2,3423) (3,27547) (4,1216874) (5,2027024528) (6,273104000
+0) (7,1736310000) (8,1333670000) };% -Lminmeasure:0
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+addplot coordinates { (2,1865) (3,6500) (4,25912) (5,114886) (6,468200)
+ (7,1961700) (8,7546425) };% -Lmaxmeasure:0
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+addplot coordinates { (2,963) (3,6219) (4,36428) (5,174137) (6,819802) (7,351241
+4) (8,14868337) };% -Lmaxstep:0
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+legend{{lin},{pred},{min},{max},{step}}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{semilogyaxis}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{tikzpicture}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{minipage}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{minipage}{10cm}   % chi
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{tikzpicture}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{loglogaxis}[xlabel=$
+\backslash
+phi'_n$,ylabel={Lifting attempts},legend pos=south east]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+addplot coordinates { (10,1298971) (50,29863331) (100,118178281) (500,2929077881
+) (1000,11703652381) (2000,46789301381) (5000,82065420000) };% -llinear:0
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+addplot coordinates { (10,84277) (50,1636598) (100,6314954) (500,153259736)
+ (1000,610735754) (2000,2438337726) (5000,11118700000) };% -Lpredecessor:0
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+addplot coordinates { (10,383037) (50,29312685) (100,221650410) (500,2701110000)
+ (1000,1712320000) (2000,1326960000) (5000,1099060000) };% -Lminmeasure:0
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+addplot coordinates { (10,73575) (50,1764095) (100,7036245) (500,175573445)
+ (1000,702144945) (2000,2269820000) (5000,2078160000) };% -Lmaxmeasure:0
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+addplot coordinates { (10,79793) (50,8182243) (100,64075549) (500,1751830000)
+ (1000,1562250000) (2000,1487840000) (5000,1220170000) };% -Lmaxstep:0
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+legend{{lin},{pred},{min},{max},{step}} 
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{loglogaxis}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{tikzpicture}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{minipage}
+\end_layout
+
+\begin_layout Plain Layout
+
+}%
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{figure}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{figure}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+centering
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+makebox[0pt][c]{% 
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{minipage}{10cm}   % elevator-fair
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{tikzpicture}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{loglogaxis}[xlabel=$G_n$,ylabel={Lifting attempts},legend pos=south
+ east]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+addplot coordinates { (3,22609) (4,177563) (5,1817284) (6,17216571) (7,191161844
+) (8,2152924524) };% -llinear:0
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+addplot coordinates { (3,1031) (4,8415) (5,75505) (6,717121) (7,7553687)
+ (8,85570733) };% -Lpredecessor:0
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+addplot coordinates { (3,1031) (4,8415) (5,75505) (6,717121) (7,7553687)
+ (8,85570733) };% -Lminmeasure:0
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+addplot coordinates { (3,423) (4,1977) (5,15765) (6,94814) (7,840348) (8,7500288
+) };% -Lmaxmeasure:0
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+addplot coordinates { (3,423) (4,1977) (5,13866) (6,94421) (7,757681) (8,6834814
+) };% -Lmaxstep:0
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+legend{{lin},{pred},{min},{max},{step}} 
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{loglogaxis}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{tikzpicture}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{minipage}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{minipage}{10cm}   % elevator-unfair
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{tikzpicture}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{loglogaxis}[xlabel=$G'_n$,ylabel={Lifting attempts},legend pos=south
+ east]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+addplot coordinates { (3,127454) (4,2731550) (5,89504542) (6,4143170957)
+ (7,79755870000) (8,61281520000) };% -llinear:0
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+addplot coordinates { (3,16240) (4,377027) (5,13025538) (6,623599479) (7,1212310
+0000) (8,8796850000) };% -Lpredecessor:0
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+addplot coordinates { (3,15883) (4,375227) (5,13015059) (6,623528902) (7,1944240
+000) (8,1081350000) };% -Lminmeasure:0
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+addplot coordinates { (3,2587) (4,12990) (5,79672) (6,574976) (7,4671754)
+ (8,43088203) };% -Lmaxmeasure:0
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+addplot coordinates { (3,3239) (4,17242) (5,109337) (6,788965) (7,6294514)
+ (8,56483825) };% -Lmaxstep:0
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+legend{{lin},{pred},{min},{max},{step}} 
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{loglogaxis}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{tikzpicture}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{minipage}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+}%
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{figure}
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection
@@ -11308,6 +11775,18 @@ Solving Parity Games in Practice
 \end_inset
 
 
+\end_layout
+
+\begin_layout Standard
+The decision procedures games are generated using a separate tool called
+ MLSolver.
+ The elevator verification games are generated with a tool from the PGSolver
+ suite.
+ To prevent implementation-details of these tools to affect the results,
+ the vertices for each game are shuffled.
+ This retains the graph structure, but removes the effect that the particular
+ vertex ordering produced by these tools might have had on the performance
+ of various lifting strategies.
 \end_layout
 
 \begin_layout Standard
