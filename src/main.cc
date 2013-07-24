@@ -1227,8 +1227,8 @@ int main(int argc, char *argv[])
             else
             {
                 Logger::error("solving failed!");
+                Logger::message("## solution.result = failure");
             }
-            Logger::message("## solution.result = failure");
         }
         else
         {
