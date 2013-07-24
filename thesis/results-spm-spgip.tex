@@ -1,0 +1,134 @@
+\begin{figure}
+\centering
+\makebox[0pt][c]{% 
+\begin{minipage}{10cm}   % phi
+\begin{tikzpicture}
+\begin{semilogyaxis}[xlabel=$\phi_n$,ylabel={Lifting attempts},legend pos=south east]
+\addplot coordinates { (2,8189) (3,115349) (4,902815) (5,7583793) (6,43362066) (7,255441506) (8,1275516075) };% -llinear:0
+\addplot coordinates { (2,1561) (3,10314) (4,55643) (5,260088) (6,1112121) (7,4590573) (8,17820530) };% -Lpredecessor:0
+\addplot coordinates { (2,2512) (3,21642) (4,1184660) (5,2059182658) };% -Lminmeasure:0
+\addplot coordinates { (2,785) (3,4862) (4,21762) (5,110560) (6,498090) (7,1868568) (8,7467667) };% -Lmaxmeasure:0
+\addplot coordinates { (2,687) (3,5563) (4,32319) (5,168456) (6,816245) (7,3540693) (8,15317908) };% -Lmaxstep:0
+\legend{{-llinear:0},{-Lpredecessor:0},{-Lminmeasure:0},{-Lmaxmeasure:0},{-Lmaxstep:0}}
+\legend{{lin},{pred},{min},{max},{step}}
+\end{semilogyaxis}
+\end{tikzpicture}
+\end{minipage}
+
+\begin{minipage}{10cm}   % chi
+\begin{tikzpicture}
+\begin{loglogaxis}[xlabel=$\phi'_n$,ylabel={Lifting attempts},legend pos=south east]
+
+\addplot coordinates { (10,780780) (50,16654977) (100,66986268) (500,1624452914) (1000,6528032086) (2000,25997924704) };% -llinear:0
+\addplot coordinates { (10,61029) (50,1306070) (100,4800549) (500,118082185) (1000,469520938) (2000,1863540611) };% -Lpredecessor:0
+\addplot coordinates { (10,321128) (50,28233248) (100,218811175) };% -Lminmeasure:0
+\addplot coordinates { (10,40918) (50,1020358) (100,3504328) (500,98179082) (1000,391120738) (2000,1560228275) };% -Lmaxmeasure:0
+\addplot coordinates { (10,24497) (50,229874) (100,411374) (500,2695944) (1000,6605900) (2000,10486097) (5000,28898071) };% -Lmaxstep:0
+\legend{{-llinear:0},{-Lpredecessor:0},{-Lminmeasure:0},{-Lmaxmeasure:0},{-Lmaxstep:0}}
+\legend{{lin},{pred},{min},{max},{step}} 
+\end{loglogaxis}
+\end{tikzpicture}
+\end{minipage}
+}%
+\end{figure}
+
+\begin{figure}
+\centering
+
+\makebox[0pt][c]{%
+\begin{minipage}{10cm}   % elevator-fair
+\begin{tikzpicture}
+\begin{loglogaxis}[xlabel=$G_n$,ylabel={Lifting attempts},legend pos=south east]
+\addplot coordinates { (3,15634) (4,114603) (5,1223738) (6,11327177) (7,123185768) (8,1406019172) };% -llinear:0
+\addplot coordinates { (3,1031) (4,8415) (5,75505) (6,717121) (7,7553687) (8,85570733) };% -Lpredecessor:0
+\addplot coordinates { (3,1031) (4,8415) (5,75505) (6,717121) (7,7553687) (8,85570733) };% -Lminmeasure:0
+\addplot coordinates { (3,524) (4,2388) (5,22635) (6,105299) (7,1510781) (8,13589234) };% -Lmaxmeasure:0
+\addplot coordinates { (3,524) (4,2332) (5,17990) (6,102768) (7,1370622) (8,11063598) };% -Lmaxstep:0
+\legend{{-llinear:0},{-Lpredecessor:0},{-Lminmeasure:0},{-Lmaxmeasure:0},{-Lmaxstep:0}}
+\legend{{lin},{pred},{min},{max},{step}} 
+\end{loglogaxis}
+\end{tikzpicture}
+\end{minipage}
+
+\begin{minipage}{10cm}   % elevator-unfair
+\begin{tikzpicture}
+\begin{loglogaxis}[xlabel=$G'_n$,ylabel={Lifting attempts},legend pos=south east]
+\addplot coordinates { (3,67084) (4,1297588) (5,44853629) (6,1554728043) };% -llinear:0
+\addplot coordinates { (3,16056) (4,376098) (5,13019732) (6,623561024) };% -Lpredecessor:0
+\addplot coordinates { (3,15847) (4,375202) (5,13014958) (6,623528392) };% -Lminmeasure:0
+\addplot coordinates { (3,2324) (4,11715) (5,71972) (6,515089) (7,4281226) (8,39709576) };% -Lmaxmeasure:0
+\addplot coordinates { (3,2999) (4,15210) (5,95279) (6,707246) (7,5736353) (8,51583919) };% -Lmaxstep:0
+\legend{{-llinear:0},{-Lpredecessor:0},{-Lminmeasure:0},{-Lmaxmeasure:0},{-Lmaxstep:0}}
+\legend{{lin},{pred},{min},{max},{step}} 
+\end{loglogaxis}
+\end{tikzpicture}
+\end{minipage}
+}%
+\end{figure}
+\begin{figure}
+\centering
+\makebox[0pt][c]{% 
+\begin{minipage}{10cm}   % phi
+\begin{tikzpicture}
+\begin{semilogyaxis}[xlabel=$\phi_n$,ylabel={Time in seconds},legend pos=south east]
+\addplot coordinates { (2,0.001) (3,0.007) (4,0.053) (5,0.419) (6,1.986) (7,15.549) (8,73.276) };% -llinear:0
+\addplot coordinates { (2,0.000) (3,0.002) (4,0.013) (5,0.074) (6,0.434) (7,2.503) (8,11.671) };% -Lpredecessor:0
+\addplot coordinates { (2,0.002) (3,0.034) (4,1.322) (5,1947.732) };% -Lminmeasure:0
+\addplot coordinates { (2,0.001) (3,0.007) (4,0.042) (5,0.267) (6,1.148) (7,5.861) (8,31.301) };% -Lmaxmeasure:0
+\addplot coordinates { (2,0.001) (3,0.013) (4,0.092) (5,0.550) (6,2.705) (7,14.441) (8,74.012) };% -Lmaxstep:0
+\legend{{-llinear:0},{-Lpredecessor:0},{-Lminmeasure:0},{-Lmaxmeasure:0},{-Lmaxstep:0}}
+\legend{{lin},{pred},{min},{max},{step}}
+\end{semilogyaxis}
+\end{tikzpicture}
+\end{minipage}
+
+\begin{minipage}{10cm}   % chi
+\begin{tikzpicture}
+\begin{loglogaxis}[xlabel=$\phi'_n$,ylabel={Time in seconds},legend pos=south east]
+
+\addplot coordinates { (10,0.056) (50,1.271) (100,3.876) (500,99.564) (1000,540.000) (2000,2785.896) };% -llinear:0
+\addplot coordinates { (10,0.009) (50,0.270) (100,0.947) (500,31.946) (1000,197.789) (2000,942.874) };% -Lpredecessor:0
+\addplot coordinates { (10,0.325) (50,23.166) (100,204.086) };% -Lminmeasure:0
+\addplot coordinates { (10,0.061) (50,1.402) (100,4.539) (500,151.471) (1000,660.410) (2000,2769.747) };% -Lmaxmeasure:0
+\addplot coordinates { (10,0.060) (50,0.645) (100,1.095) (500,6.987) (1000,18.185) (2000,32.552) (5000,102.727) };% -Lmaxstep:0
+\legend{{-llinear:0},{-Lpredecessor:0},{-Lminmeasure:0},{-Lmaxmeasure:0},{-Lmaxstep:0}}
+\legend{{lin},{pred},{min},{max},{step}} 
+\end{loglogaxis}
+\end{tikzpicture}
+\end{minipage}
+}%
+\end{figure}
+
+\begin{figure}
+\centering
+
+\makebox[0pt][c]{%
+\begin{minipage}{10cm}   % elevator-fair
+\begin{tikzpicture}
+\begin{loglogaxis}[xlabel=$G_n$,ylabel={Time in seconds},legend pos=south east]
+\addplot coordinates { (3,0.002) (4,0.009) (5,0.090) (6,0.824) (7,7.117) (8,154.054) };% -llinear:0
+\addplot coordinates { (3,0.000) (4,0.002) (5,0.016) (6,0.132) (7,3.575) (8,55.424) };% -Lpredecessor:0
+\addplot coordinates { (3,0.001) (4,0.006) (5,0.082) (6,0.738) (7,15.424) (8,302.658) };% -Lminmeasure:0
+\addplot coordinates { (3,0.000) (4,0.003) (5,0.026) (6,0.117) (7,2.505) (8,30.725) };% -Lmaxmeasure:0
+\addplot coordinates { (3,0.000) (4,0.004) (5,0.032) (6,0.220) (7,3.104) (8,36.723) };% -Lmaxstep:0
+\legend{{-llinear:0},{-Lpredecessor:0},{-Lminmeasure:0},{-Lmaxmeasure:0},{-Lmaxstep:0}}
+\legend{{lin},{pred},{min},{max},{step}} 
+\end{loglogaxis}
+\end{tikzpicture}
+\end{minipage}
+
+\begin{minipage}{10cm}   % elevator-unfair
+\begin{tikzpicture}
+\begin{loglogaxis}[xlabel=$G'_n$,ylabel={Time in seconds},legend pos=south east]
+\addplot coordinates { (3,0.007) (4,0.108) (5,2.697) (6,100.754) };% -llinear:0
+\addplot coordinates { (3,0.003) (4,0.052) (5,1.845) (6,112.889) };% -Lpredecessor:0
+\addplot coordinates { (3,0.012) (4,0.300) (5,9.612) (6,690.120) };% -Lminmeasure:0
+\addplot coordinates { (3,0.003) (4,0.014) (5,0.105) (6,0.661) (7,9.389) (8,134.268) };% -Lmaxmeasure:0
+\addplot coordinates { (3,0.005) (4,0.025) (5,0.216) (6,1.401) (7,20.193) (8,298.090) };% -Lmaxstep:0
+\legend{{-llinear:0},{-Lpredecessor:0},{-Lminmeasure:0},{-Lmaxmeasure:0},{-Lmaxstep:0}}
+\legend{{lin},{pred},{min},{max},{step}} 
+\end{loglogaxis}
+\end{tikzpicture}
+\end{minipage}
+}%
+\end{figure}
