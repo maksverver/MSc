@@ -247,8 +247,8 @@ int MaxMeasureLiftingStrategy2::cmp(verti i, verti j)
         // mode, or largest insert-id first in stack mode.
         switch (order_)
         {
-        case STACK: d = cmp_ids(insert_id_[v], insert_id_[w]);
-        case QUEUE: d = cmp_ids(insert_id_[w], insert_id_[v]);
+        case QUEUE: d = cmp_ids(insert_id_[w], insert_id_[v]); break;
+        case STACK: d = cmp_ids(insert_id_[v], insert_id_[w]); break;
         default:    break;
         }
     }
