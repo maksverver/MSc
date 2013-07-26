@@ -30,6 +30,8 @@
 \end{tikzpicture}
 \end{minipage}
 }%
+\caption{Two-way SPM performance on decision procedures (in lifting attempts)}
+\label{spm_spgip_graphs_deciproc_lifting_attempts_a}
 \end{figure}
 
 \begin{figure}
@@ -64,71 +66,6 @@
 \end{tikzpicture}
 \end{minipage}
 }%
-\end{figure}
-\begin{figure}
-\centering
-\makebox[0pt][c]{% 
-\begin{minipage}{10cm}   % phi
-\begin{tikzpicture}
-\begin{semilogyaxis}[xlabel=$\phi_n$,ylabel={Time in seconds},legend pos=south east]
-\addplot coordinates { (2,0.001) (3,0.007) (4,0.053) (5,0.419) (6,1.986) (7,15.549) (8,73.276) };% -llinear:0
-\addplot coordinates { (2,0.000) (3,0.002) (4,0.013) (5,0.074) (6,0.434) (7,2.503) (8,11.671) };% -Lpredecessor:0
-\addplot coordinates { (2,0.002) (3,0.034) (4,1.322) (5,1947.732) };% -Lminmeasure:0
-\addplot coordinates { (2,0.001) (3,0.007) (4,0.042) (5,0.267) (6,1.148) (7,5.861) (8,31.301) };% -Lmaxmeasure:0
-\addplot coordinates { (2,0.001) (3,0.013) (4,0.092) (5,0.550) (6,2.705) (7,14.441) (8,74.012) };% -Lmaxstep:0
-\legend{{-llinear:0},{-Lpredecessor:0},{-Lminmeasure:0},{-Lmaxmeasure:0},{-Lmaxstep:0}}
-\legend{{lin},{pred},{min},{max},{step}}
-\end{semilogyaxis}
-\end{tikzpicture}
-\end{minipage}
-
-\begin{minipage}{10cm}   % chi
-\begin{tikzpicture}
-\begin{loglogaxis}[xlabel=$\phi'_n$,ylabel={Time in seconds},legend pos=south east]
-
-\addplot coordinates { (10,0.056) (50,1.271) (100,3.876) (500,99.564) (1000,540.000) (2000,2785.896) };% -llinear:0
-\addplot coordinates { (10,0.009) (50,0.270) (100,0.947) (500,31.946) (1000,197.789) (2000,942.874) };% -Lpredecessor:0
-\addplot coordinates { (10,0.325) (50,23.166) (100,204.086) };% -Lminmeasure:0
-\addplot coordinates { (10,0.061) (50,1.402) (100,4.539) (500,151.471) (1000,660.410) (2000,2769.747) };% -Lmaxmeasure:0
-\addplot coordinates { (10,0.060) (50,0.645) (100,1.095) (500,6.987) (1000,18.185) (2000,32.552) (5000,102.727) };% -Lmaxstep:0
-\legend{{-llinear:0},{-Lpredecessor:0},{-Lminmeasure:0},{-Lmaxmeasure:0},{-Lmaxstep:0}}
-\legend{{lin},{pred},{min},{max},{step}} 
-\end{loglogaxis}
-\end{tikzpicture}
-\end{minipage}
-}%
-\end{figure}
-
-\begin{figure}
-\centering
-
-\makebox[0pt][c]{%
-\begin{minipage}{10cm}   % elevator-fair
-\begin{tikzpicture}
-\begin{loglogaxis}[xlabel=$G_n$,ylabel={Time in seconds},legend pos=south east]
-\addplot coordinates { (3,0.002) (4,0.009) (5,0.090) (6,0.824) (7,7.117) (8,154.054) };% -llinear:0
-\addplot coordinates { (3,0.000) (4,0.002) (5,0.016) (6,0.132) (7,3.575) (8,55.424) };% -Lpredecessor:0
-\addplot coordinates { (3,0.001) (4,0.006) (5,0.082) (6,0.738) (7,15.424) (8,302.658) };% -Lminmeasure:0
-\addplot coordinates { (3,0.000) (4,0.003) (5,0.026) (6,0.117) (7,2.505) (8,30.725) };% -Lmaxmeasure:0
-\addplot coordinates { (3,0.000) (4,0.004) (5,0.032) (6,0.220) (7,3.104) (8,36.723) };% -Lmaxstep:0
-\legend{{-llinear:0},{-Lpredecessor:0},{-Lminmeasure:0},{-Lmaxmeasure:0},{-Lmaxstep:0}}
-\legend{{lin},{pred},{min},{max},{step}} 
-\end{loglogaxis}
-\end{tikzpicture}
-\end{minipage}
-
-\begin{minipage}{10cm}   % elevator-unfair
-\begin{tikzpicture}
-\begin{loglogaxis}[xlabel=$G'_n$,ylabel={Time in seconds},legend pos=south east]
-\addplot coordinates { (3,0.007) (4,0.108) (5,2.697) (6,100.754) };% -llinear:0
-\addplot coordinates { (3,0.003) (4,0.052) (5,1.845) (6,112.889) };% -Lpredecessor:0
-\addplot coordinates { (3,0.012) (4,0.300) (5,9.612) (6,690.120) };% -Lminmeasure:0
-\addplot coordinates { (3,0.003) (4,0.014) (5,0.105) (6,0.661) (7,9.389) (8,134.268) };% -Lmaxmeasure:0
-\addplot coordinates { (3,0.005) (4,0.025) (5,0.216) (6,1.401) (7,20.193) (8,298.090) };% -Lmaxstep:0
-\legend{{-llinear:0},{-Lpredecessor:0},{-Lminmeasure:0},{-Lmaxmeasure:0},{-Lmaxstep:0}}
-\legend{{lin},{pred},{min},{max},{step}} 
-\end{loglogaxis}
-\end{tikzpicture}
-\end{minipage}
-}%
+\caption{Two-way SPM performance on elevator verification (in lifting attempts)}
+\label{spm_spgip_graphs_elevator_lifting_attempts_a}
 \end{figure}
