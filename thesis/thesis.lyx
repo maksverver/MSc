@@ -6517,7 +6517,14 @@ Instead of improving SPM itself, there are a few transformations that can
 \end_layout
 
 \begin_layout Subsubsection
-Loop removal
+Loop removal 
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Loop-removal"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -6566,6 +6573,7 @@ reference "tab:SPM-preprocessing"
 
 \begin_layout Standard
 \begin_inset Float table
+placement h
 wide false
 sideways false
 status open
@@ -8821,6 +8829,35 @@ key "friedmann2009solving"
  of the results presented here with earlier reports.
 \end_layout
 
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+I want to show three things:
+\end_layout
+
+\begin_layout Itemize
+maximum measure propagation is a valid strategy
+\end_layout
+
+\begin_layout Itemize
+decrement after lifting to top improves SPM in two-sided approach (how?)
+\end_layout
+
+\begin_layout Itemize
+decycle solver works great (also compare with deloop solver)
+\end_layout
+
+\begin_layout Plain Layout
+(Really emphasize my contributions here!)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Section
 Random games
 \end_layout
@@ -9106,7 +9143,7 @@ status open
 <column alignment="right" valignment="top" width="0">
 <column alignment="right" valignment="top" width="0">
 <column alignment="right" valignment="top" width="0">
-<column alignment="center" valignment="top" width="0">
+<column alignment="right" valignment="top" width="0">
 <row>
 <cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
 \begin_inset Text
@@ -9144,7 +9181,7 @@ Priorities
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -9194,7 +9231,7 @@ Largest component
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -9244,7 +9281,7 @@ Largest component
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -9294,7 +9331,7 @@ Largest component
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -9344,7 +9381,7 @@ Largest component
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -9394,7 +9431,7 @@ Largest component
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -9444,7 +9481,7 @@ Largest component
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -9494,7 +9531,7 @@ Largest component
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -9544,7 +9581,7 @@ Largest component
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -9594,7 +9631,7 @@ Largest component
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -9644,7 +9681,7 @@ Largest component
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -9694,7 +9731,7 @@ Largest component
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -9744,7 +9781,7 @@ Largest component
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -9794,7 +9831,7 @@ Largest component
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -9844,7 +9881,7 @@ Largest component
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -9894,7 +9931,7 @@ Largest component
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -9956,7 +9993,7 @@ Largest component
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -10006,7 +10043,7 @@ Largest component
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -10068,7 +10105,7 @@ Largest component
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -10118,7 +10155,7 @@ Largest component
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -10180,7 +10217,7 @@ Largest component
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -10230,7 +10267,7 @@ Largest component
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="right" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -10292,7 +10329,7 @@ Largest component
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="right" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -10358,58 +10395,11 @@ also hyperthreading, so in total 8 cores and 16 threads of control
 \end_layout
 
 \begin_layout Section
-Results
+Results on random graphs
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-I want to show three things:
-\end_layout
-
-\begin_layout Itemize
-maximum measure propagation is a valid strategy
-\end_layout
-
-\begin_layout Itemize
-decrement after lifting to top improves SPM in two-sided approach (how?)
-\end_layout
-
-\begin_layout Itemize
-decycle solver works great (also compare with deloop solver)
-\end_layout
-
-\begin_layout Plain Layout
-(Really emphasize my contributions here!)
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Subsection
-Lifting Strategies
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-describe parameters used! no preprocessing beyond loop initialization to
- top, no two-way approach.
- Explain parameters used (queue/stack/heap).
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
+Tables 
 \begin_inset ERT
 status open
 
@@ -10417,107 +10407,187 @@ status open
 
 
 \backslash
-ExpandableInput{results-spm-spgip.tex}
+ref{random_graphs_lifts}
 \end_layout
 
 \end_inset
 
-
-\end_layout
-
-\begin_layout Standard
-As expected, the linear lifting strategy performs a lot of extra work, and
- times out on some of the more difficult cases (however, so do some of the
- more sophisticated alternatives).
- This supports the idea that the brute force approach does not work particularly
- well.
- As expected, the minimum measure propagation strategy performs terribly.
-\end_layout
-
-\begin_layout Standard
-In terms of number of lifts, the maximum measure and maximum step lifting
- strategies perform best, although the relative merits of strategies vary
- from case to case.
- It seems fair to call the maximum step metric the overall winner, because
- even in cases where it is not the best strategy, it is fairly close to
- the best alternative (maximum measure propagation), and in at least some
- cases it is significantly better than any other strategy.
-\end_layout
-
-\begin_layout Standard
-Considering time used (rather than lifting attempts made) paints a different
- picture.
- Now the linear lifting strategy stays reasonably close, by virtue of being
- the simplest and therefore fastest strategy of them all, and the predecessor
- strategy wins in the first case (
-\begin_inset Formula $\phi_{n}$
-\end_inset
-
-) since the other strategies run considerably slower.
- However, for the second case (
-\begin_inset Formula $\phi'_{n}$
-\end_inset
-
-) the maximum step strategy scales much better to larger testcases.
- On the fair elevator (
-\begin_inset Formula $G_{n}$
-\end_inset
-
-) different strategies are relatively close, but on the unfair elevator
- (
-\begin_inset Formula $G'_{n}$
-\end_inset
-
-) both the maximum measure and maximum step metric beat the simpler strategies
- by a large margin.
-\end_layout
-
-\begin_layout Standard
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
+ and 
+\begin_inset ERT
 status open
 
 \begin_layout Plain Layout
-reference figures by id!
+
+
+\backslash
+ref{random_graphs_time}
 \end_layout
 
 \end_inset
 
+ show how the different lifting strategies perform on unclustered and clustered
+ random graphs.
+ The configurations differ on four (not completely independent) axes:
+\end_layout
 
+\begin_layout Enumerate
+
+\emph on
+Lifting strategy
+\emph default
+: linear lifting (
+\begin_inset Quotes eld
+\end_inset
+
+lin
+\begin_inset Quotes erd
+\end_inset
+
+), predecessor lifting (
+\begin_inset Quotes eld
+\end_inset
+
+pred
+\begin_inset Quotes erd
+\end_inset
+
+), maximum measure propagation (
+\begin_inset Quotes eld
+\end_inset
+
+max
+\begin_inset Quotes erd
+\end_inset
+
+), minimum measure propagation (
+\begin_inset Quotes eld
+\end_inset
+
+min
+\begin_inset Quotes erd
+\end_inset
+
+), and maximum step propagation (
+\begin_inset Quotes eld
+\end_inset
+
+step
+\begin_inset Quotes erd
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Enumerate
+
+\emph on
+Direction/extraction order: 
+\emph default
+the linear lifting strategy can either iterate in forward direction (F)
+ or alternate direction on each pass (A).
+ The predecessor lifting strategy can either use queue-order (Q) or stack-order
+ (S), while the maximum/minimum measure and maximum step strategies can
+ also use the internal heap order (H).
+ These varations are described in Subsection 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Lifting-Strategies"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+
+\emph on
+Framework
+\emph default
+: either the traditional framework or the improved framework (I) described
+ in 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Eliminating-failed-lifting"
+
+\end_inset
+
+.
+ The linear lifting strategy only supports the traditional framework, while
+ the predecessor lifting strategy is the only one that supports both.
+\end_layout
+
+\begin_layout Enumerate
+
+\emph on
+Two-sided approach:
+\emph default
+ all strategies can use the two-sided solving approach (T) described in
+ Subsection 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Two-sided-SPM"
+
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-grafiekjes voor -a
-\end_layout
+Five different classes of random games were used, each with 10 priorities
+ and outdegree 3, but with varying graph sizes and cluster sizes.
+ In the results, 
+\family typewriter
+4000/16
+\family default
+ denotes a graph generated as discussed in subsection 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Clustered-random-games"
 
 \end_inset
 
+ with 4000 vertices and cluster size 16.
+ For each class 30 instances were randomly generated, and each solver configurat
+ion was allowed to perform up to 
+\begin_inset Formula $10^{9}$
+\end_inset
 
+ lifting attempts before being aborted.
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
+Tables 
+\begin_inset ERT
 status open
 
 \begin_layout Plain Layout
-misschien tabel met summary van alle heuristics op 1 case (e.g.
- phi6)
+
+
+\backslash
+ref{random_graphs_lifts}
 \end_layout
 
 \end_inset
 
+ and 
+\begin_inset ERT
+status open
 
+\begin_layout Plain Layout
+
+
+\backslash
+ref{random_graphs_time}
 \end_layout
 
-\begin_layout Section
-Results
+\end_inset
+
+ show how many instances in each class could be solved successfully by the
+ given configuration, and also the average number of lifts (in millions
+ of attempts) and time taken (in seconds), respectively.
+ Both the number of lifts and the amount of time varied greatly between
+ cases, so it is generally not meaningful to compare these except for cases
+ where all instances in a class were completely solved.
 \end_layout
 
 \begin_layout Standard
@@ -10564,21 +10634,12 @@ footnotesize
 
 
 \backslash
-begin{longtable}{l|r r|r r|r r|r r|r r|r r|}
+begin{longtable}{l l|r r|r r|r r|r r|r r|r r|}
 \end_layout
 
 \begin_layout Plain Layout
 
-    & 
-\backslash
-multicolumn{2}{c|}{1000/0}
-\end_layout
-
-\begin_layout Plain Layout
-
-    & 
-\backslash
-multicolumn{2}{c|}{1000/10}
+	&
 \end_layout
 
 \begin_layout Plain Layout
@@ -10592,13 +10653,6 @@ multicolumn{2}{c|}{4000/0}
 
     & 
 \backslash
-multicolumn{2}{c|}{4000/200}
-\end_layout
-
-\begin_layout Plain Layout
-
-    & 
-\backslash
 multicolumn{2}{c|}{8000/0}
 \end_layout
 
@@ -10606,7 +10660,21 @@ multicolumn{2}{c|}{8000/0}
 
     & 
 \backslash
-multicolumn{2}{c|}{8000/20} 
+multicolumn{2}{c|}{16000/0}
+\end_layout
+
+\begin_layout Plain Layout
+
+	& 
+\backslash
+multicolumn{2}{c|}{4000/16}
+\end_layout
+
+\begin_layout Plain Layout
+
+    & 
+\backslash
+multicolumn{2}{c|}{4000/200} 
 \backslash
 
 \backslash
@@ -10615,159 +10683,47 @@ multicolumn{2}{c|}{8000/20}
 
 \begin_layout Plain Layout
 
-	& count & time
+	&
 \end_layout
 
 \begin_layout Plain Layout
 
-	& count & time
+	& 
+\backslash
+#solved & avg.
+ lifts
 \end_layout
 
 \begin_layout Plain Layout
 
-	& count & time
+	& 
+\backslash
+#solved & avg.
+ lifts
 \end_layout
 
 \begin_layout Plain Layout
 
-	& count & time
+	& 
+\backslash
+#solved & avg.
+ lifts
 \end_layout
 
 \begin_layout Plain Layout
 
-	& count & time
+	& 
+\backslash
+#solved & avg.
+ lifts
 \end_layout
 
 \begin_layout Plain Layout
 
-	& count & time 
+	& 
 \backslash
-
-\backslash
-
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-hline
-\end_layout
-
-\begin_layout Plain Layout
-
-spm linear:0  & 20 & 0.059 & 12 & 430.163 & 20 & 311.118 & 3 & 22.287 & 20 &
- 13.656 & 0 & 0.000 
-\backslash
-
-\backslash
-
-\end_layout
-
-\begin_layout Plain Layout
-
-spm linear:1  & 20 & 0.074 & 12 & 768.593 & 20 & 444.833 & 3 & 24.714 & 20 &
- 20.080 & 0 & 0.000 
-\backslash
-
-\backslash
-
-\end_layout
-
-\begin_layout Plain Layout
-
-spm predecessor:0  & 20 & 0.015 & 20 & 61.110 & 20 & 1.094 & 9 & 104.439 & 20
- & 1.056 & 0 & 0.000 
-\backslash
-
-\backslash
-
-\end_layout
-
-\begin_layout Plain Layout
-
-spm predecessor:1  & 20 & 1.555 & 20 & 903.112 & 20 & 4.518 & 3 & 253.498 &
- 20 & 6.150 & 0 & 0.000 
-\backslash
-
-\backslash
-
-\end_layout
-
-\begin_layout Plain Layout
-
-spm2 predecessor:0  & 20 & 0.007 & 20 & 30.768 & 20 & 0.529 & 16 & 249.059 &
- 20 & 0.564 & 0 & 0.000 
-\backslash
-
-\backslash
-
-\end_layout
-
-\begin_layout Plain Layout
-
-spm2 predecessor:1  & 20 & 1.498 & 20 & 448.389 & 20 & 1.716 & 3 & 342.546 &
- 20 & 0.079 & 0 & 0.000 
-\backslash
-
-\backslash
-
-\end_layout
-
-\begin_layout Plain Layout
-
-spm2 maxmeasure:0  & 20 & 10.325 & 20 & 2023.303 & 20 & 13.984 & 9 & 2069.674
- & 20 & 0.175 & 0 & 0.000 
-\backslash
-
-\backslash
-
-\end_layout
-
-\begin_layout Plain Layout
-
-spm2 maxmeasure:1  & 20 & 0.285 & 20 & 2055.037 & 20 & 2.758 & 11 & 2207.628
- & 20 & 0.659 & 0 & 0.000 
-\backslash
-
-\backslash
-
-\end_layout
-
-\begin_layout Plain Layout
-
-spm2 maxmeasure:2  & 20 & 0.018 & 20 & 896.029 & 20 & 32.869 & 7 & 1102.452
- & 20 & 0.317 & 0 & 0.000 
-\backslash
-
-\backslash
-
-\end_layout
-
-\begin_layout Plain Layout
-
-spm2 minmeasure:0  & 20 & 403.272 & 20 & 7448.687 & 20 & 1762.198 & 3 & 2916.765
- & 20 & 960.947 & 0 & 0.000 
-\backslash
-
-\backslash
-
-\end_layout
-
-\begin_layout Plain Layout
-
-spm2 minmeasure:1  & 20 & 354.341 & 20 & 7432.074 & 20 & 1977.894 & 2 & 1769.341
- & 20 & 975.890 & 0 & 0.000 
-\backslash
-
-\backslash
-
-\end_layout
-
-\begin_layout Plain Layout
-
-spm2 minmeasure:2  & 20 & 278.084 & 20 & 5391.739 & 20 & 1321.052 & 2 & 863.418
- & 20 & 704.088 & 0 & 0.000 
+#solved & avg.
+ lifts 
 \backslash
 
 \backslash
@@ -10783,8 +10739,8 @@ hline
 
 \begin_layout Plain Layout
 
-spm linear:0 a & 20 & 0.070 & 20 & 47.477 & 20 & 94.931 & 9 & 17.095 & 20 &
- 5.168 & 0 & 0.000 
+Linear       & F     & 27 & $5.290$ & 25 & $7.997$ & 25 & $28.621$ & 0 & $0.000$
+ & 4 & $396.670$ 
 \backslash
 
 \backslash
@@ -10793,8 +10749,8 @@ spm linear:0 a & 20 & 0.070 & 20 & 47.477 & 20 & 94.931 & 9 & 17.095 & 20 &
 
 \begin_layout Plain Layout
 
-spm linear:1 a & 20 & 0.068 & 20 & 92.176 & 20 & 196.078 & 9 & 29.033 & 0 &
- 0.000 & 0 & 0.000 
+Linear       & A     & 27 & $7.701$ & 25 & $11.710$ & 25 & $37.967$ & 0 & $0.000$
+ & 4 & $462.254$ 
 \backslash
 
 \backslash
@@ -10803,8 +10759,8 @@ spm linear:1 a & 20 & 0.068 & 20 & 92.176 & 20 & 196.078 & 9 & 29.033 & 0 &
 
 \begin_layout Plain Layout
 
-spm predecessor:0 a & 20 & 0.004 & 20 & 0.442 & 20 & 0.584 & 17 & 89.644 & 20
- & 0.027 & 4 & 332.919 
+Predecessor  & Q     & 30 & $2.033$ & 29 & $5.932$ & 28 & $18.813$ & 0 & $0.000$
+ & 10 & $44.242$ 
 \backslash
 
 \backslash
@@ -10813,8 +10769,8 @@ spm predecessor:0 a & 20 & 0.004 & 20 & 0.442 & 20 & 0.584 & 17 & 89.644 & 20
 
 \begin_layout Plain Layout
 
-spm predecessor:1 a & 20 & 0.005 & 20 & 3.976 & 20 & 3.182 & 16 & 279.941 &
- 20 & 0.039 & 0 & 0.000 
+Predecessor  & S     & 29 & $1.451$ & 28 & $0.699$ & 22 & $2.425$ & 0 & $0.000$
+ & 2 & $279.173$ 
 \backslash
 
 \backslash
@@ -10823,8 +10779,8 @@ spm predecessor:1 a & 20 & 0.005 & 20 & 3.976 & 20 & 3.182 & 16 & 279.941 &
 
 \begin_layout Plain Layout
 
-spm2 predecessor:0 a & 20 & 0.005 & 20 & 0.321 & 20 & 0.343 & 20 & 153.300 &
- 20 & 0.020 & 4 & 165.047 
+Predecessor  & Q I   & 30 & $0.891$ & 30 & $3.114$ & 29 & $9.669$ & 0 & $0.000$
+ & 10 & $18.175$ 
 \backslash
 
 \backslash
@@ -10833,8 +10789,8 @@ spm2 predecessor:0 a & 20 & 0.005 & 20 & 0.321 & 20 & 0.343 & 20 & 153.300 &
 
 \begin_layout Plain Layout
 
-spm2 predecessor:1 a & 20 & 0.005 & 20 & 2.576 & 20 & 0.230 & 17 & 224.500 &
- 20 & 0.029 & 0 & 0.000 
+Predecessor  & S I   & 29 & $0.253$ & 29 & $0.287$ & 25 & $0.718$ & 0 & $0.000$
+ & 3 & $318.609$ 
 \backslash
 
 \backslash
@@ -10843,8 +10799,9 @@ spm2 predecessor:1 a & 20 & 0.005 & 20 & 2.576 & 20 & 0.230 & 17 & 224.500 &
 
 \begin_layout Plain Layout
 
-spm2 maxmeasure:0 a & 20 & 1.513 & 20 & 61.567 & 20 & 1.486 & 17 & 1193.438
- & 20 & 0.088 & 0 & 0.000 
+Max.
+ Measure & Q I   & 29 & $0.128$ & 29 & $0.079$ & 27 & $0.236$ & 0 & $0.000$
+ & 6 & $127.494$ 
 \backslash
 
 \backslash
@@ -10853,8 +10810,9 @@ spm2 maxmeasure:0 a & 20 & 1.513 & 20 & 61.567 & 20 & 1.486 & 17 & 1193.438
 
 \begin_layout Plain Layout
 
-spm2 maxmeasure:1 a & 20 & 0.009 & 20 & 89.944 & 20 & 1.301 & 18 & 1936.534
- & 20 & 0.071 & 0 & 0.000 
+Max.
+ Measure & S I   & 30 & $0.087$ & 30 & $0.133$ & 29 & $0.251$ & 0 & $0.000$
+ & 7 & $56.325$ 
 \backslash
 
 \backslash
@@ -10863,8 +10821,9 @@ spm2 maxmeasure:1 a & 20 & 0.009 & 20 & 89.944 & 20 & 1.301 & 18 & 1936.534
 
 \begin_layout Plain Layout
 
-spm2 maxmeasure:2 a & 20 & 0.008 & 20 & 60.175 & 20 & 1.015 & 15 & 973.841 &
- 20 & 0.082 & 0 & 0.000 
+Max.
+ Measure & H I   & 30 & $0.254$ & 30 & $0.088$ & 26 & $0.242$ & 0 & $0.000$
+ & 6 & $71.988$ 
 \backslash
 
 \backslash
@@ -10873,8 +10832,9 @@ spm2 maxmeasure:2 a & 20 & 0.008 & 20 & 60.175 & 20 & 1.015 & 15 & 973.841 &
 
 \begin_layout Plain Layout
 
-spm2 minmeasure:0 a & 20 & 0.018 & 20 & 1.146 & 20 & 1.782 & 17 & 591.006 &
- 20 & 0.072 & 4 & 1845.579 
+Max.
+ Step    & S I   & 30 & $0.261$ & 28 & $0.207$ & 28 & $0.326$ & 0 & $0.000$
+ & 7 & $409.951$ 
 \backslash
 
 \backslash
@@ -10883,8 +10843,9 @@ spm2 minmeasure:0 a & 20 & 0.018 & 20 & 1.146 & 20 & 1.782 & 17 & 591.006 &
 
 \begin_layout Plain Layout
 
-spm2 minmeasure:1 a & 20 & 0.017 & 20 & 1.027 & 20 & 1.716 & 19 & 552.293 &
- 20 & 0.079 & 4 & 1440.281 
+Max.
+ Step    & O I   & 30 & $0.259$ & 29 & $0.193$ & 28 & $0.333$ & 0 & $0.000$
+ & 7 & $353.453$ 
 \backslash
 
 \backslash
@@ -10893,8 +10854,42 @@ spm2 minmeasure:1 a & 20 & 0.017 & 20 & 1.027 & 20 & 1.716 & 19 & 552.293 &
 
 \begin_layout Plain Layout
 
-spm2 minmeasure:2 a & 20 & 0.014 & 20 & 0.906 & 20 & 1.008 & 18 & 282.799 &
- 20 & 0.061 & 4 & 1340.158 
+Max.
+ Step    & H I   & 30 & $0.257$ & 29 & $0.194$ & 28 & $0.324$ & 0 & $0.000$
+ & 5 & $372.347$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Min.
+ Measure & Q I   & 25 & $36.135$ & 24 & $65.144$ & 9 & $109.908$ & 0 & $0.000$
+ & 1 & $981.772$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Min.
+ Measure & S I   & 26 & $40.427$ & 24 & $61.187$ & 8 & $143.396$ & 0 & $0.000$
+ & 0 & $0.000$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Min.
+ Measure & H I   & 26 & $42.547$ & 23 & $57.114$ & 9 & $153.542$ & 0 & $0.000$
+ & 1 & $776.791$ 
 \backslash
 
 \backslash
@@ -10905,6 +10900,163 @@ spm2 minmeasure:2 a & 20 & 0.014 & 20 & 0.906 & 20 & 1.008 & 18 & 282.799 &
 
 
 \backslash
+hline
+\end_layout
+
+\begin_layout Plain Layout
+
+Linear       & F   T & 29 & $0.679$ & 27 & $0.352$ & 26 & $1.242$ & 1 & $802.259$
+ & 14 & $109.158$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Linear       & A   T & 29 & $0.961$ & 28 & $0.482$ & 26 & $1.260$ & 1 & $854.010$
+ & 14 & $123.304$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Predecessor  & Q   T & 30 & $0.049$ & 29 & $0.055$ & 30 & $0.188$ & 17 & $105.114$
+ & 23 & $2.411$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Predecessor  & S   T & 30 & $0.107$ & 30 & $0.158$ & 28 & $0.306$ & 0 & $0.000$
+ & 15 & $81.760$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Predecessor  & Q I T & 30 & $0.030$ & 30 & $0.031$ & 30 & $0.078$ & 18 & $46.409$
+ & 23 & $1.077$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Predecessor  & S I T & 30 & $0.049$ & 30 & $0.067$ & 28 & $0.224$ & 0 & $0.000$
+ & 19 & $43.585$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Max.
+ Measure & Q I T & 30 & $0.033$ & 30 & $0.049$ & 30 & $0.114$ & 0 & $0.000$
+ & 19 & $43.761$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Max.
+ Measure & S I T & 30 & $0.032$ & 30 & $0.044$ & 30 & $0.103$ & 0 & $0.000$
+ & 16 & $51.017$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Max.
+ Measure & H I T & 30 & $0.032$ & 30 & $0.051$ & 30 & $0.127$ & 0 & $0.000$
+ & 14 & $47.321$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Max.
+ Step    & S I T & 30 & $0.089$ & 29 & $0.149$ & 30 & $0.400$ & 0 & $0.000$
+ & 16 & $131.568$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Max.
+ Step    & O I T & 30 & $0.086$ & 30 & $0.207$ & 30 & $0.370$ & 0 & $0.000$
+ & 14 & $80.140$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Max.
+ Step    & H I T & 30 & $0.112$ & 29 & $0.145$ & 30 & $0.343$ & 0 & $0.000$
+ & 15 & $144.533$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Min.
+ Measure & Q I T & 30 & $0.043$ & 30 & $0.043$ & 30 & $0.124$ & 16 & $133.194$
+ & 21 & $5.792$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Min.
+ Measure & S I T & 30 & $0.041$ & 30 & $0.043$ & 30 & $0.135$ & 14 & $121.260$
+ & 22 & $6.127$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Min.
+ Measure & H I T & 30 & $0.044$ & 30 & $0.042$ & 30 & $0.155$ & 16 & $137.207$
+ & 22 & $7.411$ 
+\backslash
 
 \backslash
 
@@ -10914,7 +11066,7 @@ spm2 minmeasure:2 a & 20 & 0.014 & 20 & 0.906 & 20 & 1.008 & 18 & 282.799 &
 
 
 \backslash
-hline	
+hline
 \end_layout
 
 \begin_layout Plain Layout
@@ -10922,11 +11074,6 @@ hline
 
 \backslash
 end{longtable}
-\end_layout
-
-\begin_layout Plain Layout
-
-% TODO: should have a number + label here
 \end_layout
 
 \begin_layout Plain Layout
@@ -10940,7 +11087,9 @@ endgroup
 
 
 \backslash
-caption{Summary of Small Progress Measure benchmark on random graphs}
+caption{SPM performance on random graphs (in million lifts)} 
+\backslash
+label{random_graphs_lifts}
 \end_layout
 
 \begin_layout Plain Layout
@@ -10956,15 +11105,686 @@ end{table}
 \end_layout
 
 \begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{table}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begingroup
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+setlength{
+\backslash
+LTleft}{-20cm plus -1fill}
+\backslash
+setlength{
+\backslash
+LTright}{
+\backslash
+LTleft}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+footnotesize
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{longtable}{l l|r r|r r|r r|r r|r r|r r|}
+\end_layout
+
+\begin_layout Plain Layout
+
+	&
+\end_layout
+
+\begin_layout Plain Layout
+
+    & 
+\backslash
+multicolumn{2}{c|}{4000/0}
+\end_layout
+
+\begin_layout Plain Layout
+
+    & 
+\backslash
+multicolumn{2}{c|}{8000/0}
+\end_layout
+
+\begin_layout Plain Layout
+
+    & 
+\backslash
+multicolumn{2}{c|}{16000/0}
+\end_layout
+
+\begin_layout Plain Layout
+
+	& 
+\backslash
+multicolumn{2}{c|}{4000/16}
+\end_layout
+
+\begin_layout Plain Layout
+
+    & 
+\backslash
+multicolumn{2}{c|}{4000/200} 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	&
+\end_layout
+
+\begin_layout Plain Layout
+
+	& 
+\backslash
+#solved & avg.
+ time
+\end_layout
+
+\begin_layout Plain Layout
+
+	& 
+\backslash
+#solved & avg.
+ time
+\end_layout
+
+\begin_layout Plain Layout
+
+	& 
+\backslash
+#solved & avg.
+ time
+\end_layout
+
+\begin_layout Plain Layout
+
+	& 
+\backslash
+#solved & avg.
+ time
+\end_layout
+
+\begin_layout Plain Layout
+
+	& 
+\backslash
+#solved & avg.
+ time 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+hline
+\end_layout
+
+\begin_layout Plain Layout
+
+Linear       & F     & 27 & $2.984$ & 25 & $2.897$ & 25 & $2.955$ & 0 & $0.000$
+ & 4 & $23.955$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Linear       & A     & 27 & $3.866$ & 25 & $2.461$ & 25 & $3.760$ & 0 & $0.000$
+ & 4 & $28.627$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Predecessor  & Q     & 30 & $0.851$ & 29 & $2.081$ & 28 & $3.477$ & 0 & $0.000$
+ & 10 & $13.907$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Predecessor  & S     & 29 & $4.057$ & 28 & $3.308$ & 22 & $5.325$ & 0 & $0.000$
+ & 2 & $35.713$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Predecessor  & Q I   & 30 & $0.416$ & 30 & $2.167$ & 29 & $3.561$ & 0 & $0.000$
+ & 10 & $5.808$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Predecessor  & S I   & 29 & $1.485$ & 29 & $2.335$ & 25 & $2.106$ & 0 & $0.000$
+ & 3 & $28.021$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Max.
+ Measure & Q I   & 29 & $9.551$ & 29 & $6.416$ & 27 & $23.197$ & 0 & $0.000$
+ & 6 & $254.828$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Max.
+ Measure & S I   & 30 & $2.032$ & 30 & $14.288$ & 29 & $54.391$ & 0 & $0.000$
+ & 7 & $159.150$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Max.
+ Measure & H I   & 30 & $28.878$ & 30 & $5.502$ & 26 & $11.688$ & 0 & $0.000$
+ & 6 & $160.109$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Max.
+ Step    & S I   & 30 & $26.484$ & 28 & $24.946$ & 28 & $31.141$ & 0 & $0.000$
+ & 7 & $617.803$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Max.
+ Step    & Q I   & 30 & $26.866$ & 29 & $47.951$ & 28 & $30.215$ & 0 & $0.000$
+ & 7 & $512.916$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Max.
+ Step    & H I   & 30 & $17.893$ & 29 & $27.546$ & 28 & $24.296$ & 0 & $0.000$
+ & 5 & $336.803$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Min.
+ Measure & Q I   & 25 & $71.726$ & 24 & $131.634$ & 9 & $197.808$ & 0 & $0.000$
+ & 1 & $708.959$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Min.
+ Measure & S I   & 26 & $89.974$ & 24 & $112.067$ & 8 & $289.688$ & 0 & $0.000$
+ & 0 & $0.000$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Min.
+ Measure & H I   & 26 & $62.227$ & 23 & $76.719$ & 9 & $197.744$ & 0 & $0.000$
+ & 1 & $387.452$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+hline
+\end_layout
+
+\begin_layout Plain Layout
+
+Linear       & F   T & 29 & $2.801$ & 27 & $0.108$ & 26 & $0.659$ & 1 & $68.996$
+ & 14 & $17.134$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Linear       & A   T & 29 & $3.991$ & 28 & $2.425$ & 26 & $0.631$ & 1 & $74.086$
+ & 14 & $20.812$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Predecessor  & Q   T & 30 & $0.421$ & 29 & $0.041$ & 30 & $3.823$ & 17 & $19.376$
+ & 23 & $3.097$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Predecessor  & S   T & 30 & $2.262$ & 30 & $4.198$ & 28 & $4.183$ & 0 & $0.000$
+ & 15 & $41.947$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Predecessor  & Q I T & 30 & $0.265$ & 30 & $2.161$ & 30 & $3.075$ & 18 & $19.645$
+ & 23 & $2.081$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Predecessor  & S I T & 30 & $0.182$ & 30 & $2.101$ & 28 & $3.314$ & 0 & $0.000$
+ & 19 & $36.593$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Max.
+ Measure & Q I T & 30 & $0.962$ & 30 & $3.433$ & 30 & $15.707$ & 0 & $0.000$
+ & 19 & $109.951$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Max.
+ Measure & S I T & 30 & $0.893$ & 30 & $11.229$ & 30 & $22.976$ & 0 & $0.000$
+ & 16 & $134.026$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Max.
+ Measure & H I T & 30 & $0.686$ & 30 & $5.115$ & 30 & $7.341$ & 0 & $0.000$
+ & 14 & $93.971$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Max.
+ Step    & S I T & 30 & $1.778$ & 29 & $14.138$ & 30 & $37.116$ & 0 & $0.000$
+ & 16 & $373.879$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Max.
+ Step    & Q I T & 30 & $1.666$ & 30 & $66.055$ & 30 & $31.070$ & 0 & $0.000$
+ & 14 & $328.037$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Max.
+ Step    & H I T & 30 & $4.967$ & 29 & $4.491$ & 30 & $17.161$ & 0 & $0.000$
+ & 15 & $189.958$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Min.
+ Measure & Q I T & 30 & $1.253$ & 30 & $22.925$ & 30 & $17.763$ & 16 & $108.038$
+ & 21 & $29.492$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Min.
+ Measure & S I T & 30 & $1.216$ & 30 & $6.116$ & 30 & $16.386$ & 14 & $108.449$
+ & 22 & $30.978$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Min.
+ Measure & H I T & 30 & $0.657$ & 30 & $7.585$ & 30 & $9.471$ & 16 & $90.121$
+ & 22 & $16.548$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+hline
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{longtable}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+endgroup
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{SPM performance on random graphs (time in seconds)} 
+\backslash
+label{random_graphs_time}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{table}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Discussion
+\end_layout
+
+\begin_layout Standard
+First, it is interesting to see that 
+\emph on
+clustered
+\emph default
+ random games are a lot more difficult to solve than larger 
+\emph on
+unclustered
+\emph default
+ games (at least, using Small Progress Measures), and that the the more
+ levels of clustering there are (i.e.
+ the smaller the initial cluster size is) the more difficult they become.
+\end_layout
+
+\begin_layout Standard
+On the direction axis, it turns out that forward swiping works best for
+ linear lifting.
+ It is a little surprising that the difference is consistently much higher
+ for the alternating variant (even though the difference is well below the
+ theoretical maximum of doing double the work).
+ For the predecessor lifting strategy, queue-like (rather stack-like) extraction
+ order tends to solve more cases.
+ For the maximum measure lifting strategy and its variants, the numbers
+ aren't as clear: in the one-sided framework using stack order results in
+ at most one extra case being solved, but in the two-sided framework queue
+ order performs better by another small margin.
+ Heap order never appears to be the best policy (even though it should be
+ slighty faster in absolute time).
+\end_layout
+
+\begin_layout Standard
+Since the number of testcases per configuration is relatively small, it
+ seems fair to say this data doesn't suggest that extraction order affects
+ performance too much.
+ As a result, it is probably advisibale to use queue order, which has the
+ nice property that it is simple and has the benefit that it is guaranteed
+ to be no worse than linear lifting (which cannot be guaranteed for the
+ other options).
+\end_layout
+
+\begin_layout Standard
+The results from the predecessor lifting strategy allow us to compare the
+ traditional framework with the improved framework.
+ That fewer lifting attempts are performed in the improved framework should
+ not be surprising, but what is more important, is the observation that
+ in all cases the improved framework takes less time (roughly half as much)
+ while solving the same number or more cases.
+ This demonstrates that the “improved” framework is indeed an improvement
+ in practice.
+\end_layout
+
+\begin_layout Standard
+Finally, the two-sided approach turns out to be very effective on random
+ games.
+ For any lifting strategy, the total number of games is increased, or the
+ number of lifts required decreases by nearly an order of magnitude, or
+ both.
+ As predicted, the minimum measure propagation strategy works well only
+ with the two-sided approach, and in that case it outperforms the maximum
+ measure and maximum step approaches.
+\end_layout
+
+\begin_layout Standard
+However, overall the most effective method is the predecessor lifting strategy.
+ In the improved framework and working like a queue it solves the most cases
+ in every configuration, uses relatively few lifting attempts, and relatively
+ little time.
+ All in all, these results do not bode well for the more sophisticated lifting
+ strategies.
+ However, random cases are rather synthetic and (even with clustering) not
+ very similar in structure to parity game instances that might arise in
+ pracite.
+\end_layout
+
+\begin_layout Subsection
 \begin_inset Note Note
 status open
 
 \begin_layout Plain Layout
-Google how to center these tables horizontally (with negatize left-margin?)
+TODO: rewrite section so it follows the previous one nicer 
 \end_layout
 
+\end_inset
+
+Comparison of Lifting Strategies
+\end_layout
+
+\begin_layout Standard
+Apart from initializing vertices with loops to 
+\begin_inset Formula $\top$
+\end_inset
+
+ (the weakest form of loop removal described in Subsection 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Loop-removal"
+
+\end_inset
+
+), no preprocessing of any kind was applied.
+ The figures below use the queue-like tie-breaking rule for all strategies.
+ The strategies reported on are the linear lifting (
+\begin_inset Quotes eld
+\end_inset
+
+lin
+\begin_inset Quotes erd
+\end_inset
+
+), predecessor lifting (
+\begin_inset Quotes eld
+\end_inset
+
+pred
+\begin_inset Quotes erd
+\end_inset
+
+), minimum-measure propagation (
+\begin_inset Quotes eld
+\end_inset
+
+min
+\begin_inset Quotes erd
+\end_inset
+
+), maximum-measure propagation (
+\begin_inset Quotes eld
+\end_inset
+
+max
+\begin_inset Quotes erd
+\end_inset
+
+) and the maximum-step strategy (
+\begin_inset Quotes eld
+\end_inset
+
+step
+\begin_inset Quotes erd
+\end_inset
+
+).
+ For linear lifting, the standard framework was used, and for the others,
+ the improved framework described in Subsection 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Eliminating-failed-lifting"
+
+\end_inset
+
+.
+ Each configuration was allowed to run for up to an hour.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
 \begin_layout Plain Layout
-Put them in appendices!
+
+
+\backslash
+ExpandableInput{results-spm-spgip-lifts.tex}
 \end_layout
 
 \end_inset
@@ -10973,134 +11793,264 @@ Put them in appendices!
 \end_layout
 
 \begin_layout Standard
-Columns:
-\end_layout
+Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "spm_spgip_graphs_deciproc_lifting_attempts"
 
-\begin_layout Itemize
+\end_inset
 
-\emph on
-l
-\emph default
-: Linear lifting strategy; 
-\emph on
-0
-\emph default
-: swiping, 
-\emph on
-1
-\emph default
-: alternating direction.
-\end_layout
+ and 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "spm_spgip_graphs_elevator_lifting_attempts"
 
-\begin_layout Itemize
+\end_inset
 
-\emph on
-p: 
-\emph default
-Predecessor lifting using old framework: 
-\emph on
-0
-\emph default
-: queue, 
-\emph on
-1
-\emph default
-: stack.
-\end_layout
-
-\begin_layout Itemize
-
-\emph on
-P
-\emph default
-: Predecessor lfiting using new framework: 
-\emph on
-0
-\emph default
-: queue, 
-\emph on
-1
-\emph default
-: stack.
-\end_layout
-
-\begin_layout Itemize
-
-\emph on
-M
-\emph default
-: Maximum-measure propagation: 
-\emph on
-0:
-\emph default
- queue, 
-\emph on
-1
-\emph default
-: stack, 
-\emph on
-2:
-\emph default
- heap.
-\end_layout
-
-\begin_layout Itemize
-
-\emph on
-m
-\emph default
-: Minimum-measure propagation: 
-\emph on
-0:
-\emph default
- queue, 
-\emph on
-1
-\emph default
-: stack, 
-\emph on
-2:
-\emph default
- heap.
+ show the results in number of lifting attempts required to solve the test
+ cases for the decision procedures and elevator verification cases respectively.
+ As expected, the linear lifting strategy performs the most work, and times
+ out on some of the more difficult cases (however, so do some of the more
+ sophisticated alternatives).
 \end_layout
 
 \begin_layout Standard
-Rows:
+The minimum measure propagation strategy was not expected to work well in
+ this configuration, and indeed it does poorly on the decision procedures.
+ However, on the elevator cases it appears to work just as well as the predecess
+or lifting strategy.
 \end_layout
 
 \begin_layout Standard
-Each testcase is a clustered random game with average outdegree 3 and 10
- priorities, but with different number of vertices, cluster size, and random
- number generator seed.
- Each row lists the 
-\emph on
-size/clustersize/seed
-\emph default
- used.
+Counting lifting attempts only, the maximum measure and maximum step lifting
+ strategies are the best two.
+ It seems fair to call the maximum step metric the overall winner, because
+ even in cases where it is not the best strategy, it is fairly close to
+ the best alternative (maximum measure propagation) and in the 
+\begin_inset Formula $\phi'_{n}$
+\end_inset
+
+ cases it is significantly better than any other strategy.
 \end_layout
 
 \begin_layout Standard
-For each intersection between row and column, two results are reported.
- The first is the result obtained with the standard SPM algorithm (either
- old or new framework) and the second using the two-way solving approach.
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ExpandableInput{results-spm-spgip-time.tex}
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
-Observations:
+Measuring the amount of time used to solve each case (instead of the number
+ of lifting attempts) paints a slightly different picture.
+ The linear lifting strategy looks better compared to more sophisticated
+ strategies, though (excepting minimum measure propagation) it is still
+ the slowest.
+ The predecessor lifting strategy now wins in the first case (
+\begin_inset Formula $\phi_{n}$
+\end_inset
+
+) since the other strategies, while requiring fewer lifts, run considerably
+ slower.
+ However, for the second case (
+\begin_inset Formula $\phi'_{n}$
+\end_inset
+
+) the maximum step strategy is still the winner since it scales much better
+ to larger testcases.
+ On the fair elevator case (
+\begin_inset Formula $G_{n}$
+\end_inset
+
+) differences in performance are small, but on the unfair elevator (
+\begin_inset Formula $G'_{n}$
+\end_inset
+
+) both the maximum measure and maximum step metric beat the simpler strategies
+ by a large margin.
 \end_layout
 
-\begin_layout Itemize
-Clustered random games are a lot more difficult to solve than random games
- of the same size without clusters.
+\begin_layout Subsection
+Two-sided approach
 \end_layout
 
-\begin_layout Itemize
-As expected, the linear lifting strategy is unlikely to get completely stuck
- on problems, though it rarely is the fastest solution available.
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+TODO: rewrite this subsection.
 \end_layout
 
-\begin_layout Itemize
-TODO: more!
+\begin_layout Plain Layout
+I want to show mainly that:
+\end_layout
+
+\begin_layout Plain Layout
+- min.measure propagation works better, but still not very well, so let's
+ forget about it.
+\end_layout
+
+\begin_layout Plain Layout
+- two-sided solving mainly benefits the dumber strategies!
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The merits of the two-sided approach can be shown using these cases as well.
+ Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "spm_spgip_graphs_deciproc_lifting_attempts_a"
+
+\end_inset
+
+ and 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "spm_spgip_graphs_elevator_lifting_attempts_a"
+
+\end_inset
+
+ present the number of lifting attempts and time performed when the same
+ strategies are used in conjunction with Friedmann's two-sided small progress
+ measures implementation.
+ A number of observations can be made.
+\end_layout
+
+\begin_layout Standard
+First, it is immediately obvious that the relative differences between strategie
+s are smaller in these cases.
+ This can be explained by the observation that the two-sided approach spends
+ a lot of time identifying stable regions and propagating this information
+ to the other part of the game; a procedure that is independent of any lifting
+ strategy, and thus will take roughly the same time for each configuration.
+\end_layout
+
+\begin_layout Standard
+Second, the minimum measure lifting strategy performs much better than before,
+ as hypothesized.
+ However, it clearly does not live up to expectations, since it is always
+ beaten by e.g.
+ the simpler predecessor lifting strategy.
+ As a result, it seems fair to dismiss minimum measure propagation as a
+ viable strategy.
+\end_layout
+
+\begin_layout Standard
+Third, the two-sided approach is much faster in some cases and somewhat
+ slower in others.
+ Since this is not obvious from the graphs (which mainly serve to illustrate
+ the how different lifting strategies compare and scale), table XXX summarizes
+ the speedup achieved using two-sided solving.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ExpandableInput{results-spm-spgip-lifts-a.tex}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+ExpandableInput{results-spm-spgip-time-a.tex}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+ExpandableInput{test.tex}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+misschien tabel met summary van alle heuristics op 1 case (e.g.
+ phi6)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+nog iets met queue/stack/heap
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+vergelijking tussen normaal/two-sided voor pred.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+priority propagation: reduceert wel vector space, maar niet solving time!
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Discussion
 \end_layout
 
 \begin_layout Standard
@@ -11138,10 +12088,6 @@ add table with effectiveness of priority propagation (also on random games)
 \end_inset
 
 
-\end_layout
-
-\begin_layout Section
-Discussion
 \end_layout
 
 \begin_layout Standard
@@ -11352,14 +12298,14 @@ status open
 
 \begin_layout Plain Layout
 
-
+%
 \backslash
 begingroup
 \end_layout
 
 \begin_layout Plain Layout
 
-
+%
 \backslash
 setlength{
 \backslash
@@ -11374,28 +12320,28 @@ LTleft}
 
 \begin_layout Plain Layout
 
-
+%
 \backslash
 scriptsize
 \end_layout
 
 \begin_layout Plain Layout
 
-
+%
 \backslash
 begin{longtable}{l|r r r r r r r r r r r r|r r r r r r r r r r r r}
 \end_layout
 
 \begin_layout Plain Layout
 
-
+%
 \backslash
 caption{Small Progress Measure benchmark on random graphs (seconds)}
 \end_layout
 
 \begin_layout Plain Layout
 
-
+%
 \backslash
 label{somelabelshouldgohere} 
 \backslash
@@ -11406,11 +12352,12 @@ label{somelabelshouldgohere}
 
 \begin_layout Plain Layout
 
+%
 \end_layout
 
 \begin_layout Plain Layout
 
-& l:0 & l:1 & p:0 & p:1 & P:0 & P:1 & M:0 & M:1 & M:2 & m:0 & m:1 & m:2
+%& l:0 & l:1 & p:0 & p:1 & P:0 & P:1 & M:0 & M:1 & M:2 & m:0 & m:1 & m:2
  
 \backslash
 
@@ -11420,25 +12367,26 @@ label{somelabelshouldgohere}
 
 \begin_layout Plain Layout
 
-
+%
 \backslash
 hline
 \end_layout
 
 \begin_layout Plain Layout
 
-
+%
 \backslash
 endhead
 \end_layout
 
 \begin_layout Plain Layout
 
+%
 \end_layout
 
 \begin_layout Plain Layout
 
-
+%
 \backslash
 multicolumn{25}{r}{{Continued on next page...}} 
 \backslash
@@ -11449,18 +12397,19 @@ multicolumn{25}{r}{{Continued on next page...}}
 
 \begin_layout Plain Layout
 
-
+%
 \backslash
 endfoot
 \end_layout
 
 \begin_layout Plain Layout
 
+%
 \end_layout
 
 \begin_layout Plain Layout
 
-
+%
 \backslash
 hline 
 \backslash
@@ -11469,32 +12418,33 @@ hline
 
 \begin_layout Plain Layout
 
-
+%
 \backslash
 endlastfoot
 \end_layout
 
 \begin_layout Plain Layout
 
+%
 \end_layout
 
 \begin_layout Plain Layout
 
-
+%
 \backslash
 ExpandableInput{results-tests4-seconds.tex}
 \end_layout
 
 \begin_layout Plain Layout
 
-
+%
 \backslash
 end{longtable}
 \end_layout
 
 \begin_layout Plain Layout
 
-
+%
 \backslash
 endgroup
 \end_layout

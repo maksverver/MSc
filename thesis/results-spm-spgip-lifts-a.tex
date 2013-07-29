@@ -4,11 +4,11 @@
 \begin{minipage}{10cm}   % phi
 \begin{tikzpicture}
 \begin{semilogyaxis}[xlabel=$\phi_n$,ylabel={Lifting attempts},legend pos=south east]
-\addplot coordinates { (2,8189) (3,115349) (4,902815) (5,7583793) (6,43362066) (7,255441506) (8,1275516075) };% -llinear:0
-\addplot coordinates { (2,1561) (3,10314) (4,55643) (5,260088) (6,1112121) (7,4590573) (8,17820530) };% -Lpredecessor:0
-\addplot coordinates { (2,2512) (3,21642) (4,1184660) (5,2059182658) };% -Lminmeasure:0
-\addplot coordinates { (2,785) (3,4862) (4,21762) (5,110560) (6,498090) (7,1868568) (8,7467667) };% -Lmaxmeasure:0
-\addplot coordinates { (2,687) (3,5563) (4,32319) (5,168456) (6,816245) (7,3540693) (8,15317908) };% -Lmaxstep:0
+\addplot coordinates { (2,8748) (3,251679) (4,2087630) (5,16991348) (6,85538340) (7,508963958) (8,2525538446) };% -llinear:0
+\addplot coordinates { (2,1561) (3,20247) (4,85046) (5,337320) (6,1292493) (7,6233077) (8,19365382) };% -Lpredecessor:0
+\addplot coordinates { (2,2512) (3,24780) (4,125918) (5,574077) (6,2615600) (7,11105568) (8,49756695) };% -Lminmeasure:0
+\addplot coordinates { (2,785) (3,4862) (4,41509) (5,179090) (6,748589) (7,2850536) (8,11236233) };% -Lmaxmeasure:0
+\addplot coordinates { (2,687) (3,5563) (4,42860) (5,166462) (6,648653) (7,2578701) (8,9915378) };% -Lmaxstep:0
 \legend{{-llinear:0},{-Lpredecessor:0},{-Lminmeasure:0},{-Lmaxmeasure:0},{-Lmaxstep:0}}
 \legend{{lin},{pred},{min},{max},{step}}
 \end{semilogyaxis}
@@ -19,18 +19,18 @@
 \begin{tikzpicture}
 \begin{loglogaxis}[xlabel=$\phi'_n$,ylabel={Lifting attempts},legend pos=south east]
 
-\addplot coordinates { (10,780780) (50,16654977) (100,66986268) (500,1624452914) (1000,6528032086) (2000,25997924704) };% -llinear:0
-\addplot coordinates { (10,61029) (50,1306070) (100,4800549) (500,118082185) (1000,469520938) (2000,1863540611) };% -Lpredecessor:0
-\addplot coordinates { (10,321128) (50,28233248) (100,218811175) };% -Lminmeasure:0
-\addplot coordinates { (10,40918) (50,1020358) (100,3504328) (500,98179082) (1000,391120738) (2000,1560228275) };% -Lmaxmeasure:0
-\addplot coordinates { (10,24497) (50,229874) (100,411374) (500,2695944) (1000,6605900) (2000,10486097) (5000,28898071) };% -Lmaxstep:0
+\addplot coordinates { (10,1659180) (50,40093820) (100,150037120) (500,3296693520) };% -llinear:0
+\addplot coordinates { (10,109931) (50,2472857) (100,9214333) (500,215792654) (1000,859114048) (2000,3382964453) };% -Lpredecessor:0
+\addplot coordinates { (10,545903) (50,47522913) (100,366537496) };% -Lminmeasure:0
+\addplot coordinates { (10,80918) (50,2040358) (100,7004328) (500,196299082) (1000,781840738) };% -Lmaxmeasure:0
+\addplot coordinates { (10,47427) (50,617485) (100,2124103) (500,27338774) (1000,105006976) (2000,275173215) };% -Lmaxstep:0
 \legend{{-llinear:0},{-Lpredecessor:0},{-Lminmeasure:0},{-Lmaxmeasure:0},{-Lmaxstep:0}}
 \legend{{lin},{pred},{min},{max},{step}} 
 \end{loglogaxis}
 \end{tikzpicture}
 \end{minipage}
 }%
-\caption{Two-way SPM performance on decision procedures (in lifting attempts)}
+\caption{Two-sided SPM performance on decision procedures (in lifting attempts)}
 \label{spm_spgip_graphs_deciproc_lifting_attempts_a}
 \end{figure}
 
@@ -41,11 +41,11 @@
 \begin{minipage}{10cm}   % elevator-fair
 \begin{tikzpicture}
 \begin{loglogaxis}[xlabel=$G_n$,ylabel={Lifting attempts},legend pos=south east]
-\addplot coordinates { (3,15634) (4,114603) (5,1223738) (6,11327177) (7,123185768) (8,1406019172) };% -llinear:0
-\addplot coordinates { (3,1031) (4,8415) (5,75505) (6,717121) (7,7553687) (8,85570733) };% -Lpredecessor:0
-\addplot coordinates { (3,1031) (4,8415) (5,75505) (6,717121) (7,7553687) (8,85570733) };% -Lminmeasure:0
-\addplot coordinates { (3,524) (4,2388) (5,22635) (6,105299) (7,1510781) (8,13589234) };% -Lmaxmeasure:0
-\addplot coordinates { (3,524) (4,2332) (5,17990) (6,102768) (7,1370622) (8,11063598) };% -Lmaxstep:0
+\addplot coordinates { (3,26553) (4,235376) (5,2811368) (6,22986672) (7,247933560) (8,2813238448) };% -llinear:0
+\addplot coordinates { (3,1031) (4,8415) (5,135505) (6,1377121) (7,14513687) (8,170820160) };% -Lpredecessor:0
+\addplot coordinates { (3,1031) (4,8415) (5,135505) (6,1377121) (7,14513687) (8,170820733) };% -Lminmeasure:0
+\addplot coordinates { (3,524) (4,2388) (5,42635) (6,105299) (7,2380781) (8,21339234) };% -Lmaxmeasure:0
+\addplot coordinates { (3,524) (4,2332) (5,17990) (6,102768) (7,2240682) (8,18815074) };% -Lmaxstep:0
 \legend{{-llinear:0},{-Lpredecessor:0},{-Lminmeasure:0},{-Lmaxmeasure:0},{-Lmaxstep:0}}
 \legend{{lin},{pred},{min},{max},{step}} 
 \end{loglogaxis}
@@ -55,17 +55,17 @@
 \begin{minipage}{10cm}   % elevator-unfair
 \begin{tikzpicture}
 \begin{loglogaxis}[xlabel=$G'_n$,ylabel={Lifting attempts},legend pos=south east]
-\addplot coordinates { (3,67084) (4,1297588) (5,44853629) (6,1554728043) };% -llinear:0
-\addplot coordinates { (3,16056) (4,376098) (5,13019732) (6,623561024) };% -Lpredecessor:0
-\addplot coordinates { (3,15847) (4,375202) (5,13014958) (6,623528392) };% -Lminmeasure:0
-\addplot coordinates { (3,2324) (4,11715) (5,71972) (6,515089) (7,4281226) (8,39709576) };% -Lmaxmeasure:0
-\addplot coordinates { (3,2999) (4,15210) (5,95279) (6,707246) (7,5736353) (8,51583919) };% -Lmaxstep:0
+\addplot coordinates { (3,17173) (4,57532) (5,396802) (6,2603194) (7,20003330) (8,185419851) };% -llinear:0
+\addplot coordinates { (3,11350) (4,16401) (5,74966) (6,471917) (7,3671413) (8,32542366) };% -Lpredecessor:0
+\addplot coordinates { (3,11091) (4,15345) (5,70552) (6,451494) (7,3365322) (8,29845915) };% -Lminmeasure:0
+\addplot coordinates { (3,2324) (4,11715) (5,55851) (6,372869) (7,2912314) (8,25979748) };% -Lmaxmeasure:0
+\addplot coordinates { (3,2999) (4,14187) (5,51036) (6,411116) (7,3132937) (8,27956813) };% -Lmaxstep:0
 \legend{{-llinear:0},{-Lpredecessor:0},{-Lminmeasure:0},{-Lmaxmeasure:0},{-Lmaxstep:0}}
 \legend{{lin},{pred},{min},{max},{step}} 
 \end{loglogaxis}
 \end{tikzpicture}
 \end{minipage}
 }%
-\caption{Two-way SPM performance on elevator verification (in lifting attempts)}
+\caption{Two-sided SPM performance on elevator verification (in lifting attempts)}
 \label{spm_spgip_graphs_elevator_lifting_attempts_a}
 \end{figure}
