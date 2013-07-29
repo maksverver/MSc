@@ -6,7 +6,7 @@ from glob import glob
 import sys
 import re
 
-results = []
+param_pattern = re.compile('##\s*([^\s]*)\s*=\s*(.*[^\s])')
 
 def mean(vals):
     if not vals: return 0
@@ -48,9 +48,6 @@ def parse_file(filename):
         sys.exit(1)
     return params
 
-param_pattern = re.compile('##\s*([^\s]*)\s*=\s*(.*[^\s])')
-results = map(parse_file, sys.argv[1:])
-
 def int_num(i):
     return '\\num{' + str(int(round(i))) + '}'
 
@@ -79,7 +76,7 @@ def format_number(num, grp = 3, sep = ','):
         i += grp + len(sep)
     return s
 
-def test4():
+def print_test4_table(print_time):
     inputs  = []  # triple of vertices, clustersize, seed
     configs = []  # triple of solver, strategy, alternate
     for result in results:
@@ -96,9 +93,27 @@ def test4():
     # This prints summarized output with solvers on the rows, and inputs on the columns.
     # For each solver/input combo, there are multiple seeds. We report how many cases
     # are solved, and the geometric mean time of the **solved** cases.
+    last_alternate = False
     for (solver, strategy, alternate) in configs:
-        print solver,strategy, "a"*alternate,
-        for (vertices, clustersize) in sorted(set((vertices, clustersize) for (vertices, clustersize,seed) in inputs)):
+
+        # Print a fancy table row header:
+        names = { 'linear':         'Linear',
+                  'predecessor':    'Predecessor',
+                  'minmeasure':     'Min. Measure',
+                  'maxmeasure':     'Max. Measure',
+                  'maxstep':        'Max. Step' }
+
+        variants = { 'linear': "FA",
+                     'predecessor': "QS",
+                     'minmeasure': "QSH",
+                     'maxmeasure': "QSH",
+                     'maxstep':    "SQH" }
+
+        strat_id,strat_variant = strategy.split(':')
+
+        print names[strat_id].ljust(12), '&', variants[strat_id][int(strat_variant)], " I"[solver == "spm2"], " T"[alternate],
+
+        for (clustersize, vertices) in sorted(set((clustersize, vertices) for (vertices, clustersize,seed) in inputs)):
             matched = [ result for result in results if
                             int(result['config.random.vertices'])    == vertices and
                             int(result['config.random.clustersize']) == clustersize and
@@ -109,7 +124,12 @@ def test4():
                         if record['solution.result'] == 'success' ]
             lifts = [ float(record['lifts.total']) for record in matched
                         if record['solution.result'] == 'success' ]
-            print '&', len(times), '&', ('%.3f'%mean(lifts)), #'&', ('%.3f'%stddev(times))
+            if print_time:
+                print '&', len(times), '&', ('$%.3f$'%mean(times)),
+                #print '&', len(times), '&', ('$%.3f \pm %.3f$'%(mean(times), stddev(times))),
+            else:
+                print '&', len(times), '&', ('$%.3f$'%(geom_mean(lifts)/1e6)),
+                #print '&', len(times), '&', ('$%.3f \pm %.3f$'%(mean(lifts)/1e6, stddev(lifts)/1e6)),
         print '\\\\'
 
     return
@@ -298,14 +318,17 @@ if False:
     with open('results-spm-spgip-time-a.tex', 'wt') as sys.stdout:
         print_spm_spgip_graphs('Time in seconds', 'solution.time', a=True)
 
-with open('results-spm-spgip-twosided-table.tex', 'wt') as sys.stdout:
-    print_spm_spgip_graphs('Time in seconds', 'solution.time', a=True)
+results = map(parse_file, glob('output-tests4b.bak/random-*.o*'))
+with open('results-tests4-lifts-table.tex', 'wt') as sys.stdout:
+    print_test4_table(print_time = False)
+with open('results-tests4-time-table.tex', 'wt') as sys.stdout:
+    print_test4_table(print_time = True)
+
+#with open('results-spm-spgip-twosided-table.tex', 'wt') as sys.stdout:
+#    print_spm_spgip_graphs('Time in seconds', 'solution.time', a=True)
+#sys.stdout = stdout
 
 # print_spm_spgip_twosided_table()
-print_spm_spgip_twosided_barchart()
-
-sys.stdout = stdout
-
-# SPGIP cases: report lifts per testcase with a plot for each config:
+#print_spm_spgip_twosided_barchart()
 
 # TODO: compare different flavors (0/1/2) (how?)
