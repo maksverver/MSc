@@ -1,0 +1,93 @@
+\begin{figure}
+\centering
+\makebox[0pt][c]{% 
+\begin{minipage}{10cm}   % phi
+\begin{tikzpicture}
+\begin{semilogxaxis}[
+        xbar,
+        xlabel={Lifting attempts},
+        symbolic y coords={Linear,Predecessor,MaxMeasure,MaxStep},
+        title={$\phi_8$},
+        ytick=data,
+        y dir=reverse,
+        legend pos=south east,
+]
+\addplot [draw=blue,pattern=horizontal lines dark blue] coordinates {
+(2525538446,Linear) (19365382,Predecessor) (11236233,MaxMeasure) (9915378,MaxStep) };
+\addplot [draw=black,pattern=horizontal lines light blue] coordinates {
+(1275516075,Linear) (17820530,Predecessor) (7467667,MaxMeasure) (15317908,MaxStep) };
+\legend{Two-sided,One-sided}
+\end{semilogxaxis}
+\end{tikzpicture}
+\end{minipage}
+
+\begin{minipage}{10cm}   % chi
+\begin{tikzpicture}
+\begin{semilogxaxis}[
+        xbar,
+        xlabel={Lifting attempts},
+        symbolic y coords={Linear,Predecessor,MaxMeasure,MaxStep},
+        title={$\phi'_{500}$},
+        ytick=data,
+        y dir=reverse,
+        legend pos=south east,
+]
+\addplot [draw=blue,pattern=horizontal lines dark blue] coordinates {
+(3296693520,Linear) (215792654,Predecessor) (196299082,MaxMeasure) (27338774,MaxStep) };
+\addplot [draw=black,pattern=horizontal lines light blue] coordinates {
+(1624452914,Linear) (118082185,Predecessor) (98179082,MaxMeasure) (2695944,MaxStep) };
+\legend{Two-sided,One-sided}
+\end{semilogxaxis}
+\end{tikzpicture}
+\end{minipage}
+}%
+\caption{One-way vs two-way solving on decision procedures cases}
+\label{spm_spgip_charts_deciproc}
+\end{figure}
+
+\begin{figure}
+\centering
+\makebox[0pt][c]{% 
+\begin{minipage}{10cm}   % elevator-fair
+\begin{tikzpicture}
+\begin{semilogxaxis}[
+        xbar,
+        xlabel={Lifting attempts},
+        symbolic y coords={Linear,Predecessor,MaxMeasure,MaxStep},
+        title={$G_8$},
+        ytick=data,
+        y dir=reverse,
+        legend pos=south east,
+]
+\addplot [draw=blue,pattern=horizontal lines dark blue] coordinates {
+(2813238448,Linear) (170820160,Predecessor) (21339234,MaxMeasure) (18815074,MaxStep) };
+\addplot [draw=black,pattern=horizontal lines light blue] coordinates {
+(1406019172,Linear) (85570733,Predecessor) (13589234,MaxMeasure) (11063598,MaxStep) };
+\legend{Two-sided,One-sided}
+\end{semilogxaxis}
+\end{tikzpicture}
+\end{minipage}
+
+\begin{minipage}{10cm}   % elevator-unfair
+\begin{tikzpicture}
+\begin{semilogxaxis}[
+        xbar,
+        xlabel={Lifting attempts},
+        symbolic y coords={Linear,Predecessor,MaxMeasure,MaxStep},
+        title={$G'_6$},
+        ytick=data,
+        y dir=reverse,
+        legend pos=south east,
+]
+\addplot [draw=blue,pattern=horizontal lines dark blue] coordinates {
+(2603194,Linear) (471917,Predecessor) (372869,MaxMeasure) (411116,MaxStep) };
+\addplot [draw=black,pattern=horizontal lines light blue] coordinates {
+(1554728043,Linear) (623561024,Predecessor) (515089,MaxMeasure) (707246,MaxStep) };
+\legend{Two-sided,One-sided}
+\end{semilogxaxis}
+\end{tikzpicture}
+\end{minipage}
+}%
+\caption{One-way vs two-way solving on elevator verification cases}
+\label{spm_spgip_charts_elevator}
+\end{figure}

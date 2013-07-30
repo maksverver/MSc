@@ -9007,7 +9007,14 @@ Since all games generated were strongly-connected, the combined graph will
 \begin_layout Section
 Cases from 
 \emph on
-Solving Parity Games in Practice
+Solving Parity Games in Practice 
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Cases-from-SPGIP"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -10369,10 +10376,6 @@ name "tab:SPGIP-cases"
 
 \end_layout
 
-\begin_layout Standard
-------
-\end_layout
-
 \begin_layout Section
 Benchmark platform
 \end_layout
@@ -10395,7 +10398,7 @@ also hyperthreading, so in total 8 cores and 16 threads of control
 \end_layout
 
 \begin_layout Section
-Results on random graphs
+Results on random games
 \end_layout
 
 \begin_layout Standard
@@ -10553,6 +10556,19 @@ ion was allowed to perform up to
 \end_inset
 
  lifting attempts before being aborted.
+ Apart from initializing vertices with loops to 
+\begin_inset Formula $\top$
+\end_inset
+
+ (the weakest form of loop removal described in Subsection 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Loop-removal"
+
+\end_inset
+
+), no preprocessing was applied.
+ 
 \end_layout
 
 \begin_layout Standard
@@ -10674,7 +10690,7 @@ multicolumn{2}{c|}{4000/16}
 
     & 
 \backslash
-multicolumn{2}{c|}{4000/200} 
+multicolumn{2}{c|}{4000/64} 
 \backslash
 
 \backslash
@@ -10740,7 +10756,7 @@ hline
 \begin_layout Plain Layout
 
 Linear       & F     & 27 & $5.290$ & 25 & $7.997$ & 25 & $28.621$ & 0 & $0.000$
- & 4 & $396.670$ 
+ & 0 & $0.000$ 
 \backslash
 
 \backslash
@@ -10750,7 +10766,7 @@ Linear       & F     & 27 & $5.290$ & 25 & $7.997$ & 25 & $28.621$ & 0 & $0.000$
 \begin_layout Plain Layout
 
 Linear       & A     & 27 & $7.701$ & 25 & $11.710$ & 25 & $37.967$ & 0 & $0.000$
- & 4 & $462.254$ 
+ & 0 & $0.000$ 
 \backslash
 
 \backslash
@@ -10760,7 +10776,7 @@ Linear       & A     & 27 & $7.701$ & 25 & $11.710$ & 25 & $37.967$ & 0 & $0.000
 \begin_layout Plain Layout
 
 Predecessor  & Q     & 30 & $2.033$ & 29 & $5.932$ & 28 & $18.813$ & 0 & $0.000$
- & 10 & $44.242$ 
+ & 4 & $472.543$ 
 \backslash
 
 \backslash
@@ -10770,7 +10786,7 @@ Predecessor  & Q     & 30 & $2.033$ & 29 & $5.932$ & 28 & $18.813$ & 0 & $0.000$
 \begin_layout Plain Layout
 
 Predecessor  & S     & 29 & $1.451$ & 28 & $0.699$ & 22 & $2.425$ & 0 & $0.000$
- & 2 & $279.173$ 
+ & 0 & $0.000$ 
 \backslash
 
 \backslash
@@ -10780,7 +10796,7 @@ Predecessor  & S     & 29 & $1.451$ & 28 & $0.699$ & 22 & $2.425$ & 0 & $0.000$
 \begin_layout Plain Layout
 
 Predecessor  & Q I   & 30 & $0.891$ & 30 & $3.114$ & 29 & $9.669$ & 0 & $0.000$
- & 10 & $18.175$ 
+ & 4 & $179.287$ 
 \backslash
 
 \backslash
@@ -10790,7 +10806,7 @@ Predecessor  & Q I   & 30 & $0.891$ & 30 & $3.114$ & 29 & $9.669$ & 0 & $0.000$
 \begin_layout Plain Layout
 
 Predecessor  & S I   & 29 & $0.253$ & 29 & $0.287$ & 25 & $0.718$ & 0 & $0.000$
- & 3 & $318.609$ 
+ & 0 & $0.000$ 
 \backslash
 
 \backslash
@@ -10801,7 +10817,7 @@ Predecessor  & S I   & 29 & $0.253$ & 29 & $0.287$ & 25 & $0.718$ & 0 & $0.000$
 
 Max.
  Measure & Q I   & 29 & $0.128$ & 29 & $0.079$ & 27 & $0.236$ & 0 & $0.000$
- & 6 & $127.494$ 
+ & 1 & $533.683$ 
 \backslash
 
 \backslash
@@ -10812,7 +10828,7 @@ Max.
 
 Max.
  Measure & S I   & 30 & $0.087$ & 30 & $0.133$ & 29 & $0.251$ & 0 & $0.000$
- & 7 & $56.325$ 
+ & 0 & $0.000$ 
 \backslash
 
 \backslash
@@ -10823,7 +10839,7 @@ Max.
 
 Max.
  Measure & H I   & 30 & $0.254$ & 30 & $0.088$ & 26 & $0.242$ & 0 & $0.000$
- & 6 & $71.988$ 
+ & 1 & $782.083$ 
 \backslash
 
 \backslash
@@ -10834,7 +10850,7 @@ Max.
 
 Max.
  Step    & S I   & 30 & $0.261$ & 28 & $0.207$ & 28 & $0.326$ & 0 & $0.000$
- & 7 & $409.951$ 
+ & 1 & $697.793$ 
 \backslash
 
 \backslash
@@ -10844,8 +10860,8 @@ Max.
 \begin_layout Plain Layout
 
 Max.
- Step    & O I   & 30 & $0.259$ & 29 & $0.193$ & 28 & $0.333$ & 0 & $0.000$
- & 7 & $353.453$ 
+ Step    & Q I   & 30 & $0.259$ & 29 & $0.193$ & 28 & $0.333$ & 0 & $0.000$
+ & 1 & $672.232$ 
 \backslash
 
 \backslash
@@ -10856,7 +10872,7 @@ Max.
 
 Max.
  Step    & H I   & 30 & $0.257$ & 29 & $0.194$ & 28 & $0.324$ & 0 & $0.000$
- & 5 & $372.347$ 
+ & 1 & $712.803$ 
 \backslash
 
 \backslash
@@ -10867,7 +10883,7 @@ Max.
 
 Min.
  Measure & Q I   & 25 & $36.135$ & 24 & $65.144$ & 9 & $109.908$ & 0 & $0.000$
- & 1 & $981.772$ 
+ & 0 & $0.000$ 
 \backslash
 
 \backslash
@@ -10889,7 +10905,7 @@ Min.
 
 Min.
  Measure & H I   & 26 & $42.547$ & 23 & $57.114$ & 9 & $153.542$ & 0 & $0.000$
- & 1 & $776.791$ 
+ & 0 & $0.000$ 
 \backslash
 
 \backslash
@@ -10906,7 +10922,7 @@ hline
 \begin_layout Plain Layout
 
 Linear       & F   T & 29 & $0.679$ & 27 & $0.352$ & 26 & $1.242$ & 1 & $802.259$
- & 14 & $109.158$ 
+ & 5 & $272.809$ 
 \backslash
 
 \backslash
@@ -10916,7 +10932,7 @@ Linear       & F   T & 29 & $0.679$ & 27 & $0.352$ & 26 & $1.242$ & 1 & $802.259
 \begin_layout Plain Layout
 
 Linear       & A   T & 29 & $0.961$ & 28 & $0.482$ & 26 & $1.260$ & 1 & $854.010$
- & 14 & $123.304$ 
+ & 5 & $326.392$ 
 \backslash
 
 \backslash
@@ -10926,7 +10942,7 @@ Linear       & A   T & 29 & $0.961$ & 28 & $0.482$ & 26 & $1.260$ & 1 & $854.010
 \begin_layout Plain Layout
 
 Predecessor  & Q   T & 30 & $0.049$ & 29 & $0.055$ & 30 & $0.188$ & 17 & $105.114$
- & 23 & $2.411$ 
+ & 21 & $22.095$ 
 \backslash
 
 \backslash
@@ -10936,7 +10952,7 @@ Predecessor  & Q   T & 30 & $0.049$ & 29 & $0.055$ & 30 & $0.188$ & 17 & $105.11
 \begin_layout Plain Layout
 
 Predecessor  & S   T & 30 & $0.107$ & 30 & $0.158$ & 28 & $0.306$ & 0 & $0.000$
- & 15 & $81.760$ 
+ & 5 & $503.767$ 
 \backslash
 
 \backslash
@@ -10946,7 +10962,7 @@ Predecessor  & S   T & 30 & $0.107$ & 30 & $0.158$ & 28 & $0.306$ & 0 & $0.000$
 \begin_layout Plain Layout
 
 Predecessor  & Q I T & 30 & $0.030$ & 30 & $0.031$ & 30 & $0.078$ & 18 & $46.409$
- & 23 & $1.077$ 
+ & 21 & $9.023$ 
 \backslash
 
 \backslash
@@ -10956,7 +10972,7 @@ Predecessor  & Q I T & 30 & $0.030$ & 30 & $0.031$ & 30 & $0.078$ & 18 & $46.409
 \begin_layout Plain Layout
 
 Predecessor  & S I T & 30 & $0.049$ & 30 & $0.067$ & 28 & $0.224$ & 0 & $0.000$
- & 19 & $43.585$ 
+ & 10 & $304.465$ 
 \backslash
 
 \backslash
@@ -10967,7 +10983,7 @@ Predecessor  & S I T & 30 & $0.049$ & 30 & $0.067$ & 28 & $0.224$ & 0 & $0.000$
 
 Max.
  Measure & Q I T & 30 & $0.033$ & 30 & $0.049$ & 30 & $0.114$ & 0 & $0.000$
- & 19 & $43.761$ 
+ & 3 & $383.092$ 
 \backslash
 
 \backslash
@@ -10978,7 +10994,7 @@ Max.
 
 Max.
  Measure & S I T & 30 & $0.032$ & 30 & $0.044$ & 30 & $0.103$ & 0 & $0.000$
- & 16 & $51.017$ 
+ & 1 & $126.888$ 
 \backslash
 
 \backslash
@@ -10989,7 +11005,7 @@ Max.
 
 Max.
  Measure & H I T & 30 & $0.032$ & 30 & $0.051$ & 30 & $0.127$ & 0 & $0.000$
- & 14 & $47.321$ 
+ & 6 & $347.106$ 
 \backslash
 
 \backslash
@@ -11000,7 +11016,7 @@ Max.
 
 Max.
  Step    & S I T & 30 & $0.089$ & 29 & $0.149$ & 30 & $0.400$ & 0 & $0.000$
- & 16 & $131.568$ 
+ & 5 & $556.909$ 
 \backslash
 
 \backslash
@@ -11010,8 +11026,8 @@ Max.
 \begin_layout Plain Layout
 
 Max.
- Step    & O I T & 30 & $0.086$ & 30 & $0.207$ & 30 & $0.370$ & 0 & $0.000$
- & 14 & $80.140$ 
+ Step    & Q I T & 30 & $0.086$ & 30 & $0.207$ & 30 & $0.370$ & 0 & $0.000$
+ & 5 & $576.287$ 
 \backslash
 
 \backslash
@@ -11022,7 +11038,7 @@ Max.
 
 Max.
  Step    & H I T & 30 & $0.112$ & 29 & $0.145$ & 30 & $0.343$ & 0 & $0.000$
- & 15 & $144.533$ 
+ & 3 & $407.758$ 
 \backslash
 
 \backslash
@@ -11033,7 +11049,7 @@ Max.
 
 Min.
  Measure & Q I T & 30 & $0.043$ & 30 & $0.043$ & 30 & $0.124$ & 16 & $133.194$
- & 21 & $5.792$ 
+ & 20 & $38.009$ 
 \backslash
 
 \backslash
@@ -11044,7 +11060,7 @@ Min.
 
 Min.
  Measure & S I T & 30 & $0.041$ & 30 & $0.043$ & 30 & $0.135$ & 14 & $121.260$
- & 22 & $6.127$ 
+ & 18 & $37.710$ 
 \backslash
 
 \backslash
@@ -11055,7 +11071,7 @@ Min.
 
 Min.
  Measure & H I T & 30 & $0.044$ & 30 & $0.042$ & 30 & $0.155$ & 16 & $137.207$
- & 22 & $7.411$ 
+ & 19 & $44.734$ 
 \backslash
 
 \backslash
@@ -11188,7 +11204,7 @@ multicolumn{2}{c|}{4000/16}
 
     & 
 \backslash
-multicolumn{2}{c|}{4000/200} 
+multicolumn{2}{c|}{4000/64} 
 \backslash
 
 \backslash
@@ -11254,7 +11270,7 @@ hline
 \begin_layout Plain Layout
 
 Linear       & F     & 27 & $2.984$ & 25 & $2.897$ & 25 & $2.955$ & 0 & $0.000$
- & 4 & $23.955$ 
+ & 0 & $0.000$ 
 \backslash
 
 \backslash
@@ -11264,7 +11280,7 @@ Linear       & F     & 27 & $2.984$ & 25 & $2.897$ & 25 & $2.955$ & 0 & $0.000$
 \begin_layout Plain Layout
 
 Linear       & A     & 27 & $3.866$ & 25 & $2.461$ & 25 & $3.760$ & 0 & $0.000$
- & 4 & $28.627$ 
+ & 0 & $0.000$ 
 \backslash
 
 \backslash
@@ -11274,7 +11290,7 @@ Linear       & A     & 27 & $3.866$ & 25 & $2.461$ & 25 & $3.760$ & 0 & $0.000$
 \begin_layout Plain Layout
 
 Predecessor  & Q     & 30 & $0.851$ & 29 & $2.081$ & 28 & $3.477$ & 0 & $0.000$
- & 10 & $13.907$ 
+ & 4 & $49.115$ 
 \backslash
 
 \backslash
@@ -11284,7 +11300,7 @@ Predecessor  & Q     & 30 & $0.851$ & 29 & $2.081$ & 28 & $3.477$ & 0 & $0.000$
 \begin_layout Plain Layout
 
 Predecessor  & S     & 29 & $4.057$ & 28 & $3.308$ & 22 & $5.325$ & 0 & $0.000$
- & 2 & $35.713$ 
+ & 0 & $0.000$ 
 \backslash
 
 \backslash
@@ -11294,7 +11310,7 @@ Predecessor  & S     & 29 & $4.057$ & 28 & $3.308$ & 22 & $5.325$ & 0 & $0.000$
 \begin_layout Plain Layout
 
 Predecessor  & Q I   & 30 & $0.416$ & 30 & $2.167$ & 29 & $3.561$ & 0 & $0.000$
- & 10 & $5.808$ 
+ & 4 & $23.124$ 
 \backslash
 
 \backslash
@@ -11304,7 +11320,7 @@ Predecessor  & Q I   & 30 & $0.416$ & 30 & $2.167$ & 29 & $3.561$ & 0 & $0.000$
 \begin_layout Plain Layout
 
 Predecessor  & S I   & 29 & $1.485$ & 29 & $2.335$ & 25 & $2.106$ & 0 & $0.000$
- & 3 & $28.021$ 
+ & 0 & $0.000$ 
 \backslash
 
 \backslash
@@ -11315,7 +11331,7 @@ Predecessor  & S I   & 29 & $1.485$ & 29 & $2.335$ & 25 & $2.106$ & 0 & $0.000$
 
 Max.
  Measure & Q I   & 29 & $9.551$ & 29 & $6.416$ & 27 & $23.197$ & 0 & $0.000$
- & 6 & $254.828$ 
+ & 1 & $451.474$ 
 \backslash
 
 \backslash
@@ -11326,7 +11342,7 @@ Max.
 
 Max.
  Measure & S I   & 30 & $2.032$ & 30 & $14.288$ & 29 & $54.391$ & 0 & $0.000$
- & 7 & $159.150$ 
+ & 0 & $0.000$ 
 \backslash
 
 \backslash
@@ -11337,7 +11353,7 @@ Max.
 
 Max.
  Measure & H I   & 30 & $28.878$ & 30 & $5.502$ & 26 & $11.688$ & 0 & $0.000$
- & 6 & $160.109$ 
+ & 1 & $472.165$ 
 \backslash
 
 \backslash
@@ -11348,7 +11364,7 @@ Max.
 
 Max.
  Step    & S I   & 30 & $26.484$ & 28 & $24.946$ & 28 & $31.141$ & 0 & $0.000$
- & 7 & $617.803$ 
+ & 1 & $907.034$ 
 \backslash
 
 \backslash
@@ -11359,7 +11375,7 @@ Max.
 
 Max.
  Step    & Q I   & 30 & $26.866$ & 29 & $47.951$ & 28 & $30.215$ & 0 & $0.000$
- & 7 & $512.916$ 
+ & 1 & $884.866$ 
 \backslash
 
 \backslash
@@ -11370,7 +11386,7 @@ Max.
 
 Max.
  Step    & H I   & 30 & $17.893$ & 29 & $27.546$ & 28 & $24.296$ & 0 & $0.000$
- & 5 & $336.803$ 
+ & 1 & $449.360$ 
 \backslash
 
 \backslash
@@ -11381,7 +11397,7 @@ Max.
 
 Min.
  Measure & Q I   & 25 & $71.726$ & 24 & $131.634$ & 9 & $197.808$ & 0 & $0.000$
- & 1 & $708.959$ 
+ & 0 & $0.000$ 
 \backslash
 
 \backslash
@@ -11403,7 +11419,7 @@ Min.
 
 Min.
  Measure & H I   & 26 & $62.227$ & 23 & $76.719$ & 9 & $197.744$ & 0 & $0.000$
- & 1 & $387.452$ 
+ & 0 & $0.000$ 
 \backslash
 
 \backslash
@@ -11420,7 +11436,7 @@ hline
 \begin_layout Plain Layout
 
 Linear       & F   T & 29 & $2.801$ & 27 & $0.108$ & 26 & $0.659$ & 1 & $68.996$
- & 14 & $17.134$ 
+ & 5 & $25.613$ 
 \backslash
 
 \backslash
@@ -11430,7 +11446,7 @@ Linear       & F   T & 29 & $2.801$ & 27 & $0.108$ & 26 & $0.659$ & 1 & $68.996$
 \begin_layout Plain Layout
 
 Linear       & A   T & 29 & $3.991$ & 28 & $2.425$ & 26 & $0.631$ & 1 & $74.086$
- & 14 & $20.812$ 
+ & 5 & $29.083$ 
 \backslash
 
 \backslash
@@ -11440,7 +11456,7 @@ Linear       & A   T & 29 & $3.991$ & 28 & $2.425$ & 26 & $0.631$ & 1 & $74.086$
 \begin_layout Plain Layout
 
 Predecessor  & Q   T & 30 & $0.421$ & 29 & $0.041$ & 30 & $3.823$ & 17 & $19.376$
- & 23 & $3.097$ 
+ & 21 & $10.955$ 
 \backslash
 
 \backslash
@@ -11450,7 +11466,7 @@ Predecessor  & Q   T & 30 & $0.421$ & 29 & $0.041$ & 30 & $3.823$ & 17 & $19.376
 \begin_layout Plain Layout
 
 Predecessor  & S   T & 30 & $2.262$ & 30 & $4.198$ & 28 & $4.183$ & 0 & $0.000$
- & 15 & $41.947$ 
+ & 5 & $82.203$ 
 \backslash
 
 \backslash
@@ -11460,7 +11476,7 @@ Predecessor  & S   T & 30 & $2.262$ & 30 & $4.198$ & 28 & $4.183$ & 0 & $0.000$
 \begin_layout Plain Layout
 
 Predecessor  & Q I T & 30 & $0.265$ & 30 & $2.161$ & 30 & $3.075$ & 18 & $19.645$
- & 23 & $2.081$ 
+ & 21 & $5.685$ 
 \backslash
 
 \backslash
@@ -11470,7 +11486,7 @@ Predecessor  & Q I T & 30 & $0.265$ & 30 & $2.161$ & 30 & $3.075$ & 18 & $19.645
 \begin_layout Plain Layout
 
 Predecessor  & S I T & 30 & $0.182$ & 30 & $2.101$ & 28 & $3.314$ & 0 & $0.000$
- & 19 & $36.593$ 
+ & 10 & $74.109$ 
 \backslash
 
 \backslash
@@ -11481,7 +11497,7 @@ Predecessor  & S I T & 30 & $0.182$ & 30 & $2.101$ & 28 & $3.314$ & 0 & $0.000$
 
 Max.
  Measure & Q I T & 30 & $0.962$ & 30 & $3.433$ & 30 & $15.707$ & 0 & $0.000$
- & 19 & $109.951$ 
+ & 3 & $444.737$ 
 \backslash
 
 \backslash
@@ -11492,7 +11508,7 @@ Max.
 
 Max.
  Measure & S I T & 30 & $0.893$ & 30 & $11.229$ & 30 & $22.976$ & 0 & $0.000$
- & 16 & $134.026$ 
+ & 1 & $114.589$ 
 \backslash
 
 \backslash
@@ -11503,7 +11519,7 @@ Max.
 
 Max.
  Measure & H I T & 30 & $0.686$ & 30 & $5.115$ & 30 & $7.341$ & 0 & $0.000$
- & 14 & $93.971$ 
+ & 6 & $217.857$ 
 \backslash
 
 \backslash
@@ -11514,7 +11530,7 @@ Max.
 
 Max.
  Step    & S I T & 30 & $1.778$ & 29 & $14.138$ & 30 & $37.116$ & 0 & $0.000$
- & 16 & $373.879$ 
+ & 5 & $893.398$ 
 \backslash
 
 \backslash
@@ -11525,7 +11541,7 @@ Max.
 
 Max.
  Step    & Q I T & 30 & $1.666$ & 30 & $66.055$ & 30 & $31.070$ & 0 & $0.000$
- & 14 & $328.037$ 
+ & 5 & $792.409$ 
 \backslash
 
 \backslash
@@ -11536,7 +11552,7 @@ Max.
 
 Max.
  Step    & H I T & 30 & $4.967$ & 29 & $4.491$ & 30 & $17.161$ & 0 & $0.000$
- & 15 & $189.958$ 
+ & 3 & $319.749$ 
 \backslash
 
 \backslash
@@ -11547,7 +11563,7 @@ Max.
 
 Min.
  Measure & Q I T & 30 & $1.253$ & 30 & $22.925$ & 30 & $17.763$ & 16 & $108.038$
- & 21 & $29.492$ 
+ & 20 & $60.037$ 
 \backslash
 
 \backslash
@@ -11558,7 +11574,7 @@ Min.
 
 Min.
  Measure & S I T & 30 & $1.216$ & 30 & $6.116$ & 30 & $16.386$ & 14 & $108.449$
- & 22 & $30.978$ 
+ & 18 & $60.642$ 
 \backslash
 
 \backslash
@@ -11569,7 +11585,7 @@ Min.
 
 Min.
  Measure & H I T & 30 & $0.657$ & 30 & $7.585$ & 30 & $9.471$ & 16 & $90.121$
- & 22 & $16.548$ 
+ & 19 & $56.500$ 
 \backslash
 
 \backslash
@@ -11631,23 +11647,30 @@ clustered
 \emph on
 unclustered
 \emph default
- games (at least, using Small Progress Measures), and that the the more
- levels of clustering there are (i.e.
- the smaller the initial cluster size is) the more difficult they become.
+ games (at least, using Small Progress Measures) and that the more levels
+ of clustering there are (i.e.
+ the smaller the initial cluster size is) the more difficult these games
+ become.
 \end_layout
 
 \begin_layout Standard
 On the direction axis, it turns out that forward swiping works best for
  linear lifting.
- It is a little surprising that the difference is consistently much higher
- for the alternating variant (even though the difference is well below the
- theoretical maximum of doing double the work).
- For the predecessor lifting strategy, queue-like (rather stack-like) extraction
- order tends to solve more cases.
- For the maximum measure lifting strategy and its variants, the numbers
- aren't as clear: in the one-sided framework using stack order results in
+ Perhaps surprisingly, the alternating variant requires significantly more
+ lifting attempts (though well below the theoretical maximum of twice the
+ number required for the forward swiping alternative).
+ Manual inspection of the benchmark results reveals that the alternating
+ variant, on average, requires fewer succesful lifting attempts but fails
+ more lifting attempts, which results in a net loss in efficiency.
+\end_layout
+
+\begin_layout Standard
+For the predecessor lifting strategy, queue-like (rather than stack-like)
+ extraction order tends to solve the most cases.
+ For the maximum measure lifting strategy and its variants, the results
+ are less clear: in the one-sided framework using stack order results in
  at most one extra case being solved, but in the two-sided framework queue
- order performs better by another small margin.
+ order performs better, but only by a small margin.
  Heap order never appears to be the best policy (even though it should be
  slighty faster in absolute time).
 \end_layout
@@ -11656,19 +11679,19 @@ On the direction axis, it turns out that forward swiping works best for
 Since the number of testcases per configuration is relatively small, it
  seems fair to say this data doesn't suggest that extraction order affects
  performance too much.
- As a result, it is probably advisibale to use queue order, which has the
- nice property that it is simple and has the benefit that it is guaranteed
- to be no worse than linear lifting (which cannot be guaranteed for the
- other options).
+ Consequently, it seems advisable to use queue order, which is simple and
+ (unlike the alternatives) is guaranteed to be no worse than linear lifting
+ in the worst case.
 \end_layout
 
 \begin_layout Standard
 The results from the predecessor lifting strategy allow us to compare the
  traditional framework with the improved framework.
  That fewer lifting attempts are performed in the improved framework should
- not be surprising, but what is more important, is the observation that
- in all cases the improved framework takes less time (roughly half as much)
- while solving the same number or more cases.
+ come as no suprise, as it eliminates failed lifting attempts entirely,
+ but what is more important, is the observation that in all cases the improved
+ framework takes less time (roughly half as much) while solving the same
+ number or more cases.
  This demonstrates that the “improved” framework is indeed an improvement
  in practice.
 \end_layout
@@ -11676,54 +11699,52 @@ The results from the predecessor lifting strategy allow us to compare the
 \begin_layout Standard
 Finally, the two-sided approach turns out to be very effective on random
  games.
- For any lifting strategy, the total number of games is increased, or the
- number of lifts required decreases by nearly an order of magnitude, or
- both.
+ Using any lifting strategy, the total number of solved games is increased,
+ or the number of lifts required decreases by nearly an order of magnitude,
+ or both.
  As predicted, the minimum measure propagation strategy works well only
  with the two-sided approach, and in that case it outperforms the maximum
- measure and maximum step approaches.
+ measure and maximum step approaches, but not the predecessor lifting strategy.
 \end_layout
 
 \begin_layout Standard
-However, overall the most effective method is the predecessor lifting strategy.
- In the improved framework and working like a queue it solves the most cases
- in every configuration, uses relatively few lifting attempts, and relatively
- little time.
+Indeed, the predecessor lifting strategy appears to be the overall most
+ effective strategy for these kinds of games.
+ In the improved framework and using queue order, it solves the most cases
+ in every set of random games, while esing relatively few lifting attempts
+ and time.
  All in all, these results do not bode well for the more sophisticated lifting
  strategies.
  However, random cases are rather synthetic and (even with clustering) not
  very similar in structure to parity game instances that might arise in
- pracite.
+ practice.
 \end_layout
 
-\begin_layout Subsection
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-TODO: rewrite section so it follows the previous one nicer 
-\end_layout
-
-\end_inset
-
-Comparison of Lifting Strategies
+\begin_layout Section
+Results on non-random games
 \end_layout
 
 \begin_layout Standard
-Apart from initializing vertices with loops to 
-\begin_inset Formula $\top$
-\end_inset
-
- (the weakest form of loop removal described in Subsection 
+To get a better view of how well different lifting strategies work on practical
+ cases, we should also run benchmarks on the non-random cases described
+ in Section 
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "sub:Loop-removal"
+reference "sec:Cases-from-SPGIP"
 
 \end_inset
 
-), no preprocessing of any kind was applied.
- The figures below use the queue-like tie-breaking rule for all strategies.
- The strategies reported on are the linear lifting (
+.
+ However, to reduce the number of variables involved in the analysis, we
+ consider only queue-like extraction order and the improved framework for
+ the predecessor lifting strategy, since the previous experiments have shown
+ these to be the most efficient.
+ As a result, these benchmarks focus on two aspects: the differences between
+ lifting strategies, and the benefits of the two-sided solution apprach.
+\end_layout
+
+\begin_layout Standard
+The strategies reported on are the linear lifting (
 \begin_inset Quotes eld
 \end_inset
 
@@ -11793,7 +11814,7 @@ ExpandableInput{results-spm-spgip-lifts.tex}
 \end_layout
 
 \begin_layout Standard
-Figure 
+Figures 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "spm_spgip_graphs_deciproc_lifting_attempts"
@@ -11809,14 +11830,19 @@ reference "spm_spgip_graphs_elevator_lifting_attempts"
 
  show the results in number of lifting attempts required to solve the test
  cases for the decision procedures and elevator verification cases respectively.
- As expected, the linear lifting strategy performs the most work, and times
- out on some of the more difficult cases (however, so do some of the more
- sophisticated alternatives).
+ 
+\end_layout
+
+\begin_layout Subsection
+Discussion
 \end_layout
 
 \begin_layout Standard
-The minimum measure propagation strategy was not expected to work well in
- this configuration, and indeed it does poorly on the decision procedures.
+As expected, the linear lifting strategy performs the most work, and times
+ out on some of the more difficult cases (however, so do some of the more
+ sophisticated alternatives).
+ The minimum measure propagation strategy was not expected to work well
+ in this configuration, and indeed it does poorly on the decision procedures.
  However, on the elevator cases it appears to work just as well as the predecess
 or lifting strategy.
 \end_layout
@@ -11831,6 +11857,10 @@ Counting lifting attempts only, the maximum measure and maximum step lifting
 \end_inset
 
  cases it is significantly better than any other strategy.
+\end_layout
+
+\begin_layout Subsubsection
+Time vs Lifts
 \end_layout
 
 \begin_layout Standard
@@ -11850,8 +11880,23 @@ ExpandableInput{results-spm-spgip-time.tex}
 \end_layout
 
 \begin_layout Standard
-Measuring the amount of time used to solve each case (instead of the number
- of lifting attempts) paints a slightly different picture.
+Measuring the total time used to solve each case (instead of the number
+ of lifting attempts) paints a slightly different picture, as is shown in
+ Figures 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "spm_spgip_graphs_deciproc_time_in_seconds"
+
+\end_inset
+
+ and 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "spm_spgip_graphs_elevator_time_in_seconds"
+
+\end_inset
+
+.
  The linear lifting strategy looks better compared to more sophisticated
  strategies, though (excepting minimum measure propagation) it is still
  the slowest.
@@ -11884,33 +11929,8 @@ Two-sided approach
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-TODO: rewrite this subsection.
-\end_layout
-
-\begin_layout Plain Layout
-I want to show mainly that:
-\end_layout
-
-\begin_layout Plain Layout
-- min.measure propagation works better, but still not very well, so let's
- forget about it.
-\end_layout
-
-\begin_layout Plain Layout
-- two-sided solving mainly benefits the dumber strategies!
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-The merits of the two-sided approach can be shown using these cases as well.
+The merits of the two-sided approach can be evaluated using these cases
+ as well.
  Figure 
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -11934,28 +11954,89 @@ reference "spm_spgip_graphs_elevator_lifting_attempts_a"
 \begin_layout Standard
 First, it is immediately obvious that the relative differences between strategie
 s are smaller in these cases.
- This can be explained by the observation that the two-sided approach spends
- a lot of time identifying stable regions and propagating this information
- to the other part of the game; a procedure that is independent of any lifting
- strategy, and thus will take roughly the same time for each configuration.
+ (One explanation would be to observe that the two-way solution approach
+ needs to search for stable regions, and since that does not depend on the
+ lifting strategy used, it adds some constant overhead to each lifting attempt.
+ However, that doesn't explain differences in 
+\emph on
+lifting attempts
+\emph default
+ required.)
 \end_layout
 
 \begin_layout Standard
-Second, the minimum measure lifting strategy performs much better than before,
- as hypothesized.
- However, it clearly does not live up to expectations, since it is always
- beaten by e.g.
- the simpler predecessor lifting strategy.
- As a result, it seems fair to dismiss minimum measure propagation as a
- viable strategy.
+Second, the minimum measure lifting strategy performs much better than before.
+ However, even in the two-sided framework it is still beaten by the simpler
+ predecessor lifting strategy.
+ Since this is consistent with the results on random graphs, it seems fair
+ to conclude that the minimum measure lifting strategy simply does not live
+ up to expectations and ought to be dismissed as a viable strategy.
 \end_layout
 
 \begin_layout Standard
-Third, the two-sided approach is much faster in some cases and somewhat
- slower in others.
- Since this is not obvious from the graphs (which mainly serve to illustrate
- the how different lifting strategies compare and scale), table XXX summarizes
- the speedup achieved using two-sided solving.
+Third, the two-sided approach is much faster in the fourth case, but slower
+ in the first three cases.
+ Since this is not clear from the figures which only include two-sided results,
+ Figures 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{spm_spgip_charts_deciproc}
+\end_layout
+
+\end_inset
+
+ and 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{spm_spgip_charts_elevator}
+\end_layout
+
+\end_inset
+
+ show the differences between one-sided and two-sided solving using different
+ lifting strategies for one instance of each case.
+\end_layout
+
+\begin_layout Standard
+These charts show that the two-way solving approach is useful only in the
+ unfair elevator case.
+ The effect on the maximum step metric is somewhat unusual: it benefits
+ from two-way solving on the 
+\begin_inset Formula $\phi_{8}$
+\end_inset
+
+ case, but is slowed down disproportionally on the 
+\begin_inset Formula $\phi'_{8}$
+\end_inset
+
+ case.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+TODO:
+\end_layout
+
+\begin_layout Plain Layout
+- in the last case, just showing the game's dual is even more beneficial!
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -11978,70 +12059,16 @@ ExpandableInput{results-spm-spgip-time-a.tex}
 
 \begin_layout Plain Layout
 
+
+\backslash
+usetikzlibrary{patterns}
 \end_layout
 
 \begin_layout Plain Layout
 
 
 \backslash
-ExpandableInput{test.tex}
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-misschien tabel met summary van alle heuristics op 1 case (e.g.
- phi6)
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-nog iets met queue/stack/heap
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-vergelijking tussen normaal/two-sided voor pred.
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-priority propagation: reduceert wel vector space, maar niet solving time!
+ExpandableInput{results-spm-spgip-twoway-charts.tex}
 \end_layout
 
 \end_inset
@@ -12050,7 +12077,7 @@ priority propagation: reduceert wel vector space, maar niet solving time!
 \end_layout
 
 \begin_layout Section
-Discussion
+???
 \end_layout
 
 \begin_layout Standard
@@ -12058,64 +12085,15 @@ Discussion
 status open
 
 \begin_layout Plain Layout
-benchmarks to include:
-\end_layout
-
-\begin_layout Plain Layout
-- decision / elevator: include maxmeasures, +/- alternate, predecessor,
- linear
-\end_layout
-
-\begin_layout Plain Layout
-- results on SPGIP (maxmeasure without alternating works really well on
- decision procedures)
+maybe more benchmarks to include?
 \end_layout
 
 \begin_layout Plain Layout
 - effect of preprocessing (SCC/decycle)
 \end_layout
 
-\end_inset
-
-
-\begin_inset Note Note
-status open
-
 \begin_layout Plain Layout
-add table with effectiveness of priority propagation (also on random games)
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-Lifting strategies have different overhead
-\end_layout
-
-\begin_layout Plain Layout
-When it comes to SPM, two-way method is a major improvement
-\end_layout
-
-\begin_layout Plain Layout
-Effects of varying the lifting strategy are mixed; improvements in some
- cases are detrimental in others.
- Linear lifting and predecessor lifting have the advantage that they do
- not.
-\end_layout
-
-\begin_layout Plain Layout
-Compared to SPGIP: much more efficient! Efficiency matters a lot.
-\end_layout
-
-\begin_layout Plain Layout
-For predecessor lifting, the improved SPM framework is strictly faster.
- (This is of little academic interest, but useful to know for implementors.)
+- effectiveness of priority propagation (also on random games)
 \end_layout
 
 \end_inset
