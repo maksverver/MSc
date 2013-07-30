@@ -292,20 +292,89 @@ def print_spm_spgip_twosided_table():
 \\label{tab:spm_spgip_twosided_lift_ratio}
 \\end{table}"""
 
-def print_spm_spgip_twosided_barchart():
+def print_spm_spgip_barchart(case, title):
+
+    config_ids = [ 'Linear',     'Predecessor',     'MaxMeasure',     'MaxStep'     ]
+    configs    = [ '-llinear:0', '-Lpredecessor:0', '-Lmaxmeasure:0', '-Lmaxstep:0' ]
+
+    results_oneway = []
+    results_twoway = []
+
+    for config in configs:
+        file1, = glob('output-spm-spgip-shuffled/pgsolver-' + case + config +        '.o*')
+        file2, = glob('output-spm-spgip-shuffled/pgsolver-' + case + config + "-a" + '.o*')
+        params1 = parse_file(file1)
+        params2 = parse_file(file2)
+        assert params1['solution.result'] == 'success'
+        assert params2['solution.result'] == 'success'
+        results_oneway.append(params1['lifts.total'])
+        results_twoway.append(params2['lifts.total'])
+
     print """\
 \\begin{tikzpicture}
-\\begin{axis}[
-title=Title goes here,
-xbar,
-xlabel={\#participants},
-symbolic y coords={no,yes},
-ytick=data,
-nodes near coords, nodes near coords align={horizontal},
+\\begin{semilogxaxis}[
+        xbar,
+        xlabel={Lifting attempts},
+        symbolic y coords={""" + ','.join(config_ids) + """},
+        title={"""+title+"""},
+        ytick=data,
+        y dir=reverse,
+        legend pos=south east,
 ]
-\\addplot coordinates {(1,no) (9,yes)};
-\\end{axis}
+\\addplot [draw=blue,pattern=horizontal lines dark blue] coordinates {"""
+
+    for (config_id, results) in zip(config_ids, results_twoway):
+        print '(%s,%s)'%(results,config_id),
+
+    print """};
+\\addplot [draw=black,pattern=horizontal lines light blue] coordinates {"""
+
+    for (config_id, results) in zip(config_ids, results_oneway):
+        print '(%s,%s)'%(results,config_id),
+
+    print """};
+\\legend{Two-sided,One-sided}
+\\end{semilogxaxis}
 \\end{tikzpicture}"""
+
+
+def print_spm_spgip_barcharts():
+
+    print """\
+\\begin{figure}
+\\centering
+\\makebox[0pt][c]{% 
+\\begin{minipage}{10cm}   % phi"""
+    print_spm_spgip_barchart("phi8", "$\phi_8$")
+    print """\
+\\end{minipage}
+
+\\begin{minipage}{10cm}   % chi"""
+    print_spm_spgip_barchart("chi500", "$\phi'_{500}$")
+    print """\
+\\end{minipage}
+}%
+\\caption{One-way vs two-way solving on decision procedures cases}
+\\label{spm_spgip_charts_deciproc}
+\\end{figure}
+
+\\begin{figure}
+\\centering
+\\makebox[0pt][c]{% 
+\\begin{minipage}{10cm}   % elevator-fair"""
+    print_spm_spgip_barchart("elevator8-fair", "$G_8$")
+    print """\
+\\end{minipage}
+
+\\begin{minipage}{10cm}   % elevator-unfair"""
+    print_spm_spgip_barchart("elevator6-unfair", "$G'_6$")
+    print """\
+\\end{minipage}
+}%
+\\caption{One-way vs two-way solving on elevator verification cases}
+\\label{spm_spgip_charts_elevator}
+\\end{figure}"""
+
 
 stdout = sys.stdout
 if False:
@@ -318,11 +387,15 @@ if False:
     with open('results-spm-spgip-time-a.tex', 'wt') as sys.stdout:
         print_spm_spgip_graphs('Time in seconds', 'solution.time', a=True)
 
-results = map(parse_file, glob('output-tests4b.bak/random-*.o*'))
-with open('results-tests4-lifts-table.tex', 'wt') as sys.stdout:
-    print_test4_table(print_time = False)
-with open('results-tests4-time-table.tex', 'wt') as sys.stdout:
-    print_test4_table(print_time = True)
+    results = map(parse_file, glob('output-tests4b/random-*.o*'))
+    with open('results-tests4-lifts-table.tex', 'wt') as sys.stdout:
+        print_test4_table(print_time = False)
+    with open('results-tests4-time-table.tex', 'wt') as sys.stdout:
+        print_test4_table(print_time = True)
+
+with open('results-spm-spgip-twoway-charts.tex', 'wt') as sys.stdout:
+    print_spm_spgip_barcharts()
+
 
 #with open('results-spm-spgip-twosided-table.tex', 'wt') as sys.stdout:
 #    print_spm_spgip_graphs('Time in seconds', 'solution.time', a=True)
