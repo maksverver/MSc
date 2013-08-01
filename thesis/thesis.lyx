@@ -9,6 +9,7 @@
 \usepackage {tabu}
 \usepackage {pgfplots}
 \usepackage {multicol}
+\usepackage {chngpage}
 \newcommand*\ExpandableInput[1]{\@@input#1 }
 \end_preamble
 \use_default_options true
@@ -7482,7 +7483,7 @@ The main advantage of Friedmann's two-sided approach over just solving a
 \end_layout
 
 \begin_layout Standard
-There is some similarity with Schewe's “big step
+There is some similarity with Schewe's “big steps
 \begin_inset Quotes erd
 \end_inset
 
@@ -7511,8 +7512,8 @@ reference "chap:Zielonka's-Recursive-Algorithm"
 
 \begin_layout Standard
 The two-sided approach solves games entirely with Small Progress Measures
- and is therefore simpler than Schewe, but doesn't benefit from the theoretical
- speedup achieved by reducing the vector space.
+ and is therefore simpler than Schewe's, but doesn't benefit from the theoretica
+l speedup achieved by reducing the vector space.
  (It should be noted however, that in PGSolver the two approaches are combined:
  the “big steps” solver uses the SPM implementation with the two-sided optimizat
 ion.)
@@ -8838,11 +8839,12 @@ I want to show three things:
 \end_layout
 
 \begin_layout Itemize
-maximum measure propagation is a valid strategy
+maximum measure/step propagation is a valid strategy (I'v got this covered)
 \end_layout
 
 \begin_layout Itemize
-decrement after lifting to top improves SPM in two-sided approach (how?)
+decrement after lifting to top improves SPM especially in two-sided approach
+ (TODO?)
 \end_layout
 
 \begin_layout Itemize
@@ -8995,7 +8997,7 @@ For example, if
 \begin_layout Standard
 Since all games generated were strongly-connected, the combined graph will
  be strongly-connected as well.
- However, it does contain a fow more edges, limited to a factor 
+ However, it does contain a few more edges, limited to a factor 
 \begin_inset Formula $\frac{C}{C-1}$
 \end_inset
 
@@ -9051,7 +9053,7 @@ Elevator verification:
 \begin_inset Formula $G$
 \end_inset
 
-, one unfair, 
+; one unfair, 
 \begin_inset Formula $G'$
 \end_inset
 
@@ -9084,7 +9086,8 @@ The third class of games can be solved entirely using either decomposition
 
 \begin_layout Standard
 The fourth class of games could be interesting, but the exact parameters
- used to generate them (especially how they are clustered) are not provided.
+ used to generate these random games (especially how they are clustered)
+ are not provided.
  It should be noted that unclustered random games can typically be solved
  completely using cycle removal, which is a preprocessing operation that
  is not available in PGSolver.
@@ -9097,7 +9100,7 @@ reference "sub:Clustered-random-games"
 \end_inset
 
 .
- One notable difference with the random games used by Friedemann and Lange
+ One notable difference with the random games used by Friedmann and Lange
  is that our games will consist of a single strongly-connected component
  only.
 \end_layout
@@ -9105,15 +9108,15 @@ reference "sub:Clustered-random-games"
 \begin_layout Standard
 This leaves two classes which each include two kinds of games that can in
  turn be varied in size.
- The decision procedures games are generated using a separate tool called
+ The decision procedure games are generated using a separate tool called
  MLSolver.
  The elevator verification games are generated with a tool from the PGSolver
  suite.
- To prevent implementation details of these tools from affecting the results,
- the vertices for each game are shuffled when used in benchmarks.
- This retains the graph structure, but removes the effect that the particular
- vertex ordering produced by these tools might have had on the performance
- of various lifting strategies.
+ To prevent implementation details of these tools influencing the results,
+ the vertices of the game graphs are shuffled before each experiment.
+ This ensures the graph structure is retained while removing the effect
+ that the particular vertex ordering produced by these tools might have
+ had on the performance of various lifting strategies.
 \end_layout
 
 \begin_layout Standard
@@ -9126,7 +9129,8 @@ reference "tab:SPGIP-cases"
 \end_inset
 
 .
- A full description of how these games are structured is available in 
+ A more detailed description of how these games are structured is available
+ in 
 \begin_inset CommandInset citation
 LatexCommand cite
 key "friedmann2009solving"
@@ -10568,7 +10572,6 @@ reference "sub:Loop-removal"
 \end_inset
 
 ), no preprocessing was applied.
- 
 \end_layout
 
 \begin_layout Standard
@@ -10606,7 +10609,123 @@ ref{random_graphs_time}
  where all instances in a class were completely solved.
 \end_layout
 
+\begin_layout Subsection
+Discussion
+\end_layout
+
 \begin_layout Standard
+First, it is interesting to see that 
+\emph on
+clustered
+\emph default
+ random games are a lot more difficult to solve than larger 
+\emph on
+unclustered
+\emph default
+ games (at least, using Small Progress Measures) and that the more levels
+ of clustering there are (i.e.
+ the smaller the initial cluster size is) the more difficult these games
+ become.
+\end_layout
+
+\begin_layout Standard
+On the direction axis, it turns out that forward swiping works best for
+ linear lifting.
+ Perhaps surprisingly, the alternating variant requires significantly more
+ lifting attempts (though well below the theoretical maximum of twice the
+ number required for the forward swiping alternative).
+ Manual inspection of the benchmark results reveals that the alternating
+ variant, on average, requires fewer succesful lifting attempts but fails
+ more lifting attempts, which results in a net loss in efficiency.
+\end_layout
+
+\begin_layout Standard
+For the predecessor lifting strategy, queue-like (rather than stack-like)
+ extraction order tends to solve the most cases.
+ Since this order has the additional advantage that it is guaranteed to
+ perform no worse than linear lifting (in the worst case) it seems reasonable
+ to prefer queue-like behaviour.
+ For the maximum measure lifting strategy and its variants, the results
+ are less clear: in the one-sided framework using stack order results in
+ at most one extra case being solved, but in the two-sided framework queue
+ order performs better, but only by a small margin.
+ Heap order never appears to be the best policy.
+\end_layout
+
+\begin_layout Standard
+The results from the predecessor lifting strategy allow us to compare the
+ traditional framework with the improved framework.
+ That fewer lifting attempts are performed in the improved framework should
+ come as no suprise, as it eliminates failed lifting attempts entirely,
+ but what is more important, is the observation that in all cases the improved
+ framework takes less time (roughly half as much) while solving the same
+ number or more cases.
+ This demonstrates that the “improved” framework is indeed an improvement
+ in practice.
+\end_layout
+
+\begin_layout Standard
+The two-sided approach turns out to be very effective on random games.
+ Using any lifting strategy, the total number of solved games is increased,
+ or the number of lifts required decreases by nearly an order of magnitude,
+ or both.
+ For some cases, these successes can be attributed to the fact that the
+ two-way approach can solve the dual game before the normal game (in which
+ case solving the dual game first would have benefited the one-sided approach
+ too) but that cannot be the only reason why the two-sided approach works
+ so well.
+ For example, looking at the 
+\family typewriter
+4000/16
+\family default
+ class of games, it seems statistically unlikely that 0 out of 30 games
+ could be solved normally, while the dual of 17 of these games 
+\emph on
+can
+\emph default
+ be solved in time.
+ Consequently, it seems more likely that identification of stable regions
+ contributes significantly to the ability to solve these problems.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+actually, cases are NOT generated symmetrically, because Even always has
+ the most dominant priority! Does this mean Even tends to be easier to solve
+ for? (It could mean the dual game has more Top vertices!) NEED TO CHECK!
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Finally, the minimum measure propagation strategy works well only with the
+ two-sided approach, and in that case it outperforms the maximum measure
+ and maximum step approaches, but not the predecessor lifting strategy.
+ Indeed, the predecessor lifting strategy appears to be the overall most
+ effective strategy for these kinds of games.
+ In the improved framework and using queue order, it solves the most cases
+ in every set of random games, while esing relatively few lifting attempts
+ and time.
+ All in all, these results do not bode well for the more sophisticated lifting
+ strategies.
+ However, random cases are rather synthetic and (even with clustering) not
+ very similar in structure to parity game instances that might arise in
+ practice.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
 \begin_inset ERT
 status open
 
@@ -10614,29 +10733,14 @@ status open
 
 
 \backslash
-begin{table}
+begin{adjustwidth}{-5cm}{-5cm}
 \end_layout
 
 \begin_layout Plain Layout
 
 
 \backslash
-begingroup
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-setlength{
-\backslash
-LTleft}{-20cm plus -1fill}
-\backslash
-setlength{
-\backslash
-LTright}{
-\backslash
-LTleft}
+centering
 \end_layout
 
 \begin_layout Plain Layout
@@ -10650,7 +10754,7 @@ footnotesize
 
 
 \backslash
-begin{longtable}{l l|r r|r r|r r|r r|r r|r r|}
+begin{tabular}{l l|r r|r r|r r|r r|r r|r r|}
 \end_layout
 
 \begin_layout Plain Layout
@@ -11089,30 +11193,38 @@ hline
 
 
 \backslash
-end{longtable}
+end{tabular}
 \end_layout
 
 \begin_layout Plain Layout
 
 
 \backslash
-endgroup
+end{adjustwidth}
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Plain Layout
-
-
-\backslash
-caption{SPM performance on random graphs (in million lifts)} 
-\backslash
-label{random_graphs_lifts}
-\end_layout
+\begin_inset Caption
 
 \begin_layout Plain Layout
+SPM performance on random graphs (in million lifts) 
+\begin_inset CommandInset label
+LatexCommand label
+name "random_graphs_lifts"
+
+\end_inset
 
 
-\backslash
-end{table}
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \end_inset
@@ -11121,6 +11233,12 @@ end{table}
 \end_layout
 
 \begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
 \begin_inset ERT
 status open
 
@@ -11128,29 +11246,14 @@ status open
 
 
 \backslash
-begin{table}
+begin{adjustwidth}{-5cm}{-5cm}
 \end_layout
 
 \begin_layout Plain Layout
 
 
 \backslash
-begingroup
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-setlength{
-\backslash
-LTleft}{-20cm plus -1fill}
-\backslash
-setlength{
-\backslash
-LTright}{
-\backslash
-LTleft}
+centering
 \end_layout
 
 \begin_layout Plain Layout
@@ -11164,7 +11267,7 @@ footnotesize
 
 
 \backslash
-begin{longtable}{l l|r r|r r|r r|r r|r r|r r|}
+begin{tabular}{l l|r r|r r|r r|r r|r r|r r|}
 \end_layout
 
 \begin_layout Plain Layout
@@ -11603,30 +11706,14 @@ hline
 
 
 \backslash
-end{longtable}
+end{tabular}
 \end_layout
 
 \begin_layout Plain Layout
 
 
 \backslash
-endgroup
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-caption{SPM performance on random graphs (time in seconds)} 
-\backslash
-label{random_graphs_time}
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-end{table}
+end{adjustwidth}
 \end_layout
 
 \end_inset
@@ -11634,90 +11721,28 @@ end{table}
 
 \end_layout
 
-\begin_layout Subsection
-Discussion
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+SPM performance on random graphs (time in seconds) 
+\begin_inset CommandInset label
+LatexCommand label
+name "random_graphs_time"
+
+\end_inset
+
+
 \end_layout
 
-\begin_layout Standard
-First, it is interesting to see that 
-\emph on
-clustered
-\emph default
- random games are a lot more difficult to solve than larger 
-\emph on
-unclustered
-\emph default
- games (at least, using Small Progress Measures) and that the more levels
- of clustering there are (i.e.
- the smaller the initial cluster size is) the more difficult these games
- become.
+\end_inset
+
+
 \end_layout
 
-\begin_layout Standard
-On the direction axis, it turns out that forward swiping works best for
- linear lifting.
- Perhaps surprisingly, the alternating variant requires significantly more
- lifting attempts (though well below the theoretical maximum of twice the
- number required for the forward swiping alternative).
- Manual inspection of the benchmark results reveals that the alternating
- variant, on average, requires fewer succesful lifting attempts but fails
- more lifting attempts, which results in a net loss in efficiency.
-\end_layout
+\end_inset
 
-\begin_layout Standard
-For the predecessor lifting strategy, queue-like (rather than stack-like)
- extraction order tends to solve the most cases.
- For the maximum measure lifting strategy and its variants, the results
- are less clear: in the one-sided framework using stack order results in
- at most one extra case being solved, but in the two-sided framework queue
- order performs better, but only by a small margin.
- Heap order never appears to be the best policy (even though it should be
- slighty faster in absolute time).
-\end_layout
 
-\begin_layout Standard
-Since the number of testcases per configuration is relatively small, it
- seems fair to say this data doesn't suggest that extraction order affects
- performance too much.
- Consequently, it seems advisable to use queue order, which is simple and
- (unlike the alternatives) is guaranteed to be no worse than linear lifting
- in the worst case.
-\end_layout
-
-\begin_layout Standard
-The results from the predecessor lifting strategy allow us to compare the
- traditional framework with the improved framework.
- That fewer lifting attempts are performed in the improved framework should
- come as no suprise, as it eliminates failed lifting attempts entirely,
- but what is more important, is the observation that in all cases the improved
- framework takes less time (roughly half as much) while solving the same
- number or more cases.
- This demonstrates that the “improved” framework is indeed an improvement
- in practice.
-\end_layout
-
-\begin_layout Standard
-Finally, the two-sided approach turns out to be very effective on random
- games.
- Using any lifting strategy, the total number of solved games is increased,
- or the number of lifts required decreases by nearly an order of magnitude,
- or both.
- As predicted, the minimum measure propagation strategy works well only
- with the two-sided approach, and in that case it outperforms the maximum
- measure and maximum step approaches, but not the predecessor lifting strategy.
-\end_layout
-
-\begin_layout Standard
-Indeed, the predecessor lifting strategy appears to be the overall most
- effective strategy for these kinds of games.
- In the improved framework and using queue order, it solves the most cases
- in every set of random games, while esing relatively few lifting attempts
- and time.
- All in all, these results do not bode well for the more sophisticated lifting
- strategies.
- However, random cases are rather synthetic and (even with clustering) not
- very similar in structure to parity game instances that might arise in
- practice.
 \end_layout
 
 \begin_layout Section
@@ -11815,17 +11840,20 @@ ExpandableInput{results-spm-spgip-lifts.tex}
 
 \begin_layout Standard
 Figures 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "spm_spgip_graphs_deciproc_lifting_attempts"
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{spm_spgip_graphs_deciproc_lifting_attempts}
+\end_layout
 
 \end_inset
 
  and 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "spm_spgip_graphs_elevator_lifting_attempts"
-
+\begin_inset Formula $\ref{spm_spgip_graphs_elevator_lifting_attempts}$
 \end_inset
 
  show the results in number of lifting attempts required to solve the test
@@ -11948,24 +11976,11 @@ reference "spm_spgip_graphs_elevator_lifting_attempts_a"
  present the number of lifting attempts and time performed when the same
  strategies are used in conjunction with Friedmann's two-sided small progress
  measures implementation.
- A number of observations can be made.
 \end_layout
 
 \begin_layout Standard
-First, it is immediately obvious that the relative differences between strategie
-s are smaller in these cases.
- (One explanation would be to observe that the two-way solution approach
- needs to search for stable regions, and since that does not depend on the
- lifting strategy used, it adds some constant overhead to each lifting attempt.
- However, that doesn't explain differences in 
-\emph on
-lifting attempts
-\emph default
- required.)
-\end_layout
-
-\begin_layout Standard
-Second, the minimum measure lifting strategy performs much better than before.
+One difference is that the minimum measure lifting strategy performs much
+ better than before.
  However, even in the two-sided framework it is still beaten by the simpler
  predecessor lifting strategy.
  Since this is consistent with the results on random graphs, it seems fair
@@ -11974,9 +11989,12 @@ Second, the minimum measure lifting strategy performs much better than before.
 \end_layout
 
 \begin_layout Standard
-Third, the two-sided approach is much faster in the fourth case, but slower
- in the first three cases.
- Since this is not clear from the figures which only include two-sided results,
+Overall, the two-sided approach is not much faster (but also not much slower)
+ except in the fourth case (unfair elevator verification, 
+\begin_inset Formula $G'$
+\end_inset
+
+) where it performs much better.
  Figures 
 \begin_inset ERT
 status open
@@ -12005,38 +12023,47 @@ ref{spm_spgip_charts_elevator}
 
  show the differences between one-sided and two-sided solving using different
  lifting strategies for one instance of each case.
+ However, the unfair elevator case is different from the others: for these
+ games the dual is easier to solve than the normal game.
+ In fact, solving the dual game using the one-way approach is faster than
+ using the two-way approach, as the last bar chart in Figure 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{spm_spgip_charts_elevator}
+\end_layout
+
+\end_inset
+
+ shows.
 \end_layout
 
 \begin_layout Standard
-These charts show that the two-way solving approach is useful only in the
- unfair elevator case.
- The effect on the maximum step metric is somewhat unusual: it benefits
- from two-way solving on the 
-\begin_inset Formula $\phi_{8}$
-\end_inset
-
- case, but is slowed down disproportionally on the 
-\begin_inset Formula $\phi'_{8}$
-\end_inset
-
- case.
-\end_layout
-
-\begin_layout Standard
+From these charts it becomes clear that the two-sided solving approach doesn't
+ offer a significant improvement over the one-sided approach, like we saw
+ on random testcases 
 \begin_inset Note Note
 status open
 
 \begin_layout Plain Layout
-TODO:
-\end_layout
-
-\begin_layout Plain Layout
-- in the last case, just showing the game's dual is even more beneficial!
+is this still true after investigating solving the dual on random cases?
 \end_layout
 
 \end_inset
 
-
+.
+ At best, its performance is close to the performance of the one-sided approach
+ on either the normal or the dual game (whichever is easier) but an additional
+ benefit obtained from the exchange of solution data from stable regions
+ between the two games does not appear to arise in these testcases.
+ Consequently, it seems fair to say that the two-way solving approach is
+ useful mainly when it is unknown which side of the game will be easier
+ to solve, but in that case, it is probably easier to just solve the two
+ sides independently in parallel.
 \end_layout
 
 \begin_layout Standard
@@ -12074,10 +12101,6 @@ ExpandableInput{results-spm-spgip-twoway-charts.tex}
 \end_inset
 
 
-\end_layout
-
-\begin_layout Section
-???
 \end_layout
 
 \begin_layout Standard

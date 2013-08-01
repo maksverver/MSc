@@ -78,12 +78,21 @@
         ytick=data,
         y dir=reverse,
         legend pos=south east,
+        width=8cm,
+        height=11cm,
 ]
+
+\addplot [draw=black,fill=red!30] coordinates {
+(1469964,Linear) (247373,Predecessor) (196655,MaxMeasure) (177478,MaxStep) };
+\addplot [draw=red,fill=red] coordinates {
+(2483194,Linear) (356820,Predecessor) (258725,MaxMeasure) (297432,MaxStep) };
+
 \addplot [draw=blue,pattern=horizontal lines dark blue] coordinates {
 (2603194,Linear) (471917,Predecessor) (372869,MaxMeasure) (411116,MaxStep) };
 \addplot [draw=black,pattern=horizontal lines light blue] coordinates {
 (1554728043,Linear) (623561024,Predecessor) (515089,MaxMeasure) (707246,MaxStep) };
-\legend{Two-sided,One-sided}
+
+\legend{One-sided (dual),Two-sided (dual),Two-sided,One-sided}
 \end{semilogxaxis}
 \end{tikzpicture}
 \end{minipage}
