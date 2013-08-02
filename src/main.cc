@@ -1022,10 +1022,14 @@ int main(int argc, char *argv[])
 #ifdef WITH_MPI
             else
             {
-                if (!arg_alternate)
+                if (arg_alternate)
                 {
-                    Logger::fatal( "MPI SPM solver only supports alternating "
-                                   "approach (option -a)");
+                    Logger::fatal( "MPI SPM solver does not support "
+                                   "two-sided approach (option -a)" );
+                }
+                if (arg_spm_version != 1)
+                {
+                    Logger::fatal("MPI SPM solver only supports SPM version 1");
                 }
                 solver_factory.reset(new MpiSpmSolverFactory(
                     spm_strategy, vpart, stats.get() ));

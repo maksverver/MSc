@@ -15,12 +15,13 @@
 
 /*! \ingroup ParityGameData
 
-    A game can be partitioned into using a VertexPartition.
+    A game can be partitioned into GameParts using a VertexPartition.
 
-    This class explicitely creates a subgame for one part of a vertex partition
-    extended with the directly adjacent vertices from other parts.  This
-    extended set is called the local vertex set.  Local vertices from the
-    original vertex part are called internal; others are called external.
+    This class explicitely creates a subgame consisting of vertices assigned by
+    a vertex partition, extended with the directly adjacent vertices from other
+    parts.  This extended set is called the local vertex set.  Local vertices
+    from the original vertex part are called internal; others are called
+    external.
 
     This class also contains mappings from global to local vertex indices and
     vice versa.

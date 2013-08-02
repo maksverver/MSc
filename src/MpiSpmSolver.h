@@ -16,9 +16,10 @@
 #include "SmallProgressMeasures.h"
 #include "VertexPartition.h"
 
-/*! A parity game solver based on Marcin Jurdzinski's small progress measures
-    algorithm, with pluggable lifting heuristics. Implements the two-way solving
-    approach due to Friedmann, and allows distributed computation using MPI. */
+/*! A distributed parity game solver using MPI.
+
+    Implements Marcin Jurdzinski's small progress measures algorithm, with
+    pluggable lifting heuristics. */
 class MpiSpmSolver : public ParityGameSolver, public virtual Logger
 {
 public:
@@ -35,15 +36,17 @@ protected:
         the SmallProgressMeasures instance to reflect it. */
     void set_vector_space(SmallProgressMeasures &spm);
 
-    //! Helper function to lifts the given global vertex `v` to `vec` in `spm`.
-    void update(SmallProgressMeasures &spm, verti global_v, const verti vec[]);
+    /*! Helper function to lift the given global vertex `v` to `vec` in
+        local `spm` and update lifting strategy `ls` if necessary. */
+    void update( SmallProgressMeasures &spm, LiftingStrategy &ls,
+                 verti global_v, const verti vec[] );
 
     /*! Lifts vertices in `spm` until globally no more vertices can be lifted
         (at which point, the game is solved for one player). */
     void solve_all(SmallProgressMeasures &spm);
 
     /*! Propagates information about stable vertices in `src` to `dst`, by
-        setting vertices which stable and non-top in `src` to top in `dst`.
+        setting vertices which are stable and non-top in `src` to top in `dst`.
         This is a purely local operation. */
     void propagate_solved( SmallProgressMeasures &src,
                            SmallProgressMeasures &dst );

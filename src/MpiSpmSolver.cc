@@ -46,6 +46,7 @@ protected:
     LiftingStrategy *ls_;
 };
 
+/*
 class InternalLiftingStrategyFactory : public LiftingStrategyFactory
 {
 public:
@@ -71,7 +72,7 @@ private:
     const GamePart &part_;
     LiftingStrategyFactory *lsf_;
 };
-
+*/
 
 MpiSpmSolver::MpiSpmSolver(
         const ParityGame &game, const VertexPartition *vpart,
@@ -111,10 +112,11 @@ void MpiSpmSolver::set_vector_space(SmallProgressMeasures &spm)
 }
 
 void MpiSpmSolver::update( SmallProgressMeasures &spm,
+                           LiftingStrategy &ls,
                            verti global_v, const verti vec[] )
 {
     verti v = part_.local(global_v);
-    debug("Received vertex %d (top %d)", global_v, spm.is_top(vec));
+    //debug("Received vertex %d (top %d)", global_v, spm.is_top(vec));
     if (v == NO_VERTEX)
     {
         // Opponent-controlled non-local vertex lifted to top:
@@ -125,7 +127,17 @@ void MpiSpmSolver::update( SmallProgressMeasures &spm,
     else
     {
         // Local external vertex updated:
-        spm.lift_to(v, vec);
+        bool res = spm.lift_to(v, vec);
+        if (res)
+        {
+            /* Usually, res == true, since we only receive updates on vertices
+               when they are actually lifted.  However, due to the vector-space-
+               reduction-after-lifting-to-top optimization, it is possible that
+               we receive an out-of-bounds value and later an in-bounds value
+               that is not actually greater. */
+
+            ls.lifted(v);
+        }
     }
 }
 
@@ -139,11 +151,13 @@ void MpiSpmSolver::solve_all(SmallProgressMeasures &spm)
     std::vector<verti> data_out(1 + spm.len());
 
     MpiTermination term((int)data_in.size(), MPI_INT, &data_in[0]);
+    std::auto_ptr<LiftingStrategy> ls(
+        new InternalLiftingStrategy(part_, lsf_->create(spm.game(), spm)));
 
     for (;;)
     {
         // Lift a vertex, if possible:
-        std::pair<verti, bool> lift_result = spm.solve_one();
+        std::pair<verti, bool> lift_result = spm.solve_one(*ls);
         verti v = lift_result.first;
 
         if (v == NO_VERTEX)  // no work remains locally
@@ -152,7 +166,7 @@ void MpiSpmSolver::solve_all(SmallProgressMeasures &spm)
             //debug("Idle");
             term.idle();
             if (!term.recv()) break;
-            update(spm, (verti)data_in[0], (const verti*)&data_in[1]);
+            update(spm, *ls, (verti)data_in[0], (const verti*)&data_in[1]);
             term.start();
             continue;
         }
@@ -202,7 +216,7 @@ void MpiSpmSolver::solve_all(SmallProgressMeasures &spm)
                 const verti *vec = spm.vec(v);
                 data_out[0] = global_v;
                 std::copy(vec, vec + spm.len(), &data_out[1]);
-                debug("Sending vertex %d (top %d)", global_v, spm.is_top(vec));
+                //debug("Sending vertex %d (top %d)", global_v, spm.is_top(vec));
 
                 // Remove duplicates
                 std::sort(procs.begin(), procs.end());
@@ -221,7 +235,7 @@ void MpiSpmSolver::solve_all(SmallProgressMeasures &spm)
         // Receive all available updates:
         while (term.test())
         {
-            update(spm, (verti)data_in[0], (const verti*)&data_in[1]);
+            update(spm, *ls, (verti)data_in[0], (const verti*)&data_in[1]);
             term.start();
         }
     }
@@ -293,22 +307,19 @@ ParityGame::Strategy MpiSpmSolver::solve()
     // Create two SPM instances (one for each player):
     std::auto_ptr<SmallProgressMeasures> spm[2];
     {
-        /* NOTE: SmallProgressMeasures initializes vertices with just a
-           beneficial loop to Top, so the initial game in each process must be
-           preprocessed in the same way, and the loops on external vertices must
-           be kept, or the programs will be out of sync!
+        /* NOTE: DenseSPM initializes vertices with just a beneficial loop to
+           Top, so the initial game in each process must be preprocessed in the
+           same way, and the loops on external vertices must be kept, or the
+           programs will be out of sync!
 
            This is really ugly, and could be fixed by removing the preprocessing
-           code from SmallProgressMeasures and instead always using either the
-           DeloopSolver or DecycleSolver.
+           code from DenseSPM and instead always use DeloopSolver/DecycleSolver
+           to remove loops from the game before solving.
         */
-        LiftingStrategyFactory *lsf = 
-            new InternalLiftingStrategyFactory(part_, lsf_);
         spm[0].reset( new DenseSPM( part_.game(), ParityGame::PLAYER_EVEN,
-                                    lsf, stats.get(), NULL, 0 ) );
+                                    stats.get(), NULL, 0 ) );
         spm[1].reset( new DenseSPM( part_.game(), ParityGame::PLAYER_ODD,
-                                    lsf, stats.get(), NULL, 0 ) );
-        lsf->deref();
+                                    stats.get(), NULL, 0 ) );
     }
 
     // Solve the two games, one after the other:
@@ -316,14 +327,18 @@ ParityGame::Strategy MpiSpmSolver::solve()
     set_vector_space(*spm[0]);
     info("Solving game for Even...");
     solve_all(*spm[0]);
+#ifdef DEBUG
     debug_print(*spm[0]);
+#endif
     info("Propagating winning set to dual game...");
     propagate_solved(*spm[0], *spm[1]);
     info("Initializing vector space...");
     set_vector_space(*spm[1]);
     info("Solving dual game for Odd...");
     solve_all(*spm[1]);
+#ifdef DEBUG
     debug_print(*spm[1]);
+#endif
     info("Extracting local strategy...");
     const ParityGame &game = part_.game();
     ParityGame::Strategy strategy(game.graph().V(), NO_VERTEX);
@@ -407,7 +422,7 @@ void MpiSpmSolver::debug_print(const SmallProgressMeasures &spm) const
         std::ostringstream oss;
         if (spm.is_top(v)) oss << " T"; else
         for (int i = 0; i < spm.len(v); ++i) oss << ' ' << spm.vec(v)[i];
-        info("%d:%s", (int)part_.global(v), oss.str().c_str());
+        debug("%d:%s", (int)part_.global(v), oss.str().c_str());
     }
 }
 
