@@ -300,6 +300,11 @@ ParityGame::Strategy MpiSpmSolver::solve()
 {
     assert(sizeof(verti) == sizeof(int));
 
+    info( "Game part size: %d internal + %d external = %d local",
+           (int)part_.internal_size(),
+           (int)part_.external_size(),
+           (int)part_.total_size() );
+
     // Create a local statistics object, but only if required globally:
     std::auto_ptr<LiftingStatistics> stats;
     if (stats_) stats.reset(new LiftingStatistics(part_.game()));
@@ -401,9 +406,10 @@ ParityGame::Strategy MpiSpmSolver::solve()
             // Send per-vertex lifting statistics:
             for (verti v = 0; v < V; ++v)
             {
-                verti w = part_.local(v);
-                if (w != NO_VERTEX)
+                if ((*vpart_)(v) == mpi_rank)
                 {
+                    verti w = part_.local(v);
+                    assert(w != NO_VERTEX);
                     as[0] = stats->lifts_attempted(w);
                     as[1] = stats->lifts_attempted(w);
                     MPI::COMM_WORLD.Send(as, 2, MPI_LONG_LONG, 0, 0);

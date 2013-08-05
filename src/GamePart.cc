@@ -118,8 +118,8 @@ GamePart::GamePart( const GamePart &part,
         *it = local_[part.global_[*it]];
     }
 
-    // DEBUG: check consistency of vertex index mapping
-    /*
+#ifdef DEBUG
+    // Check consistency of vertex index mapping
     for (verti i = 0; i < (verti)global_.size(); ++i)
     {
         assert(local_[global_[i]] == i);
@@ -129,7 +129,7 @@ GamePart::GamePart( const GamePart &part,
     {
         assert(global_[it->second] == it->first);
     }
-    */
+#endif
 }
 
 void GamePart::swap(GamePart &gp)
