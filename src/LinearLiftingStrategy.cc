@@ -25,11 +25,7 @@ void LinearLiftingStrategy::lifted(verti v)
 
 verti LinearLiftingStrategy::next()
 {
-    if (failed_lifts_ >= last_vertex_)
-    {
-        vertex_ = NO_VERTEX;
-        return NO_VERTEX;
-    }
+    if (failed_lifts_ > last_vertex_) return NO_VERTEX;
 
     if (vertex_ == NO_VERTEX)
     {

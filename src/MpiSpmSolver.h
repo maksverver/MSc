@@ -69,7 +69,7 @@ protected:
     LiftingStrategyFactory  *lsf_;        //!< used to create lifting strategies
     LiftingStatistics       *stats_;      //!< global lifting statistics
     const verti             *vmap_;       //!< current global vertex map
-    const verti             vmap_size_;   //!< size of globalvertex map
+    const verti             vmap_size_;   //!< size of global vertex map
 };
 
 //! Factory class for MpiSpmSolver instances.
