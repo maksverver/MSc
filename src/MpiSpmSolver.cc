@@ -171,17 +171,19 @@ void MpiSpmSolver::solve_all(SmallProgressMeasures &spm)
             continue;
         }
 
+#ifdef DEBUG
         if (lift_result.second)
         {
-            std::ostringstream oss;
-            if (spm.is_top(spm.vec(v))) oss << " T"; else
-            for (int i = 0; i < spm.len(v); ++i) oss << ' ' << spm.vec(v)[i];
+            //std::ostringstream oss;
+            //if (spm.is_top(spm.vec(v))) oss << " T"; else
+            //for (int i = 0; i < spm.len(v); ++i) oss << ' ' << spm.vec(v)[i];
             //debug("Vertex %d lifted to%s", part_.global(v), oss.str().c_str());
         }
         else
         {
             //debug("Vertex %d not lifted", part_.global(v));
         }
+#endif
 
         if (lift_result.second)  // lifting succeeded
         {
