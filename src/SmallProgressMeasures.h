@@ -169,7 +169,7 @@ public:
     void set_M(const verti *new_M) { std::copy(new_M, new_M + len_, M_); }
 
     /*! Decrements the i'th element of M. */
-    void decr_M(int i) { assert(M_[i] > 0); --M_[i]; }
+    void decr_M(int i) { assert(M_[i] > 1); --M_[i]; }
 
     /*! Return the number of odd priorities less than or equal to the
         priority of v. This is the length of the SPM vector for `v`. */
