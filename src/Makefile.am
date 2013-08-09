@@ -13,6 +13,7 @@ solver_SOURCES = \
 	attractor.h attractor_impl.h \
 	compatibility.cc compatibility.h \
 	ComponentSolver.cc ComponentSolver.h \
+	Decimal.cc Decimal.h \
 	DecycleSolver.cc DecycleSolver.h \
 	DeloopSolver.cc DeloopSolver.h \
 	DenseMap.h DenseSet.h \
