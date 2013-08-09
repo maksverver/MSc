@@ -32,6 +32,7 @@ Overview goes here.
 #include "SmallProgressMeasures.h"
 #include "Timer.h"
 #include "shuffle.h"
+#include "Decimal.h"
 
 #include <assert.h>
 #include <getopt.h>
@@ -39,6 +40,7 @@ Overview goes here.
 #include <stdlib.h>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 #include <stack>
@@ -1170,6 +1172,31 @@ int main(int argc, char *argv[])
             }
             Logger::message( "## game.average_priority = %.10lf",
                             (double)sum/game.graph().V() );
+        }
+
+        if (arg_spm_version)
+        {
+            /* Calculate upper bound on maximum number of lifts (when solving
+               as normal game, N, or dual game, D) based only on how often
+               each priority occurs in the game.
+
+               This is most meaningful when the game is a single SCC and
+               therefore each vertex is reachable from every other vertex.
+            */
+            Decimal N(0), D(0);
+            for (int p = 0; p < game.d(); ++p)
+            {
+                Decimal n(1), d(1);
+                for (int q = 0; q <= p; ++q)
+                {
+                    Decimal &s = (q%2 == 1) ? n : d;
+                    s = s + s*Decimal(game.cardinality(q));
+                }
+                N = N + n*Decimal(game.cardinality(p));
+                D = D + d*Decimal(game.cardinality(p));
+            }
+            Logger::message("## max_lifts.normal = %s", N.c_str());
+            Logger::message("## max_lifts.dual   = %s", D.c_str());
         }
 
         /* Add preprocessors which wrap the current solver factory.
