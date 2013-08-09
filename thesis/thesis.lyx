@@ -1631,30 +1631,20 @@ reference "sub:Winner-controlled-cycle-removal"
 \end_layout
 
 \begin_layout Itemize
-An efficient strategy verification algorithm that is not dependent on any
- solving algorithm (described in section 
+An efficient strategy verification algorithm, independent of solving algorithms
+ (described in section 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sec:Verification"
 
 \end_inset
 
-) 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-TODO: how does verification work in PGsolver‽
-\end_layout
-
-\end_inset
-
-
+)
 \end_layout
 
 \begin_layout Itemize
-An improved set of heuristic for the small progress measures algorithm (describe
-d in subsection 
+Improved heuristics for the small progress measures algorithm (described
+ in subsection 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sub:Maximum-Measure-Propagation"
@@ -2933,8 +2923,11 @@ key "tarjan1971depth"
 status open
 
 \begin_layout Plain Layout
-Maybe TODO: compare with PGSolver, if that's different.
- (I think it looks for a single cycle at a time?)
+How does 
+\family typewriter
+solve_single_player_scc
+\family default
+ work in PGSolver?
 \end_layout
 
 \end_inset
@@ -2989,11 +2982,11 @@ Less formally, the edge set includes the edges that are consistent with
 
 's strategy, as well as all edges originating at vertices controlled by
  his opponent.
- We must first check the trivial property that 
+ We must first check that 
 \begin_inset Formula $E|\sigma_{x}\subseteq W_{x}\times W_{x}$
 \end_inset
 
- (otherwise either player 
+ (otherwise, either player 
 \begin_inset Formula $x$
 \end_inset
 
@@ -3092,6 +3085,24 @@ Complete verification of winning sets and strategies therefore requires
  the verification algorithm runs in polynomial time and is fast in practice
  when the game graph is sparse and the number of distinct priorities is
  low, as is often the case.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+PGSolver does the same thing, but without explicit complexity bounds on
+ 
+\family typewriter
+solve_single_player_scc
+\family default
+.
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Chapter
@@ -4054,12 +4065,9 @@ key "vanderberg2010ps3"
 \begin_layout Enumerate
 An improvement of the basic algorithm that eliminates failed lifting attempts,
  described in subsection 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-TODO
-\end_layout
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Eliminating-failed-lifting"
 
 \end_inset
 
@@ -4119,7 +4127,14 @@ parallel and distributed implementations?
 \end_layout
 
 \begin_layout Section
-Description
+Description 
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:SPM-Description"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -4166,7 +4181,7 @@ key "jurdzinski2000spm"
 \[
 M_{i}=\begin{cases}
 \{0\} & \mbox{if \ensuremath{i\equiv0\mod{2}}}\\
-\{0..\left|\{v\in V:\phi(v)=i\}\right|\} & \mbox{if \ensuremath{i\equiv1\mod{2}}}
+\{0..\left|\phi^{-1}(i)\right|\} & \mbox{if \ensuremath{i\equiv1\mod{2}}}
 \end{cases}
 \]
 
@@ -5819,28 +5834,33 @@ For example, if there is a vertex
 \begin_inset Formula $v$
 \end_inset
 
-'s progress measure vector is too low is to re-examine all its successors.
+'s progress measure vector is too low is to re-examine the vectors assigned
+ to each of 
+\begin_inset Formula $v$
+\end_inset
+
+'s successors.
 \end_layout
 
 \begin_layout Standard
-By allocating only O(
+Failed lifting attempts can be eliminated completely by storing for each
+ vertex whether it  is stable and what its current minimum/maximum successor
+ is.
+ This requires O(
 \begin_inset Formula $V$
 \end_inset
 
-) extra space in the core algorithm (to store the “dirty” array and the
- minimum/maximum successor for Even/Odd-controlled vertices respectively)
- we can eliminate failed lifting attempts completely, at the cost of somewhat
- greater complexity in the core algorithm implementation.
- However, this also results in a reduction of complexity in the lifting
- strategy; the predecessor lifting strategy becomes absolutely trivial (maintain
-ing just a queue/stack of unstable vertices).
+) extra space in the core algorithm, but simplifies lifting strategy implementat
+ion.
+ Additionally, at the end of the algoritm, the minimum successors form an
+ optimal strategy for Even.
 \end_layout
 
 \begin_layout Standard
 Effectively, this turns the core algorithm inside out: instead of checking
  the successors of a vertex to see if it can be lifted, we only lift known-unsta
-ble vertices and then check its predecessors to see if the new value needs
- to be propagated backward.
+ble vertices and then check its predecessors to see if any of them are destabili
+zed by the change.
  This may first appear to be a rather trivial variation, and while it is
  true it doesn't change the worst-case performance of the algorithm, the
  fundamental difference is that it eliminates many redundant progress measure
@@ -6085,8 +6105,15 @@ The implemention of
 \begin_inset Formula $\texttt{lift}$
 \end_inset
 
- follows the definition above, but with one important enhancement: whenever
- a vertex with odd priority 
+ follows the descripton given in section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:SPM-Description"
+
+\end_inset
+
+, but with one important enhancement: whenever a vertex with odd priority
+ 
 \begin_inset Formula $p$
 \end_inset
 
@@ -6118,6 +6145,44 @@ The implemention of
 \end_layout
 
 \begin_layout Standard
+This enhancement is not described by Jurdziński and not implemented in any
+ of the other solvers based on Small Progress Measures, to my knowledge;
+ all of these assume 
+\begin_inset Formula $M$
+\end_inset
+
+ to be constant during solving.
+ It was invented specifically to remedy cases where the dual solving approach
+ (described in 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Two-sided-SPM"
+
+\end_inset
+
+) would perform worse compared to the approach of solving the normal and
+ dual game in succession.
+ These cases arise because in the latter approach vertices won by Even (in
+ the normal game) are removed from the dual game before solving, which reduces
+ the complexity of the second problem.
+ With the two-sided approach no vertices are ever removed, which would cause
+ the dual game to have a significantly larger vector space.
+\end_layout
+
+\begin_layout Standard
+Besides eliminating this disadvantage in the dual-solving approach, the
+ enhancement also benefits the regular algorithm.
+\end_layout
+
+\begin_layout Subsubsection
+Correctness proof
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
 To see that decreasing the vector space is permissible, even without fixing
  any vectors that are now out of range, consider that if vertex 
 \begin_inset Formula $v$
@@ -6163,38 +6228,9 @@ To see that decreasing the vector space is permissible, even without fixing
  be lifted again, at which point they will be brought back in range.
 \end_layout
 
-\begin_layout Standard
-This enhancement is not described by Jurdziński and not implemented in any
- of the other solvers based on Small Progress Measures, to my knowledge;
- all of these assume 
-\begin_inset Formula $M$
 \end_inset
 
- to be constant during solving.
- It was invented specifically to remedy cases where the dual solving approach
- (described in 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "sub:Two-sided-SPM"
 
-\end_inset
-
-) would perform worse compared to the approach of solving the normal and
- dual game in succession.
- These cases arise because in the latter approach vertices won by Even (in
- the normal game) are removed from the dual game before solving, which reduces
- the complexity of the second problem.
- With the two-sided approach no vertices are ever removed, which would cause
- the dual game to have a significantly larger vector space.
-\end_layout
-
-\begin_layout Standard
-Besides eliminating this disadvantage in the dual-solving approach, the
- enhancement benefits both variations of the algorithm.
-\end_layout
-
-\begin_layout Subsubsection
-Correctness proof
 \end_layout
 
 \begin_layout Standard
@@ -6493,17 +6529,6 @@ From 2 and 3 it follows that if
 
  and computing the latter by fixed point iteration suffices to determine
  the former.
- 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-is this redundant compared to 4.1.4?
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Subsection
@@ -7301,19 +7326,6 @@ Reversing the order of vertices is useful when the graph has been constructed
 \begin_layout Standard
 Although vertex reordering makes little difference in practice, it is a
  cheap preprocessing pass that is useful to have as an option.
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-benchmark
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Subsection
@@ -10689,18 +10701,15 @@ can
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-actually, cases are NOT generated symmetrically, because Even always has
- the most dominant priority! Does this mean Even tends to be easier to solve
- for? (It could mean the dual game has more Top vertices!) NEED TO CHECK!
-\end_layout
-
-\end_inset
-
-
+(It should be noted that the generated random games are not completely symmetric
+ because the highest priority, 0, always corresponds with Even, while the
+ lowest corresponds with Odd.
+ However, this means the 
+\emph on
+dual
+\emph default
+ game should be harder to solve, since the effective vector space is larger
+ in the dual game, and this is also true in practice.)
 \end_layout
 
 \begin_layout Standard
@@ -10710,8 +10719,7 @@ Finally, the minimum measure propagation strategy works well only with the
  Indeed, the predecessor lifting strategy appears to be the overall most
  effective strategy for these kinds of games.
  In the improved framework and using queue order, it solves the most cases
- in every set of random games, while esing relatively few lifting attempts
- and time.
+ in every set of random games, while using relatively little time.
  All in all, these results do not bode well for the more sophisticated lifting
  strategies.
  However, random cases are rather synthetic and (even with clustering) not
