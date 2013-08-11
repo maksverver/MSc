@@ -6141,7 +6141,8 @@ reference "sec:SPM-Description"
 \begin_inset Formula $M'$
 \end_inset
 
-, but this will be resolved when the vertex is lifted.
+, but this will be resolved when the vertex is lifted, as it necessarily
+ must (see below).
 \end_layout
 
 \begin_layout Standard
@@ -6165,7 +6166,7 @@ reference "sub:Two-sided-SPM"
  These cases arise because in the latter approach vertices won by Even (in
  the normal game) are removed from the dual game before solving, which reduces
  the complexity of the second problem.
- With the two-sided approach no vertices are ever removed, which would cause
+ With the two-sided approach no vertices are ever removed, which could cause
  the dual game to have a significantly larger vector space.
 \end_layout
 
@@ -6175,7 +6176,169 @@ Besides eliminating this disadvantage in the dual-solving approach, the
 \end_layout
 
 \begin_layout Subsubsection
-Correctness proof
+Correctness
+\end_layout
+
+\begin_layout Standard
+In Small Progress Measures, non-
+\begin_inset Formula $\top$
+\end_inset
+
+ vectors encode an optimal strategy for Even, with the elements of the vectors
+ encoding how many vertices with odd priorities can be visited consecutively
+ in a winning play before encountering a vertex with a lesser priority.
+ Since vertices which are assigned 
+\begin_inset Formula $\top$
+\end_inset
+
+ value (i.e.
+ which are won by Odd) cannot be part of a winning play for Even, they will
+ be excluded from this count, and therefore the least fixed point will necessari
+ly have all vectors within the reduced bounds.
+\end_layout
+
+\begin_layout Standard
+To fit this optimization into Jurdziński's framework, we should redefine
+ 
+\begin_inset Formula $M$
+\end_inset
+
+ as a vector space 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+
+\begin_inset Formula $M'(\rho)$
+\end_inset
+
+ whose dimensions are dependent on the count of 
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
+non-
+\begin_inset Formula $\top$
+\end_inset
+
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+ vertices in a partially constructed progress measure 
+\begin_inset Formula $\rho$
+\end_inset
+
+:
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
+
+\begin_inset Formula 
+\[
+M'_{i}(\rho)=\begin{cases}
+\{0\} & \mbox{if \ensuremath{i\equiv0\mod{2}}}\\
+\{0..\left|\phi^{-1}(i)\setminus\rho^{-1}(\top)\right|\} & \mbox{if \ensuremath{i\equiv1\mod{2}}}
+\end{cases}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+Clearly, 
+\begin_inset Formula $M'(\rho)\subseteq M$
+\end_inset
+
+.
+
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
+ Then, 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+
+\begin_inset Formula $Prog'(\rho,v,w)$
+\end_inset
+
+ can be defined like 
+\begin_inset Formula $Prog(\rho,v,w)$
+\end_inset
+
+ but drawing from 
+\begin_inset Formula $M'(\rho)$
+\end_inset
+
+ instead of 
+\begin_inset Formula $M$
+\end_inset
+
+, and similarly 
+\begin_inset Formula $Lift'(\rho,v)$
+\end_inset
+
+ in terms of 
+\begin_inset Formula $Prog'(\rho,v,w)$
+\end_inset
+
+ instead of 
+\begin_inset Formula $Prog(\rho,v,w)$
+\end_inset
+
+.
+ At that point, Jurdzińksi's theorems apply equally to 
+\begin_inset Formula $Prog'(\rho,v,w)$
+\end_inset
+
+.
+ In particular, the monotonicity of the lifting function is preserved and
+ thus fixed point iteration can still be used to find a minimal fixed point
+ of 
+\begin_inset Formula $Lift'(\rho,v)$
+\end_inset
+
+ that yields an optimal solution for Even.
 \end_layout
 
 \begin_layout Standard
@@ -6183,8 +6346,9 @@ Correctness proof
 status open
 
 \begin_layout Plain Layout
-To see that decreasing the vector space is permissible, even without fixing
- any vectors that are now out of range, consider that if vertex 
+A more intuitive way to see that decreasing the vector space is permissible,
+ even without fixing any vectors that are now out of range, consider that
+ if vertex 
 \begin_inset Formula $v$
 \end_inset
 
@@ -6231,304 +6395,6 @@ To see that decreasing the vector space is permissible, even without fixing
 \end_inset
 
 
-\end_layout
-
-\begin_layout Standard
-Recall that the goal of Small Progress Measures is to compute the least
- fixed point of 
-\begin_inset Formula $Lift(\cdot,v)$
-\end_inset
-
- for any 
-\begin_inset Formula $v$
-\end_inset
-
-.
- I will describe a function 
-\begin_inset Formula $Lift'(\cdot,v)$
-\end_inset
-
- that behaves like 
-\begin_inset Formula $Lift(\cdot,v)$
-\end_inset
-
- but implements the optimization described above and prove that fixed point
- iteration yields the same result as the original 
-\begin_inset Formula $Lift(\cdot,v)$
-\end_inset
-
- would have.
-\end_layout
-
-\begin_layout Standard
-Let's redefine 
-\begin_inset Formula $M$
-\end_inset
-
- as a vector space 
-\family roman
-\series medium
-\shape up
-\size normal
-\emph off
-\bar no
-\noun off
-\color none
-
-\begin_inset Formula $M'(\rho)$
-\end_inset
-
- whose dimensions are dependent on the count of 
-\family default
-\series default
-\shape default
-\size default
-\emph on
-\bar default
-\noun default
-\color inherit
-non-top
-\family roman
-\series medium
-\shape up
-\size normal
-\emph off
-\bar no
-\noun off
-\color none
- vertices in a partially constructed progress measure 
-\begin_inset Formula $\rho$
-\end_inset
-
-:
-\family default
-\series default
-\shape default
-\size default
-\emph default
-\bar default
-\noun default
-\color inherit
-
-\begin_inset Formula 
-\[
-M'_{i}(\rho)=\begin{cases}
-\{0\} & \mbox{if \ensuremath{i\equiv0\mod{2}}}\\
-\{0..\left|\{v\in V:\phi(v)=i\;\wedge\;\rho(v)\neq\top\}\right|\} & \mbox{if \ensuremath{i\equiv1\mod{2}}}
-\end{cases}
-\]
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-
-\family roman
-\series medium
-\shape up
-\size normal
-\emph off
-\bar no
-\noun off
-\color none
-Clearly, 
-\begin_inset Formula $M'(\rho)\subseteq M$
-\end_inset
-
-.
-
-\family default
-\series default
-\shape default
-\size default
-\emph default
-\bar default
-\noun default
-\color inherit
- Then, define 
-\family roman
-\series medium
-\shape up
-\size normal
-\emph off
-\bar no
-\noun off
-\color none
-
-\begin_inset Formula $Prog'(\rho,v,w)$
-\end_inset
-
- to draw from 
-\begin_inset Formula $M'(\rho)$
-\end_inset
-
- instead of 
-\begin_inset Formula $M$
-\end_inset
-
- and similarly 
-\begin_inset Formula $Lift'(\rho,v)$
-\end_inset
-
- in terms of 
-\begin_inset Formula $Prog'(\rho,v,w)$
-\end_inset
-
- instead of 
-\begin_inset Formula $Prog(\rho,v,w)$
-\end_inset
-
-.
- The monotonicity of the lifting function is preserved and thus fixed point
- iteration can still be used to find a minimal fixed point of 
-\begin_inset Formula $Lift'(\rho,v)$
-\end_inset
-
-, but what remains to be shown is that the value computed in this way is
- the same as for the original definitions of these functions.
-\end_layout
-
-\begin_layout Enumerate
-If 
-\begin_inset Formula $\rho(v)\in M'(\rho)$
-\end_inset
-
- for all 
-\begin_inset Formula $v\in V$
-\end_inset
-
- then 
-\begin_inset Formula $\rho=Lift(\rho,v)\iff\rho=Lift'(\rho,v)$
-\end_inset
-
-, since the equations involved in the definitions are exactly the same.
-\end_layout
-
-\begin_layout Enumerate
-If 
-\family roman
-\series medium
-\shape up
-\size normal
-\emph off
-\bar no
-\noun off
-\color none
-
-\begin_inset Formula $\rho$
-\end_inset
-
- is a fixed point of 
-\begin_inset Formula $Lift'(\cdot,v)$
-\end_inset
-
- then 
-\begin_inset Formula $\rho$
-\end_inset
-
- is also a fixed point of 
-\begin_inset Formula $Lift(\cdot,v)$
-\end_inset
-
-, which follows from the fact that the range of 
-\begin_inset Formula $Prog'$
-\end_inset
-
- is limited to 
-\begin_inset Formula $M'(\rho)$
-\end_inset
-
- and 1.
-\end_layout
-
-\begin_layout Enumerate
-If 
-\begin_inset Formula $\rho$
-\end_inset
-
- is the least fixed point of 
-\begin_inset Formula $Lift(\cdot,v)$
-\end_inset
-
- then 
-\begin_inset Formula $\rho$
-\end_inset
-
- is also a fixed point of 
-\begin_inset Formula $Lift'(\cdot,v)$
-\end_inset
-
-, which follows from the fact that 
-\begin_inset Formula $\rho(v)\in M'(\rho)$
-\end_inset
-
- for all 
-\begin_inset Formula $v\in V$
-\end_inset
-
- and 1.
- To see why 
-\begin_inset Formula $\rho(v)\in M'(\rho)$
-\end_inset
-
-, consider that if 
-\begin_inset Formula $i$
-\end_inset
-
- is odd and 
-\begin_inset Formula $\rho$
-\end_inset
-
- is a least progress measure, then the 
-\begin_inset Formula $i$
-\end_inset
-
-th element of the progress measure vectors encodes the maximum number of
- vertices of priority 
-\begin_inset Formula $i$
-\end_inset
-
- that can be visited in any play consistent with the strategy induced by
- 
-\begin_inset Formula $\rho$
-\end_inset
-
- before a vertex of priority 
-\begin_inset Formula $j<i$
-\end_inset
-
- is encountered, and there are only 
-\begin_inset Formula $M'_{i}(\rho)$
-\end_inset
-
- of those with non-top value, by definition of 
-\begin_inset Formula $M'_{i}(\rho)$
-\end_inset
-
- .
-\end_layout
-
-\begin_layout Standard
-From 2 and 3 it follows that if 
-\begin_inset Formula $\rho$
-\end_inset
-
- is the least fixed point of 
-\begin_inset Formula $Lift(\cdot,v)$
-\end_inset
-
- then 
-\begin_inset Formula $\rho$
-\end_inset
-
- is also the least fixed point of 
-\begin_inset Formula $Lift'(\cdot,v)$
-\end_inset
-
- and computing the latter by fixed point iteration suffices to determine
- the former.
 \end_layout
 
 \begin_layout Subsection
