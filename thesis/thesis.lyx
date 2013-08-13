@@ -10255,7 +10255,35 @@ name "tab:SPGIP-cases"
 
 \end_inset
 
+It should be noted that these cases except the last (
+\begin_inset Formula $G'$
+\end_inset
 
+) have the property that they do not require lifting any vertices to 
+\begin_inset Formula $\top$
+\end_inset
+
+.
+ Instead, Odd's winning region can be extracted by loop removal preprocessing
+ (or by propagating 
+\begin_inset Formula $\top$
+\end_inset
+
+ values after initializing odd-controlled odd-priority vertices with loops
+ to 
+\begin_inset Formula $\top$
+\end_inset
+
+) and the remaining subgame is won entirely by Even.
+ For the unfair elevator (
+\begin_inset Formula $G'$
+\end_inset
+
+) class of games, this property applies to the 
+\emph on
+dual
+\emph default
+ rather than the normal game.
 \end_layout
 
 \begin_layout Section
@@ -11917,27 +11945,59 @@ ref{spm_spgip_charts_elevator}
 \end_layout
 
 \begin_layout Standard
-From these charts it becomes clear that the two-sided solving approach doesn't
- offer a significant improvement over the one-sided approach, like we saw
- on random testcases 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-is this still true after investigating solving the dual on random cases?
-\end_layout
-
+It is worth noting that in this last case, the SPM vector bounds give no
+ indication that the dual game would be easier to solve.
+ The elevator verification cases have only three priorities (0, 1 and 2)
+ and in 
+\begin_inset Formula $G'8$
 \end_inset
 
-.
+ these occur 
+\begin_inset Formula $651\,168$
+\end_inset
+
+, 
+\begin_inset Formula $1\,793\,672$
+\end_inset
+
+ and 
+\begin_inset Formula $5\,369\,176$
+\end_inset
+
+ times respectively.
+ An approximation of the maximum number of lifts for the normal game is
+ therefore 
+\begin_inset Formula $1793672\times\left(1793672+5369176\right)$
+\end_inset
+
+ versus 
+\begin_inset Formula $651168\text{×}(651168+1793672+5369176×5369176)$
+\end_inset
+
+ for the dual game: orders of magnitude larger, yet faster to solve in practice.
+ This shows once again that worst-case estimations do not accurately predict
+ how quickly games can be solved in practice.
+\end_layout
+
+\begin_layout Standard
+From these charts it becomes clear that for the testcases under consideration
+ (and unlike the random cases) the two-sided solving approach doesn't offer
+ a significant improvement over the one-sided approach.
  At best, its performance is close to the performance of the one-sided approach
  on either the normal or the dual game (whichever is easier) but an additional
- benefit obtained from the exchange of solution data from stable regions
- between the two games does not appear to arise in these testcases.
- Consequently, it seems fair to say that the two-way solving approach is
- useful mainly when it is unknown which side of the game will be easier
- to solve, but in that case, it is probably easier to just solve the two
- sides independently in parallel.
+ benefit obtained from the exchange of stable region solution data between
+ the two games does not appear to arise in these testcases.
+ Although the two-sided approach is still useful when it is unknown which
+ side of the game will be easier to solve (and in general this 
+\emph on
+is
+\emph default
+ hard to predict, as we saw in the 
+\begin_inset Formula $G'$
+\end_inset
+
+ cases), the same result can also be achieved (arguably in a simpler way)
+ by solving the dual game independently in parallel.
 \end_layout
 
 \begin_layout Standard
@@ -11975,6 +12035,68 @@ ExpandableInput{results-spm-spgip-twoway-charts.tex}
 \end_inset
 
 
+\end_layout
+
+\begin_layout Section
+Effectiveness of bounds reduction after lifting to top
+\end_layout
+
+\begin_layout Standard
+The optimization described in Subsection
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Optimization-after-lifting"
+
+\end_inset
+
+ (reducing the bounds on the SPM vector dimensions after lifting a vertex
+ to 
+\begin_inset Formula $\top$
+\end_inset
+
+) can be evaluated on the same testcases.
+ For the non-random cases, it turns out that vector updates never overflow,
+ which should come as no surprise considering vertices are never lifted
+ to 
+\begin_inset Formula $\top$
+\end_inset
+
+ (except by propagating the 
+\begin_inset Formula $\top$
+\end_inset
+
+ values assigned to vertices with loops) and as a result the optimization
+ has no effect.
+ The (normal) unfair elevator case, which doesn't have the above property,
+ is the only exception: in those cases, the optimization reduces the number
+ of lifts needed by about 2.5%.
+\end_layout
+
+\begin_layout Standard
+The random graphs should be a little more interesting.
+ We have performed the same experiments using the predecessor lifting strategy
+ only.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+data on random graphs nodecM!
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This shows that, besides the theoretical necessity to keep the worst-case
+ performance of the two-sided approach reasonably slow, the optimization
+ also speeds up Small Progress Measures in practice, for both one-sided
+ and two-sided solving.
 \end_layout
 
 \begin_layout Standard
