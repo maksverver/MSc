@@ -12958,7 +12958,7 @@ Hopefully, we can get some useful conclusion like "I've found a lifting
 
 \end_layout
 
-\begin_layout Subsection
+\begin_layout Section
 Future work
 \end_layout
 
@@ -12978,16 +12978,114 @@ Describe any untested hypotheses (things I thought about but don't have
 
 \end_layout
 
-\begin_layout Standard
--- solving parametrized parity games symbolically
+\begin_layout Subsection
+Symbolic solving
 \end_layout
 
 \begin_layout Standard
--- concurrent/distributed solving
+Throughout this project, I worked with an explicit representation of the
+ parity game graph.
+ Although this representation is simple and efficient to work with, these
+ graphs are often large and difficult to generate efficiently from higher-level
+ problems, creating a performance bottleneck even before the parity game
+ solver is invoked.
+ When used as a vehicle for formal verification, generating and solving
+ parity game symbolically might be a more practical approach.
 \end_layout
 
 \begin_layout Standard
--- efficient implementation of strategy improvement
+Suitable symbolic representations would also allow infinite game graphs
+ to be encoded, allowing entirely new classes of games to be solved.
+ Zielonka's algorithm is already known to work on infinite graphs and can
+ probably be adapted to a symbolic representation, although how well it
+ performs in practice may depend on internal representation details.
+ It is possible that other algorithms can be adapted to work on symbolic
+ representations too.
+\end_layout
+
+\begin_layout Subsection
+Concurrent and/or distributed solving
+\end_layout
+
+\begin_layout Standard
+Although computer hardware is still getting faster, today most performance
+ gains are made not by increasing clock frequencies, but rather by increasing
+ the number of processor cores on a single single chip.
+ On such hardware platforms efficient sequential algorithms are still very
+ important, but to fully benefit from advances in hardware design, they
+ should work efficiently in parallel as well.
+\end_layout
+
+\begin_layout Standard
+Although I have tried to develop concurrent and distributed versions of
+ my solvers, these did not offer performance comparable to the best sequential
+ algorithms, and (arguably worse) they did not even scale very well.
+ Localizing the work performed and minimizing the required communication
+ (either through message passing or shared data structures) between processes
+ is difficult.
+ Although some previous work has been done parallellizing Small Progress
+ Measures, with some success, the resulting solvers still could not outperform
+ more sophisticated algorithms (or even more sophisticated variants of Small
+ Progress Measures, such as those discussed in this report).
+\end_layout
+
+\begin_layout Standard
+The true challenge thus is to develop a concurrent or distributed parity
+ game solver that is at least competitive with existing sequential solvers,
+ but also scales well when more processor cores are allocated to it.
+ This seems to be an unsolved problem that may well be the topic of future
+ work.
+\end_layout
+
+\begin_layout Standard
+A somewhat easier task, to start with, would be to efficiently parallellize
+ the various preprocessing steps that greatly help solving parity games
+ in practice: decomposition into strongly-connected components, removal
+ of winner-controlled loops, solving single-player games, and so on.
+ Parallel solutions to some of the simpler subproblems, such as identifying
+ strongly-connected components, are already known, but that does not mean
+ combining the results efficiently is easy.
+\end_layout
+
+\begin_layout Subsection
+More efficient Strategy Improvement
+\end_layout
+
+\begin_layout Standard
+My project revolved mainly around Jurdziński's Small Progress Measures algorithm
+, and although I managed to make it work more efficiently in many ways,
+ it is clear that this is not the preferred algorithm for solving parity
+ games in practice.
+ Algorithms like Strategy Improvement are often suggested to be more efficient,
+ but these have not been investigated here at all.
+ The baseline for performance of these algorithms is probably set by PGSolver.
+ Since my work showed that with careful design and implementation, large
+ performance gains over this baseline is possible, it seems reasonable to
+ suspect that future work on (Optimal) Strategy Improvement could yield
+ similar results.
+\end_layout
+
+\begin_layout Subsection
+Better benchmark cases
+\end_layout
+
+\begin_layout Standard
+Empericial evaluations would benefit greatly from a standard benchmark set.
+ Many parity games used to evaluate solvers are actually rather weak.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+add relevant references?
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Chapter
