@@ -1150,7 +1150,14 @@ key "obdrzalek2006algorithmic"
 \end_layout
 
 \begin_layout Section
-Related work
+Related work 
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Related-work"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -1395,6 +1402,37 @@ key "friedmann2009solving"
 \end_inset
 
 .
+\end_layout
+
+\begin_layout Standard
+Of these algorithms, Jurdziński's Small Progress Measures, Schewe's 
+\begin_inset Quotes eld
+\end_inset
+
+big steps
+\begin_inset Quotes erd
+\end_inset
+
+ variant, and the subexponential algorithms are intendend mainly to establish
+ ever tighter upper bounds on the general problem.
+ The approaches based on strategy improvement are intended to yield best
+ results in practice.
+ The relatively simple approach due to McNaughton/Zielonka often works well
+ too.
+ Its worst-case performance has been analyzed by Gazda and Willemse (
+\begin_inset CommandInset citation
+LatexCommand cite
+key "gazda2013zielonka"
+
+\end_inset
+
+) who conclude that Zielonka's algorithm can solve weak games (games in
+ which priorities are nondecreasing along all edges) in polynomial time,
+ but may require exponential time even on other, very simple, classes of
+ games (dull games and solitaire games).
+ The slowdown on these cases can be mitigated by interleaving Zielonka's
+ algorithm with decomposition of the game graph into strongly-connected
+ components although this does not lower the worst-case complexity in general.
 \end_layout
 
 \begin_layout Subsection
@@ -12990,7 +13028,7 @@ Throughout this project, I worked with an explicit representation of the
  problems, creating a performance bottleneck even before the parity game
  solver is invoked.
  When used as a vehicle for formal verification, generating and solving
- parity game symbolically might be a more practical approach.
+ parity games symbolically might be a more practical approach.
 \end_layout
 
 \begin_layout Standard
@@ -12998,8 +13036,8 @@ Suitable symbolic representations would also allow infinite game graphs
  to be encoded, allowing entirely new classes of games to be solved.
  Zielonka's algorithm is already known to work on infinite graphs and can
  probably be adapted to a symbolic representation, although how well it
- performs in practice may depend on internal representation details.
- It is possible that other algorithms can be adapted to work on symbolic
+ performs in that case remains to be seen.
+ It seems likely that other algorithms can be adapted to work on symbolic
  representations too.
 \end_layout
 
@@ -13008,43 +13046,48 @@ Concurrent and/or distributed solving
 \end_layout
 
 \begin_layout Standard
-Although computer hardware is still getting faster, today most performance
- gains are made not by increasing clock frequencies, but rather by increasing
- the number of processor cores on a single single chip.
- On such hardware platforms efficient sequential algorithms are still very
- important, but to fully benefit from advances in hardware design, they
- should work efficiently in parallel as well.
+Although computer hardware is still getting exponentially faster over time,
+ most performance gains recently have been effected by increasing the number
+ of processor cores per chip, rather than increasing the base clock frequency
+ of each core.
+ This means that algorithms cannot be expected to scale up with the increase
+ in processing power available unless they efficiently scale to multiple
+ cores.
 \end_layout
 
 \begin_layout Standard
-Although I have tried to develop concurrent and distributed versions of
- my solvers, these did not offer performance comparable to the best sequential
- algorithms, and (arguably worse) they did not even scale very well.
+Currently, the best available parity game solvers run only sequentially.
+ Although I have tried to develop concurrent (shared memory) and distributed
+ (message passing) versions of my solvers, these did not exhibit comparable
+ performance to their sequential counterparts, and (arguably worse) they
+ did not even scale very well.
  Localizing the work performed and minimizing the required communication
  (either through message passing or shared data structures) between processes
  is difficult.
  Although some previous work has been done parallellizing Small Progress
- Measures, with some success, the resulting solvers still could not outperform
- more sophisticated algorithms (or even more sophisticated variants of Small
- Progress Measures, such as those discussed in this report).
+ Measures, and not entirely without success, the resulting solvers still
+ could not outperform more sophisticated algorithms (or even more sophisticated
+ variants of Small Progress Measures, such as those discussed in this report).
 \end_layout
 
 \begin_layout Standard
-The true challenge thus is to develop a concurrent or distributed parity
- game solver that is at least competitive with existing sequential solvers,
- but also scales well when more processor cores are allocated to it.
- This seems to be an unsolved problem that may well be the topic of future
- work.
+The question of how to design efficient, non-sequential solvers that are
+ at least competitive with sequential solvers, but also scale better when
+ more processor cores are allocated to them, remains open.
+ Finding a satisfactory answer would be a likely topic of future work.
 \end_layout
 
 \begin_layout Standard
 A somewhat easier task, to start with, would be to efficiently parallellize
  the various preprocessing steps that greatly help solving parity games
  in practice: decomposition into strongly-connected components, removal
- of winner-controlled loops, solving single-player games, and so on.
- Parallel solutions to some of the simpler subproblems, such as identifying
- strongly-connected components, are already known, but that does not mean
- combining the results efficiently is easy.
+ of winner-controlled loops, solving single-player games, construction of
+ subgames, and so on.
+ (Note that some of these subproblems, such as identifying strongly-connected
+ components, have been studied before and may already have adequate parallel
+ formulations.) Even when these subproblems are solved, integrating their
+ solutions into an efficient solver without introducing sequential performance
+ bottlenecks is a challenge on its own.
 \end_layout
 
 \begin_layout Subsection
@@ -13056,13 +13099,24 @@ My project revolved mainly around Jurdziński's Small Progress Measures algorith
 , and although I managed to make it work more efficiently in many ways,
  it is clear that this is not the preferred algorithm for solving parity
  games in practice.
- Algorithms like Strategy Improvement are often suggested to be more efficient,
- but these have not been investigated here at all.
- The baseline for performance of these algorithms is probably set by PGSolver.
+ Parity game researchers (see Section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Related-work"
+
+\end_inset
+
+: Related Work) typically suggest that algoritms based on Strategy Improvement
+ should perform best in practice, but these games have not been investigated
+ here at all.
+\end_layout
+
+\begin_layout Standard
+The baseline for performance of these algorithms is set by PGSolver.
  Since my work showed that with careful design and implementation, large
- performance gains over this baseline is possible, it seems reasonable to
- suspect that future work on (Optimal) Strategy Improvement could yield
- similar results.
+ performance gains over this baseline are possible with Small Progress Measures
+ and Zielonka's algorithm, it seems reasonable to suspect that future work
+ on (Optimal) Strategy Improvement could yield similar results.
 \end_layout
 
 \begin_layout Subsection
@@ -13070,22 +13124,51 @@ Better benchmark cases
 \end_layout
 
 \begin_layout Standard
-Empericial evaluations would benefit greatly from a standard benchmark set.
- Many parity games used to evaluate solvers are actually rather weak.
- 
+Finally, empirical research on parity games seems to be hampered by the
+ lack of a clearly established problem domain.
+ Consequently, there is no commonly accepted set of benchmark cases to evaluate
+ solvers by, which makes it difficult to compare the various different approache
+s fairly, and introduces the problem that the result of an empirical evaluation
+ depends greatly on the benchmark set chosen by the evaluator.
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-add relevant references?
+Although different kinds of problems may call for different approaches (and
+ thus different results in practice are not necessarily an indication of
+ bad scientific work) an absolute, objective assessment of solvers is impossible
+ without a predetermined, well-understood and commonly agreed-upon benchmark
+ set.
+ Such benchmark sets are common in other areas of research; for example,
+ lossless data compression algorithms are typically benchmarked on the Calgary
+ or Canterbury corpus.
+ There is no equivalent benchmark set for parity game solvers.
+ As a result, different researchers use different methods of evaluation,
+ sometimes reaching different conclusions, which becomes problematic when
+ test case details are underspecified and results are presented in a way
+ that makes them appear more general than they really are.
 \end_layout
 
-\end_inset
+\begin_layout Standard
+It is not obvious what kind of games parity game solver should be tested
+ on.
+ Many practitioners choose to benchmark on randomly generated games, which
+ are easy to generate, but do not look like anything that arises in practice.
+ The same objection applies to synthetic games designed to elicit worst-case
+ performance in some of the published algorithms.
+ On the other hand, many games that do occur in practice (by converting
+ a model checking problem into a parity game, for example) appear to be
+ structurally weak, even if they are large: they often have few different
+ priorities, only a single controlling player, or can be simplified and
+ solved mainly using preprocessing techniques rather than invoking the parity
+ game algorithm proper.
+\end_layout
 
-
+\begin_layout Standard
+To advance the state of the art, it would be useful to define the problem
+ domain for parity game solvers more clearly, as well as to describe how
+ test cases may be drawn from this domain, ideally resulting in a standard
+ benchmark set that can be used to compare solvers in practice.
+ Such a benchmark set would be invaluable for future empirical work.
 \end_layout
 
 \begin_layout Chapter
