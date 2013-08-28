@@ -5,8 +5,9 @@
 #
 # Generates the N-th order games from "Zielonka's recursive algorithm: dull,
 # weak and solitaire games and tighter bounds".  These are supposed to give
-# a tighter lower bound on Zielonka's algorithm than Friedmann's games, and are
-# difficult even with optimizations like SCC decomposition enabled.
+# a tighter lower bound on Zielonka's algorithm than Friedmann's games, and
+# should require 2**N recursive invocations even with optimizations like SCC
+# decomposition enabled.
 #
 # These games have 3N vertices, 6N-N edges, and N+2 priorities.
 

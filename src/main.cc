@@ -1212,14 +1212,14 @@ int main(int argc, char *argv[])
                 new ComponentSolverFactory(*solver_factory.release()) );
         }
         Logger::message( "## config.decycle = %s",
-                         bool_to_string(arg_scc_decomposition) );
+                         bool_to_string(arg_decycle) );
         if (arg_decycle)
         {
             solver_factory.reset(
                 new DecycleSolverFactory(*solver_factory.release()) );
         }
         Logger::message( "## config.deloop = %s",
-                         bool_to_string(arg_scc_decomposition) );
+                         bool_to_string(arg_deloop) );
         if (arg_deloop)
         {
             // N.B. current implementation of the DeloopSolver assumes
