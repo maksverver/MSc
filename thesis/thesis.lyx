@@ -1436,164 +1436,6 @@ key "gazda2013zielonka"
 \end_layout
 
 \begin_layout Subsection
-Simulation reductions
-\end_layout
-
-\begin_layout Standard
-Recent work has focused on polynomial-time reductions on the game graph,
- based on the principle that any reduction of the game graph that preserves
- winners is permissible.
- In principle every parity game can be reduced to just two vertices, one
- won by each of the players, but computing such a reduction would be equivalent
- to solving the parity game and thus is not feasible in polynomial time.
- However, identifying finer equivalence relations which preserve winners
- are certainly computable, and may help to reduce the size and complexity
- of the problem before passing it to an (exponential time) generic solver.
-\end_layout
-
-\begin_layout Subsubsection
-Delayed simulation
-\end_layout
-
-\begin_layout Standard
-Fritz and Wilke (
-\begin_inset CommandInset citation
-LatexCommand cite
-key "fritz2005simulation,fritz2006simulation"
-
-\end_inset
-
-) investigated both 
-\emph on
-direct
-\emph default
- and 
-\emph on
-delayed simulation
-\emph default
- in parity automata (of which parity games are a special case).
- They report that direct simulation is too strict to provide significant
- benefits, and introduce the weaker notion of delayed simulation instead:
- traces do not need to have equivalent priorities in all positions, as long
- as a priority visited in one automaton is eventually (after a finite number
- of steps) matched by the same (or better) priority in the other.
- A slightly more limited relation (called 
-\emph on
-biased
-\emph default
- delayed simulation) is introduced to construct valid quotients which preserve
- winners of all vertices.
-\end_layout
-
-\begin_layout Standard
-This reduction seems to work well in theory.
- For example, all games in the class introduced by Jurdziński in 
-\begin_inset CommandInset citation
-LatexCommand cite
-key "jurdzinski2000spm"
-
-\end_inset
-
- can be reduced to their two-vertex minimal representation; the best possible
- result.
- However, in general, the costs seem to outweigh the benefits, as Fritz
- reports that: “experiments with an implementation indicate that solving
- a given parity game using Jurdzínski’s lifting algorithm directly is faster
- than first simplifying the parity game using our approach and then solving
- it using Jurdziński’s algorithm”.
- Although he does not specify which test cases were used to reach this conclusio
-n (there may be practical cases which do benefit from the reduction) the
- fact that computing the delayed simulation equivalence relation is relatively
- expensive for a polynomial-time preprocessing step (requiring 
-\begin_inset Formula $O(\left|V\right|^{3}·\left|E\right|·d^{2})$
-\end_inset
-
- time in the worst case) probably limits the utility of their approach in
- practice.
-\end_layout
-
-\begin_layout Subsubsection
-Stuttering equivalence
-\end_layout
-
-\begin_layout Standard
-Cranen, Keiren and Willemse introduce the notion of 
-\emph on
-stuttering equivalence
-\emph default
- (
-\begin_inset CommandInset citation
-LatexCommand cite
-key "cranen2011stuttering"
-
-\end_inset
-
-) which is not directly comparable to biased delayed simulation reduction,
- but seems somewhat weaker (for example, it only groups together vertices
- with equal owners and priorities).
- However, the stuttering equivalence relation can be calculated quickly
- (in only 
-\begin_inset Formula $O(\left|V\right|·\left|E\right|)$
-\end_inset
-
- time) and allows quotients to be constructed easily.
- The authors report that, in contrast to Fritz and Wilke's results, applying
- stuttering equivalence reduction before solving often provides a net benefit
- in practice, and usually performs better than the much more restricted
- bisimulation reduction.
-\end_layout
-
-\begin_layout Standard
-Stuttering equivalence is further refined into 
-\emph on
-governed stuttering bisimulation
-\emph default
- (
-\begin_inset CommandInset citation
-LatexCommand cite
-key "cranen2012cure"
-
-\end_inset
-
-) which allows vertices with different controlling players to be grouped
- together too.
- Although this relation is more expensive to calculate in the worst case
- (requiring 
-\begin_inset Formula $O(\left|V\right|^{2}·\left|E\right|)$
-\end_inset
-
- time) the authors report that the two reductions offer comparable performance
- in practice, though governed stuttering bisimulation offers somewhat greater
- reductions in parity game size.
-\end_layout
-
-\begin_layout Subsubsection
-Bisimulation on Boolean Equation Systems
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-todo: write about Bisimulation Minimisations for Boolean Equation Systems
- (note that parity games are equivalent to a restriction of BES)
-\end_layout
-
-\begin_layout Plain Layout
-strong + idempotence preserving bisimulation
-\end_layout
-
-\begin_layout Plain Layout
-note that their results are a bit dubious because of their toolchain?
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Subsection
 Model checking tools
 \end_layout
 
@@ -1624,6 +1466,7 @@ key "groote2005parameterised"
 pbes2bool
 \family default
 ) or translate them into parity games instead.
+ Various transformations on the level of PBES or BES are also possible.
 \end_layout
 
 \begin_layout Enumerate
@@ -1656,6 +1499,202 @@ In both of these toolkits, the parametrized forms tend to be fairly small,
  the resulting parity games can reasonably fit into memory.
  This is a limitation shared with many other approaches to model checking
  (in particular those relying on explicit state space exploration).
+\end_layout
+
+\begin_layout Subsection
+Simulation reductions
+\end_layout
+
+\begin_layout Standard
+Recent work has focused on polynomial-time reductions on the game graph,
+ based on the principle that any reduction of the graph that preserves winners
+ is at least permissible, and will often simsolving the game.
+ In principle every parity game can be reduced to just two vertices, one
+ won by each of the players, but computing such a reduction would be equivalent
+ to solving the parity game and therefore this is not feasible in polynomial
+ time.
+ However, finer equivalence relations which preserve winners are certainly
+ computable, and may help to reduce the size and complexity of the problem
+ before passing it to an (exponential time) generic solver.
+\end_layout
+
+\begin_layout Standard
+All of these reductions depend on a high degree of redundancy in the input
+ game to be effective; such redundancy typically arises in games that are
+ automatically generated from higher level problems, but not necessarily
+ in e.g.
+ randomly generated games.
+\end_layout
+
+\begin_layout Subsubsection
+Delayed simulation
+\end_layout
+
+\begin_layout Standard
+Fritz and Wilke (
+\begin_inset CommandInset citation
+LatexCommand cite
+key "fritz2005simulation,fritz2006simulation"
+
+\end_inset
+
+) investigated both 
+\emph on
+direct
+\emph default
+ and 
+\emph on
+delayed simulation
+\emph default
+ in parity automata (of which parity games are a special case).
+ Since direct simulation equivalence is too restrictive to provide significant
+ benefits, they introduce the weaker notion of delayed simulation instead:
+ traces do not need to show equivalent priorities in all positions, as long
+ as a priority visited in one automaton is eventually (after a finite number
+ of steps) matched by the same (or better) priority in the other.
+ A low priority encountered in one automaton thus creates an obligation
+ that must eventually (but not necessarily immediately) be fulfilled in
+ the other one.
+\end_layout
+
+\begin_layout Standard
+This relation does not preserve the language recognized by the automaton
+ and thus a somewhat more limited relation, called 
+\emph on
+biased
+\emph default
+ delayed simulation, is introduced, which can be used to partition vertices
+ into equivalence classes and construct a valid quotient that preserves
+ the winners of all vertices.
+\end_layout
+
+\begin_layout Standard
+In theory, biased delayed simulation works well; for example, all games
+ in the class introduced by Jurdziński in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "jurdzinski2000spm"
+
+\end_inset
+
+ can be reduced to their two-vertex minimal representation; the best possible
+ result.
+ However, in general, the costs seem to outweigh the benefits, as Fritz
+ reports that: “experiments with an implementation indicate that solving
+ a given parity game using Jurdziński’s lifting algorithm directly is faster
+ than first simplifying the parity game using our approach and then solving
+ it using Jurdziński’s algorithm”.
+ Although he does not specify which test cases were used to reach this conclusio
+n (there may be practical cases which do benefit from the reduction, aside
+ from Jurdziński's special cases) the fact that computing the delayed simulation
+ equivalence relation is relatively expensive for a polynomial-time preprocessin
+g step (requiring 
+\begin_inset Formula $O(\left|V\right|^{3}·\left|E\right|·d^{2})$
+\end_inset
+
+ time in the worst case) probably limits the utility of their approach in
+ practice.
+\end_layout
+
+\begin_layout Subsubsection
+Stuttering equivalence
+\end_layout
+
+\begin_layout Standard
+Cranen, Keiren and Willemse instead introduce the notion of 
+\emph on
+stuttering equivalence
+\emph default
+ (
+\begin_inset CommandInset citation
+LatexCommand cite
+key "cranen2011stuttering"
+
+\end_inset
+
+) which is neither strictly stronger nor weaker than biased delayed simulation
+ reduction.
+ It is somewhat limited in that it only groups together vertices with equal
+ owners and priorities.
+ However, the stuttering equivalence relation can be calculated quickly
+ (in only 
+\begin_inset Formula $O(\left|V\right|·\left|E\right|)$
+\end_inset
+
+ time) and allows quotients of games to be constructed without further complicat
+ions.
+ The authors report that, in contrast to Fritz and Wilke's results, applying
+ stuttering equivalence reduction before solving often provides a net benefit
+ in practice, and usually performs better than strong bisimulation reduction.
+\end_layout
+
+\begin_layout Standard
+Stuttering equivalence is further refined into 
+\emph on
+governed stuttering bisimulation
+\emph default
+ (
+\begin_inset CommandInset citation
+LatexCommand cite
+key "cranen2012cure"
+
+\end_inset
+
+) which allows vertices with different controlling players to be grouped
+ together too.
+ In theory this should yield further reduction of the game graph, though
+ at a higher computational cost (since the relation requires 
+\begin_inset Formula $O(\left|V\right|^{2}·\left|E\right|)$
+\end_inset
+
+ time to calculate).
+ An emperical evaluation suggests that the two reductions offer comparable
+ performance in practice.
+\end_layout
+
+\begin_layout Subsubsection
+Bisimulation on Boolean Equation Systems
+\end_layout
+
+\begin_layout Standard
+Another approach is taken by Keiren and Willemse (
+\begin_inset CommandInset citation
+LatexCommand cite
+key "keiren2011bisimulation"
+
+\end_inset
+
+) on Boolean equation systems, which are a formalisim very similar to parity
+ games (i.e.
+ parity games can be considered a restricted form of Boolean equation systems)
+ and are used as an intermediate representation in the mCRL2 toolkit.
+ Despite the fact that Boolean equation systems and parity games can be
+ converted to each other in linear time, in practice generating parity games
+ from Boolean equation systems takes a significant amount of time, which
+ makes reductions on Boolean equation systems attractive because they could
+ remove this bottleneck from the solution process.
+\end_layout
+
+\begin_layout Standard
+Keiren and Willemse introduce the notion of 
+\emph on
+idempotence preserving bisimulation
+\emph default
+, which has no direct analogue on parity games, but falls between strong
+ bisimulation and branching bisimulation in terms of refinement.
+ The cost of calculating the bisimulation relation is low, requiring 
+\begin_inset Formula $O(\left|E\right|\cdot\log\left|V\right|)$
+\end_inset
+
+ time.
+ An empirical evaluation shows that solving with idempotence preserving
+ bisimulation reduction is slower than with strong bisimulation reduction,
+ even though in some cases idempotence preserving bisimulation creates smaller
+ quotients.
+ However, both reductions provide great benefits over solving the game directly.
+ The choice of algorithms used to solve the final parity games (Jurdziński's
+ Small Progress Measures and Schewe's “big step” variant) could have exaggerated
+ the results somewhat.
 \end_layout
 
 \begin_layout Subsection
