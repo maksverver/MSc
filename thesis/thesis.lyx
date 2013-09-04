@@ -4242,8 +4242,9 @@ Small Progress Measures (or SPM for short) is attractive because it is a
  relatively simple which allows it to be implemented easily and provides
  ample opportunity to speed up the core algorithm (for example, through
  parallelization).
- Additionally, the algorithm is among those with the lowest worst-case complexit
-y bounds known for solving parity games, requiring at most 
+ Additionally, the algorithm has one of the lowest worst-case complexity
+ bounds known for solving parity games (excluding Schewe's big step approach,
+ which invokes SPM recursively) requiring at most 
 \begin_inset Formula $O\left(\left|E\right|\left(\left|V\right|/\left\lfloor \frac{d}{2}\right\rfloor \right)^{\left\lfloor \frac{d}{2}\right\rfloor }\right)$
 \end_inset
 
@@ -4297,7 +4298,11 @@ key "vanderberg2010ps3"
 
 \end_layout
 
-\begin_layout Enumerate
+\begin_layout Standard
+My contributions relevant to Small Progress Measures include:
+\end_layout
+
+\begin_layout Itemize
 An improvement of the basic algorithm that eliminates failed lifting attempts,
  described in subsection 
 \begin_inset CommandInset ref
@@ -4309,9 +4314,9 @@ reference "sub:Eliminating-failed-lifting"
 
 \end_layout
 
-\begin_layout Enumerate
-An optimization that reduces the vector space whenever a vertex is lifted
- to 
+\begin_layout Itemize
+An optimization that reduces the codomain for progress measures whenever
+ a vertex is lifted to 
 \begin_inset Formula $\top$
 \end_inset
 
@@ -4325,7 +4330,7 @@ reference "sub:Optimization-after-lifting"
 
 \end_layout
 
-\begin_layout Enumerate
+\begin_layout Itemize
 The development of a novel lifting heuristic that reduces the number of
  lifting attempts required in many cases, described in subsection 
 \begin_inset CommandInset ref
@@ -4335,11 +4340,6 @@ reference "sub:Maximum-Measure-Propagation"
 \end_inset
 
 .
-\end_layout
-
-\begin_layout Standard
-None of these improvements are present in the existing implementations listed
- above.
 \end_layout
 
 \begin_layout Standard
@@ -4373,74 +4373,64 @@ name "sec:SPM-Description"
 \end_layout
 
 \begin_layout Standard
-Here I will outline SPM as described by Jurdziński 
+In this section the Smal Progress Measures algorithm will be described as
+ outlined by Jurdziński 
 \begin_inset CommandInset citation
 LatexCommand cite
 key "jurdzinski2000spm"
 
 \end_inset
 
-.
- Let's assume we want to solve the game for player Even.
- Then, we associate with each vertex a value, which is either the special
- value 
+, using the same function names and similar definitionsfor consistency,
+ but without the accompanying correctness proof.
+\end_layout
+
+\begin_layout Standard
+Let's assume, without loss of generality, that we want to solve a parity
+ game for player Even.
+ First, a progress measure is defined as a function 
+\begin_inset Formula $\rho:V\rightarrow(\mathbb{N}_{0}^{\omega}\cup\top)$
+\end_inset
+
+; a function which assigns to each vertex either a vector of nonnegative
+ integers, or the special value 
 \begin_inset Formula $\top$
 \end_inset
 
- (top) or a vector of 
-\begin_inset Formula $d$
+ (top).
+ (Lower-case Greek letters will be used to denote elements of 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+
+\begin_inset Formula $\mathbb{N}_{0}^{\omega}\cup\top$
 \end_inset
 
- nonnegative integers (whose elements have indexes from 
-\begin_inset Formula $0$
-\end_inset
 
- to 
-\begin_inset Formula $d-1$
-\end_inset
-
-).
- The vector is a member of the vector space 
-\begin_inset Formula $M=M_{0}\times M_{1}\times\cdots\times M_{d-1}$
-\end_inset
-
- where 
-\begin_inset Formula $M_{i}$
-\end_inset
-
- is defined as:
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\strikeout default
+\uuline default
+\uwave default
+\noun default
+\color inherit
+.)
 \end_layout
 
 \begin_layout Standard
-\begin_inset Formula 
-\[
-M_{i}=\begin{cases}
-\{0\} & \mbox{if \ensuremath{i\equiv0\mod{2}}}\\
-\{0..\left|\phi^{-1}(i)\right|\} & \mbox{if \ensuremath{i\equiv1\mod{2}}}
-\end{cases}
-\]
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Elements from the set 
-\begin_inset Formula $M^{\top}=M\cup\{\top\}$
-\end_inset
-
- are called Small Progress Measures (the term 
-\begin_inset Quotes eld
-\end_inset
-
-small
-\begin_inset Quotes erd
-\end_inset
-
- refers to the fact they are drawn from a reduced vector space: every even
- element is fixed to zero) and will be denoted with lower-case Greek letters.
- On these values a comparison operator 
+On these values a comparison operator 
 \begin_inset Formula $<_{i}$
 \end_inset
 
@@ -4449,12 +4439,11 @@ small
 \begin_inset Formula $i$
 \end_inset
 
-.
- 
+, with the special value 
 \begin_inset Formula $\top$
 \end_inset
 
- is always considered greater than any vector.
+ being considered greater than any other value.
  Formally:
 \end_layout
 
@@ -4486,11 +4475,7 @@ The operator
 \begin_inset Formula $<_{i}$
 \end_inset
 
- establishes a strict weak ordering on the elements of 
-\begin_inset Formula $M^{\top}$
-\end_inset
-
-.
+ establishes a strict weak ordering.
  The other operators can then be defined accordingly:
 \end_layout
 
@@ -4550,24 +4535,91 @@ The operator
 \end_layout
 
 \begin_layout Standard
-Let 
-\begin_inset Formula $\rho:V\rightarrow M$
+For a finite parity game, the range of the priority function has a finite
+ maximum too; without loss of generality, we can assume this range is strictly
+ bounded by the game index 
+\begin_inset Formula $d$
 \end_inset
 
- be a function that maps vertices to progress measures.
- First, define a function 
-\begin_inset Formula $Prog(\rho,v,w):(V\rightarrow M)\times E\rightarrow M^{\top}$
+ (where 
+\begin_inset Formula $d$
 \end_inset
 
- that determines the minimum progress measure for 
+ is the number of priorities in the game).
+ A progress measure is called 
+\emph on
+small
+\emph default
+ if its range is limited to the finite set 
+\begin_inset Formula $M^{\top}=M\cup\top$
+\end_inset
+
+, where 
+\begin_inset Formula $M=M_{0}\times M_{1}\times\cdots\times M_{d-1}$
+\end_inset
+
+ and 
+\begin_inset Formula $M_{i}$
+\end_inset
+
+ is defined as:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+M_{i}=\begin{cases}
+\{0\} & \mbox{if \ensuremath{i\equiv0\mod{2}}}\\
+\{0..\left|\phi^{-1}(i)\right|\} & \mbox{if \ensuremath{i\equiv1\mod{2}}}
+\end{cases}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The eventual goal of the algorithm is to calculate a particular progress
+ measure which maps vertices won by Odd to 
+\begin_inset Formula $\top$
+\end_inset
+
+ and vertices won by Even to non-
+\begin_inset Formula $\top$
+\end_inset
+
+ values.
+ (Jurdziński proves that such a progress measure exists.) A few helper functions
+ are needed to specify how such a progress measure is calculated.
+\end_layout
+
+\begin_layout Standard
+For a small progress measure 
+\begin_inset Formula $\rho$
+\end_inset
+
+ and an edge 
+\begin_inset Formula $vw\in E$
+\end_inset
+
+, the function 
+\begin_inset Formula $Prog(\rho,v,w):(V\rightarrow M^{\top})\times E\rightarrow M^{\top}$
+\end_inset
+
+ determines a minimum value than can be assigned to 
 \begin_inset Formula $v$
 \end_inset
 
- when 
+ if the edge 
 \begin_inset Formula $vw$
 \end_inset
 
- is included in the strategy for player Even as follows:
+ is included in the strategy for whichever player controls 
+\begin_inset Formula $v$
+\end_inset
+
+, as follows:
 \end_layout
 
 \begin_layout Standard
@@ -4586,19 +4638,19 @@ Prog(\rho,v,w)=\begin{cases}
 \end_layout
 
 \begin_layout Standard
-Next define a function 
-\begin_inset Formula $Lift(\rho,v)$
+This function is used to define the function 
+\begin_inset Formula $Lift(\rho,v):(V\rightarrow M^{\top})\times V\times(V\rightarrow M^{\top})$
 \end_inset
 
- which attempts to increase the progress vector assigned to 
-\begin_inset Formula $v$
-\end_inset
-
- in 
+, which updates a progress measure 
 \begin_inset Formula $\rho$
 \end_inset
 
-, as follows:
+ to reflect the optimal strategy for the controlling player of 
+\begin_inset Formula $v$
+\end_inset
+
+:
 \end_layout
 
 \begin_layout Standard
@@ -4617,7 +4669,25 @@ Lift(\rho,v)(u)=\begin{cases}
 \end_layout
 
 \begin_layout Standard
-And similarly, globally:
+Note that this definition reflects that Even will try to minimize the progress
+ measure while Odd tries to maximize it.
+ Similarly, 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+the function 
+\begin_inset Formula $Lift(\rho,v):(V\rightarrow M^{\top})\times(V\rightarrow M^{\top})$
+\end_inset
+
+ updates a progress measure at any one vertex, if possible:
 \end_layout
 
 \begin_layout Standard
@@ -4635,11 +4705,19 @@ Lift(\rho,v) & \mbox{if \ensuremath{\exists v\in V:\; Lift(\rho,v)\neq\rho},}\\
 \end_layout
 
 \begin_layout Standard
-Now if we iterate 
+There may be different vertices 
+\begin_inset Formula $v$
+\end_inset
+
+ that satisfy the precondition on the first clause; in that case, any of
+ the possible vertices may be chosen.
+ Since 
 \begin_inset Formula $Lift(\rho)$
 \end_inset
 
- starting from a zero progress measure (
+ is a monotone function on a complete lattice, it has a unique minimum fixed
+ point that can be found by iterative application starting from the minimum
+ element, the zero progress measure, 
 \begin_inset Formula $\rho(v)=\vec{0}$
 \end_inset
 
@@ -4647,14 +4725,9 @@ Now if we iterate
 \begin_inset Formula $v\in V$
 \end_inset
 
-) we will arrive at a minimum fixed point 
-\begin_inset Formula $\rho=Lift(\rho)$
-\end_inset
-
 .
- This is our final progress measure function and Jurdziński proves that
- we can use its value as follows to deduce the winning sets and the strategy
- for player Even:
+ Jurdziński proves that this minimum fixed point encodes both the winning
+ sets and an optimal strategy for player Even, as follows:
 \end_layout
 
 \begin_layout Standard
@@ -4682,7 +4755,7 @@ W_{1}=\{v\in V:\;\rho(v)=\top\}
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\sigma_{0}(v)=w\mbox{ if }v\in W_{0}\ \wedge\ \rho(v)=_{\phi(v)}\rho(w)
+\sigma_{0}(v)=w\mbox{ if }v\in V_{0}\cap W_{0}\ \wedge\ vw\in E\ \wedge\ \rho(v)=_{\phi(v)}\rho(w)
 \]
 
 \end_inset
@@ -4691,12 +4764,13 @@ W_{1}=\{v\in V:\;\rho(v)=\top\}
 \end_layout
 
 \begin_layout Standard
-(Note that if in the last definition the choice of 
+In the last definition, the choice of 
 \begin_inset Formula $w$
 \end_inset
 
- is not unique, we can arbitrarily choose any of the possible successors
- to obtain an optimal strategy.)
+ may not be unique (though there necessarily must be one appropriate successor),
+ and in that case any of the possible successors may be arbitrarily chosen
+ to obtain an optimal strategy.
 \end_layout
 
 \begin_layout Section
@@ -4732,12 +4806,14 @@ How can we determine which vertices are liftable (
 \begin_inset Formula $Lift(\rho,v)\neq\rho$
 \end_inset
 
-) and similarly, how do we know when the minimum fixed point has been reached?
+) and similarly, how do we know when the minimum fixed point has been reached
+ (i.e.
+ when no more liftable vertices remain)?
 \end_layout
 
 \begin_layout Enumerate
-When multiple vertices are liftable, which do we select to improve the progress
- measure?
+When multiple vertices are liftable, which should we select to improve the
+ progress measure?
 \end_layout
 
 \begin_layout Standard
@@ -4754,9 +4830,9 @@ Existing implementations generally follow Jurdziński's formulation, and
 \end_layout
 
 \begin_layout Standard
-Which brings us to the second point: the order in which vertices are selected
- for (potential) lifting is not specified by Jurdziński's formulation, because
- any lifting order will lead to the same, unique fixed point.
+The order in which vertices are selected for (potential) lifting is not
+ specified by Jurdziński's formulation, because any lifting order will lead
+ to the same, unique fixed point.
  However, the order in which vertices are lifted is important in practice,
  because some sequences may be considerably shorter than others, and thus
  result in a faster calculation.
@@ -6402,7 +6478,12 @@ reference "sub:Two-sided-SPM"
  the normal game) are removed from the dual game before solving, which reduces
  the complexity of the second problem.
  With the two-sided approach no vertices are ever removed, which could cause
- the dual game to have a significantly larger vector space.
+ the dual game to have significantly higher bounds on the progress measure
+ codomain 
+\begin_inset Formula $M$
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Standard
@@ -6419,9 +6500,10 @@ In Small Progress Measures, non-
 \begin_inset Formula $\top$
 \end_inset
 
- vectors encode an optimal strategy for Even, with the elements of the vectors
- encoding how many vertices with odd priorities can be visited consecutively
- in a winning play before encountering a vertex with a lesser priority.
+ vectors encode an optimal strategy for Even; informally, the elements of
+ the vectors encode how many vertices with odd priorities can be visited
+ consecutively in a winning play before encountering a vertex with a lesser
+ priority.
  Since vertices which are assigned 
 \begin_inset Formula $\top$
 \end_inset
@@ -6433,12 +6515,8 @@ ly have all vectors within the reduced bounds.
 \end_layout
 
 \begin_layout Standard
-To fit this optimization into Jurdziński's framework, we should redefine
- 
-\begin_inset Formula $M$
-\end_inset
-
- as a vector space 
+To fit this optimization into Jurdziński's framework, we should introduce
+ a smaller set of progress measures
 \family roman
 \series medium
 \shape up
@@ -6447,11 +6525,11 @@ To fit this optimization into Jurdziński's framework, we should redefine
 \bar no
 \noun off
 \color none
-
+ 
 \begin_inset Formula $M'(\rho)$
 \end_inset
 
- whose dimensions are dependent on the count of 
+ the bounds of which are dependent on the count of 
 \family default
 \series default
 \shape default
@@ -6473,7 +6551,7 @@ non-
 \bar no
 \noun off
 \color none
- vertices in a partially constructed progress measure 
+ vertices in the partially-constructed progress measure 
 \begin_inset Formula $\rho$
 \end_inset
 
@@ -6553,7 +6631,7 @@ Clearly,
 \begin_inset Formula $Lift'(\rho,v)$
 \end_inset
 
- in terms of 
+ can be defined in terms of 
 \begin_inset Formula $Prog'(\rho,v,w)$
 \end_inset
 
@@ -6562,7 +6640,7 @@ Clearly,
 \end_inset
 
 .
- At that point, Jurdzińksi's theorems apply equally to 
+ At this point, Jurdzińksi's theorems apply equally to 
 \begin_inset Formula $Prog'(\rho,v,w)$
 \end_inset
 
@@ -6577,13 +6655,9 @@ Clearly,
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-A more intuitive way to see that decreasing the vector space is permissible,
- even without fixing any vectors that are now out of range, consider that
- if vertex 
+A more intuitive way to see that decreasing the progress measure bounds
+ is permissible, even without fixing any vectors that are now out of range,
+ consider that if vertex 
 \begin_inset Formula $v$
 \end_inset
 
@@ -6603,11 +6677,11 @@ A more intuitive way to see that decreasing the vector space is permissible,
 \begin_inset Formula $Attr^{1}(\left\{ v\right\} )\subseteq W_{1}$
 \end_inset
 
-, and we could solve the subgame induced by 
+ and we could solve the subgame induced by 
 \begin_inset Formula $V\setminus Attr^{1}(\left\{ v\right\} )$
 \end_inset
 
- with vector space 
+ with associated bounds 
 \begin_inset Formula $M"$
 \end_inset
 
@@ -6622,14 +6696,13 @@ A more intuitive way to see that decreasing the vector space is permissible,
 \begin_inset Formula $M"{}^{\top}$
 \end_inset
 
- in both games, which means any vectors which exceed it in the original
- game cannot be final values, and the corresponding vertices will have to
- be lifted again, at which point they will be brought back in range.
-\end_layout
-
+.
+ (Note that attractor set computation achieves the same effect as propagating
+ 
+\begin_inset Formula $\top$
 \end_inset
 
-
+ values as usual.)
 \end_layout
 
 \begin_layout Subsection
@@ -7077,11 +7150,11 @@ In his solver, Freark van der Berg introduced a more sophisticated version
  of the loop removal process described above.
  He searches for cycles of vertices controlled by Odd with odd priority,
  using a depth-first-search approach limited to a relatively shallow depth
- (up to 8 deep, in his experiments).
+ (8, in his experiments).
  This results in detection of small cycles only but despite this limitation,
  his benchmark results show that this already provides significant benefits
- over the removal of loops only; at least in large random games, where small
- cycles are common.
+ over the removal of loops only; at least in large unclustered random games,
+ where small cycles are common.
 \end_layout
 
 \begin_layout Standard
@@ -7103,15 +7176,19 @@ Search for cycles controlled by Even as well as Odd.
 \end_layout
 
 \begin_layout Standard
-The last generalization isn't directly useful to initialize the SPM vector
- space, but it is beneficial when attractor sets of winning regions are
- removed from the graph too.
- The general process is called 
+The last generalization does not reduce the progress measure bounds, but
+ it is still useful because it is a quick way to solve part of the winning
+ set of player Even.
+\end_layout
+
+\begin_layout Standard
+The general process is called 
 \emph on
 winner-controlled cycle removal
 \emph default
 ; i.e.
- removal of all cycles which are entirely controlled by their winning player.
+ removal of all cycles which are entirely controlled by the player corresponding
+ to the dominant priority.
  To find these cycles, depth-first searching through all cycles in the graph
  would be too slow, but fortunately there is a more efficient solution,
  which is similar to the approach used to verify strategies.
@@ -7148,7 +7225,7 @@ To detect all
 \begin_inset Formula $p$
 \end_inset
 
-.) Decompose the graph into strongly connected components.
+ for this purpose.) Decompose the graph into strongly connected components.
  Vertices with priority 
 \begin_inset Formula $i$
 \end_inset
@@ -7189,32 +7266,24 @@ in the same component
 \end_layout
 
 \begin_layout Standard
-It may appear redundant to compute attractor sets twice, but this is required
- to create correct strategies.
- 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-CHECKME: is this true??
-\end_layout
-
-\end_inset
-
- Computing only one attractor set (in the global game) does work for purposes
- of computing the winning sets, but it could create cycles in 
-\begin_inset Formula $p$
-\end_inset
-
-'s strategy including vertices with priority less than 
+It may appear redundant to compute attractor sets twice, but it is necessary
+ to construct correct strategies.
+ The first computation is necessary to construct the 
 \begin_inset Formula $i$
 \end_inset
 
-.
+-cycles that are winning for player 
+\begin_inset Formula $p$
+\end_inset
+
+, creating a valid strategy for all solved vertices, while the second calculatio
+n extends the solution as far as possible, which is necessary to guarantee
+ the remaining subgame is a proper game.
 \end_layout
 
 \begin_layout Standard
-The process is repeated for every priority in the game.
+To find winning cycles for all priorities, the process outlined above is
+ simply repeated for each priority in the game.
  Every iteration requires constructing a subgraph with the appropriate vertices,
  decomposing it into strongly connected components, computing the attractor
  set in that subgraph, again in the original game, and finally computing
@@ -7240,6 +7309,193 @@ This is considerably more than the
  very short cycles) it may still be beneficial to run the loop-removal routine
  first to remove winner-controlled loops (and vertices in their attractor
  set) more quickly than the more general procedure could.
+\begin_inset Float algorithm
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "basicstyle={\footnotesize\ttfamily},language={C++},numbers=left,tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+winner_controlled_cycles(ParityGame game, Strategy strategy)
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	Set<Vertex> solved
+\end_layout
+
+\begin_layout Plain Layout
+
+	Strategy strategy
+\end_layout
+
+\begin_layout Plain Layout
+
+	Priority p = 0
+\end_layout
+
+\begin_layout Plain Layout
+
+	while p < game.d {
+\end_layout
+
+\begin_layout Plain Layout
+
+		ParityGame subgame = game.make_subgame({ v in game.graph.V
+\end_layout
+
+\begin_layout Plain Layout
+
+			where (v not in solved) and game.priority(v) >= p) and
+\end_layout
+
+\begin_layout Plain Layout
+
+			        ( game.player(v) == p mod 2 or
+\end_layout
+
+\begin_layout Plain Layout
+
+				      game.graph.outdegree(v) == 1 ) })
+\end_layout
+
+\begin_layout Plain Layout
+
+		Set<Vertex> won = { }
+\end_layout
+
+\begin_layout Plain Layout
+
+		for each SCC of subgraph {
+\end_layout
+
+\begin_layout Plain Layout
+
+			for edge (v,w) in SCC {
+\end_layout
+
+\begin_layout Plain Layout
+
+				if subgame.priority(v) == p {
+\end_layout
+
+\begin_layout Plain Layout
+
+					if game.player(v) == p mod 2 {
+\end_layout
+
+\begin_layout Plain Layout
+
+						strategy[v] = w
+\end_layout
+
+\begin_layout Plain Layout
+
+					}
+\end_layout
+
+\begin_layout Plain Layout
+
+					won.insert(v)
+\end_layout
+
+\begin_layout Plain Layout
+
+					break
+\end_layout
+
+\begin_layout Plain Layout
+
+				}
+\end_layout
+
+\begin_layout Plain Layout
+
+			}
+\end_layout
+
+\begin_layout Plain Layout
+
+		}
+\end_layout
+
+\begin_layout Plain Layout
+
+		make_attractor_set(subgame, p mod 2, won, strategy)
+\end_layout
+
+\begin_layout Plain Layout
+
+		solved.add(won)
+\end_layout
+
+\begin_layout Plain Layout
+
+		make_attractor_set(game, p mod 2, solved, strategy)
+\end_layout
+
+\begin_layout Plain Layout
+
+		p = p + 1
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+	return solved
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Winner-controlled cycle removal 
+\begin_inset CommandInset label
+LatexCommand label
+name "alg:Winner-controlled-cycle-removal"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsubsection
@@ -7328,9 +7584,9 @@ forwards propagation
 \end_layout
 
 \begin_layout Standard
-This can be seen to be correct by considering that if a play passes through
- a vertex infinitely often, it must also pass through at least one of its
- successors infinitely often.
+This can be seen to be correct by considering that in a finite graph, if
+ a play passes through a vertex infinitely often, it must also pass through
+ at least one of its successors infinitely often.
  When the vertex priority is greater than all of its successors', then it
  cannot be the dominant priority of the play, so it can be safely decreased.
  The same argument applies to predecessors, of course.
@@ -7340,8 +7596,14 @@ This can be seen to be correct by considering that if a play passes through
 The rationale for applying this transformation before running SPM is that
  it tends to shift the distribution of priorities towards lower values (since
  lower values can replace higher values, but not the other way around),
- which may both reduce the size of the vector space for progress measures
- and make vector comparisons/updates quicker.
+ which could reduce the number of different possible small progress measure
+ values (i.e.
+ the size of the set 
+\begin_inset Formula $M$
+\end_inset
+
+) and make vector comparisons/updates slightly faster, since the prefixes
+ operated on are shorter on average.
 \end_layout
 
 \begin_layout Standard
@@ -7366,9 +7628,10 @@ emperically, the use of priority propagation turns out to be harmful
 
 
 \emph default
-, though their emperical data is not presented.
- Presumably they mean that the time spend preprocessing the graph exceeds
- the time saved during solving.
+, though their emperical data is not presented, so it is unclear whether
+ they mean that the time spend preprocessing the graph exceeds the time
+ saved during solving, or whether priority propagation actually makes the
+ game harder to solve.
  
 \begin_inset Note Note
 status open
@@ -7567,34 +7830,6 @@ The rationale for propagating this information  every
  work done lifting vertices, so that the worst-case complexity remains unchanged.
 \end_layout
 
-\begin_layout Subsubsection
-Advantages & Disadvantages
-\end_layout
-
-\begin_layout Standard
-In practice, a game and its dual are often not of the same difficulty.
- In that case, it makes sense to try to solve them both, in order to discover
- the solution to the easiest one, and then use the information gained to
- construct a subgame with the remaining unsolved vertices in the dual game,
- which is then usually much easier to solve.
- The extra amount of work done in this case is at most equal to the amount
- of work done for the easiest game, but with the benefit that we do not
- have to know or guess in advance which of two players is easier to solve
- for.
- The worst case occurs when a game and its dual are of comparable difficulty;
- in that case up to twice as much work may be done when solving in parallel
- rather than sequentially.
-\end_layout
-
-\begin_layout Standard
-The main advantage of Friedmann's two-sided approach over just solving a
- game and its dual independently, is that it can propagate information between
- games even when neither is completely solved.
- This is useful because even in cases where both games are equally hard,
- they each may contain small regions that can be solved relatively easily
- and then used to simplify the other game.
-\end_layout
-
 \begin_layout Standard
 There is some similarity with Schewe's “big steps
 \begin_inset Quotes erd
@@ -7611,9 +7846,9 @@ key "schewe2007solving"
  first in order to reduce the rest of the problem to simpler terms.
  The similarity is that both approaches provide a way to avoid “getting
  stuck” repeatedly lifting vertices by very small increments.
- Schewe achieves this by using a reduced vector space to find small winning
- regions, obtaining only a partial solution using Small Progress Measures,
- and relies on the recursive algorithm (see chapter 
+ Schewe achieves this by using reduced progress measure bounds to find small
+ winning regions, obtaining only a partial solution using Small Progress
+ Measures, and relies on the recursive algorithm (see chapter 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "chap:Zielonka's-Recursive-Algorithm"
@@ -7625,11 +7860,46 @@ reference "chap:Zielonka's-Recursive-Algorithm"
 
 \begin_layout Standard
 The two-sided approach solves games entirely with Small Progress Measures
- and is therefore simpler than Schewe's, but doesn't benefit from the theoretica
-l speedup achieved by reducing the vector space.
+ and is therefore simpler than Schewe's, but doesn't improve performance
+ in the worst-case performance.
  (It should be noted however, that in PGSolver the two approaches are combined:
  the “big steps” solver uses the SPM implementation with the two-sided optimizat
 ion.)
+\end_layout
+
+\begin_layout Subsubsection
+Advantages & Disadvantages
+\end_layout
+
+\begin_layout Standard
+In practice, a game and its dual are often not of the same difficulty.
+ In that case, it makes sense to try to solve them both, in order to discover
+ the solution to the easiest one, and then use the information gained to
+ construct a subgame with the remaining unsolved vertices in the dual game,
+ which is then usually much easier to solve.
+ The extra amount of work done in this case is at most equal to the amount
+ of work done for the easiest game, but with the benefit that we do not
+ have to know or guess in advance which of the players is easier to solve
+ for.
+\end_layout
+
+\begin_layout Standard
+The second advantage of Friedmann's two-sided approach compared to solving
+ a game and its dual independently, is that it can propagate information
+ between games even when neither is completely solved.
+ This is useful because even in cases where both games are equally hard,
+ they each may contain small regions that can be solved relatively easily
+ and then used to simplify the other game.
+\end_layout
+
+\begin_layout Standard
+There may be rare cases where none of the benefits apply.
+ In that case, up to twice as much work may be spent on lifting vertices,
+ and some additional overhead is incurred searching for stable regions in
+ the games.
+ Since the cost of this search can be amortized against the time spent on
+ lifting, the worst-case slowdown can be brought arbitrarily close to a
+ factor of 2.
 \end_layout
 
 \begin_layout Subsubsection
@@ -7637,33 +7907,29 @@ Implementation differences
 \end_layout
 
 \begin_layout Standard
-Although it might appear that the two-sided approach will use at worst twice
- as much time and space as the standard algorithm, this is not automatically
- true.
+Though the observation that the two-sided approach could use, at worst,
+ twice as much time and space as the standard algorithm may seem obvious,
+ it is actually not automatically true.
  Perhaps surprisingly, PGSolver can take orders of magnitude longer to solve
  games with the two-sided approach than without it.
- This is caused by the fact that PGsolver omits construction of subgames
- entirely, even after one of the sides is completely solved, and as a result
- misses out on the reduction in progress measure vector space that can reduce
- the solving time necessary to solve the harder part of the game.
-\end_layout
-
-\begin_layout Standard
-This problem can be rectified by reducing vector spaces whenever vertices
- are lifted to 
+ The cause of this is that that PGsolver omits construction of subgames
+ entirely, even after one of the sides is completely solved, and consequently
+ does not benefit from a reduction in progress measure bounds that occurs
+ when constructing a subgame for the harder part of the game.
+ This problem is rectified by reducing progress measure vector bounds whenever
+ vertices are lifted to 
 \begin_inset Formula $\top$
 \end_inset
 
-, which is a new optimization that will be described in subsection 
+ (rather than calculating these bounds once, before starting solving), which
+ is a new optimization that will be described in subsection 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sub:Optimization-after-lifting"
 
 \end_inset
 
-).
- This reduces the worst-case overhead of two-sided solving to a factor of
- two.
+.
 \end_layout
 
 \begin_layout Standard
@@ -8289,7 +8555,7 @@ solve(ParityGame game, Strategy strategy)
 
 \begin_layout Plain Layout
 
-			make_attractor_set(min_prio, (p-1) mod 2, strategy)
+			make_attractor_set(game, (p-1) mod 2, min_prio, strategy)
 \end_layout
 
 \begin_layout Plain Layout
@@ -8339,7 +8605,7 @@ solve(ParityGame game, Strategy strategy)
 
 \begin_layout Plain Layout
 
-			make_attractor_set(lost, p mod 2, strategy)
+			make_attractor_set(game, p mod 2, lost, strategy)
 \end_layout
 
 \begin_layout Plain Layout
@@ -10837,8 +11103,35 @@ can
 \emph on
 dual
 \emph default
- game should be harder to solve, since the effective vector space is larger
- in the dual game, and this is also true in practice.)
+ game should be harder to solve, at least in the worst case, based on an
+ upper bound on the number of lifts that can be calculated as: 
+\begin_inset Formula 
+\[
+\prod_{p=0}^{d-1}\sum_{q=0}^{p}\left|M_{q}\right|\phi^{-1}(p)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+FIXME: move this somewhere more appropriate!
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+For random games in practice, this line of reasoning proves to be true:
+ dual games are slightly harder than normal games, though the margin gets
+ smaller as the the number of priorities increases.)
 \end_layout
 
 \begin_layout Standard
@@ -12291,7 +12584,7 @@ reference "sub:Optimization-after-lifting"
 
 \end_inset
 
- (reducing the bounds on the SPM vector dimensions after lifting a vertex
+ (reducing the bounds on the progress measure vectors after lifting a vertex
  to 
 \begin_inset Formula $\top$
 \end_inset

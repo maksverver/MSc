@@ -78,9 +78,11 @@ void CycleFinder::run( ParityGame::Strategy &strategy,
 int CycleFinder::operator()(const verti *scc, size_t scc_size)
 {
     // Search for a vertex with minimum priority, with a successor in the SCC:
-    for (size_t i = 0; i < scc_size; ++i) {
+    for (size_t i = 0; i < scc_size; ++i)
+    {
         verti v = scc[i];
-        if (subgame_.priority(v) == prio_) {
+        if (subgame_.priority(v) == prio_)
+        {
             // Search for an edge inside the component:
             // FIXME: complexity analysis? has_succ is not constant time!
             for (size_t j = 0; j < scc_size; ++j)
