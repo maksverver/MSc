@@ -13,6 +13,36 @@
 #include <set>
 #include <assert.h>
 
+/*! Returns the complement of a vertex set.
+
+    This function returns a vector of increasing vertex indices between 0 and
+    V (exclusive) where 0 <= v < V is in the result iff. it is not included in
+    the set s.
+*/
+static std::vector<verti> get_complement(verti V, const DenseSet<verti> &s)
+{
+    std::vector<verti> res;
+    verti n = V - s.size();
+    res.reserve(n);
+    DenseSet<verti>::const_iterator it = s.begin(), end = s.end();
+    verti v = 0;
+    while (it != end)
+    {
+        verti w = *it;
+        while (v < w) res.push_back(v++);
+        ++v;
+        ++it;
+    }
+    while (v < V) res.push_back(v++);
+    assert(n == (verti)res.size());
+    return res;
+}
+
+/*! Returns the first inversion in parity for priorities occurring in the given
+    game; i.e. the least value 'p` such that there is a priority `q` such that
+    cardinality(q) > 0 && cardinality(p) > 0 && q < p && q%2 != p%2.
+
+    If there are no inversions, the priority limit, d, is returned instead. */
 int first_inversion(const ParityGame &game)
 {
     int d = game.d();
@@ -20,8 +50,7 @@ int first_inversion(const ParityGame &game)
     while (q < d && game.cardinality(q) == 0) ++q;
     int p = q + 1;
     while (p < d && game.cardinality(p) == 0) p += 2;
-    if (p > d) p = d;
-    return p;
+    return p < d ? p : d;
 }
 
 RecursiveSolver::RecursiveSolver(const ParityGame &game)
@@ -82,8 +111,7 @@ bool RecursiveSolver::solve(ParityGame &game, Substrategy &strat)
             make_attractor_set(game, player, min_prio_attr, strat);
             debug("|min_prio_attr|=%d", (int)min_prio_attr.size());
             if (min_prio_attr.size() == V) break;
-            get_complement(V, min_prio_attr.begin(), min_prio_attr.end())
-                .swap(unsolved);
+            get_complement(V, min_prio_attr).swap(unsolved);
         }
 
         // Solve vertices not in the minimum priority attractor set:
@@ -109,8 +137,7 @@ bool RecursiveSolver::solve(ParityGame &game, Substrategy &strat)
             if (lost_attr.empty()) break;
             make_attractor_set(game, opponent, lost_attr, strat);
             debug("|lost_attr|=%d", (int)lost_attr.size());
-            get_complement(V, lost_attr.begin(), lost_attr.end())
-                .swap(unsolved);
+            get_complement(V, lost_attr).swap(unsolved);
         }
 
         // Repeat with subgame of which vertices won by odd have been removed:
