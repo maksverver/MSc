@@ -1801,14 +1801,14 @@ From the above it should be clear that there is a gap between theory and
 
 \begin_layout Standard
 It should come as no surprise that my contributions lie in this area.
- They consist of a variety of ideas to improve the upon the design and implement
-ation of parity game solvers, empirical evaluation of these ideas, and,
- as a by-product, an efficient parity game solving tool which improves upon
- the state of the art in several ways:
+ They consist of a variety of ideas to improve upon the design and implementatio
+n of parity game solvers, empirical evaluation of these ideas, and, as a
+ by-product, an efficient parity game solving tool which improves upon the
+ state of the art in several ways:
 \end_layout
 
 \begin_layout Itemize
-For mCRL2 my tool provides an alternative to 
+For mCRL2, my tool provides an alternative to 
 \family typewriter
 pbes2bool
 \family default
@@ -4823,10 +4823,8 @@ Existing implementations generally follow Jurdziński's formulation, and
 \end_inset
 
  for different vertices until they find one that changes the current progress
- measure.
- The advantage of this approach is that the core algorithm remains very
- simple, altough it still doesn't address where or when termination detection
- occurs.
+ measure, and when all options are eliminated, conclude that a fixed point
+ has been found.
 \end_layout
 
 \begin_layout Standard
@@ -4838,44 +4836,6 @@ The order in which vertices are selected for (potential) lifting is not
  result in a faster calculation.
  Since the optimal lifting sequence cannot be predicted in advance, a heuristic
  approach must be used instead.
-\end_layout
-
-\begin_layout Standard
-I will call the heuristic used to determine which vertex to (try to) lift
- next a 
-\emph on
-lifting strategy
-\emph default
-.
- In practice, the performance of different implementations of the small
- progress measures algorithm will be greatly affected by which lifting strategy
- is used.
-\end_layout
-
-\begin_layout Standard
-The core algorithm can be described as a function taking a small progress
- measure that is appropriately initialized and a lifting strategy; see Algorithm
- 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "alg:SPM v1 Core"
-
-\end_inset
-
-.
- In this arrangement, the core algorithm notifies the lifting strategy of
- succesful lifts, and the lifting strategy decides both the order in which
- vertices are lifted, and signals termination when the minimum fixed point
- has been reached.
-\end_layout
-
-\begin_layout Standard
-This separation of concerns exists in most previous implementations of Small
- Progress Measures and is attractive because it keeps the core algorithm
- very simple, while still allowing a sophisticated approach to be used by
- the lifting strategy.
- Of course, this also means that the performance of the algorithm depends
- crucially on the strategy chosen.
  Jurdziński already hints at the importance of using a suitable lifting
  strategy (which he calls “evaluation policy”): 
 \emph on
@@ -4884,6 +4844,94 @@ This separation of concerns exists in most previous implementations of Small
  of the algorithm”
 \emph default
 .
+\end_layout
+
+\begin_layout Standard
+This raises the question how large the gap between good and bad policies
+ actually is in practice.
+ Jurdziński gives an upper bound for the total number of lifts in a game
+ by simply calculating the size of the small progress measure set:
+\begin_inset Formula 
+\[
+\left|V\right|\cdot\left|M\right|=\left|V\right|\cdot\prod_{i=1}^{\left\lfloor d/2\right\rfloor }\left(\left|\phi^{-1}(2i-1)\right|+1\right)\leq\left(\frac{n}{\left\lfloor d/2\right\rfloor }\right)^{\left\lfloor d/2\right\rfloor }
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This is useful to establish the worst-case complexity but it is also an
+ overapproximation: only the vertices with greatest priority values can
+ be lifted 
+\begin_inset Formula $\left|M\right|$
+\end_inset
+
+ times.
+ A more accurate characterization takes into account the priorities of the
+ vertices and how often they occur:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\prod_{p=0}^{d-1}\sum_{q=0}^{p}\left|M_{q}\right|\left|\phi^{-1}(p)\right|
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This is a tighter bound, but it is still only an upper bound, and says little
+ about what performance we can expect from practical instances, where the
+ worst-case number of lifts depends just as much on the structure of the
+ game as the choice of vertices to lift.
+ Even more accurate bounds could be computed by reachability analysis, for
+ example.
+ However, we are not all that interested in how much can be gained compared
+ to the 
+\emph on
+worst
+\emph default
+ lifting strategies; after all, we would never intentionally use a bad lifting
+ strategy.
+ It is more interesting to investigate how much we can improve upon 
+\emph on
+trivial
+\emph default
+ lifting strategies, that may already work reasonably well in practice.
+\end_layout
+
+\begin_layout Standard
+It turns out that we can bound the overhead of a naive lifting strategy
+ to a factor
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+ 
+\begin_inset Formula $\left|V\right|$
+\end_inset
+
+ in lifting attempts.
+ This means that in games where naive strategies require a number of lifts
+ close to the upper bound established here, we can only expect limited gains
+ from more advanced lifting strategies.
+ Fortunately, the vertex set 
+\begin_inset Formula $V$
+\end_inset
+
+ is large in practice, which justifies trying to minimize the lifting sequence.
 \end_layout
 
 \begin_layout Standard
@@ -4897,6 +4945,26 @@ status open
 \end_inset
 
 
+\end_layout
+
+\begin_layout Subsection
+Core algorithm
+\end_layout
+
+\begin_layout Standard
+A 
+\emph on
+lifting strategy
+\emph default
+ is a heuristical algorithm that, depending on information available about
+ a partial solution (such as the structure of the graph, the values of the
+ progress measure vectors, or the history of vertices being lifted) determines
+ which vertex will be selected for the next lifting attempt.
+ Lifting strategies are typically stateful, and although sophisticated lifting
+ strategies may cause fewer work to be done in the SPM algorithm itself
+ (by reducing the number of lifting attempts performed) it is important
+ to keep in mind that this may come at the cost of spending more time and
+ memory on internal bookkeeping.
 \end_layout
 
 \begin_layout Standard
@@ -4972,19 +5040,29 @@ unstable
 \end_layout
 
 \begin_layout Standard
-To summarize: a 
-\emph on
-lifting strategy
-\emph default
- is a heuristical algorithm that, depending on information available about
- a partial solution (such as the structure of the graph, the values of the
- progress measure vectors, or the history of vertices being lifted) determines
- which vertex will be selected for the next lifting attempt.
- Lifting strategies are typically stateful, and although sophisticated lifting
- strategies may cause fewer work to be done in the SPM algorithm itself
- (by reducing the number of lifting attempts performed) it is important
- to keep in mind that this may come at the cost of spending more time and
- memory on internal bookkeeping.
+The core algorithm can be described as a function taking a small progress
+ measure that is appropriately initialized and a lifting strategy; see Algorithm
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "alg:SPM v1 Core"
+
+\end_inset
+
+.
+ In this arrangement, the core algorithm notifies the lifting strategy of
+ succesful lifts, and the lifting strategy decides both the order in which
+ vertices are lifted, and signals termination when the minimum fixed point
+ has been reached.
+\end_layout
+
+\begin_layout Standard
+This separation of concerns exists in most previous implementations of Small
+ Progress Measures and is attractive because it keeps the core algorithm
+ very simple, while still allowing a sophisticated approach to be used by
+ the lifting strategy.
+ Of course, this also means that the performance of the algorithm depends
+ crucially on the strategy chosen.
 \end_layout
 
 \begin_layout Standard
@@ -11103,35 +11181,18 @@ can
 \emph on
 dual
 \emph default
- game should be harder to solve, at least in the worst case, based on an
- upper bound on the number of lifts that can be calculated as: 
-\begin_inset Formula 
-\[
-\prod_{p=0}^{d-1}\sum_{q=0}^{p}\left|M_{q}\right|\phi^{-1}(p)
-\]
+ game should be harder to solve, at least in the worst case, as the upper
+ bound on the number of lifts mentioned in Subsection 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Lifting-Strategies"
 
 \end_inset
 
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-FIXME: move this somewhere more appropriate!
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-For random games in practice, this line of reasoning proves to be true:
- dual games are slightly harder than normal games, though the margin gets
- smaller as the the number of priorities increases.)
+ implies.
+ For random games in practice, this line of reasoning also proves to be
+ true: dual games are slightly harder than normal games, though the margin
+ gets smaller as the the number of priorities increases.)
 \end_layout
 
 \begin_layout Standard
