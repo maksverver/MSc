@@ -4885,29 +4885,25 @@ This is useful to establish the worst-case complexity but it is also an
 \end_layout
 
 \begin_layout Standard
-This is a tighter bound, but it is still only an upper bound, and says little
- about what performance we can expect from practical instances, where the
- worst-case number of lifts depends just as much on the structure of the
- game as the choice of vertices to lift.
- Even more accurate bounds could be computed by reachability analysis, for
- example.
- However, we are not all that interested in how much can be gained compared
- to the 
+This is a tighter bound, but it can only be approached is specially crafted
+ graphs, even with the worst possible lifting strategies.
+ How much can be gained compared to the 
 \emph on
 worst
 \emph default
- lifting strategies; after all, we would never intentionally use a bad lifting
- strategy.
- It is more interesting to investigate how much we can improve upon 
+ lifting strategies is not even very interesting; after all, we would never
+ intentionally use a bad lifting strategy.
+ The more interesting question to investigate is how much we can improve
+ upon 
 \emph on
 trivial
 \emph default
- lifting strategies, that may already work reasonably well in practice.
+ lifting strategies (which may already work reasonably well in practice).
 \end_layout
 
 \begin_layout Standard
-It turns out that we can bound the overhead of a naive lifting strategy
- to a factor
+As will be discussed in detail later, it turns out that we can bound the
+ overhead of a naive lifting strategy to a factor
 \family roman
 \series medium
 \shape up
@@ -4924,14 +4920,11 @@ It turns out that we can bound the overhead of a naive lifting strategy
 \end_inset
 
  in lifting attempts.
- This means that in games where naive strategies require a number of lifts
- close to the upper bound established here, we can only expect limited gains
- from more advanced lifting strategies.
- Fortunately, the vertex set 
+ Athough this limits the gains we can expect somewhat, the vertex set 
 \begin_inset Formula $V$
 \end_inset
 
- is large in practice, which justifies trying to minimize the lifting sequence.
+ is large enough in practice to justify trying to minimize the lifting sequence.
 \end_layout
 
 \begin_layout Standard
