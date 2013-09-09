@@ -130,6 +130,14 @@ public:
                        ForwardIterator vertices_begin,
                        ForwardIterator vertices_end,
                        bool proper );
+
+#ifdef WITH_THREADS
+    void make_subgame_threads( const ParityGame &game,
+                               const verti *verts,
+                               const verti nvert,
+                               bool proper );
+#endif
+
     //!@}
 
     //!\name Transformation

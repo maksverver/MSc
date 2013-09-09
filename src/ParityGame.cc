@@ -275,3 +275,20 @@ void ParityGame::swap(ParityGame &pg)
     std::swap(vertex_, pg.vertex_);
     std::swap(cardinality_, pg.cardinality_);
 }
+
+#ifdef WITH_THREADS
+void ParityGame::make_subgame_threads( const ParityGame &game,
+                                       const verti *verts,
+                                       const verti nvert,
+                                       bool proper )
+{
+    assert(this != &game);
+    reset(nvert, game.d());
+    for (verti v = 0; v < nvert; ++v)
+    {
+        vertex_[v] = game.vertex_[v];
+    }
+    graph_.make_subgraph_threads(game.graph_, verts, nvert,  proper);
+    recalculate_cardinalities(nvert);
+}
+#endif

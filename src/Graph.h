@@ -147,12 +147,17 @@ public:
     /*! Convert the graph into a list of edges. */
     edge_list get_edges() const;
 
-    /*! Reset the graph to the subgraph induced by the given vertex set: */
+    /*! Reset the graph to the subgraph induced by the given vertex set. */
     template<class ForwardIterator>
     void make_subgraph( const StaticGraph &graph,
                         ForwardIterator vertices_begin,
                         ForwardIterator vertices_end,
                         bool proper );
+
+    void make_subgraph_threads( const StaticGraph &graph,
+                                const verti *verts,
+                                const verti nvert,
+                                bool proper );
 
     /*! Removes the given edges from the graph. The contents of the edge list
         may be reordered by this function! */

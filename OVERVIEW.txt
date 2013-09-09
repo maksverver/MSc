@@ -3,7 +3,7 @@ One graph representation
 One parity game representation
 
 Preprocessing steps:
-    Vertex reordering (DFS/BFS)
+    Vertex reordering (DFS/BFS/reverse/shuffle)
     Priority compression
     Priority propagation
     Cycle removal
@@ -16,25 +16,42 @@ Several Small Progress Measures lifting strategies:
     3. Focus list
     4. Linear/predecessor
     5. "Old" Maximum measure propagation
-    6. Maximum measure propagation
+    6a. Maximum measure propagation
+    6b. Minimum measure propagation
+    6c. Maximum step propagation
 
 Two Progress Measures representation:
     Dense (single array)
-    Sparse (array of pointers)
+    Sparse (array of pointers -- TODO)
 
 Single-threaded solvers:
     Recursive solver (Zielonka)
     Small progress measures (Jurdziński)
-    Alternate SPM (Friedmann)
+    Two-sided SPM (Friedmann)
 
 MPI-based solvers:
     Recursive solver (Zielonka)
     Small progress measures (Jurdziński)
-    NOT SUPPORTED: Alternate SPM (Friedmann)
+    NOT SUPPORTED: Two-sided SPM (Friedmann)
 
 Concurrent solvers:
     Recursive solver (Zielonka)
     TODO: Small progress measures (Jurdziński)
-    TODO: Alternate SPM (Friedmann)
+    TODO: Two-sided SPM (Friedmann)
+
+Input formats:
+    Raw format
+    Random games
+    Clustered random games
+    PGSolver games
+    PBES (when linking with mCRL2)
+
+Output formats:
+    Raw format
+    GraphViz dot (game graph)
+    PGSolver (game)
+    PGSolver (solution)
+    Winners
+    Strategy
 
 One verification algorithm

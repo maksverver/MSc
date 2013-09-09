@@ -509,3 +509,88 @@ void StaticGraph::swap(StaticGraph &g)
     std::swap(predecessor_index_, g.predecessor_index_);
     std::swap(edge_dir_, g.edge_dir_);
 }
+
+#ifdef WITH_THREADS
+void StaticGraph::make_subgraph_threads( const StaticGraph &graph,
+                                         const verti *verts,
+                                         const verti num_vertices,
+                                         bool proper )
+{
+    assert(this != &graph);
+
+    edgei num_edges = 0;
+
+    // Create a map of old->new vertex indices:
+    std::vector<verti> map(graph.V(), NO_VERTEX);
+    for (verti i = 0; i < num_vertices; ++i)
+    {
+        map[verts[i]] = i;
+    }
+
+    // Count number of new edges:
+    for (verti i = 0; i < num_vertices; ++i)
+    {
+        const_iterator a = graph.succ_begin(verts[i]),
+                       b = graph.succ_end(verts[i]);
+        while (a != b) if (map[*a++] != NO_VERTEX) num_edges += 1;
+    }
+
+    // Allocate memory:
+    reset(num_vertices, num_edges, graph.edge_dir());
+
+    if (edge_dir_ & EDGE_SUCCESSOR)
+    {
+        // Assign new successors:
+        verti v = 0;
+        edgei e = 0;
+        for (verti i = 0; i < num_vertices; ++i)
+        {
+            const verti u = verts[i];
+            successor_index_[v++] = e;
+            verti *begin = &successors_[e];
+            for (const_iterator succ_it  = graph.succ_begin(u),
+                                succ_end = graph.succ_end(u);
+                 succ_it != succ_end; ++succ_it)
+            {
+                verti w = map[*succ_it];
+                if (w != NO_VERTEX) successors_[e++] = w;
+            }
+            verti *end = &successors_[e];
+            if (!is_sorted(begin, end, std::less<verti>()))
+            {
+                std::sort(begin, end);
+            }
+            if (proper) assert(begin != end);  /* proper parity game graph */
+        }
+        assert(v == V_ && e == E_);
+        successor_index_[v] = e;
+    }
+
+    if (edge_dir_ & EDGE_PREDECESSOR)
+    {
+        // Assign new predecessors:
+        verti v = 0;
+        edgei e = 0;
+        for (verti i = 0; i < num_vertices; ++i)
+        {
+            const verti u = verts[i];
+            predecessor_index_[v++] = e;
+            verti *begin = &predecessors_[e];
+            for (const_iterator pred_it  = graph.pred_begin(u),
+                                pred_end = graph.pred_end(u);
+                 pred_it != pred_end; ++pred_it)
+            {
+                verti w = map[*pred_it];
+                if (w != NO_VERTEX) predecessors_[e++] = w;
+            }
+            verti *end = &predecessors_[e];
+            if (!is_sorted(begin, end, std::less<verti>()))
+            {
+                std::sort(begin, end);
+            }
+        }
+        assert(v == V_ && e == E_);
+        predecessor_index_[v] = e;
+    }
+}
+#endif
