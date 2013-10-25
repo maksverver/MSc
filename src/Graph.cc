@@ -514,7 +514,8 @@ void StaticGraph::swap(StaticGraph &g)
 void StaticGraph::make_subgraph_threads( const StaticGraph &graph,
                                          const verti *verts,
                                          const verti num_vertices,
-                                         bool proper )
+                                         bool proper,
+                                         EdgeDirection edge_dir )
 {
     assert(this != &graph);
 
@@ -536,7 +537,7 @@ void StaticGraph::make_subgraph_threads( const StaticGraph &graph,
     }
 
     // Allocate memory:
-    reset(num_vertices, num_edges, graph.edge_dir());
+    reset(num_vertices, num_edges, edge_dir ? edge_dir : graph.edge_dir());
 
     if (edge_dir_ & EDGE_SUCCESSOR)
     {

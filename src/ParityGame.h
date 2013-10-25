@@ -129,13 +129,17 @@ public:
     void make_subgame( const ParityGame &game,
                        ForwardIterator vertices_begin,
                        ForwardIterator vertices_end,
-                       bool proper );
+                       bool proper,
+                       StaticGraph::EdgeDirection edge_dir
+                            = StaticGraph::EDGE_NONE );
 
 #ifdef WITH_THREADS
     void make_subgame_threads( const ParityGame &game,
                                const verti *verts,
                                const verti nvert,
-                               bool proper );
+                               bool proper,
+                               StaticGraph::EdgeDirection edge_dir
+                                    = StaticGraph::EDGE_NONE );
 #endif
 
     //!@}

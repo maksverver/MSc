@@ -16,7 +16,8 @@ template<class ForwardIterator>
 void ParityGame::make_subgame( const ParityGame &game,
                                ForwardIterator vertices_begin,
                                ForwardIterator vertices_end,
-                               bool proper )
+                               bool proper,
+                               StaticGraph::EdgeDirection edge_dir )
 {
     assert(this != &game);
 
@@ -29,7 +30,8 @@ void ParityGame::make_subgame( const ParityGame &game,
     {
         vertex_[v] = game.vertex_[*it];
     }
-    graph_.make_subgraph(game.graph_, vertices_begin, vertices_end, proper);
+    graph_.make_subgraph(game.graph_, vertices_begin, vertices_end,
+                         proper, edge_dir);
     recalculate_cardinalities(num_vertices);
 }
 

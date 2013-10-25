@@ -69,18 +69,21 @@ template<class ForwardIterator>
 void StaticGraph::make_subgraph( const StaticGraph &graph,
                                  ForwardIterator vertices_begin,
                                  ForwardIterator vertices_end,
-                                 bool proper )
+                                 bool proper,
+                                 StaticGraph::EdgeDirection edge_dir )
 {
     // FIXME: determine which cut-off value works best:
     if (std::distance(vertices_begin, vertices_end) < graph.V()/3)
     {
         HASH_MAP(verti, verti) map;
-        return make_subgraph(graph, vertices_begin, vertices_end, map, proper);
+        return make_subgraph(graph, vertices_begin,
+                             vertices_end, map, proper, edge_dir);
     }
     else
     {
         DenseMap<verti, verti> map(0, graph.V());
-        return make_subgraph(graph, vertices_begin, vertices_end, map, proper);
+        return make_subgraph(graph, vertices_begin, vertices_end,
+                             map, proper, edge_dir);
     }
 }
 
@@ -89,7 +92,8 @@ void StaticGraph::make_subgraph( const StaticGraph &graph,
                                  ForwardIterator vertices_begin,
                                  ForwardIterator vertices_end,
                                  VertexMapT &vertex_map,
-                                 bool proper )
+                                 bool proper,
+                                 EdgeDirection edge_dir )
 {
     assert(this != &graph);
 
@@ -120,7 +124,7 @@ void StaticGraph::make_subgraph( const StaticGraph &graph,
     }
 
     // Allocate memory:
-    reset(num_vertices, num_edges, graph.edge_dir());
+    reset(num_vertices, num_edges, edge_dir ? edge_dir : graph.edge_dir());
 
     if (edge_dir_ & EDGE_SUCCESSOR)
     {

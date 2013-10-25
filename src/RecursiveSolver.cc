@@ -108,7 +108,7 @@ bool RecursiveSolver::solve(ParityGame &game, Substrategy &strat)
             }
             debug("|min_prio|=%d", (int)min_prio_attr.size());
             assert(!min_prio_attr.empty());
-            make_attractor_set(game, player, min_prio_attr, strat);
+            make_attractor_set_2(game, player, min_prio_attr, strat);
             debug("|min_prio_attr|=%d", (int)min_prio_attr.size());
             if (min_prio_attr.size() == V) break;
             get_complement(V, min_prio_attr).swap(unsolved);
@@ -117,7 +117,8 @@ bool RecursiveSolver::solve(ParityGame &game, Substrategy &strat)
         // Solve vertices not in the minimum priority attractor set:
         {
             ParityGame subgame;
-            subgame.make_subgame(game, unsolved.begin(), unsolved.end(), true);
+            subgame.make_subgame(game, unsolved.begin(), unsolved.end(),
+                                 true, StaticGraph::EDGE_PREDECESSOR);
             Substrategy substrat(strat, unsolved);
             if (!solve(subgame, substrat)) return false;
 
@@ -135,7 +136,7 @@ bool RecursiveSolver::solve(ParityGame &game, Substrategy &strat)
             }
             debug("|lost|=%d", (int)lost_attr.size());
             if (lost_attr.empty()) break;
-            make_attractor_set(game, opponent, lost_attr, strat);
+            make_attractor_set_2(game, opponent, lost_attr, strat);
             debug("|lost_attr|=%d", (int)lost_attr.size());
             get_complement(V, lost_attr).swap(unsolved);
         }
@@ -143,7 +144,8 @@ bool RecursiveSolver::solve(ParityGame &game, Substrategy &strat)
         // Repeat with subgame of which vertices won by odd have been removed:
         {
             ParityGame subgame;
-            subgame.make_subgame(game, unsolved.begin(), unsolved.end(), true);
+            subgame.make_subgame(game, unsolved.begin(), unsolved.end(),
+                                 true, StaticGraph::EDGE_PREDECESSOR);
             Substrategy substrat(strat, unsolved);
             strat.swap(substrat);
             game.swap(subgame);
@@ -156,17 +158,46 @@ bool RecursiveSolver::solve(ParityGame &game, Substrategy &strat)
     // suffices to pick an arbitrary successor for these vertices:
     const StaticGraph &graph = game.graph();
     const verti V = graph.V();
-    for (verti v = 0; v < V; ++v)
+    if (graph.edge_dir() & StaticGraph::EDGE_SUCCESSOR)
     {
-        if (game.priority(v) < prio)
+        for (verti v = 0; v < V; ++v)
         {
-            if (game.player(v) == game.priority(v)%2)
+            if (game.priority(v) < prio)
             {
-                strat[v] = *graph.succ_begin(v);
+                if (game.player(v) == game.priority(v)%2)
+                {
+                    strat[v] = *graph.succ_begin(v);
+                }
+                else
+                {
+                    strat[v] = NO_VERTEX;
+                }
             }
-            else
+        }
+    }
+    else
+    {
+        // NOTE: this assumes the graph is a proper game graph!
+        // If there are min. priority vertices without any successors, we won't
+        // be able to find them this way!
+        for (verti w = 0; w < V; ++w)
+        {
+            for (StaticGraph::const_iterator it = graph.pred_begin(w);
+                it != graph.pred_end(w); ++it)
             {
-                strat[v] = NO_VERTEX;
+                const verti v = *it;
+
+                if (game.priority(v) < prio)
+                {
+                    if (game.player(v) == game.priority(v)%2)
+                    {
+                        strat[v] = w;
+                    }
+                    else
+                    {
+                        strat[v] = NO_VERTEX;
+                    }
+                }
             }
         }
     }

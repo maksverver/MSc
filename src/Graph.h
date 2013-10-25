@@ -152,12 +152,14 @@ public:
     void make_subgraph( const StaticGraph &graph,
                         ForwardIterator vertices_begin,
                         ForwardIterator vertices_end,
-                        bool proper );
+                        bool proper,
+                        EdgeDirection edge_dir = EDGE_NONE );
 
     void make_subgraph_threads( const StaticGraph &graph,
                                 const verti *verts,
                                 const verti nvert,
-                                bool proper );
+                                bool proper,
+                                EdgeDirection edge_dir = EDGE_NONE );
 
     /*! Removes the given edges from the graph. The contents of the edge list
         may be reordered by this function! */
@@ -260,7 +262,8 @@ protected:
                         ForwardIterator vertices_begin,
                         ForwardIterator vertices_end,
                         VertexMapT &vertex_map,
-                        bool proper );
+                        bool proper,
+                        EdgeDirection edge_dir = EDGE_NONE );
 
 private:
     explicit StaticGraph(const StaticGraph &graph);
