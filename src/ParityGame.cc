@@ -284,11 +284,16 @@ void ParityGame::make_subgame_threads( const ParityGame &game,
 {
     assert(this != &game);
     reset(nvert, game.d());
+
+    //#pragma omp parallel for
     for (verti v = 0; v < nvert; ++v)
     {
-        vertex_[v] = game.vertex_[v];
+        vertex_[v] = game.vertex_[verts[v]];
     }
+
     graph_.make_subgraph_threads(game.graph_, verts, nvert,  proper);
+
+    // FIXME: parallellize this?
     recalculate_cardinalities(nvert);
 }
 #endif

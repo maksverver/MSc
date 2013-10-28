@@ -548,14 +548,6 @@ void StaticGraph::make_subgraph_threads( const StaticGraph &graph,
     // TODO: parallellize rest of function!
     //
 
-    //
-    // TODO: parallellize rest of function!
-    //
-
-    //
-    // TODO: parallellize rest of function!
-    //
-
     if (edge_dir_ & EDGE_SUCCESSOR)
     {
         // Assign new successors:
