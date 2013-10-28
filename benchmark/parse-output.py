@@ -292,7 +292,7 @@ def print_spm_spgip_twosided_table():
 \\label{tab:spm_spgip_twosided_lift_ratio}
 \\end{table}"""
 
-def print_spm_spgip_barchart(case, title):
+def print_spm_spgip_barchart(case, title, suffix = ""):
 
     config_ids = [ 'Linear',     'Predecessor',     'MaxMeasure',     'MaxStep'     ]
     configs    = [ '-llinear:0', '-Lpredecessor:0', '-Lmaxmeasure:0', '-Lmaxstep:0' ]
@@ -301,8 +301,8 @@ def print_spm_spgip_barchart(case, title):
     results_twoway = []
 
     for config in configs:
-        file1, = glob('output-spm-spgip-shuffled/pgsolver-' + case + config +        '.o*')
-        file2, = glob('output-spm-spgip-shuffled/pgsolver-' + case + config + "-a" + '.o*')
+        file1, = glob('output-spm-spgip-shuffled/pgsolver-' + case + config +        suffix + '.o*')
+        file2, = glob('output-spm-spgip-shuffled/pgsolver-' + case + config + "-a" + suffix + '.o*')
         params1 = parse_file(file1)
         params2 = parse_file(file2)
         assert params1['solution.result'] == 'success'
@@ -374,6 +374,25 @@ def print_spm_spgip_barcharts():
 \\caption{One-way vs two-way solving on elevator verification cases}
 \\label{spm_spgip_charts_elevator}
 \\end{figure}"""
+
+    print """\
+\\begin{figure}
+\\centering
+\\makebox[0pt][c]{% 
+\\begin{minipage}{10cm}   % elevator-fair"""
+    print_spm_spgip_barchart("elevator8-fair", "$G_8$")
+    print """\
+\\end{minipage}
+
+\\begin{minipage}{10cm}   % elevator-unfair (dual)"""
+    print_spm_spgip_barchart("elevator6-unfair", "$G'_6$", "-dual")
+    print """\
+\\end{minipage}
+}%
+\\caption{One-way vs two-way solving on unfair elevator dual}
+\\label{spm_spgip_charts_elevator_dual}
+\\end{figure}"""
+
 
 
 stdout = sys.stdout
