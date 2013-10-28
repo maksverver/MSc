@@ -523,21 +523,38 @@ void StaticGraph::make_subgraph_threads( const StaticGraph &graph,
 
     // Create a map of old->new vertex indices:
     std::vector<verti> map(graph.V(), NO_VERTEX);
-    for (verti i = 0; i < num_vertices; ++i)
+    #pragma omp parallel
     {
-        map[verts[i]] = i;
-    }
+        #pragma omp for
+        for (verti i = 0; i < num_vertices; ++i)
+        {
+            map[verts[i]] = i;
+        }
 
-    // Count number of new edges:
-    for (verti i = 0; i < num_vertices; ++i)
-    {
-        const_iterator a = graph.succ_begin(verts[i]),
-                       b = graph.succ_end(verts[i]);
-        while (a != b) if (map[*a++] != NO_VERTEX) num_edges += 1;
+        // Count number of new edges:
+        #pragma omp for reduction(+:num_edges)
+        for (verti i = 0; i < num_vertices; ++i)
+        {
+            const_iterator a = graph.succ_begin(verts[i]),
+                        b = graph.succ_end(verts[i]);
+            while (a != b) if (map[*a++] != NO_VERTEX) ++num_edges;
+        }
     }
 
     // Allocate memory:
     reset(num_vertices, num_edges, edge_dir ? edge_dir : graph.edge_dir());
+
+    //
+    // TODO: parallellize rest of function!
+    //
+
+    //
+    // TODO: parallellize rest of function!
+    //
+
+    //
+    // TODO: parallellize rest of function!
+    //
 
     if (edge_dir_ & EDGE_SUCCESSOR)
     {
