@@ -280,7 +280,8 @@ void ParityGame::swap(ParityGame &pg)
 void ParityGame::make_subgame_threads( const ParityGame &game,
                                        const verti *verts,
                                        const verti nvert,
-                                       bool proper )
+                                       bool proper,
+                                       StaticGraph::EdgeDirection edge_dir )
 {
     assert(this != &game);
     reset(nvert, game.d());
@@ -291,7 +292,7 @@ void ParityGame::make_subgame_threads( const ParityGame &game,
         vertex_[v] = game.vertex_[verts[v]];
     }
 
-    graph_.make_subgraph_threads(game.graph_, verts, nvert,  proper);
+    graph_.make_subgraph_threads(game.graph_, verts, nvert,  proper, edge_dir);
 
     // FIXME: parallellize this?
     recalculate_cardinalities(nvert);
