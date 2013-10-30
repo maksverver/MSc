@@ -3872,8 +3872,8 @@ name "sub:Attractor-set-computation"
 \end_layout
 
 \begin_layout Standard
-In my implementation, attractor sets are computed straightforwardly using
- a queue and a set, where both data structures are assumed to have 
+Attractor sets can be calculated straightforwardly using a queue and a set,
+ where both data structures are assumed to have 
 \begin_inset Formula $O(1)$
 \end_inset
 
@@ -3900,40 +3900,14 @@ reference "alg:Attractor-set-computation"
 \end_layout
 
 \begin_layout Standard
-Computing attractor sets requires both predecessor and successor information
- be stored in the graph, and the resulting algorithm is reasonably efficient
- for sufficiently sparse graphs.
+Computing attractor sets this way requires both predecessor and successor
+ information to be stored in the graph, and the resulting algorithm is reasonabl
+y efficient for sufficiently sparse graphs.
  However, the worst-case complexity is as high as 
-\begin_inset Formula $O(ev)$
+\begin_inset Formula $O(\left|E\right|\left|V\right|)$
 \end_inset
 
- where 
-\begin_inset Formula $v$
-\end_inset
-
- is the size of the resulting set and 
-\family roman
-\series medium
-\shape up
-\size normal
-\emph off
-\bar no
-\noun off
-\color none
-
-\begin_inset Formula $e$
-\end_inset
-
-
-\family default
-\series default
-\shape default
-\size default
-\emph default
-\bar default
-\noun default
-\color inherit
- is the number of edges incident to vertices in the set.
+.
  This complexity arises from the fact that when a predecessor is controlled
  by the opponent of the player for whom the attractor set is computed, then
  all successors of this vertex must be evaluated to see if an edge to a
@@ -3943,27 +3917,53 @@ Computing attractor sets requires both predecessor and successor information
 \end_layout
 
 \begin_layout Standard
-The complexity can be reduced to 
-\begin_inset Formula $O(e)$
+Lets call the successors of a vertex which lie outside the attractor set
+ its 
+\emph on
+liberties
+\emph default
+.
+ We can store the number of liberties for each vertex in a simple array
+ of integers, which is initialized to the outdegree of each vertex, and
+ updated whenever a vertex is found to be in the attractor set (by decrementing
+ the count for each of its predecessors).
+ This eliminates the need to examine successors at all, as Algorithm 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "alg:Attractor-set-computation-2"
+
 \end_inset
 
- by keeping track of the last successor evaluated for every vertex outside
- the vertex set, so that we can restart the search there (knowing that the
- preceding successors are already known to lie inside the attractor set),
- which limits the number of times an edge is examined to 
-\begin_inset Formula $3e$
+ shows, and reduces the time complexity to 
+\begin_inset Formula $O(\left|E\right|)$
 \end_inset
 
 .
- In typical sparse graphs, the overhead of maintaining an additional data
- structure may outweigh the benefit of a lower worst-case complexity bound,
- which is why this optimization is currently not implemented.
- However, for sake of computing the complexity of other algorithms, the
- theoretical bound of 
-\begin_inset Formula $O(e)$
+\end_layout
+
+\begin_layout Standard
+Note that for the second algorithm, the 
+\begin_inset Formula $O(\left|E\right|)$
 \end_inset
 
- is used.
+ bound is tight, while time required for the first algorithm correlates
+ with the size of the attractor set calculated, and consequently the first
+ implementation can outperform the second in practice.
+ However, the second algorithm has the additional benefit of not requiring
+ successor information to be stored in the graph.
+ For algorithms which rely heavily on subgame construction, this can result
+ in an additional performance improvement.
+\end_layout
+
+\begin_layout Standard
+(Note: the worst-case time complexity of the first algorithm can also be
+ reduced to 
+\begin_inset Formula $O(\left|E\right|)$
+\end_inset
+
+ by tracking the first successor outside the attractor set for each opponent-con
+trolled vertex.
+ However, this does not remove the dependence on successor edges.)
 \end_layout
 
 \begin_layout Standard
@@ -4144,7 +4144,242 @@ name "alg:Attractor-set-computation"
 
 \end_layout
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+wide false
+sideways false
+status open
+
 \begin_layout Plain Layout
+\begin_inset listings
+lstparams "language={C++},numbers=left,tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Set<Vertex> make_attractor_set(
+\end_layout
+
+\begin_layout Plain Layout
+
+	ParityGame game, Player player,
+\end_layout
+
+\begin_layout Plain Layout
+
+	Set<Vertex> initial, Strategy s )
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	Vector<Integer> liberties = { 0, 0, 0 ..
+ }
+\end_layout
+
+\begin_layout Plain Layout
+
+	for v in game.graph.V {
+\end_layout
+
+\begin_layout Plain Layout
+
+		for u in game.graph.predecessors(v) {
+\end_layout
+
+\begin_layout Plain Layout
+
+			liberties[u]++
+\end_layout
+
+\begin_layout Plain Layout
+
+		}
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+	Queue<Vertex> todo
+\end_layout
+
+\begin_layout Plain Layout
+
+	Set<Vertex> attr
+\end_layout
+
+\begin_layout Plain Layout
+
+	for v in initial {
+\end_layout
+
+\begin_layout Plain Layout
+
+		attr.insert(v)
+\end_layout
+
+\begin_layout Plain Layout
+
+		todo.push_back(v)
+\end_layout
+
+\begin_layout Plain Layout
+
+		liberties[v] = 0
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+	while not todo.empty() {
+\end_layout
+
+\begin_layout Plain Layout
+
+		Vertex v = todo.pop_front()
+\end_layout
+
+\begin_layout Plain Layout
+
+		for u in game.graph.predecessors(v) {
+\end_layout
+
+\begin_layout Plain Layout
+
+			if liberties[u] == 0 {
+\end_layout
+
+\begin_layout Plain Layout
+
+				continue
+\end_layout
+
+\begin_layout Plain Layout
+
+			}
+\end_layout
+
+\begin_layout Plain Layout
+
+			if game.player(u) == player {
+\end_layout
+
+\begin_layout Plain Layout
+
+				strategy[u] = v
+\end_layout
+
+\begin_layout Plain Layout
+
+				liberties[u] = 0
+\end_layout
+
+\begin_layout Plain Layout
+
+			} else {
+\end_layout
+
+\begin_layout Plain Layout
+
+				liberties[u]--
+\end_layout
+
+\begin_layout Plain Layout
+
+				if liberties[u] == 0 {
+\end_layout
+
+\begin_layout Plain Layout
+
+					strategy[u] = NO_VERTEX
+\end_layout
+
+\begin_layout Plain Layout
+
+				} else {
+\end_layout
+
+\begin_layout Plain Layout
+
+					continue
+\end_layout
+
+\begin_layout Plain Layout
+
+				}
+\end_layout
+
+\begin_layout Plain Layout
+
+			}
+\end_layout
+
+\begin_layout Plain Layout
+
+			attr.insert(u)
+\end_layout
+
+\begin_layout Plain Layout
+
+			todo.push_back(u)
+\end_layout
+
+\begin_layout Plain Layout
+
+ 		}
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+	return attr
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Attractor set computation 
+\begin_inset CommandInset label
+LatexCommand label
+name "alg:Attractor-set-computation-2"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
 
 \end_layout
 
@@ -13492,25 +13727,1163 @@ Because of these large individual differences, the ratios reported should
  up Small Progress Measures in practice, especially for the two-sided approach.
 \end_layout
 
+\begin_layout Section
+Effectiveness of cycle removal
+\end_layout
+
 \begin_layout Standard
-\begin_inset Note Note
+\begin_inset Float table
+wide false
+sideways false
 status open
 
 \begin_layout Plain Layout
-maybe more benchmarks to include?
-\end_layout
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="8" columns="9">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top" width="0">
+<column alignment="decimal" decimal_point="." valignment="top" width="0">
+<column alignment="decimal" decimal_point="." valignment="top" width="0">
+<column alignment="decimal" decimal_point="." valignment="top" width="0">
+<column alignment="decimal" decimal_point="." valignment="top" width="0">
+<column alignment="decimal" decimal_point="." valignment="top" width="0">
+<column alignment="decimal" decimal_point="." valignment="top" width="0">
+<column alignment="decimal" decimal_point="." valignment="top" width="0">
+<column alignment="decimal" decimal_point="." valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
 
 \begin_layout Plain Layout
-- effect of preprocessing (SCC/decycle)
+
 \end_layout
 
+\end_inset
+</cell>
+<cell multicolumn="1" alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
 \begin_layout Plain Layout
-- effectiveness of priority propagation (also on random games)
+\begin_inset Formula $\phi_{8}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="1" alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\phi'_{1000}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="1" alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $G_{8}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="1" alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+\begin_inset Formula $G'_{6}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+SPM
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Decycle
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Decycle
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Decycle
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Decycle
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+10.539
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+31.530
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+196.639
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+216.342
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+51.175
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+61.961
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+139.439
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+128.528
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+DeSCC
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+4.096
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+28.271
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+37.648
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+38.093
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+49.206
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+45.863
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+65.821
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+68.466
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="1" alignment="decimal" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\phi_{8}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="1" alignment="decimal" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\phi'_{1000}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="1" alignment="decimal" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+\begin_inset Formula $G_{8}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="1" alignment="decimal" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+\begin_inset Formula $G'_{8}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Zielonka
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Decycle
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Decycle
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Decycle
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Decycle
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+425.355
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+28.716
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.385
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1.085
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+13.153
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+7.196
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+8.711
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+12.801
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+DeSCC
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+3.048
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+27.370
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+0.283
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1.137
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+13.792
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+12.577
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+18.996
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+16.501
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Effectiveness of cycle removal on nonrandom cases (time in seconds) 
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:Decycle-effectiveness-spgip"
+
+\end_inset
+
+
 \end_layout
 
 \end_inset
 
 
+\end_layout
+
+\end_inset
+
+Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:Decycle-effectiveness-spgip"
+
+\end_inset
+
+ shows how preprocessing the game using cycle removal (Decycle) and/or decomposi
+tion into strongly connected components (DeSCC) affects the total running
+ time for nonrandom testcases.
+ For Small Progress Measures, the predecessor lifting strategy in the improved
+ framework was used.
+ The bold figures mark the lowest solution time among the four possible
+ configurations.
+ These results show that in most cases SCC decomposition is more effective
+ than cycle removal.
+ However, in the fair elevator case (
+\begin_inset Formula $G_{8}$
+\end_inset
+
+) cycle removal provides clear benefits.
+\end_layout
+
+\begin_layout Standard
+These results are not entirely unsurprising since the games for 
+\begin_inset Formula $\phi'$
+\end_inset
+
+ contain no winner-controlled cycles except for a single vertex with maximum
+ priority that contains a loop, so in these cases, cycle removal is equivalent
+ to loop removal.
+ The games for 
+\begin_inset Formula $\phi$
+\end_inset
+
+ contain a similar loop, and also a small winner-controlled cycle for the
+ other player with a large attractor set that allows roughly half of the
+ game to be solved by the decycle solver.
+ Surprisingly, this appears to benefit Zielonka's recursive algorithm, but
+ not Small Progress Measures.
+ However, cycle removal still is not very useful there, because better results
+ can be achieved by only applying SCC decomposition.
+ (This reinforces the idea, as suggested in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "friedmann2009solving"
+
+\end_inset
+
+ and 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "gazda2013zielonka"
+
+\end_inset
+
+, that Zielonka's algorithm performs best when combined with SCC decomposition.)
+\end_layout
+
+\begin_layout Standard
+For the fair elevator case, it is interesting that cycle removal combined
+ with SCC decomposition yields best results when solving with Small Progress
+ Measures, but adding SCC decomposition only slows down Zielonka's algorithm
+ in this case.
+\end_layout
+
+\begin_layout Standard
+Finally, it should be noted that in all cases where the preprocessing increased
+ the total solving time, manual inspection of the solver output showed that
+ this increase can be entirely ascribed to the time spent on preprocessing.
+ The time spent by the general solver never increases, so these preprocessing
+ steps do not seem to increase the difficulty of the underlying games.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="4" columns="5">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top" width="0">
+<column alignment="decimal" decimal_point="." valignment="top" width="0">
+<column alignment="decimal" decimal_point="." valignment="top" width="0">
+<column alignment="decimal" decimal_point="." valignment="top" width="0">
+<column alignment="decimal" decimal_point="." valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="1" alignment="decimal" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Unclustered Random
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="1" alignment="decimal" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Clustered Random
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Zielonka
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Decycle
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Decycle
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+8.889
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+9.838
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+26.373
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+16.044
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+DeSCC
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+22.795
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+9.817
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+27.346
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="decimal" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+14.838
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Effectiveness of cycle removal on nonrandom cases (time in seconds) 
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:Decycle-effectiveness-random-games"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:Decycle-effectiveness-random-games"
+
+\end_inset
+
+ shows the running times on random graphs of 
+\begin_inset Formula $10^{7}$
+\end_inset
+
+ vertices, average outdegree 3 and 10 different priorities.
+ The clustered games are generated with cluster size 100.
+ Runing times are averaged over 10 trials per configuration with different
+ random graphs (though resulting timings varied little).
+ Since these games are much too large to solve with Small Progress Measures,
+ which already gets stuck on graphs with a few hundred thousand vertices,
+ benchmarks have been performed using Zielonka's recursive algorithm only,
+ which tends to be very effective at solving random games.
+\end_layout
+
+\begin_layout Standard
+In fact, Zielonka's algorithm is so effective that solving the unclustered
+ random games directly is faster than applying any sort of preprocessing.
+ SCC decomposition adds 14 seconds of preprocessing overhead (without benefit,
+ since these games tend to consist of one large component) and although
+ cycle removal can solve such games entirely without invoking the general
+ solver, this still takes somewhat longer than solving the game directly.
+\end_layout
+
+\begin_layout Standard
+The clustered random games are somewhat more difficult to solve, and here
+ the preprocessing algorithms are benefical.
+ Roughly 90% of the game can be solved using cycle removal, and running
+ SCC decomposition afterwards further simplifies the problem.
+ In these cases, preprocessing operations actually speed up the solution
+ process.
+\end_layout
+
+\begin_layout Standard
+To summarize, cycle removal is highly effective on random games, on which
+ SCC decomposition is not effective at all.
+ However, Zielonka's algorithm is already quite good at solving random games
+ (especially of the unclustered variety) so this benefit applies primarily
+ to Small Progress Measures.
+ However, results on clustered random games show that even Zielonka's algorithm
+ can benefit from these optimizations.
+\end_layout
+
+\begin_layout Standard
+On nonrandom cases, the results are mixed: in only one of the four cases
+ described here cycle removal caused a significant speedup.
+ However, the fact that such cases exist suggests that it is a useful feature
+ to support.
 \end_layout
 
 \begin_layout Chapter
