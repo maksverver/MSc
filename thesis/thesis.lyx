@@ -1107,24 +1107,22 @@ key "emerson1991tree"
 
 \end_inset
 
-, and many high-level specification languages can be converted into labelled
- transition systems, and many temporal logics (such as CTL and LTL) can
- be expressed in the modal 
+.
+ Since many high-level specification languages can be converted into labelled
+ transition systems, and formulas expressed in commonly used temporal logics
+ (including LTL, CTL and CTL*) can be translated to the modal 
 \begin_inset Formula $\mu$
 \end_inset
 
--calculus, 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-citation?
-\end_layout
+-calculus
+\begin_inset CommandInset citation
+LatexCommand cite
+key "emerson1997model"
 
 \end_inset
 
- efficient algorithms for solving parity games could provide the basis of
- a comprehensive approach to model checking.
+, efficient algorithms for solving parity games could provide the basis
+ of a comprehensive approach to model checking.
 \end_layout
 
 \begin_layout Standard
@@ -1909,22 +1907,8 @@ reference "sub:Optimization-after-lifting"
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-+ add: Parallel/distributed implementations
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
 Finally, my report includes an empirical evaluation of these algorithms
- and techniques (some novel, some only known from literature, and some previousl
-y evaluated) in order to give more insight in which techniques are most
+ and techniques in order to give more insight in which techniques are most
  useful when solving parity games in practice (in chapter 
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -2868,49 +2852,53 @@ Some game graphs are not completely connected, in the sense that there may
  other.
  These games can be solved more efficiently by identifying strongly connected
  components, solving each component separately, and then combining the results.
- There are two different ways to solve this.
 \end_layout
 
 \begin_layout Standard
-The first approach is to solve components in reverse topological order.
- Before solving the subgame induced by a component, we add edges to dummy
- vertices (one won by Even and one won by Odd) for any existing edges that
- have a target outside the current component, depending on which winning
- set contains their target.
- Because of the order in which components are solved, these winning sets
- are well-defined for vertices outside but reachable from the current component.
- The main advantage of this approach is that it requires running the decompositi
-on algorithm only once, although creating temporary vertices and edges complicat
-es the implementation somewhat.
+An easy way to implement this is to solve components in reverse topological
+ order.
+ When a component has edges pointing to vertices outside the current component,
+ these can be replaced by edges to dummy vertices (one won by Even and one
+ won by Odd) and then the subgame induced by the component can be solved.
+ (Solving the components bottom-up guarantees the winner for vertices outside
+ of but reachable from the current component is well-defined.) This approach
+ is simple and has the advantage that the decomposition algorithm is run
+ only once, so its overhead is strictly limited to 
+\begin_inset Formula $O(E)$
+\end_inset
+
+ time.
+ However, it may miss some opportunities for decomposition.
 \end_layout
 
 \begin_layout Standard
-A slightly more advanced approach was introduced in PGSolver and implemented
- in my solver as well.
- Here, we look only for a single leaf component (a component with no outgoing
- edges) and solve its induced subgame (which is necessarily a proper subgame).
- Then, we extend the winning sets for both players to their attractor sets
- in the main game.
- The main game is then replaced by a subgame induced by the complement of
- the original graph with these attractor sets removed, and the process is
- repeated until a single component remains.
- Because we remove attractor sets of winning sets only, the constructed
- subgames remain proper subgames.
+A somewhat more sophisticated approach is to extend the winning regions
+ identified after solving a component into their attractor sets in the main
+ game.
+ Then, when considering a component which contains some previously-solved
+ vertices, we can construct a subgame without those vertices and recursively
+ invoke the decomposition algorithm, which may be able to break down the
+ graph into even smaller components.
 \end_layout
 
 \begin_layout Standard
-In the second approach, we must decompose the graph and constructing a (typicall
-y large) subgame once for every subcomponent that is found.
- This seems less efficient than the first approach, but it has advantages
- as well, mainly stemming from the fact that the attractor sets of winning
- sets may extend far into the main game, removing solved parts of the graph
- which are much larger than the component which was last solved, and creating
- more separate components in the unsolved part of the graph than were present
- initially.
- In cases where the initial game graph consists of a single component, the
- decomposition algorithm is run only once, and no subgame needs to be constructe
-d, so the overhead is limited (and comparable to that of the first approach)
- in these cases.
+The second method relies on the observation that removing attractor sets
+ of winning regions from a game results in a proper subgame, so no dummy
+ vertices are required, and has the advantage of being able to cheaply solve
+ additional vertices through attractor set computation (thus never invoking
+ the general solver for those vertices) and possibly creating smaller subgames
+ to solve (when removal of attractor sets splits up a large component).
+\end_layout
+
+\begin_layout Standard
+The latter method is implemented in PGSolver and my solver as well.
+ It seems to work well in practice, though there is a risk: since the decomposit
+ion algorithm is invoked recursively, it is possible to waste a lot of time
+ decomposing graphs rather than solving games.
+ To prevent this, my solver imposes a limit on the recursion depth (by default:
+ maximum 10 recursive invocations); when the maximum recursion depth is
+ reached, subgames are passed directly to the general solver, without attempting
+ to decompose the game graph further.
 \end_layout
 
 \begin_layout Standard
@@ -2918,16 +2906,20 @@ d, so the overhead is limited (and comparable to that of the first approach)
 status open
 
 \begin_layout Plain Layout
-NOTE: this 
-\begin_inset Quotes eld
+add an illustration of method 2?
+\end_layout
+
 \end_inset
 
-second approach
-\begin_inset Quotes erd
-\end_inset
 
- is what PGsolver implements, but isn't how I implemented it at all! Maybe
- this whole section is out of place?
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+add degenerate case? (see: tools/generate-scc-hard-game.py)
 \end_layout
 
 \end_inset
