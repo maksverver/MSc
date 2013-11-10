@@ -3,7 +3,7 @@
 # Usage:
 #   generate-scc-hard-game.py <N>
 #
-# Generates a game with 4N vertices that is designed to take a long time to
+# Generates a game with 4*N vertices that is designed to take a long time to
 # solve with solvers that decompose games into strongly-connected components
 # with unlimited recursion (taking O(N*N) time in those cases).
 #
@@ -11,7 +11,7 @@
 #
 # Design:
 #
-# For N=5 we have 4*N vertices numbered 0 through 4*N (exclusive).
+# For argument N, we have 4*N vertices numbered 0 through 4*N (exclusive).
 #
 #   player(4*i + 0) = player(4*i + 2) = 0
 #   player(4*i + 1) = player(4*i + 3) = 1
