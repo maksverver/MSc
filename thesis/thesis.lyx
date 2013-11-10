@@ -974,8 +974,8 @@ Given a polynomial-time algorithm to verify the optimality of a pair of
  general problem of determining winning sets as well as strategies can be
  solved by nondeterministically guessing the winner and an optimal move
  for each vertex, which puts the problem in NP (the set of problems decidable
- by a non-deterministic Turing machine and verifiable by a deterministic
- Turing machine in polynomial time) and co-NP (by symmetry of the problem:
+ in polynomial time by a non-deterministic Turing machine and verifiable
+ by a deterministic Turing machine) and co-NP (by symmetry of the problem:
  absence of a winning strategy for one player can be proven by showing a
  winning strategy for the other player).
  The strategies are certificates to the solution.
@@ -993,7 +993,7 @@ NP and co-NP are generally believed to be distinct, and since the existence
 \begin_layout Standard
 If there exists a polynomial-time algorithm that determines winning sets
  only (without associated strategies) then full solutions can be constructed
- in polynomial time too.
+ in polynomial time too, again by guessing winning strategies.
  This restricted problem has been shown to be in UP 
 \begin_inset Formula $\cap$
 \end_inset
@@ -1128,13 +1128,15 @@ key "emerson1997model"
 \begin_layout Standard
 Not only are parity games sufficiently powerful to express these problems,
  but conversion from the model checking problem to parity games yields reasonabl
-y compact games, where the number of vertices equals the product of the
- number of states in the LTS and the number of subexpressions in the 
+y compact games.
+ The number of vertices equals the product of the number of states in the
+ LTS and the number of subexpressions in the 
 \begin_inset Formula $\mu$
 \end_inset
 
--calculus formula, and the number of priorities corresponds with the alternation
- depth of fixed-point operators in the formula (for example, see 
+-calculus formula.
+ The number of priorities corresponds with the alternation depth of fixed-point
+ operators in the formula (for example, see 
 \begin_inset CommandInset citation
 LatexCommand cite
 key "obdrzalek2006algorithmic"
@@ -1142,9 +1144,9 @@ key "obdrzalek2006algorithmic"
 \end_inset
 
  for one explicit construction method).
- Finally, these games can be constructed in linear time, and thus model
- checking via parity games would be a very practical approach, assuming
- the resulting parity games can be solved quickly.
+ Finally, and importantly, these games can be constructed in linear time.
+ Thus, model checking via parity games would be a very practical approach,
+ assuming the final parity games can be solved quickly.
 \end_layout
 
 \begin_layout Section
@@ -2949,9 +2951,9 @@ tion, which makes it worthwhile to implement a verification routine to validate
 
 \begin_layout Standard
 Note that solutions produced by different algorithms cannot generally be
- compared: although winning sets are unique (and thus can be compared) strategie
-s are generally not, so when two algorithms produce two different pairs
- of strategies, that does not imply either is wrong.
+ compared: although winning sets are unique, strategies are generally not,
+ so when two algorithms produce different strategies, that does not imply
+ either is wrong.
 \end_layout
 
 \begin_layout Standard
@@ -3002,7 +3004,7 @@ To solve the game, we iteratively identify an even cycle
 \noun off
 \color none
 and then solve the smaller subgame 
-\begin_inset Formula $\Gamma|V\setminus Attr^{x}(\Gamma,\{c_{1},c_{2}\ldots,c_{n}\})$
+\begin_inset Formula $\Gamma|V\setminus Attr^{0}(\Gamma,\{c_{1},c_{2}\ldots,c_{n}\})$
 \end_inset
 
  in the same manner.
@@ -3079,7 +3081,7 @@ i
 \end_layout
 
 \begin_layout Standard
-To find an even cycle, then, it suffices to search for 
+To find an even cycle, then, it suffices to search for a 
 \begin_inset Formula $i$
 \end_inset
 
@@ -3133,7 +3135,7 @@ key "tarjan1971depth"
  This way, the algorithm requires at most 
 \series bold
 
-\begin_inset Formula $O(d)$
+\begin_inset Formula $\left\lceil \frac{d}{2}\right\rceil $
 \end_inset
 
 
@@ -3145,31 +3147,14 @@ key "tarjan1971depth"
  total time.
 \end_layout
 
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-How does 
-\family typewriter
-solve_single_player_scc
-\family default
- work in PGSolver?
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
 \begin_layout Subsection
 Verification algorithm
 \end_layout
 
 \begin_layout Standard
-We are only interested in the strategy for vertices that are in the winning
- set of the player that controls them.
- Assume we are verifying the set 
+When verifying strategies, we are only interested in vertices that are in
+ the winning set of the player that controls them.
+ To verify the set 
 \begin_inset Formula $W_{x}$
 \end_inset
 
@@ -3181,8 +3166,7 @@ We are only interested in the strategy for vertices that are in the winning
 \begin_inset Formula $x$
 \end_inset
 
-.
- Define a graph with vertices limited to 
+, we first define a graph with vertices limited to 
 \begin_inset Formula $W_{x}$
 \end_inset
 
@@ -3202,8 +3186,7 @@ E|\sigma_{x}=\left\{ vw\in E:v\in\left(W_{x}\cap V_{x}\right)\wedge\sigma_{x}(v)
 \end_layout
 
 \begin_layout Standard
-Less formally, the edge set includes the edges that are consistent with
- 
+Informally, the edge set includes the edges that are consistent with 
 \begin_inset Formula $x$
 \end_inset
 
@@ -3221,7 +3204,7 @@ Less formally, the edge set includes the edges that are consistent with
 \begin_inset Formula $W_{x}$
 \end_inset
 
- in which case it cannot be the right winning set).
+ in which case it cannot be a correct winning set).
 \end_layout
 
 \begin_layout Standard
@@ -3278,7 +3261,7 @@ To verify that the original strategy was sound, we can solve this single
 \begin_inset Formula $\sigma_{x}$
 \end_inset
 
- is valid in 
+ is winning in 
 \begin_inset Formula $W_{x}$
 \end_inset
 
@@ -3291,7 +3274,7 @@ To verify that the original strategy was sound, we can solve this single
 \begin_inset Formula $W_{x-1}=V\setminus W_{x}$
 \end_inset
 
- is a winning set for the opponent 
+ is also a winning set for the opponent 
 \begin_inset Formula $x-1$
 \end_inset
 
@@ -3299,7 +3282,7 @@ To verify that the original strategy was sound, we can solve this single
 \end_layout
 
 \begin_layout Standard
-Complete verification of winning sets and strategies therefore requires
+In conclusion, complete verification of winning sets and strategies requires
  solving two single-player games, each of which takes 
 \begin_inset Formula $O(d\left|E\right|)$
 \end_inset
@@ -3338,56 +3321,44 @@ Common algorithms and data structures
 
 \begin_layout Standard
 The results that will be presented later on are based on emperical evaluation
- of various parity game solving algorithms on both synthetic and real-world
- cases.
- The results obtained therefore depend not only on the choice of algorithms,
- but also on various implementation details, such as the data structures
- and programming techniques used to implement those algorithms.
+ of various parity game solving algorithms on a variety of test cases.
+ The results obtained therefore depend not only on the test cases used and
+ the choice of algorithms implemented, but also on various implementation
+ details, such as the data structures and programming techniques used to
+ implement those algorithms.
 \end_layout
 
 \begin_layout Standard
-It has been shown that in practice different experimental tools have different
- performance characteristics despite being based on the same theoretical
- algorithms.
- 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-cite some proof?
-\end_layout
-
-\end_inset
-
- This phenomon occurs because of undocumented differences in the implementation
- of these different tools, sometimes arising from intentional changes to
- those algorithms (preprocessing operations or optimizations for particular
- instances, for example) and more often because the algorithms described
- in literature are usually not described to a sufficient level of detail
- that they can be implemented without being forced to make concrete implementati
-on choices.
- For theoretical analysis this is not necessary (and usually, in the interest
- of conciseness, not desired), but for practical results it matters significantl
-y how the missing parts are implemented concretely.
+Different tools typically exhibit different performance characteristics
+ in practice, even when they are based on the same algorithms.
+ This occurs due to differences in implementation that are often left unspecifie
+d when new algorithms are published.
+ In these publications analysis of the theoretic properties of algorithms
+ takes precedence, and as a result, various design decisions that do affect
+ performance in practice are left up to the implementor.
 \end_layout
 
 \begin_layout Standard
-To ensure that the results presented here are reproducible, and to make
- the differences in results obtained with different tools easier to understand
- and explain, I will document the choices that I made in the implementation
- of my solving tool to a fair amount of detail.
+To ensure that the results presented in this report are reproducible, and
+ to make the differences in results obtained with different tools easier
+ to understand and explain, I will document the choices that I made in the
+ implementation of my solver in more detail than would be expected in a
+ typical research paper.
  In particular, the core data structures and the algorithms will be documented
  precisely.
 \end_layout
 
 \begin_layout Standard
-Finally, the descriptions provided here and in later chapters are a useful
- key to understanding the source code of my solver tool, since it provides
- a high-level overview of its design.
+Finally, the descriptions provided here may aid in the understanding of
+ the source code of my solver tool.
 \end_layout
 
 \begin_layout Section
 Parity Games
+\end_layout
+
+\begin_layout Subsection
+Requirements
 \end_layout
 
 \begin_layout Standard
@@ -3414,8 +3385,8 @@ Finally, since practical instances of parity games tend to be fairly large,
  it is desirable that the parity game representation is as compact as possible,
  to the extend this is possible without compromising access speed.
  This not only reduces the amount of memory needed to solve particularly
- large instances, but also ensures that the solving algorithms benefit maximally
- from cache effects.
+ large instances, but also helps solving algorithms take advantage from
+ available cache memory.
 \end_layout
 
 \begin_layout Subsection
@@ -3520,8 +3491,8 @@ Determine if
 \begin_inset Formula $vw\in E$
 \end_inset
 
- (using binary search, this could take 
-\begin_inset Formula $O\left(log\left(\left|vE\right|+1\right)\right)$
+ (using binary search, this takes 
+\begin_inset Formula $O\left(1+log\left(\left|vE\right|\right)\right)$
 \end_inset
 
  time).
@@ -3529,7 +3500,7 @@ Determine if
 
 \begin_layout Standard
 Of course, the first operation is the one that is most common.
- Next, we can apply two simplifications.
+ We can apply two further simplifications.
  First, since the predecessor vertex of all edges with indices between 
 \begin_inset Formula $\mathtt{succBegin[v]}$
 \end_inset
@@ -3604,9 +3575,9 @@ This it the final representation that is used, and requires
 It should be noted that this dense edge representation does not allow efficient
  insertion or removal of individual edges in the game graph, because each
  such operation requires a large part of the edge array to be moved.
- Fortunately, the preprocessing algorithms that are applied in the solver
- are applied to the graph as a whole, and the cost of individual changes
- can therefore be amortized over the entire graph-wide operation.
+ Fortunately, the algorithms implemented in the solver can be applied to
+ the graph as a whole, and the cost of individual changes can therefore
+ be amortized over the entire graph-wide operation.
 \end_layout
 
 \begin_layout Subsection
@@ -3631,15 +3602,15 @@ the associated priority value,
 \end_layout
 
 \begin_layout Standard
-These two attributes are packed into a two-byte structure, and stored in
- an array of length 
+These two attributes are packed into a structure, and stored in an array
+ of length 
 \begin_inset Formula $\left|V\right|$
 \end_inset
 
 .
- Note that this limits the maximum priority that can be represented to 255,
- which seems low, but is much larger than occurs in practice (although synthetic
- cases with larger priorities could easily be generated).
+ (To keep the representation compact, the maximum priority is limited to
+ 65535, which can be stored in a 16-bit integer.
+ High priority values occur very rarely in practical cases.)
 \end_layout
 
 \begin_layout Standard
@@ -3730,7 +3701,7 @@ W_{x}=\{v\in V_{x}:\;\mathtt{solution[v]}\neq-1\}
 \[
 \sigma_{x}(v)=\begin{cases}
 \mathtt{solution[v]} & \mbox{ if }v\in W_{x}\\
-\min(vE) & \mbox{ if \ensuremath{v\notin W_{x}}}
+\min\left(vE\right) & \mbox{ if \ensuremath{v\notin W_{x}}}
 \end{cases}
 \]
 
@@ -3766,10 +3737,10 @@ Many algorithms require subgames to be constructed.
 \end_layout
 
 \begin_layout Standard
-The main cost in constructing a subgame comes from the construction the
- successor and/or predecessor arrays of the subgraph, which is done by iterating
- over all successors (or predecessors, as the case may be) of vertices in
- 
+The computational cost of constructing a subgame is dominated by construction
+ of the successor and/or predecessor arrays of the subgraph, which is done
+ by iterating over all successors (or predecessors, as the case may be)
+ of vertices in 
 \begin_inset Formula $U$
 \end_inset
 
@@ -3790,12 +3761,12 @@ The main cost in constructing a subgame comes from the construction the
 
 
 \bar default
- then vertex lists need to be resorted too, but usually this is not necessary;
- for most purposes 
+ then vertex lists need to be resorted too, but usually this is not necessary,
+ as inmost purposes 
 \begin_inset Formula $U$
 \end_inset
 
- can be constructed as a subsequence of 
+ is constructed as a subsequence of 
 \begin_inset Formula $V$
 \end_inset
 
@@ -3821,35 +3792,23 @@ To filter vertices efficiently, either a hashtable or a boolean array is
 \begin_inset Formula $U$
 \end_inset
 
-.
- If we assume the graph to be sparse (i.e.
- the outdegree is 
-\begin_inset Formula $O(1)$
-\end_inset
-
-) then subgame construction takes 
-\begin_inset Formula $O(\left|U\right|)$
-\end_inset
-
- space.
- Even if the graph is not sparse, subgame construction takes time linear
- in the number of edges of the resulting subgraph, as long as the outdegree
- of the subgame is comparable to that of the vertices in the original graph.
+; as long as the outdegree of the game and its subgame are equal, time required
+ is proportional to the number of edges in the subgame.
+ To analyze the complexty of algorithms that rely on subgame construction
+ (which includes Zielonka's algorithm, and many preprocessing operations)
+ we will generally assume this property holds.
 \end_layout
 
 \begin_layout Standard
-This is the assumption that will be used in this report to analyze the complexit
-y of algorithms that rely on subgame construction, which includes Zielonka's
- algorithm, as well as many preprocessing operations.
- Finally, it should be noted that when constructing subgames, the array
- 
+Finally, it should be noted that when constructing subgames, the original
+ array 
 \begin_inset Formula $U$
 \end_inset
 
- is kept around to be able to map the vertex indentifiers in the subgame
+ may be kept around to be able to map the vertex identifiers in the subgame
  back to the original game, which is necesssary to propagate solution and
- strategy information back to the main game, and to gather global statistics
- and debugging information.
+ strategy information from a subgame back to the main game (as well as to
+ gather global statistics and debugging information).
 \end_layout
 
 \begin_layout Subsection
@@ -3876,11 +3835,11 @@ Attractor sets can be calculated straightforwardly using a queue and a set,
  are examined.
  Any predecessor which is controlled by the player for whom we are computing
  the attractor set, or which is controlled by his opponent but has no successors
- outside the attractor set, is added to the queue and the attractor set,
- and (optionally) the strategy for the new vertex is updated.
- Because the attractor set computation is analogous to a breadth-first search,
- the strategy reflects the shortest path from vertices in the extended attractor
- set to vertices in the initial set.
+ outside the attractor set, is added to both the queue and the attractor;
+ typically, a strategy is assigned to this vertex as well.
+ Attractor set computation works similar to a breadth-first search, and
+ as a consequence the strategy reflects the shortest path from vertices
+ in the extended attractor set to vertices in the initial set.
  The algorithm is presented in detail as Algorithm 
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -3892,14 +3851,15 @@ reference "alg:Attractor-set-computation"
 \end_layout
 
 \begin_layout Standard
-Computing attractor sets this way requires both predecessor and successor
- information to be stored in the graph, and the resulting algorithm is reasonabl
-y efficient for sufficiently sparse graphs.
- However, the worst-case complexity is as high as 
+This algorithm is reasonably efficient for sufficiently sparse graphs, but
+ it has two drawbacks.
+ First, it requires both predecessor and successor information to be stored
+ in the graph.
+ Second, the worst-case complexity is as high as 
 \begin_inset Formula $O(\left|E\right|\left|V\right|)$
 \end_inset
 
-.
+, even for sparse graphs.
  This complexity arises from the fact that when a predecessor is controlled
  by the opponent of the player for whom the attractor set is computed, then
  all successors of this vertex must be evaluated to see if an edge to a
@@ -3909,7 +3869,8 @@ y efficient for sufficiently sparse graphs.
 \end_layout
 
 \begin_layout Standard
-Lets call the successors of a vertex which lie outside the attractor set
+Fortunately, there is a way to mitigate this problem.
+ Lets call the successors of a vertex which lie outside the attractor set
  its 
 \emph on
 liberties
@@ -4394,8 +4355,8 @@ key "tarjan1971depth"
 
  is used, which enumerates all strongly connected components in reverse
  topological order, which means that when a component is found all edges
- lead to vertices within the component, or into one of the components found
- before.
+ starting at a vertex in the component end at vertices either inside the
+ same component, or in one of the components found before.
  The algorithm requires 
 \begin_inset Formula $O(\left|E\right|)$
 \end_inset
@@ -4414,7 +4375,7 @@ The algorithm as described by Tarjan is based on a depth-first search of
  Depth-first search is typically implemented as a recursive procedure, but
  this is impractical for very large graphs, where high recursion depth may
  exhaust the available stack space.
- Therefore, the implementation uses an iterative approach, with an explicit
+ Therefore, my implementation uses an iterative approach, with an explicit
  stack data structure which is stored in the heap.
  In addition to removing the limitations on recursion depth, this reduces
  memory use substantially, because the on-heap state representation (consisting
@@ -4427,13 +4388,34 @@ Components are passed to a callback function as an array of indices of vertices
  in the original graph.
  Such an array can be used to construct a subgame for the component, as
  described above, though it should be noted that the subgame induced by
- a strongly connected component of the game graph is not typically a proper
- subgame itself, unless there are no edges going out of the current component.
+ a strongly connected component of the game graph is not necessarily a proper
+ subgame itself.
 \end_layout
 
 \begin_layout Standard
-The decomposition algorithm is used to implement solving of individual component
-s, removal of owner-controlled cycles and verification of games.
+The decomposition algorithm is used to solve individual components separately
+ (see Subsection 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Decomposition-into-SCCs"
+
+\end_inset
+
+), removal of winner-controlled cycles (see Subsection 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Winner-controlled-cycle-removal"
+
+\end_inset
+
+) and verification of games (see Section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Verification"
+
+\end_inset
+
+).
 \end_layout
 
 \begin_layout Standard
@@ -7797,7 +7779,14 @@ name "alg:Winner-controlled-cycle-removal"
 \end_layout
 
 \begin_layout Subsubsection
-Decomposition into strongly-connected components
+Decomposition into strongly-connected components 
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Decomposition-into-SCCs"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
