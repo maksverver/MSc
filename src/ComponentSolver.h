@@ -50,7 +50,7 @@ private:
 
 protected:
     ParityGameSolverFactory  &pgsf_;        //!< Solver factory to use
-    const bool               max_depth_;    //!< Max. recusion depth
+    const int                max_depth_;    //!< Max. recusion depth
     const verti              *vmap_;        //!< Current vertex map
     const verti              vmap_size_;    //!< Size of vertex map
     ParityGame::Strategy     strategy_;     //!< Resulting strategy
