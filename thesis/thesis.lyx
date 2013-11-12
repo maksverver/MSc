@@ -2845,7 +2845,14 @@ In extremely rare cases the game is played on a graph consisting of cycles
 \end_layout
 
 \begin_layout Subsection
-Graphs of multiple components
+Graphs of multiple components 
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Decomposition-into-SCCs"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -4436,8 +4443,8 @@ Small Progress Measures
 \end_layout
 
 \begin_layout Standard
-Small Progress Measures is a relatively simple, iterative algorithm for
- partially solving parity games proposed by Marcin Jurdziński.
+Small Progress Measures (or SPM for short) is a relatively simple, iterative
+ algorithm for partially solving parity games proposed by Marcin Jurdziński.
  A game is solved only partially in the sense that the winning set and optimal
  strategy for one player is determined.
  To solve a game completely, the algorithm must therefore be run twice,
@@ -4447,10 +4454,9 @@ Small Progress Measures is a relatively simple, iterative algorithm for
 \end_layout
 
 \begin_layout Standard
-Small Progress Measures (or SPM for short) is attractive because it is a
- relatively simple which allows it to be implemented easily and provides
- ample opportunity to speed up the core algorithm (for example, through
- parallelization).
+The core algorithm is simple and allows for a straightforward implementation,
+ but also provides ample opportunity for performance improvement (for example,
+ by parallellizing the core algorithm).
  Additionally, the algorithm has one of the lowest worst-case complexity
  bounds known for solving parity games (excluding Schewe's big step approach,
  which invokes SPM recursively) requiring at most 
@@ -4461,8 +4467,8 @@ Small Progress Measures (or SPM for short) is attractive because it is a
 \begin_inset Formula $O(\left|V\right|d)$
 \end_inset
 
- space (in addition to the space required to store the parity game itself)
- although unfortunately those are also lower bounds on the worst case.
+ space (in addition to the space required to store the parity game itself).
+ Unfortunately these are also lower bounds on the worst case.
 \end_layout
 
 \begin_layout Standard
@@ -4551,23 +4557,9 @@ reference "sub:Maximum-Measure-Propagation"
 .
 \end_layout
 
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-parallel and distributed implementations?
-\end_layout
-
-\begin_layout Plain Layout
-3.
- the combination of different optimizations into a single tool (which no
- other tool did)
-\end_layout
-
-\end_inset
-
-
+\begin_layout Itemize
+As a practical result: implementing these improvements combined into a single
+ tool.
 \end_layout
 
 \begin_layout Section
@@ -4582,16 +4574,17 @@ name "sec:SPM-Description"
 \end_layout
 
 \begin_layout Standard
-In this section the Smal Progress Measures algorithm will be described as
- outlined by Jurdziński 
+In this section the Small Progress Measures algorithm will be described
+ as outlined by Jurdziński 
 \begin_inset CommandInset citation
 LatexCommand cite
 key "jurdzinski2000spm"
 
 \end_inset
 
-, using the same function names and similar definitionsfor consistency,
- but without the accompanying correctness proof.
+, using the same function names and similar definitions for consistency,
+ but without the accompanying correctness proof, for which the reader is
+ referred to the original paper.
 \end_layout
 
 \begin_layout Standard
@@ -4994,12 +4987,12 @@ name "sub:Lifting-Strategies"
 \end_layout
 
 \begin_layout Standard
-Jurdziński's algorithm is straightforward, but it leaves open two important
- implementation details:
+Jurdziński's algorithm is straightforward, but it does not explicitly address
+ two implementation details:
 \end_layout
 
 \begin_layout Enumerate
-How can we determine which vertices are liftable (
+How can we determine which which vertices are liftable (
 \family roman
 \series medium
 \shape up
@@ -5015,9 +5008,7 @@ How can we determine which vertices are liftable (
 \begin_inset Formula $Lift(\rho,v)\neq\rho$
 \end_inset
 
-) and similarly, how do we know when the minimum fixed point has been reached
- (i.e.
- when no more liftable vertices remain)?
+)?
 \end_layout
 
 \begin_layout Enumerate
@@ -5026,25 +5017,37 @@ When multiple vertices are liftable, which should we select to improve the
 \end_layout
 
 \begin_layout Standard
-Existing implementations generally follow Jurdziński's formulation, and
- just compute 
+An simple answer to the first question is to try computing 
 \begin_inset Formula $Lift(\rho,v)$
 \end_inset
 
- for different vertices until they find one that changes the current progress
- measure, and when all options are eliminated, conclude that a fixed point
- has been found.
+ for different values of 
+\begin_inset Formula $v$
+\end_inset
+
+ until either one is found that changes the current progress measure, or,
+ when all options are eliminated, conclude that a fixed point has been found.
+ Most implementations follow this approach, which has the benefit that it's
+ simple and sound.
+ However, it's not clear that this leads to best performance in practice.
+ In Subsection 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Eliminating-failed-lifting"
+
+\end_inset
+
+ a better approach will be presented.
 \end_layout
 
 \begin_layout Standard
-The order in which vertices are selected for (potential) lifting is not
- specified by Jurdziński's formulation, because any lifting order will lead
- to the same, unique fixed point.
- However, the order in which vertices are lifted is important in practice,
- because some sequences may be considerably shorter than others, and thus
- result in a faster calculation.
- Since the optimal lifting sequence cannot be predicted in advance, a heuristic
- approach must be used instead.
+Jurdziński leaves the second question unanswered because any lifting order
+ will lead to the same, unique fixed point.
+ For the correctness of the algorithm, the any selection policy will do.
+ However, the order in which vertices are lifted does affect the runtime
+ of the algorithm in practice.
+ Since it is difficult (if not entirely impossible) to predict an optimal
+ lifting sequence in advance, a heuristic strategy must be used instead.
  Jurdziński already hints at the importance of using a suitable lifting
  strategy (which he calls “evaluation policy”): 
 \emph on
@@ -5094,7 +5097,7 @@ This is useful to establish the worst-case complexity but it is also an
 \end_layout
 
 \begin_layout Standard
-This is a tighter bound, but it can only be approached is specially crafted
+This is a tighter bound, but it can only be approached in specially crafted
  graphs, even with the worst possible lifting strategies.
  How much can be gained compared to the 
 \emph on
@@ -5134,6 +5137,29 @@ As will be discussed in detail later, it turns out that we can bound the
 \end_inset
 
  is large enough in practice to justify trying to minimize the lifting sequence.
+ 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+crossreference?
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -5269,7 +5295,7 @@ This separation of concerns exists in most previous implementations of Small
 
 \begin_layout Standard
 In the following, I will describe the most commonly used lifting strategies,
- and how I implemented them in my framework.
+ and how I implemented them in this framework.
  After that, I will describe some of the improvements I made to the core
  algorithm as outlined above.
 \end_layout
@@ -5594,7 +5620,7 @@ The advantage of this strategy is that it prevents a lot of unnecessary
  In fact, the ratio of unsuccesful to succesful lifts is strictly limited
  by the maximum indegree of a vertex in the graph.
  Again, pathological cases can be constructed where this strategy performs
- badly.
+ poorly.
  For example, when the game graph is complete (i.e.
  
 \begin_inset Formula $E=V\times V$
@@ -5628,25 +5654,9 @@ work list approach
  but reject it in their multi-core solver because they are worried about
  the overhead involved in maintaining the necessary data structures in a
  concurrent setting.
-\end_layout
-
-\begin_layout Standard
-However, in my experience, available memory is rarely the limiting factor
- when solving parity games, and the data structures used can be implemented
- efficiently even in a lock-free manner, so I think there is little reason
- to omit this strategy from a solver, even one where high performance in
- a concurrent environment is the primary concern.
- 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-do I have a concurrent implementation?
-\end_layout
-
-\end_inset
-
-
+ (This seems a bit premature: the predecessor lifting strategy seems simpler
+ than the focus list approach described below, and the necessary data structures
+ can easily be implemented in a lockfree manner.)
 \end_layout
 
 \begin_layout Standard
@@ -5900,8 +5910,8 @@ The idea behind the work list is that it captures unstable parts of the
 \end_layout
 
 \begin_layout Standard
-Since Van de Pol and Weber are the only ones to implement this strategy,
- there is little emperical evidence available about its performance, though
+Since Van de Pol and Weber were the only ones to implement this strategy,
+ there is not much emperical evidence available about its performance, though
  they report in 
 \begin_inset CommandInset citation
 LatexCommand cite
@@ -5912,8 +5922,8 @@ key "vandepol2008multicore"
  that it performs much better than linear lifting in some cases, and not
  much worse in most other cases, which suggests it meets its design goals.
  Compared to the predecessor lifting strategy, it has the advantage of being
- able to postpone difficult parts of the game, which may help in some hard
- cases.
+ able to postpone difficult parts of the game (by recycling the worklist
+ when it is not cleared quickly enough) which may help in some hard cases.
 \end_layout
 
 \begin_layout Standard
@@ -6273,8 +6283,9 @@ It is not difficult to imagine scenarios where this order of lifting provides
 \end_inset
 
  is the maximal value in the graph.
- With the normal predecessor lifting strategy, these vertices might have
- been lifted multiple times before inevitably finally reaching top value.
+ With the normal predecessor lifting strategy, some of these vertices might
+ have been lifted multiple times before inevitably finally reaching top
+ value.
 \end_layout
 
 \begin_layout Standard
@@ -6315,8 +6326,8 @@ least
 \begin_layout Standard
 As with predecessor lifting, ties between queued vertices can be broken
  in two ways based on insertion order.
- (Predecessor lifting itself can be viewed as a variant that does not prioritize
- queued vertices at all.)
+ (Predecessor lifting itself can be viewed as the zeroth variant that does
+ not prioritize queued vertices at all.)
 \end_layout
 
 \begin_layout Standard
@@ -6448,10 +6459,10 @@ ion.
 \end_layout
 
 \begin_layout Standard
-Effectively, this turns the core algorithm inside out: instead of checking
- the successors of a vertex to see if it can be lifted, we only lift known-unsta
-ble vertices and then check its predecessors to see if any of them are destabili
-zed by the change.
+This observation effectively turns the core algorithm inside out: instead
+ of checking the successors of a vertex to see if it can be lifted, we only
+ lift known-unstable vertices and then check its predecessors to see if
+ any of them are destabilized by the change.
  This may first appear to be a rather trivial variation, and while it is
  true it doesn't change the worst-case performance of the algorithm, the
  fundamental difference is that it eliminates many redundant progress measure
@@ -6465,7 +6476,7 @@ It should be clear that the amount of work done per lifting attempt is roughly
  lifted, this variant examines its predecessors instead.
  However, since this variant algorithm eliminates all failed lifting attempts
  (which make up a considerable part of lifting attempts in most test cases)
- this variation is faster in practice.
+ it is faster in practice.
 \end_layout
 
 \begin_layout Standard
@@ -6509,6 +6520,10 @@ status open
 lstparams "basicstyle={\small\ttfamily},language={C++},numbers=left,tabsize=4"
 inline false
 status open
+
+\begin_layout Plain Layout
+
+\end_layout
 
 \begin_layout Plain Layout
 
@@ -6781,9 +6796,9 @@ In Small Progress Measures, non-
 \end_inset
 
  vectors encode an optimal strategy for Even; informally, the elements of
- the vectors encode how many vertices with odd priorities can be visited
- consecutively in a winning play before encountering a vertex with a lesser
- priority.
+ the vectors encode how many vertices with dominant odd priorities can be
+ visited consecutively in a winning play before encountering a vertex with
+ a dominant even priority.
  Since vertices which are assigned 
 \begin_inset Formula $\top$
 \end_inset
@@ -6937,23 +6952,19 @@ Clearly,
 \begin_layout Standard
 A more intuitive way to see that decreasing the progress measure bounds
  is permissible, even without fixing any vectors that are now out of range,
- consider that if vertex 
+ is to consider that if vertex 
+\begin_inset Formula $\rho(v)=\top$
+\end_inset
+
+ for some vertex 
 \begin_inset Formula $v$
-\end_inset
-
- with priority 
-\begin_inset Formula $p$
-\end_inset
-
- is set to 
-\begin_inset Formula $\top$
 \end_inset
 
 , then 
 \begin_inset Formula $v\in W_{1}$
 \end_inset
 
- and thus 
+ and 
 \begin_inset Formula $Attr^{1}(\left\{ v\right\} )\subseteq W_{1}$
 \end_inset
 
@@ -6967,7 +6978,7 @@ A more intuitive way to see that decreasing the progress measure bounds
 
  instead.
  However, since 
-\begin_inset Formula $M"{}_{p}\subseteq M_{p}'$
+\begin_inset Formula $M"{}_{p}\subseteq M_{p}'(\rho)$
 \end_inset
 
  and since we compute a minimum fixed point in both cases, the final progress
@@ -6994,6 +7005,7 @@ Instead of improving SPM itself, there are a few transformations that can
  be applied to the parity game before passing it to the solver.
  These preprocessing operations are intended to be relatively cheap compared
  to solving the game itself (at least in the worst case).
+ All practical tools implement at least some of these.
 \end_layout
 
 \begin_layout Subsubsection
@@ -7010,15 +7022,16 @@ name "sub:Loop-removal"
 \begin_layout Standard
 One peculiarity of Small Progress Measures is that it may spend a lot of
  time lifting vertices with high priority values which lie on a cycle.
- The most typical example of this is a vertex which is controlled by player
- Odd, has a high, odd priority and a loop as its only edge.
+ A typical example of this occurs when an Odd-controlled vertex has a high,
+ odd priority and a loop (i.e.
+ an edge from the vertex to itself).
  The final progress measure for such a vertex will obviously be 
 \begin_inset Formula $\top$
 \end_inset
 
- (since Odd will keep the token at this vertex indefinitely), but its progress
- measure will change only in small increments, requiring many lifts to reach
- its final value.
+ (since Odd will keep the token at this vertex indefinitely) but the progress
+ measure at this vertex will change only in small increments, requiring
+ many lifts to reach its final value.
 \end_layout
 
 \begin_layout Standard
@@ -7030,18 +7043,7 @@ Something similar occurs for vertices of odd priority which are controlled
 
  (they may still be won by Even) we can discard the loop edge to speed up
  propagation of values from successor vertices through this vertex.
-\end_layout
-
-\begin_layout Standard
-All known implementations of Small Progress Measures do some form of preprocessi
-ng where such cases are detected and the progress measures of vertices won
- by Odd are set to 
-\begin_inset Formula $\top$
-\end_inset
-
- before running the main algorithm.
- Four cases can be distinguished based on the controller and parity of a
- vertex, as summarized in Table 
+ Four cases in total can be distinguised, as summarized in Table 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "tab:SPM-preprocessing"
@@ -7429,8 +7431,8 @@ name "sub:Winner-controlled-cycle-removal"
 In his solver, Freark van der Berg introduced a more sophisticated version
  of the loop removal process described above.
  He searches for cycles of vertices controlled by Odd with odd priority,
- using a depth-first-search approach limited to a relatively shallow depth
- (8, in his experiments).
+ using a depth-first-search limited to a relatively shallow depth (8, in
+ his experiments).
  This results in detection of small cycles only but despite this limitation,
  his benchmark results show that this already provides significant benefits
  over the removal of loops only; at least in large unclustered random games,
@@ -7462,15 +7464,15 @@ The last generalization does not reduce the progress measure bounds, but
 \end_layout
 
 \begin_layout Standard
-The general process is called 
+The general process will be called 
 \emph on
 winner-controlled cycle removal
 \emph default
 ; i.e.
  removal of all cycles which are entirely controlled by the player corresponding
  to the dominant priority.
- To find these cycles, depth-first searching through all cycles in the graph
- would be too slow, but fortunately there is a more efficient solution,
+ To find these cycles, depth-first searching through all vertices in the
+ graph would be too slow, but fortunately there is a more efficient solution,
  which is similar to the approach used to verify strategies.
 \end_layout
 
@@ -7588,7 +7590,10 @@ This is considerably more than the
  Although cycle removal makes loop removal obsolete (since loops are simply
  very short cycles) it may still be beneficial to run the loop-removal routine
  first to remove winner-controlled loops (and vertices in their attractor
- set) more quickly than the more general procedure could.
+ sets) more quickly than the more general procedure could.
+\end_layout
+
+\begin_layout Standard
 \begin_inset Float algorithm
 wide false
 sideways false
@@ -7776,57 +7781,6 @@ name "alg:Winner-controlled-cycle-removal"
 \end_inset
 
 
-\end_layout
-
-\begin_layout Subsubsection
-Decomposition into strongly-connected components 
-\begin_inset CommandInset label
-LatexCommand label
-name "sub:Decomposition-into-SCCs"
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-If the game graph contains multiple strongly-connected components, the game
- can be solved in smaller chunks by identifying these components and then
- solving them individually in reverse topological order (i.e.
- starting with components without outgoing edges).
- The question then becomes how to handle edges between components, since
- a subgame induced by a component with outgoing edges may not be a proper
- game.
- A simple approach is to collapse the winning sets of solved components
- into single vertices, but more can be gained by extending winning regions
- identified in one component into attractor sets which may extend into other
- areas of the graph and yield solutions for those vertices basically for
- free.
-\end_layout
-
-\begin_layout Standard
-This approach can be taken even further by recursively decomposing components
- in the main graph that have been partially solved in the above way.
- This approach is taken in PGSolver and for ease of comparison also in my
- own tool, but it should be noted that it's not strictly an improvement
- of the above method.
- There may be cases where decomposition yields a large component every time,
- and then solving the whole game would take 
-\begin_inset Formula $O(EV)$
-\end_inset
-
- time and 
-\begin_inset Formula $O(V)$
-\end_inset
-
- invocations of the underlying solver, which sounds good considering the
- worst-case complexity of most solvers, but may be rather slow in practice.
-\end_layout
-
-\begin_layout Standard
-To prevent such degenerate cases my implementation limits the maximum recursion
- depth in the component solver (which has the additional benefit of preventing
- the solver from crashing due to stack overflow).
 \end_layout
 
 \begin_layout Subsubsection
