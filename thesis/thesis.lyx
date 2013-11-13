@@ -1966,7 +1966,7 @@ Finally, a polynomial-time algorithm for the verification of parity game
 \end_layout
 
 \begin_layout Section
-Restrictions on the graph
+Proper game graphs
 \end_layout
 
 \begin_layout Standard
@@ -2001,270 +2001,6 @@ Additionally, I will assume the game graph is finite.
 , a symbolic representation would be required).
  From a theoretical point of view, a finite vertex set allows for algorithms
  and proofs that do not generalize to infinite graphs.
-\end_layout
-
-\begin_layout Section
-Restrictions on the set of priorities
-\end_layout
-
-\begin_layout Standard
-When discussing actual implementations of data structures and algorithms,
- it is convenient to assume that the priorities in the game are not just
- integers, but bounded by a value that is as small as possible.
- Fortunately, we can reduce the values of priorities used to a range between
- 0 and 
-\begin_inset Formula $d$
-\end_inset
-
- (exclusive), where 
-\begin_inset Formula $d$
-\end_inset
-
- is the index of the game.
- This is done by remapping priorities for vertices in a process called 
-\emph on
-priority compression.
-\end_layout
-
-\begin_layout Standard
-Consider we have a game 
-\begin_inset Formula $\Gamma=(V_{\text{0}},V_{\text{1}},E,\phi)$
-\end_inset
-
- and we wish to apply priority compression.
- To do so, we find the first unused priority (say, 
-\begin_inset Formula $p$
-\end_inset
-
-) in the game.
- If 
-\begin_inset Formula $p=d$
-\end_inset
-
- then all priorities from 
-\begin_inset Formula $0$
-\end_inset
-
- through 
-\begin_inset Formula $d-1$
-\end_inset
-
- (inclusive) are used and we are done.
- Otherwise, let 
-\series bold
-
-\begin_inset Formula $q$
-\end_inset
-
-
-\series default
- be the least priority greater than 
-\begin_inset Formula $p$
-\end_inset
-
- that is used.
-\end_layout
-
-\begin_layout Standard
-If 
-\begin_inset Formula $p=0$
-\end_inset
-
- then we can decrement all priorities by 
-\begin_inset Formula $q$
-\end_inset
-
- and, if 
-\begin_inset Formula $q$
-\end_inset
-
- is odd, we additionally switch the roles of players Even and Odd.
- Formally, we construct a game 
-\begin_inset Formula $\Gamma'=(V_{\text{0}}',V_{\text{1}}',E,\phi')$
-\end_inset
-
- where 
-\begin_inset Formula $V_{x}'=V_{y}$
-\end_inset
-
- and 
-\begin_inset Formula $x=y-p\mod{2}$
-\end_inset
-
-
-\family roman
-\series medium
-\shape up
-\size normal
-\emph off
-\bar no
-\noun off
-\color none
-, 
-\begin_inset Formula $\phi'(v)=\phi(v)-q$
-\end_inset
-
-.
-\end_layout
-
-\begin_layout Standard
-If 
-\begin_inset Formula $p>0$
-\end_inset
-
- then we keep 
-\begin_inset Formula $V_{0}'=V_{0}$
-\end_inset
-
- and 
-\begin_inset Formula $V_{1}'=V_{1}$
-\end_inset
-
-.
- However, if 
-\begin_inset Formula $p\equiv q\mod{2}$
-\end_inset
-
- then we get rid of the unused priorities and lump the vertices with priority
- 
-\begin_inset Formula $q$
-\end_inset
-
- in with those with priority 
-\begin_inset Formula $p$
-\end_inset
-
-.
- After all, 
-\begin_inset Formula $p$
-\end_inset
-
- and 
-\begin_inset Formula $q$
-\end_inset
-
- have the same parity, and since none of the values in between are used,
- they can be interchanged without affecting the outcome of the game.
- More formally, in this case we define 
-\family roman
-\series medium
-\shape up
-\size normal
-\emph off
-\bar no
-\noun off
-\color none
-
-\begin_inset Formula $\phi'(v)$
-\end_inset
-
- as:
-\family default
-\series default
-\shape default
-\size default
-\emph default
-\bar default
-\noun default
-\color inherit
- 
-\begin_inset Formula 
-\[
-\phi'(v)=\begin{cases}
-\phi(v) & \mbox{if }\phi(v)\leq p\\
-\phi(v)+p-q & \mbox{\mbox{if }\ensuremath{\phi(v)>p}}
-\end{cases}
-\]
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Since 
-\begin_inset Formula $p-q\equiv0\mod{2}$
-\end_inset
-
- this preserves parity: 
-\begin_inset Formula $\phi'(v)\equiv\phi(v)\mod{2}$
-\end_inset
-
-.
- Finaly, if 
-\begin_inset Formula $p>0$
-\end_inset
-
- and 
-\begin_inset Formula $p\not\equiv q\mod{2}$
-\end_inset
-
- then we can remove the unused priorities, but we do not want to equate
- 
-\begin_inset Formula $p$
-\end_inset
-
- and 
-\begin_inset Formula $q$
-\end_inset
-
- which have different priorities:
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula 
-\[
-\phi'(v)=\begin{cases}
-\phi(v) & \mbox{if }\phi(v)\leq p\\
-\phi(v)+p-q+1 & \mbox{\mbox{if} \ensuremath{\phi(v)>p}}
-\end{cases}
-\]
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Again, since 
-\begin_inset Formula $p-q+1\equiv0\mod{2}$
-\end_inset
-
- this preserves the parity of 
-\begin_inset Formula $\phi$
-\end_inset
-
- while removing the unused priorities between 
-\begin_inset Formula $p$
-\end_inset
-
- and 
-\begin_inset Formula $q$
-\end_inset
-
-.
- Repeating this process to eliminate all the gaps results in a game which
- uses priorities form 
-\begin_inset Formula $0$
-\end_inset
-
- to 
-\begin_inset Formula $d-1$
-\end_inset
-
- (inclusive).
-\end_layout
-
-\begin_layout Standard
-Most solving algorithms do not require that priorities are compressed into
- a minimal range, but since the amount of time and space required is often
- a function of the maximum priority that occurs in the game, it is useful
- to preprocess every game to minimize the priority set in this way, especially
- since this is can be easily done in 
-\begin_inset Formula $O(V)$
-\end_inset
-
- time.
 \end_layout
 
 \begin_layout Section
@@ -5114,8 +4850,15 @@ trivial
 \end_layout
 
 \begin_layout Standard
-As will be discussed in detail later, it turns out that we can bound the
- overhead of a naive lifting strategy to a factor
+As will be discussed in Subsection 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:linear-lifting-efficiency"
+
+\end_inset
+
+, it turns out that we can bound the overhead of a naive lifting strategy
+ to a factor
 \family roman
 \series medium
 \shape up
@@ -5132,34 +4875,12 @@ As will be discussed in detail later, it turns out that we can bound the
 \end_inset
 
  in lifting attempts.
- Athough this limits the gains we can expect somewhat, the vertex set 
+ Athough this limits the gains we can expect from more sophisticated approach,
+ the vertex set 
 \begin_inset Formula $V$
 \end_inset
 
  is large enough in practice to justify trying to minimize the lifting sequence.
- 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-
-\family roman
-\series medium
-\shape up
-\size normal
-\emph off
-\bar no
-\strikeout off
-\uuline off
-\uwave off
-\noun off
-\color none
-crossreference?
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Standard
@@ -5579,6 +5300,51 @@ reprocessing of the game graph.
  Compared to the first approach, it will create at most twice as much work.
  Permuting vertex indices can produce even better results, but even the
  second approach isn't guaranteed to yield optimal results.
+\end_layout
+
+\begin_layout Subsubsection
+Efficiency of the Linear Lifting Strategy 
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:linear-lifting-efficiency"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+An interesting observation about the linear lifting strategy is that it
+ can be used to put not just an upper bound, but also a lower bound on the
+ minimum number of lifting attempts which are necessary to solve a game.
+\end_layout
+
+\begin_layout Standard
+For a minimal-length sequence of vertices which can be lifted to reach the
+ minimum fixed point, it is permissible to insert extra vertices anywhere;
+ the resulting sequence will still result in a solution.
+ Since the linear lifting strategy (unlike some of the other, more sophisticated
+ strategies) guarantees that between any pair of vertices in the optimal
+ sequence strictly less than 
+\begin_inset Formula $\left|V\right|$
+\end_inset
+
+ other vertices will be lifted, the total number of vertices that must be
+ lifted is at least equal to the total number of lifting attempts (succesful
+ or not) performed by the linear lifting strategy divided by 
+\begin_inset Formula $\left|V\right|$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Consequently, an optimal lifting strategy could improve upon the linear
+ lifting strategy by at most a factor 
+\begin_inset Formula $\left|V\right|$
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Subsection
@@ -7784,6 +7550,268 @@ name "alg:Winner-controlled-cycle-removal"
 \end_layout
 
 \begin_layout Subsubsection
+Priority compression
+\end_layout
+
+\begin_layout Standard
+For Small Progress Measures it is desirable that the maximum priority used
+ in the game is as low as possible, since the maximum priority influences
+ both the worst-case runtime and the length of the progress measure vectors.
+ Often the priorities used in a game are numbers from 0 to 
+\begin_inset Formula $d$
+\end_inset
+
+ (the index of the game, exclusive).
+ However, when some priority values are unused, the range of priorities
+ used can be reduced by a process called 
+\emph on
+priority compression.
+\end_layout
+
+\begin_layout Standard
+To compress priorities in a game 
+\begin_inset Formula $\Gamma=(V_{\text{0}},V_{\text{1}},E,\phi)$
+\end_inset
+
+, we find the first unused priority (say, 
+\begin_inset Formula $p$
+\end_inset
+
+) in the game.
+ If 
+\begin_inset Formula $p=d$
+\end_inset
+
+ then all priorities from 
+\begin_inset Formula $0$
+\end_inset
+
+ through 
+\begin_inset Formula $d-1$
+\end_inset
+
+ (inclusive) are used and we are done.
+ Otherwise, let 
+\series bold
+
+\begin_inset Formula $q$
+\end_inset
+
+
+\series default
+ be the least priority greater than 
+\begin_inset Formula $p$
+\end_inset
+
+ that is used.
+\end_layout
+
+\begin_layout Standard
+If 
+\begin_inset Formula $p=0$
+\end_inset
+
+ then we can decrement all priorities by 
+\begin_inset Formula $q$
+\end_inset
+
+ and, if 
+\begin_inset Formula $q$
+\end_inset
+
+ is odd, we additionally switch the roles of players Even and Odd.
+ Formally, we construct a game 
+\begin_inset Formula $\Gamma'=(V_{\text{0}}',V_{\text{1}}',E,\phi')$
+\end_inset
+
+ where 
+\begin_inset Formula $V_{x}'=V_{y}$
+\end_inset
+
+ and 
+\begin_inset Formula $x=y-p\mod{2}$
+\end_inset
+
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+, 
+\begin_inset Formula $\phi'(v)=\phi(v)-q$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+If 
+\begin_inset Formula $p>0$
+\end_inset
+
+ then we keep 
+\begin_inset Formula $V_{0}'=V_{0}$
+\end_inset
+
+ and 
+\begin_inset Formula $V_{1}'=V_{1}$
+\end_inset
+
+.
+ However, if 
+\begin_inset Formula $p\equiv q\mod{2}$
+\end_inset
+
+ then we get rid of the unused priorities and lump the vertices with priority
+ 
+\begin_inset Formula $q$
+\end_inset
+
+ in with those with priority 
+\begin_inset Formula $p$
+\end_inset
+
+.
+ After all, 
+\begin_inset Formula $p$
+\end_inset
+
+ and 
+\begin_inset Formula $q$
+\end_inset
+
+ have the same parity, and since none of the values in between are used,
+ they can be interchanged without affecting the outcome of the game.
+ More formally, in this case we define 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+
+\begin_inset Formula $\phi'(v)$
+\end_inset
+
+ as:
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\noun default
+\color inherit
+ 
+\begin_inset Formula 
+\[
+\phi'(v)=\begin{cases}
+\phi(v) & \mbox{if }\phi(v)\leq p\\
+\phi(v)+p-q & \mbox{\mbox{if }\ensuremath{\phi(v)>p}}
+\end{cases}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Since 
+\begin_inset Formula $p-q\equiv0\mod{2}$
+\end_inset
+
+ this preserves parity: 
+\begin_inset Formula $\phi'(v)\equiv\phi(v)\mod{2}$
+\end_inset
+
+.
+ Finaly, if 
+\begin_inset Formula $p>0$
+\end_inset
+
+ and 
+\begin_inset Formula $p\not\equiv q\mod{2}$
+\end_inset
+
+ then we can remove the unused priorities, but we do not want to equate
+ 
+\begin_inset Formula $p$
+\end_inset
+
+ and 
+\begin_inset Formula $q$
+\end_inset
+
+ which have different priorities:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\phi'(v)=\begin{cases}
+\phi(v) & \mbox{if }\phi(v)\leq p\\
+\phi(v)+p-q+1 & \mbox{\mbox{if} \ensuremath{\phi(v)>p}}
+\end{cases}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Again, since 
+\begin_inset Formula $p-q+1\equiv0\mod{2}$
+\end_inset
+
+ this preserves the parity of 
+\begin_inset Formula $\phi$
+\end_inset
+
+ while removing the unused priorities between 
+\begin_inset Formula $p$
+\end_inset
+
+ and 
+\begin_inset Formula $q$
+\end_inset
+
+.
+ Repeating this process to eliminate all the gaps results in a game which
+ uses priorities from 
+\begin_inset Formula $0$
+\end_inset
+
+ to 
+\begin_inset Formula $d-1$
+\end_inset
+
+ (inclusive).
+ It is not too difficult to perform the entire operation in 
+\begin_inset Formula $O(V)$
+\end_inset
+
+ time.
+\end_layout
+
+\begin_layout Standard
+Further compression can be achieved by applying this operation on each strongly-
+connected component of the game graph individually.
+ This is permissible because every infinite play must necessarily stay in
+ a single component eventually.
+ However, it is more common to apply priority compression after decomposition
+ into strongly connected components, which is independently useful but achieves
+ the same effect with regards to priority compression.
+\end_layout
+
+\begin_layout Subsubsection
 Priority propagation
 \end_layout
 
@@ -7917,6 +7945,10 @@ Re-order vertices by breadth-first search order.
 
 \begin_layout Enumerate
 Reverse the order of vertices.
+\end_layout
+
+\begin_layout Enumerate
+Shuffle vertices randomly.
 \end_layout
 
 \begin_layout Standard
@@ -8063,12 +8095,12 @@ To compute a maximal set of marked vertices, a similar approach as in the
 \end_layout
 
 \begin_layout Standard
-The rationale for propagating this information  every 
+Propagating this information every 
 \begin_inset Formula $\left|V\right|$
 \end_inset
 
- lifting attempts is that this amortizes the overhead involved against the
- work done lifting vertices, so that the worst-case complexity remains unchanged.
+ lifting attempts amortizes the overhead involved against the work done
+ lifting vertices, so that the worst-case complexity remains unchanged.
 \end_layout
 
 \begin_layout Standard
@@ -8083,13 +8115,15 @@ key "schewe2007solving"
 
 \end_inset
 
- to solving parity games, which also tries to find small winning regions
- first in order to reduce the rest of the problem to simpler terms.
- The similarity is that both approaches provide a way to avoid “getting
- stuck” repeatedly lifting vertices by very small increments.
- Schewe achieves this by using reduced progress measure bounds to find small
- winning regions, obtaining only a partial solution using Small Progress
- Measures, and relies on the recursive algorithm (see chapter 
+ to solving parity games, which also tries to find more-easily-identifiable
+ subsets of winning regions first in order to reduce the remainder of the
+ problem to simpler terms.
+ Both approaches provide a way to avoid “getting stuck” repeatedly lifting
+ vertices by very small increments.
+ In Schewe's scheme this is achieved by using reduced progress measure bounds
+ to find small winning regions, obtaining only a partial solution using
+ Small Progress Measures, and applying the recursive algorithm (see chapter
+ 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "chap:Zielonka's-Recursive-Algorithm"
@@ -8102,7 +8136,7 @@ reference "chap:Zielonka's-Recursive-Algorithm"
 \begin_layout Standard
 The two-sided approach solves games entirely with Small Progress Measures
  and is therefore simpler than Schewe's, but doesn't improve performance
- in the worst-case performance.
+ in the worst case.
  (It should be noted however, that in PGSolver the two approaches are combined:
  the “big steps” solver uses the SPM implementation with the two-sided optimizat
 ion.)
@@ -8148,22 +8182,22 @@ Implementation differences
 \end_layout
 
 \begin_layout Standard
-Though the observation that the two-sided approach could use, at worst,
- twice as much time and space as the standard algorithm may seem obvious,
- it is actually not automatically true.
+The observation that the two-sided approach should use (at worst) about
+ twice as much time and space as the standard algorithm may appear obvious,
+ but it actually relies on a suitable implementation of the algorithm.
  Perhaps surprisingly, PGSolver can take orders of magnitude longer to solve
  games with the two-sided approach than without it.
- The cause of this is that that PGsolver omits construction of subgames
- entirely, even after one of the sides is completely solved, and consequently
- does not benefit from a reduction in progress measure bounds that occurs
- when constructing a subgame for the harder part of the game.
+ The cause of this is that PGsolver omits construction of subgames entirely,
+ even after one of the sides is completely solved, and consequently does
+ not benefit from a reduction in progress measure bounds that occurs when
+ constructing a subgame for the harder part of the game.
  This problem is rectified by reducing progress measure vector bounds whenever
  vertices are lifted to 
 \begin_inset Formula $\top$
 \end_inset
 
- (rather than calculating these bounds once, before starting solving), which
- is a new optimization that will be described in subsection 
+ (rather than calculating these bounds once, before starting solving) which
+ is the optimization described in subsection 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sub:Optimization-after-lifting"
@@ -8201,24 +8235,6 @@ Finally, in an attempt to propagate information about losing vertices earlier,
 Of these three differences, the first is crucial for optimal performance,
  while the other two are at best small improvements over Friedmann's implementat
 ion.
-\end_layout
-
-\begin_layout Section
-Distributed implementation
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-Partition graph, process independently, propagate changes at overlapping
- vertices.
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Chapter
@@ -8259,7 +8275,7 @@ key "keiren2009"
 
 \end_inset
 
-) to work well as an actual solver too.
+) to work well as a solving algorithm too.
 \end_layout
 
 \begin_layout Standard
@@ -8276,6 +8292,7 @@ key "mcnaughton1993infinite"
  while Zielonka concerns himself with infinite graphs as well.
  Beauces of their fundamental similarity, Zielonka's algorithm is sometimes
  referred to as McNaughton's algorithm in literature on parity games.
+ These algorithms are functionally identical.
 \end_layout
 
 \begin_layout Standard
@@ -8604,7 +8621,7 @@ reference "fig:zielonka-steps"
 \end_inset
 
  shows the steps taken for each iteration of Zielonka's algorithm; the unsolved
- part of the game after the third step is used in the next iteration.
+ part of the game after the third step is used to start the next iteration.
 \end_layout
 
 \begin_layout Standard
@@ -8651,10 +8668,10 @@ Implementation
 \begin_layout Standard
 The actual algorithm implementation varies a little from the proof structure
  for practical reasons.
- For one thing, the implementation is restricted to finite graphs.
- The inductive proof lends itself to being implemented recursively, but
- a straightforward recursive formulation is undesirable here, because deep
- recursion on a large game may overflow the runtime stack.
+ First, the implementation is restricted to finite graphs.
+ Second, the inductive proof lends itself to being implemented recursively,
+ but a straightforward recursive formulation is undesirable here, because
+ deep recursion on a large game may overflow the runtime stack.
  Instead, the implementation is iterative and recurses only when computing
  subgames with fewer priorities, bounding the maximum recursion depth by
  
@@ -8666,61 +8683,54 @@ The actual algorithm implementation varies a little from the proof structure
 
 \begin_layout Standard
 Additionally, instead of solving one priority at a time, we will speed up
- the solving process by always looking for the next inversion of parity
+ the solving process by always looking for the least inversion of parity
  in the game.
- Let an inversion of parity be a priority 
+ An inversion of parity is a priority 
 \begin_inset Formula $p$
 \end_inset
 
- such that there is a priority 
-\begin_inset Formula $n<p$
+ such that 
+\begin_inset Formula $\left\{ v\mid\phi(v)<p\right\} \neq\emptyset$
 \end_inset
 
- with 
-\begin_inset Formula $n\not\equiv p\mod{2}$
-\end_inset
+ and 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
 
- and there are some vertices with priority 
-\begin_inset Formula $n$
-\end_inset
-
-, some vertices with priority 
-\begin_inset Formula $p$
-\end_inset
-
-, but no vertices with priority 
-\begin_inset Formula $o$
-\end_inset
-
- for any 
-\begin_inset Formula $n<o<p$
+\begin_inset Formula $\left\{ v\mid\phi(v)<p\ \wedge\ \phi(v)\equiv p\mod{2}\right\} =\emptyset$
 \end_inset
 
 .
- The number of inversions of parity in the initial game is a limit on the
- recursion depth, but typically (after priority compression) this is equal
- to 
-\begin_inset Formula $d$
-\end_inset
-
-.
- However, for smaller subgames, the number of inversions may be much lower,
- as not all priority values are necessarily used.
- Specifically, if there are no inversions of parity, then all priorities
- assigned to vertices have the same parity, and the corresponding player
- trivially wins the entire game.
-\end_layout
-
-\begin_layout Standard
-Otherwise, all vertices with priority less than 
+ 
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\strikeout default
+\uuline default
+\uwave default
+\noun default
+\color inherit
+If there are no inversions of parity, then all priorities assigned to vertices
+ have the same parity, and the corresponding player trivially wins the entire
+ game.
+ Otherwise, all vertices with priority less than 
 \begin_inset Formula $p$
 \end_inset
 
- (or, equivalently, less than or equal to 
-\begin_inset Formula $n$
-\end_inset
-
-) can be compressed into a single value.
+ can be compressed into a single value, as if priority compression had been
+ applied.
  In the implementation, this is done implicitly by adding all of these vertices
  to the minimum-priority attractor set (though the game itself is unchanged).
 \end_layout
@@ -9089,7 +9099,7 @@ In this algorithm every recursive invocation removes at least one inversion
 \begin_inset Formula $\texttt{p}$
 \end_inset
 
- are removed, so 
+ are removed, therefore 
 \begin_inset Formula $\texttt{p}$
 \end_inset
 
@@ -9113,307 +9123,6 @@ In this algorithm every recursive invocation removes at least one inversion
  Combined, these observations guarantee the algorithm terminates.
 \end_layout
 
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-- real worst case is probably smaller than 
-\begin_inset Formula $\left(\frac{\left|V\right|}{2}\right)^{d}$
-\end_inset
-
-; need to figure out how small, and if possible construct a worst-case example.
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Subsection
-Parallelization
-\end_layout
-
-\begin_layout Standard
-Zielonka's recursive algorithm is entirely deterministic, in the sense that
- the subgames that must be computed to arrive at an answer are fixed, and
- they can only be computed in a fixed order.
- This is very different from Small Progress Meaures, where individual lifting
- operations can be performed in any order, and can even be performed independent
-ly in parallel, without affecting the final outcome of the algorithm.
-\end_layout
-
-\begin_layout Standard
-This property of Zielonka's algorithm can be seen clearly in Algorithm 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "alg:Zielonka's-Recursive-Algorithm"
-
-\end_inset
-
-: every statement in the while-loop depends directly on the result obtained
- in the immediately preceding statement.
- As a result, it is impossible to reorder any statements, let alone evaluate
- different statements in parallel, which suggests that the algorithm cannot
- be parallelized at this level; at least, not without reformulating the
- algorithm.
-\end_layout
-
-\begin_layout Standard
-Fortunately, parallelizing the algorithm at the top level is not the only
- possible approach.
- Although the algorithm is highly determinstic in its execution, the operations
- that are performed are relatively high-level and computationally expensive.
- Again, in this regard the algorithm differs from Small Progress Measures,
- where the basic operation (a lifting attempt) is so simple that it makes
- little sense to try and parallelize it, for the synchronization overhead
- would likely negate the speedup gained by parallelization.
-\end_layout
-
-\begin_layout Subsection
-Distributed computation
-\end_layout
-
-\begin_layout Standard
-My approach to parallelizing Zielonka's algorithm is therefore based on
- attempting to parallize the basic high-level operations on which the algorithm'
-s execution is based: 
-\begin_inset Formula $\texttt{make\_attractor\_set}$
-\end_inset
-
-, 
-\begin_inset Formula $\texttt{get\_complement}$
-\end_inset
-
-, 
-\begin_inset Formula $\texttt{make\_subgame}$
-\end_inset
-
- and the construction of vertex sets in the while-loop, and the construction
- of a final strategy in the for-loop at the end.
- To this end, the initial game graph is partitioned over all available processes
- by assigning every process a distinct part of the vertex set.
- Every process will execute the main algorithm independently, and compute
- the part of the strategy that applies to its local vertex set.
-\end_layout
-
-\begin_layout Standard
-In the following, it is assumed that processes execute symmetrically (all
- execute the same program) and independently (requiring no synchronization
- between instructions) but that communication is possible between any pair
- of processes by way of message passing.
- This is a fairly common distributed computing scenario, that requires a
- fast local network between otherwise independent computers.
-\end_layout
-
-\begin_layout Standard
-Besides distributing the computation over several processes, the data structures
- are distributed as well.
- Every process stores the following information locally:
-\end_layout
-
-\begin_layout Itemize
-The part of the global vertex set assigned to this process; this will be
- called the 
-\emph on
-internal vertex set
-\emph default
-.
-\end_layout
-
-\begin_layout Itemize
-The part of the global strategy corresponding with the internal vertex set.
-\end_layout
-
-\begin_layout Itemize
-A subgame of the global game graph that contains at least the internal vertex
- set.
-\end_layout
-
-\begin_layout Standard
-Since no global data needs to be stored at individual processes, the amount
- of memory required per process for a given game decreases as the number
- of assigned processes increases.
- This approach therefore allows the size of games that can be solved to
- be scaled up with the number of processes.
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-Need to check: is this implemented? If so, more clearly list that as a feature!
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-With a fixed graph partition, most of the basic operations can be parallelized
- trivially.
- For example, when constructing the minimum priority vertex set, every process
- only considers the vertices in its assigned partition, and constructs a
- local set accordingly.
- The local sets computed by the individual processes form a partition of
- the set computed by the global algorithm.
- Set complements, subgames and final strategies can be constructed this
- way as well, requiring no synchronization between processes.
- The only tricky operation, and the only operation that requires communication
- between processes, is the computation of attractor sets.
- After all, containment of a vertex in an attractor set depends on whether
- none, one or all of its successors are already in the set, but these successors
- may not be part of the local vertex set.
-\end_layout
-
-\begin_layout Standard
-To allow processes to communicate information about attractor sets in an
- efficient manner, it is useful to include in the local game graph not only
- vertices and edges in the internal vertex set, but also all adjacent vertices
- and the corresponding edges.
- This allows processes to share information with just the other interested
- processes, without having to resort to broadcasting all locally computed
- data, which may well generate so much communication overhead to negate
- any possible benefits from parallelization.
-\end_layout
-
-\begin_layout Subsection
-Distributed attractor set computation
-\end_layout
-
-\begin_layout Standard
-The distributed attractor set computation algorithms are based on the sequential
- implementation of Algorithm 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "alg:Attractor-set-computation"
-
-\end_inset
-
-, but now each process maintains its own queue of vertices (both internal
- and successors of internal vertices) and a part of the attractor set (internal
- vertices only).
- Processes can work through their local queue independently, but when an
- internal vertex is added to the local attractor set, this information must
- be communicated to the processes responsible for the predecessors of that
- vertex, so they the may add this vertex to their queue too.
-\end_layout
-
-\begin_layout Standard
-Logically, internal vertices are only ever added to the queue by the process
- itself, and external vertices only by the corresponding external process.
-\end_layout
-
-\begin_layout Standard
-I implemented two distributed algorithms, which differ in the way they communica
-te vertex updates and detect termination.
- The first method is the simplest, but it may require a lot of synchronization
- between processes (and thus cause processes to waste time waiting on each
- other).
- The second method synchronizes only at the end of the calculation, and
- should therefore be more efficient.
- 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-This needs a benchmark.
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Subsubsection
-Synchronous method
-\end_layout
-
-\begin_layout Standard
-In the synchronous method, the incremental sets from subsection 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "sub:Attractor-sets"
-
-\end_inset
-
- are computed explicitly, with full synchronization between all processes
- in between.
- Each step conists of two phases:
-\end_layout
-
-\begin_layout Enumerate
-Each process independently calculates the next incremental attractor subset,
- keeping a list of newly added vertices in this phase.
-\end_layout
-
-\begin_layout Enumerate
-All processes communicate their queued vertices with each other, making
- them aware of the external vertices added to the attractor set in the first
- phase.
-\end_layout
-
-\begin_layout Standard
-The calculation ends when all processes report that their queues are empty.
- Separating the algorithm in discrete phases makes this case easy to detect.
- However, many steps may be required to reach this state, incurring a proportion
-al amount of synchronization overhead.
-\end_layout
-
-\begin_layout Subsubsection
-Asynchronous method
-\end_layout
-
-\begin_layout Standard
-In the asynchronous method, processes send updates about vertices as soon
- as they add them to their local attractor set, and add external vertices
- to their queue as soon as they receive them.
-\end_layout
-
-\begin_layout Standard
-A process is considered 
-\emph on
-active
-\emph default
- when it has vertices remanining in its local queue.
- When its queue becomes empty the process is 
-\emph on
-idle
-\emph default
-, but it will be reactivated when it receives an external vertex update
- from another process.
- The algorithm should terminate when all processes are idle, because then
- all queues are empty and the computation is complete.
- To detect distributed termination, I implemented the four-counter method
- described by Friedemann Mattern in 
-\begin_inset CommandInset citation
-LatexCommand cite
-key "mattern1987algorithms"
-
-\end_inset
-
-.
-\end_layout
-
-\begin_layout Standard
-Because processes are free to interleave three kinds of operations (processing
- queued vertices, sending vertex updates and receiving them), this method
- may be somewhat faster in practice.
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-discuss the effect of partitioning schemes on the efficiency of these algorithms
-?
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
 \begin_layout Chapter
 Empirical Evaluation 
 \begin_inset CommandInset label
@@ -9435,8 +9144,9 @@ s are applied to reasonably complex test data.
 \end_layout
 
 \begin_layout Standard
-We will use two sources of games: clustered random games, and some of the
- games used earlier by Friedmann & Lange (described in detail in 
+We will use two main sources of games: clustered random games, and some
+ of the games used earlier by Friedmann & Lange (described in detail in
+ 
 \begin_inset CommandInset citation
 LatexCommand cite
 key "friedmann2009solving"
@@ -9450,55 +9160,15 @@ key "friedmann2009solving"
  of the results presented here with earlier reports.
 \end_layout
 
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-I want to show three things:
-\end_layout
-
-\begin_layout Itemize
-maximum measure/step propagation is a valid strategy (I'v got this covered)
-\end_layout
-
-\begin_layout Itemize
-decrement after lifting to top improves SPM especially in two-sided approach
- (TODO?)
-\end_layout
-
-\begin_layout Itemize
-decycle solver works great (also compare with deloop solver)
-\end_layout
-
-\begin_layout Plain Layout
-(Really emphasize my contributions here!)
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
 \begin_layout Section
 Random games
-\end_layout
-
-\begin_layout Subsection
-Generating random games 
 \begin_inset CommandInset label
 LatexCommand label
-name "sub:Random-games"
+name "sec:Random-games"
 
 \end_inset
 
 
-\end_layout
-
-\begin_layout Standard
-To obtain meaningful results using randomly-generated data, the random graphs
- used for benchmarking are generated in a way that is intended to withstand
- at least a few of the most common preprocessing techniques.
 \end_layout
 
 \begin_layout Standard
@@ -9549,7 +9219,7 @@ Graphs generated in this way typically consist of one large, strongly-connected
 \end_layout
 
 \begin_layout Subsection
-Generating clustered random games 
+Clustered random games 
 \begin_inset CommandInset label
 LatexCommand label
 name "sub:Clustered-random-games"
@@ -9623,7 +9293,7 @@ Since all games generated were strongly-connected, the combined graph will
 
  (as the sum of a geometric series).
  Consequently, if few extra edges are desired, the cluster size should not
- be set too small.
+ be chosen too small.
 \end_layout
 
 \begin_layout Section
@@ -9648,7 +9318,8 @@ Friedmann & Lange's benchmarks include four kinds of games:
 \emph on
 Decision procedures:
 \emph default
- two subclasses of games constructed from recursively defined 
+ two subclasses of games constructed from the validity problem of recursively
+ defined 
 \begin_inset Formula $\mu$
 \end_inset
 
@@ -9711,7 +9382,7 @@ The fourth class of games could be interesting, but the exact parameters
  It should be noted that unclustered random games can typically be solved
  completely using cycle removal, which is a preprocessing operation that
  is not available in PGSolver.
- Instead, we will use clustered random games as described in subsection
+ Instead, we will use clustered random games as described in the Subsection
  
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -9729,7 +9400,14 @@ reference "sub:Clustered-random-games"
 This leaves two classes which each include two kinds of games that can in
  turn be varied in size.
  The decision procedure games are generated using a separate tool called
- MLSolver.
+ MLSolver 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "mlsolver"
+
+\end_inset
+
+.
  The elevator verification games are generated with a tool from the PGSolver
  suite.
  To prevent implementation details of these tools influencing the results,
@@ -15021,93 +14699,6 @@ To advance the state of the art, it would be useful to define the problem
  test cases may be drawn from this domain, ideally resulting in a standard
  benchmark set that can be used to compare solvers in practice.
  Such a benchmark set would be invaluable for future empirical work.
-\end_layout
-
-\begin_layout Chapter
-TODO LIST
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-- have I described everything I came up with?
-\end_layout
-
-\begin_layout Plain Layout
-- should I say `minimum' or `minimal' fixed point?
-\end_layout
-
-\begin_layout Plain Layout
-The following comes from an old version of the thesis; probably need to
- work this in somehow:
-\end_layout
-
-\begin_layout Plain Layout
-- Explain how parity games relate to binary equation systems, mu-calculus.
- This basically motivates why research into parity games is of practical
- interest.
- Explain that improving practical performance is of interest even if computation
-al complexity doesn't improve.
- (This is critical for motivating research into lifting heuristics and parallel
- algorithms.)
-\end_layout
-
-\begin_layout Plain Layout
-- Need a 
-\begin_inset Quotes eld
-\end_inset
-
-research question
-\begin_inset Quotes erd
-\end_inset
-
--like section that contains the research question from my proposal.
-\end_layout
-
-\begin_layout Plain Layout
-- Describe globally what I'm going to do to improve the state of the art:
- Mainly two parts: (0.
- efficient implementation of existing algorithms => not really interesting
- on an academic level) 1.
- find better heuristics for small progress measures (detailed evaluation
- of SPM would be novel?) 2.
- find good way to parallelize small progress measures (this would be somewhat
- novel, although a lockfree implementation exists)
-\end_layout
-
-\begin_layout Plain Layout
-- Note that source code + documentation is available online/at request
-\end_layout
-
-\begin_layout Plain Layout
-- 
-\begin_inset Quotes eld
-\end_inset
-
-small progress measures
-\begin_inset Quotes erd
-\end_inset
-
- or 
-\begin_inset Quotes eld
-\end_inset
-
-Small Progress Measures
-\begin_inset Quotes erd
-\end_inset
-
-? (Be consistent!)
-\end_layout
-
-\begin_layout Plain Layout
-- Finally: spell check!
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Standard

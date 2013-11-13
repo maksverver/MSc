@@ -1,0 +1,347 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Subsection
+Parallelization
+\end_layout
+
+\begin_layout Standard
+Zielonka's recursive algorithm is entirely deterministic, in the sense that
+ the subgames that must be computed to arrive at an answer are fixed, and
+ they can only be computed in a fixed order.
+ This is very different from Small Progress Meaures, where individual lifting
+ operations can be performed in any order, and can even be performed independent
+ly in parallel, without affecting the final outcome of the algorithm.
+\end_layout
+
+\begin_layout Standard
+This property of Zielonka's algorithm can be seen clearly in Algorithm 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "alg:Zielonka's-Recursive-Algorithm"
+
+\end_inset
+
+: every statement in the while-loop depends directly on the result obtained
+ in the immediately preceding statement.
+ As a result, it is impossible to reorder any statements, let alone evaluate
+ different statements in parallel, which suggests that the algorithm cannot
+ be parallelized at this level; at least, not without reformulating the
+ algorithm.
+\end_layout
+
+\begin_layout Standard
+Fortunately, parallelizing the algorithm at the top level is not the only
+ possible approach.
+ Although the algorithm is highly determinstic in its execution, the operations
+ that are performed are relatively high-level and computationally expensive.
+ Again, in this regard the algorithm differs from Small Progress Measures,
+ where the basic operation (a lifting attempt) is so simple that it makes
+ little sense to try and parallelize it, for the synchronization overhead
+ would likely negate the speedup gained by parallelization.
+\end_layout
+
+\begin_layout Subsection
+Distributed computation
+\end_layout
+
+\begin_layout Standard
+My approach to parallelizing Zielonka's algorithm is therefore based on
+ attempting to parallize the basic high-level operations on which the algorithm'
+s execution is based: 
+\begin_inset Formula $\texttt{make\_attractor\_set}$
+\end_inset
+
+, 
+\begin_inset Formula $\texttt{get\_complement}$
+\end_inset
+
+, 
+\begin_inset Formula $\texttt{make\_subgame}$
+\end_inset
+
+ and the construction of vertex sets in the while-loop, and the construction
+ of a final strategy in the for-loop at the end.
+ To this end, the initial game graph is partitioned over all available processes
+ by assigning every process a distinct part of the vertex set.
+ Every process will execute the main algorithm independently, and compute
+ the part of the strategy that applies to its local vertex set.
+\end_layout
+
+\begin_layout Standard
+In the following, it is assumed that processes execute symmetrically (all
+ execute the same program) and independently (requiring no synchronization
+ between instructions) but that communication is possible between any pair
+ of processes by way of message passing.
+ This is a fairly common distributed computing scenario, that requires a
+ fast local network between otherwise independent computers.
+\end_layout
+
+\begin_layout Standard
+Besides distributing the computation over several processes, the data structures
+ are distributed as well.
+ Every process stores the following information locally:
+\end_layout
+
+\begin_layout Itemize
+The part of the global vertex set assigned to this process; this will be
+ called the 
+\emph on
+internal vertex set
+\emph default
+.
+\end_layout
+
+\begin_layout Itemize
+The part of the global strategy corresponding with the internal vertex set.
+\end_layout
+
+\begin_layout Itemize
+A subgame of the global game graph that contains at least the internal vertex
+ set.
+\end_layout
+
+\begin_layout Standard
+Since no global data needs to be stored at individual processes, the amount
+ of memory required per process for a given game decreases as the number
+ of assigned processes increases.
+ This approach therefore allows the size of games that can be solved to
+ be scaled up with the number of processes.
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Need to check: is this implemented? If so, more clearly list that as a feature!
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+With a fixed graph partition, most of the basic operations can be parallelized
+ trivially.
+ For example, when constructing the minimum priority vertex set, every process
+ only considers the vertices in its assigned partition, and constructs a
+ local set accordingly.
+ The local sets computed by the individual processes form a partition of
+ the set computed by the global algorithm.
+ Set complements, subgames and final strategies can be constructed this
+ way as well, requiring no synchronization between processes.
+ The only tricky operation, and the only operation that requires communication
+ between processes, is the computation of attractor sets.
+ After all, containment of a vertex in an attractor set depends on whether
+ none, one or all of its successors are already in the set, but these successors
+ may not be part of the local vertex set.
+\end_layout
+
+\begin_layout Standard
+To allow processes to communicate information about attractor sets in an
+ efficient manner, it is useful to include in the local game graph not only
+ vertices and edges in the internal vertex set, but also all adjacent vertices
+ and the corresponding edges.
+ This allows processes to share information with just the other interested
+ processes, without having to resort to broadcasting all locally computed
+ data, which may well generate so much communication overhead to negate
+ any possible benefits from parallelization.
+\end_layout
+
+\begin_layout Subsection
+Distributed attractor set computation
+\end_layout
+
+\begin_layout Standard
+The distributed attractor set computation algorithms are based on the sequential
+ implementation of Algorithm 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "alg:Attractor-set-computation"
+
+\end_inset
+
+, but now each process maintains its own queue of vertices (both internal
+ and successors of internal vertices) and a part of the attractor set (internal
+ vertices only).
+ Processes can work through their local queue independently, but when an
+ internal vertex is added to the local attractor set, this information must
+ be communicated to the processes responsible for the predecessors of that
+ vertex, so they the may add this vertex to their queue too.
+\end_layout
+
+\begin_layout Standard
+Logically, internal vertices are only ever added to the queue by the process
+ itself, and external vertices only by the corresponding external process.
+\end_layout
+
+\begin_layout Standard
+I implemented two distributed algorithms, which differ in the way they communica
+te vertex updates and detect termination.
+ The first method is the simplest, but it may require a lot of synchronization
+ between processes (and thus cause processes to waste time waiting on each
+ other).
+ The second method synchronizes only at the end of the calculation, and
+ should therefore be more efficient.
+ 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+This needs a benchmark.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Synchronous method
+\end_layout
+
+\begin_layout Standard
+In the synchronous method, the incremental sets from subsection 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Attractor-sets"
+
+\end_inset
+
+ are computed explicitly, with full synchronization between all processes
+ in between.
+ Each step conists of two phases:
+\end_layout
+
+\begin_layout Enumerate
+Each process independently calculates the next incremental attractor subset,
+ keeping a list of newly added vertices in this phase.
+\end_layout
+
+\begin_layout Enumerate
+All processes communicate their queued vertices with each other, making
+ them aware of the external vertices added to the attractor set in the first
+ phase.
+\end_layout
+
+\begin_layout Standard
+The calculation ends when all processes report that their queues are empty.
+ Separating the algorithm in discrete phases makes this case easy to detect.
+ However, many steps may be required to reach this state, incurring a proportion
+al amount of synchronization overhead.
+\end_layout
+
+\begin_layout Subsubsection
+Asynchronous method
+\end_layout
+
+\begin_layout Standard
+In the asynchronous method, processes send updates about vertices as soon
+ as they add them to their local attractor set, and add external vertices
+ to their queue as soon as they receive them.
+\end_layout
+
+\begin_layout Standard
+A process is considered 
+\emph on
+active
+\emph default
+ when it has vertices remanining in its local queue.
+ When its queue becomes empty the process is 
+\emph on
+idle
+\emph default
+, but it will be reactivated when it receives an external vertex update
+ from another process.
+ The algorithm should terminate when all processes are idle, because then
+ all queues are empty and the computation is complete.
+ To detect distributed termination, I implemented the four-counter method
+ described by Friedemann Mattern in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "mattern1987algorithms"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Because processes are free to interleave three kinds of operations (processing
+ queued vertices, sending vertex updates and receiving them), this method
+ may be somewhat faster in practice.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+discuss the effect of partitioning schemes on the efficiency of these algorithms
+?
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document
