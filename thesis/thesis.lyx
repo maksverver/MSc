@@ -80,7 +80,7 @@
 \begin_body
 
 \begin_layout Title
-Title goes here
+Practical Improvements to Parity Game Solving
 \end_layout
 
 \begin_layout Standard
@@ -9369,7 +9369,8 @@ Random games
 \end_layout
 
 \begin_layout Standard
-The third class of games can be solved entirely using either decomposition
+Not all of these are useful for benchmarking.
+ The third class of games can be solved entirely using either decomposition
  into strongly connected components (as Friedmann and Lange also reported)
  or by owner-controlled cycle removal, and is therefore excluded from the
  test set.
@@ -9380,8 +9381,8 @@ The fourth class of games could be interesting, but the exact parameters
  used to generate these random games (especially how they are clustered)
  are not provided.
  It should be noted that unclustered random games can typically be solved
- completely using cycle removal, which is a preprocessing operation that
- is not available in PGSolver.
+ completely using cycle removal (which is a preprocessing operation that
+ was not available to Friedmann and Lange).
  Instead, we will use clustered random games as described in the Subsection
  
 \begin_inset CommandInset ref
@@ -9397,10 +9398,13 @@ reference "sub:Clustered-random-games"
 \end_layout
 
 \begin_layout Standard
-This leaves two classes which each include two kinds of games that can in
- turn be varied in size.
- The decision procedure games are generated using a separate tool called
- MLSolver 
+This leaves the first two classes which each include two kinds of games
+ that can in turn be varied in size.
+ The decision procedure games are generated from recursively-defined 
+\begin_inset Formula $\mu$
+\end_inset
+
+-calculus formulae using a separate tool called MLSolver 
 \begin_inset CommandInset citation
 LatexCommand cite
 key "mlsolver"
@@ -9445,6 +9449,7 @@ sideways false
 status open
 
 \begin_layout Plain Layout
+\align center
 \begin_inset Tabular
 <lyxtabular version="3" rows="23" columns="5">
 <features tabularvalignment="middle">
@@ -10675,35 +10680,59 @@ name "tab:SPGIP-cases"
 
 \end_inset
 
-It should be noted that these cases except the last (
+
+\end_layout
+
+\begin_layout Subsection
+Limitations 
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Limitations-of-SPGIP-cases"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+It should be noted that these cases alone do not form a very comprehensive
+ benchmark set.
+ The main limitation is that the first three classes (
+\begin_inset Formula $\phi$
+\end_inset
+
+, 
+\begin_inset Formula $\phi'$
+\end_inset
+
+ and 
+\begin_inset Formula $G$
+\end_inset
+
+) do not require lifting any vertices to 
+\begin_inset Formula $\top$
+\end_inset
+
+ to solve the games; instead Odd's winning region can be extracted using
+ loop removal with attractor set computation.
+ For the fourth class of games (
 \begin_inset Formula $G'$
 \end_inset
 
-) have the property that they do not require lifting any vertices to 
+) this applies to Even's winning set instead.
+ This means that these games may be relatively easy to solve, at least using
+ Small Progress Measures.
+\end_layout
+
+\begin_layout Standard
+As a consequence, improvements like the two-sided approach and decrementing
+ progress measure bounds after lifting to 
 \begin_inset Formula $\top$
 \end_inset
 
-.
- Instead, Odd's winning region can be extracted by loop removal preprocessing
- (or by propagating 
-\begin_inset Formula $\top$
-\end_inset
-
- values after initializing odd-controlled odd-priority vertices with loops
- to 
-\begin_inset Formula $\top$
-\end_inset
-
-) and the remaining subgame is won entirely by Even.
- For the unfair elevator (
-\begin_inset Formula $G'$
-\end_inset
-
-) class of games, this property applies to the 
-\emph on
-dual
-\emph default
- rather than the normal game.
+ are expected to provide little benefit on these cases.
+ These improvements can be better evaluated on the more demanding (clustured)
+ randomly-generated cases.
 \end_layout
 
 \begin_layout Section
@@ -10931,8 +10960,9 @@ ref{random_graphs_time}
  given configuration, and also the average number of lifts (in millions
  of attempts) and time taken (in seconds), respectively.
  Both the number of lifts and the amount of time varied greatly between
- cases, so it is generally not meaningful to compare these except for cases
- where all instances in a class were completely solved.
+ configurations, so it is generally not meaningful to compare values from
+ these columns except in those cases where all instances in a class were
+ completely solved.
 \end_layout
 
 \begin_layout Subsection
@@ -10940,15 +10970,19 @@ Discussion
 \end_layout
 
 \begin_layout Standard
-First, it is interesting to see that 
+First, it is interesting to see that
 \emph on
+ 
+\emph default
 clustered
-\emph default
- random games are a lot more difficult to solve than larger 
 \emph on
-unclustered
+ 
 \emph default
- games (at least, using Small Progress Measures) and that the more levels
+random games are a lot more difficult to solve than larger unclustered
+\emph on
+ 
+\emph default
+games (at least, using Small Progress Measures) and that the more levels
  of clustering there are (i.e.
  the smaller the initial cluster size is) the more difficult these games
  become.
@@ -12284,50 +12318,27 @@ reference "spm_spgip_graphs_elevator_time_in_seconds"
  by a large margin.
 \end_layout
 
-\begin_layout Subsection
+\begin_layout Subsubsection
 Two-sided approach
 \end_layout
 
 \begin_layout Standard
-The merits of the two-sided approach can be evaluated using these cases
- as well.
- Figure 
+For completeness sake, the two-sided approach is also tested on these cases.
+ As mentioned in Subsection 
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "spm_spgip_graphs_deciproc_lifting_attempts_a"
+reference "sub:Limitations-of-SPGIP-cases"
 
 \end_inset
 
- and 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "spm_spgip_graphs_elevator_lifting_attempts_a"
-
-\end_inset
-
- present the number of lifting attempts and time performed when the same
- strategies are used in conjunction with Friedmann's two-sided small progress
- measures implementation.
+ small gains are expected, but it is still useful to quantify the overhead
+ of the two-sided approach due to switching between solving the game for
+ player Even and Odd (and, as an implementation quirk, clearing the lifting
+ strategy queue in between).
 \end_layout
 
 \begin_layout Standard
-One difference is that the minimum measure lifting strategy performs much
- better than before.
- However, even in the two-sided framework it is still beaten by the simpler
- predecessor lifting strategy.
- Since this is consistent with the results on random graphs, it seems fair
- to conclude that the minimum measure lifting strategy simply does not live
- up to expectations and ought to be dismissed as a viable strategy.
-\end_layout
-
-\begin_layout Standard
-Overall, the two-sided approach is not much faster (but also not much slower)
- except in the fourth case (unfair elevator verification, 
-\begin_inset Formula $G'$
-\end_inset
-
-) where it performs much better.
- Figures 
+Figures 
 \begin_inset ERT
 status open
 
@@ -12354,11 +12365,17 @@ ref{spm_spgip_charts_elevator}
 \end_inset
 
  show the differences between one-sided and two-sided solving using different
- lifting strategies for one instance of each case.
+ lifting strategies for one instance of each class of games.
+ As expected, the two-sided approach is about twice as slow, except in the
+ fourth case (unfair elevator verification, 
+\begin_inset Formula $G'$
+\end_inset
+
+) where it is much faster.
  However, the unfair elevator case is different from the others: for these
  games the dual is easier to solve than the normal game.
- In fact, solving the dual game using the one-way approach is faster than
- using the two-way approach, as the last bar chart in Figure 
+ Solving the dual game using the one-way approach is again faster than using
+ the two-way approach, as the last bar chart in Figure 
 \begin_inset ERT
 status open
 
@@ -12404,7 +12421,8 @@ It is worth noting that in this last case, the SPM vector bounds give no
 \begin_inset Formula $651168\text{×}(651168+1793672+5369176×5369176)$
 \end_inset
 
- for the dual game: orders of magnitude larger, yet faster to solve in practice.
+ for the dual game: the second value is orders of magnitude larger, yet
+ the dual game is faster to solve in practice.
  This shows once again that worst-case estimations do not accurately predict
  how quickly games can be solved in practice.
 \end_layout
@@ -12413,12 +12431,9 @@ It is worth noting that in this last case, the SPM vector bounds give no
 From these charts it becomes clear that for the testcases under consideration
  (and unlike the random cases) the two-sided solving approach doesn't offer
  a significant improvement over the one-sided approach.
- At best, its performance is close to the performance of the one-sided approach
- on either the normal or the dual game (whichever is easier) but an additional
- benefit obtained from the exchange of stable region solution data between
- the two games does not appear to arise in these testcases.
- Although the two-sided approach is still useful when it is unknown which
- side of the game will be easier to solve (and in general this 
+ Although it can be argued the two-sided approach is still useful when it
+ is unknown which side of the game will be easier to solve (and in general
+ this 
 \emph on
 is
 \emph default
@@ -12426,7 +12441,7 @@ is
 \begin_inset Formula $G'$
 \end_inset
 
- cases), the same result can also be achieved (arguably in a simpler way)
+ cases) the same result can also be achieved (arguably in a simpler way)
  by solving the dual game independently in parallel.
 \end_layout
 
@@ -12436,14 +12451,14 @@ status open
 
 \begin_layout Plain Layout
 
-
+% 
 \backslash
 ExpandableInput{results-spm-spgip-lifts-a.tex}
 \end_layout
 
 \begin_layout Plain Layout
 
-
+% 
 \backslash
 ExpandableInput{results-spm-spgip-time-a.tex}
 \end_layout
@@ -13310,9 +13325,9 @@ name "tab:Lift-to-Top-optimization"
 \end_layout
 
 \begin_layout Standard
-The data in this table supports two conclusions.
+The data in this table support two conclusions.
  First, that the optimization is more effective for the relatively compact-but-d
-ifficult clustered random cases than for the large-but-simpler random games.
+ifficult clustered random cases than for the large-but-simple random games.
  Second, that it is more effective for the two-sided approach than the one-sided
  approach.
  For the two-sided approach, the optimization speeds up solving by a factor
@@ -14485,9 +14500,9 @@ The clustered random games are somewhat more difficult to solve, and here
 \begin_layout Standard
 To summarize, cycle removal is highly effective on random games, on which
  SCC decomposition is not effective at all.
- However, Zielonka's algorithm is already quite good at solving random games
- (especially of the unclustered variety) so this benefit applies primarily
- to Small Progress Measures.
+ Zielonka's algorithm is already quite good at solving random games (especially
+ of the unclustered variety) so this benefit applies primarily to Small
+ Progress Measures.
  However, results on clustered random games show that even Zielonka's algorithm
  can benefit from these optimizations.
 \end_layout
@@ -14495,8 +14510,8 @@ To summarize, cycle removal is highly effective on random games, on which
 \begin_layout Standard
 On nonrandom cases, the results are mixed: in only one of the four cases
  described here cycle removal caused a significant speedup.
- However, the fact that such cases exist suggests that it is a useful feature
- to support.
+ However, the fact that such cases exist suggests that it is a useful optional
+ feature.
 \end_layout
 
 \begin_layout Chapter
@@ -14504,26 +14519,107 @@ Conclusion
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-Quickly summarize results and explain how they relate to the research question;
- describe how my research improved the state of the art (which was the research
- goal): better understanding what works for SPM.
+Most of my research has been focussed on improving the performance of Jurdziński
+'s Small Progress Measures algorithm as part of a practical solver tool.
+ After designing and implementing various improvements to the most basic
+ algorithm, and executing a number of benchmark experiments to assess their
+ effects, I can draw several conclusions:
 \end_layout
 
-\begin_layout Plain Layout
-Hopefully, we can get some useful conclusion like "I've found a lifting
- strategy that works well" and "I found an efficient way to solve a parity
- game concurrently" (this can be quantified pretty well since we have a
- serial algorithm to compare with).
- 
-\end_layout
+\begin_layout Itemize
+Advanced lifting strategies which take information about the current progress
+ measure into account (see Subsection 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Maximum-Measure-Propagation"
 
 \end_inset
 
+) can significantly reduce the total number of lifting attempts needed to
+ solve a parity game, although this does not always reduce the total amount
+ of time required to solve a game.
+ When solving for only one player at a time, the maximum step heuristic
+ performs best.
+ For Friedmann's two-sided solving approach, both the predecessor and the
+ minimum measure propagation heuristics work well.
+\end_layout
 
+\begin_layout Itemize
+As a compromise between simplicity and performance, the queue-based predecessor
+ lifting strategy was consistently among the best methods available.
+ Although it is not a new strategy, it has never been compared empirically
+ with its alternatives.
+ In most research prototypes, the even simpler yet otherwise inferior linear
+ lifting strategy is used.
+ The recommendation to implement the predecessor lifting strategy instead
+ is supported by the benchmark results presented earlier.
+\end_layout
+
+\begin_layout Itemize
+The core algorithm as described by Jurdziński is suitable mainly for the
+ very simple linear lifting strategy.
+ When implementing the predecessor lifting strategy, or one of the more
+ advanced lifting strategies, it is benefical to reformulate the core algorithm
+ to eliminate the possibility for failed lifting attempts (see Subsection
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Eliminating-failed-lifting"
+
+\end_inset
+
+).
+ The empirical evaluation shows this roughly doubles its performance.
+\end_layout
+
+\begin_layout Itemize
+The two-sided variant of Small Progress Measures (see Subsection 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Two-sided-SPM"
+
+\end_inset
+
+), originally implemented by Oliver Friedemann in PGSolver but not described
+ in literature, was also evaluated and shown to work well on particularly
+ difficult cases such as clustered random games.
+ It has been shown to benefit greatly from the optimization described in
+ Subsection 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Optimization-after-lifting"
+
+\end_inset
+
+, so it is recommended that these two improvements are implemented together.
+\end_layout
+
+\begin_layout Standard
+The main conclusion regarding Zielonka's recursive algorithm is that my
+ benchmarks confirm earlier reports that this algorithm is very versatile,
+ and quite good at solving even difficult testcases.
+ It can additionally benefit from preprocessing techniques like SCC decompositio
+n.
+ Based on these benchmark results, and the fact that the algorithm is not
+ much more complicated than Small Progress Measures, I conclude that Zielonka's
+ algorithm is generally to be preferred over Small Progress Measures as
+ a practical algorithm for solving parity games, despite its theoretically
+ worse runtime complexity.
+\end_layout
+
+\begin_layout Standard
+A new preprocessing operation called winner-controlled cycle removal (see
+ Subsection 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Winner-controlled-cycle-removal"
+
+\end_inset
+
+) has been introduced as a generalization of loop removal.
+ Besides being an effective way to solve unclustered random games, benchmarks
+ have shown that it can speed up parity game solving using both Small Progress
+ Measures and Zielonka's recursive algorithm.
 \end_layout
 
 \begin_layout Section
@@ -14531,19 +14627,10 @@ Future work
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-Describe any untested hypotheses (things I thought about but don't have
- any results on).
- Describe possible ways to extend/improve the research.
- 
-\end_layout
-
-\end_inset
-
-
+During the project I identified many opportunities for further research
+ that could not fit in the scope of my project.
+ The most important topics will be listed below, with the hope that others
+ will be able to further improve upon the state of the art.
 \end_layout
 
 \begin_layout Subsection
@@ -14713,173 +14800,6 @@ To advance the state of the art, it would be useful to define the problem
 LatexCommand bibtex
 bibfiles "references"
 options "bibtotoc,plainurl"
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Chapter
-\start_of_appendix
-Raw benchmark results
-\end_layout
-
-\begin_layout Standard
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-%
-\backslash
-begingroup
-\end_layout
-
-\begin_layout Plain Layout
-
-%
-\backslash
-setlength{
-\backslash
-LTleft}{-20cm plus -1fill}
-\backslash
-setlength{
-\backslash
-LTright}{
-\backslash
-LTleft}
-\end_layout
-
-\begin_layout Plain Layout
-
-%
-\backslash
-scriptsize
-\end_layout
-
-\begin_layout Plain Layout
-
-%
-\backslash
-begin{longtable}{l|r r r r r r r r r r r r|r r r r r r r r r r r r}
-\end_layout
-
-\begin_layout Plain Layout
-
-%
-\backslash
-caption{Small Progress Measure benchmark on random graphs (seconds)}
-\end_layout
-
-\begin_layout Plain Layout
-
-%
-\backslash
-label{somelabelshouldgohere} 
-\backslash
-
-\backslash
-
-\end_layout
-
-\begin_layout Plain Layout
-
-%
-\end_layout
-
-\begin_layout Plain Layout
-
-%& l:0 & l:1 & p:0 & p:1 & P:0 & P:1 & M:0 & M:1 & M:2 & m:0 & m:1 & m:2
- 
-\backslash
-
-\backslash
-
-\end_layout
-
-\begin_layout Plain Layout
-
-%
-\backslash
-hline
-\end_layout
-
-\begin_layout Plain Layout
-
-%
-\backslash
-endhead
-\end_layout
-
-\begin_layout Plain Layout
-
-%
-\end_layout
-
-\begin_layout Plain Layout
-
-%
-\backslash
-multicolumn{25}{r}{{Continued on next page...}} 
-\backslash
-
-\backslash
-
-\end_layout
-
-\begin_layout Plain Layout
-
-%
-\backslash
-endfoot
-\end_layout
-
-\begin_layout Plain Layout
-
-%
-\end_layout
-
-\begin_layout Plain Layout
-
-%
-\backslash
-hline 
-\backslash
-hline
-\end_layout
-
-\begin_layout Plain Layout
-
-%
-\backslash
-endlastfoot
-\end_layout
-
-\begin_layout Plain Layout
-
-%
-\end_layout
-
-\begin_layout Plain Layout
-
-%
-\backslash
-ExpandableInput{results-tests4-seconds.tex}
-\end_layout
-
-\begin_layout Plain Layout
-
-%
-\backslash
-end{longtable}
-\end_layout
-
-\begin_layout Plain Layout
-
-%
-\backslash
-endgroup
-\end_layout
 
 \end_inset
 

@@ -343,5 +343,208 @@ discuss the effect of partitioning schemes on the efficiency of these algorithms
 
 \end_layout
 
+\begin_layout Subsection
+Two-sided approach
+\end_layout
+
+\begin_layout Standard
+The merits of the two-sided approach can be evaluated using these cases
+ as well.
+ Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "spm_spgip_graphs_deciproc_lifting_attempts_a"
+
+\end_inset
+
+ and 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "spm_spgip_graphs_elevator_lifting_attempts_a"
+
+\end_inset
+
+ present the number of lifting attempts and time performed when the same
+ strategies are used in conjunction with Friedmann's two-sided small progress
+ measures implementation.
+\end_layout
+
+\begin_layout Standard
+One difference is that the minimum measure lifting strategy performs much
+ better than before.
+ However, even in the two-sided framework it is still beaten by the simpler
+ predecessor lifting strategy.
+ Since this is consistent with the results on random graphs, it seems fair
+ to conclude that the minimum measure lifting strategy simply does not live
+ up to expectations and ought to be dismissed as a viable strategy.
+\end_layout
+
+\begin_layout Chapter
+\start_of_appendix
+Raw benchmark results
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+%
+\backslash
+begingroup
+\end_layout
+
+\begin_layout Plain Layout
+
+%
+\backslash
+setlength{
+\backslash
+LTleft}{-20cm plus -1fill}
+\backslash
+setlength{
+\backslash
+LTright}{
+\backslash
+LTleft}
+\end_layout
+
+\begin_layout Plain Layout
+
+%
+\backslash
+scriptsize
+\end_layout
+
+\begin_layout Plain Layout
+
+%
+\backslash
+begin{longtable}{l|r r r r r r r r r r r r|r r r r r r r r r r r r}
+\end_layout
+
+\begin_layout Plain Layout
+
+%
+\backslash
+caption{Small Progress Measure benchmark on random graphs (seconds)}
+\end_layout
+
+\begin_layout Plain Layout
+
+%
+\backslash
+label{somelabelshouldgohere} 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+%
+\end_layout
+
+\begin_layout Plain Layout
+
+%& l:0 & l:1 & p:0 & p:1 & P:0 & P:1 & M:0 & M:1 & M:2 & m:0 & m:1 & m:2
+ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+%
+\backslash
+hline
+\end_layout
+
+\begin_layout Plain Layout
+
+%
+\backslash
+endhead
+\end_layout
+
+\begin_layout Plain Layout
+
+%
+\end_layout
+
+\begin_layout Plain Layout
+
+%
+\backslash
+multicolumn{25}{r}{{Continued on next page...}} 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+%
+\backslash
+endfoot
+\end_layout
+
+\begin_layout Plain Layout
+
+%
+\end_layout
+
+\begin_layout Plain Layout
+
+%
+\backslash
+hline 
+\backslash
+hline
+\end_layout
+
+\begin_layout Plain Layout
+
+%
+\backslash
+endlastfoot
+\end_layout
+
+\begin_layout Plain Layout
+
+%
+\end_layout
+
+\begin_layout Plain Layout
+
+%
+\backslash
+ExpandableInput{results-tests4-seconds.tex}
+\end_layout
+
+\begin_layout Plain Layout
+
+%
+\backslash
+end{longtable}
+\end_layout
+
+\begin_layout Plain Layout
+
+%
+\backslash
+endgroup
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \end_body
 \end_document
