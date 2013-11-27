@@ -207,7 +207,8 @@ public:
 
     /*! Read a game description from an mCRL2 PBES. */
     void read_pbes( const std::string &file_path, verti *goal_vertex = 0,
-        StaticGraph::EdgeDirection edge_dir = StaticGraph::EDGE_BIDIRECTIONAL );
+        StaticGraph::EdgeDirection edge_dir = StaticGraph::EDGE_BIDIRECTIONAL,
+        const std::string &rewrite_strategy = "jitty" );
 
     /*! Read raw parity game data from input stream */
     void read_raw(std::istream &is);
@@ -270,7 +271,8 @@ public:
 
     /*! Generate a parity game from an mCRL2 PBES. */
     void assign_pbes( mcrl2::pbes_system::pbes &pbes, verti *goal_vertex = 0,
-        StaticGraph::EdgeDirection edge_dir = StaticGraph::EDGE_BIDIRECTIONAL );
+        StaticGraph::EdgeDirection edge_dir = StaticGraph::EDGE_BIDIRECTIONAL,
+        const std::string &rewrite_strategy = "jitty" );
 
 protected:
     /*! Re-allocate memory to store information on V vertices with priorities

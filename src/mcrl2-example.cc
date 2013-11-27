@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
 
         // Create a SPM solver factory:
         solver_factory.reset(
-            new SmallProgressMeasuresSolverFactory(lift_strat_factory.get(), true) );
+            new SmallProgressMeasuresSolverFactory(lift_strat_factory.get(), 2, true) );
     }
     else
     if (use_rec)
