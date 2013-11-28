@@ -1,4 +1,14 @@
-AC_INIT(ParityGameSolver, 0.1)
+AC_INIT(ParityGameSolver, 1.0)
+
+echo '                                  +      +---+'
+echo '  PARITY GAME SOLVER v1.0        / \ --->| 3 |<'
+echo '                            --> + 0 +    +---+ \'
+echo '                           /     \ /      / \__/'
+echo '                        +---+     +      /'
+echo '                        | 2 |<-----------'
+echo '                        +---+'
+echo ''
+
 AM_INIT_AUTOMAKE([-Wall -Werror foreign no-define])
 AC_CONFIG_SRCDIR([main.cc])
 AC_CONFIG_MACRO_DIR([m4])
