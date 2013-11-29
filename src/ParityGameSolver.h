@@ -54,6 +54,8 @@ public:
     virtual ~ParityGameSolverFactory() { };
 
     /*! Create a parity game solver for the given game.
+
+        \param game the game to be solved
         \param vertex_map maps vertex indices from the given subgame to the
             main game. (This allows the SPM solver to correctly collect per-
             vertex lifting statistics even if the game is decomposed first.)

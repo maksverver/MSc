@@ -44,6 +44,7 @@ class FocusListLiftingStrategy : public LiftingStrategy, public virtual Logger
 public:
     /*! Constructor.
 
+        \param game         the game to be solved
         \param alternate    passed to the LinearLiftingStrategy constructor.
         \param max_size     maximum size of the focus list.
         \param max_lifts    maximum number of lifts per second phase.

@@ -99,10 +99,11 @@ public:
     /*! Performs some work on the game using the given lifting strategy (which
         must have been initialized).
 
-        @param max_attempts Maximum number of lifts attempted.
-        @return How many attempts remain; i.e. if the result is greater than
+        \param ls Lifting strategy to use.
+        \param max_attempts Maximum number of lifts attempted.
+        \return How many attempts remain; i.e. if the result is greater than
                 zero, the game is succesfully solved.
-        @see initialize_lifting_strategy
+        \see initialize_lifting_strategy()
     */
     long long solve_some( LiftingStrategy &ls,
                           long long max_attempts = work_size );
@@ -377,7 +378,10 @@ protected:
 
 /*! \ingroup SmallProgressMeasures
 
-    TODO: document this class. */
+    An improved implementation of Small Progress Measures that explicitly
+    keeps track of unstable vertices, which eliminates the possibility of failed
+    lifting attempts and simplifies the implementation of lifting strategies.
+ */
 class SmallProgressMeasuresSolver2 : public SmallProgressMeasuresSolver
 {
 public:

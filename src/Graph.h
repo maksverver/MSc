@@ -96,6 +96,25 @@ public:
     /*! Reset to an empty graph. */
     void clear();
 
+    /*! Reset the graph to a copy of `graph`. */
+    void assign(const StaticGraph &graph);
+
+    /*! Reset the graph based on the given edge structure. */
+    void assign(edge_list edges, EdgeDirection edge_dir);
+
+    /*! Convert the graph into a list of edges. */
+    edge_list get_edges() const;
+
+    /*! Removes the given edges from the graph. The contents of the edge list
+        may be reordered by this function! */
+    void remove_edges(edge_list &edges);
+
+    /*! Swaps the contents of this graph with another one. */
+    void swap(StaticGraph &g);
+
+    //!\name Generation
+    //!@{
+
     /*! Generate a random graph (replacing the old contents).
         The resulting game does not contain loops.
 
@@ -138,15 +157,6 @@ public:
     */
     void shuffle_vertices(const std::vector<verti> &perm);
 
-    /*! Reset the graph to a copy of `graph`. */
-    void assign(const StaticGraph &graph);
-
-    /*! Reset the graph based on the given edge structure. */
-    void assign(edge_list edges, EdgeDirection edge_dir);
-
-    /*! Convert the graph into a list of edges. */
-    edge_list get_edges() const;
-
     /*! Reset the graph to the subgraph induced by the given vertex set. */
     template<class ForwardIterator>
     void make_subgraph( const StaticGraph &graph,
@@ -155,15 +165,18 @@ public:
                         bool proper,
                         EdgeDirection edge_dir = EDGE_NONE );
 
+#ifdef WITH_THREADS
     void make_subgraph_threads( const StaticGraph &graph,
                                 const verti *verts,
                                 const verti nvert,
                                 bool proper,
                                 EdgeDirection edge_dir = EDGE_NONE );
+#endif
 
-    /*! Removes the given edges from the graph. The contents of the edge list
-        may be reordered by this function! */
-    void remove_edges(edge_list &edges);
+    //!@}
+
+    //!\name Input/Output
+    //!@{
 
     /*! Write raw graph data to output stream */
     void write_raw(std::ostream &os) const;
@@ -171,8 +184,11 @@ public:
     /*! Read raw graph data from input stream */
     void read_raw(std::istream &is);
 
-    /*! Swaps the contents of this graph with another one. */
-    void swap(StaticGraph &g);
+    //!@}
+
+    //!\name Data access
+    //!@{
+
 
     /*! Returns whether the graph is empty. */
     bool empty() const { return V_ == 0; }
@@ -244,6 +260,7 @@ public:
         return EdgeIterator(this, V_, E_);
     }
 #endif
+    //!@}
 
 protected:
     /*! Turn the current graph (with current edge list passed in `edges`) into

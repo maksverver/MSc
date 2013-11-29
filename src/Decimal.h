@@ -13,10 +13,9 @@
 #include <string>
 #include <sstream>
 
+//! Arbitrary-precision natural numbers with an internal decimal representation.
 class Decimal
 {
-    std::string s;
-
     static std::string str(unsigned i)
     {
         std::ostringstream oss;
@@ -25,17 +24,41 @@ class Decimal
     }
 
 public:
+    /*! Construct a Decimal from a string.
+        \param t A string consisting of decimal digits without leading zeros. */
     Decimal(const std::string &t) : s(t) { }
-    Decimal(const unsigned i) : s(str(i)) { }
-    Decimal(const Decimal &d) : s(d.s) { }
-    Decimal &operator=(const Decimal &d) { s = d.s; return *this; }
-    const std::string &str() const { return s; }
-    const char *c_str() const { return s.c_str(); }
-    size_t size() const { return s.size(); }
-    char operator[](size_t i) const { return s[i]; }
-};
 
-Decimal operator+(const Decimal &a, const Decimal &b);
-Decimal operator*(const Decimal &a, const Decimal &b);
+    //! Construct a Decimal from an unsigned integer.
+    Decimal(const unsigned i) : s(str(i)) { }
+
+    //! Copy constructor.
+    Decimal(const Decimal &d) : s(d.s) { }
+
+    //! Assignment operator.
+    Decimal &operator=(const Decimal &d) { s = d.s; return *this; }
+
+    //! Returns the underlying decimal representation as a std::string.
+    const std::string &str() const { return s; }
+
+    //! Returns a character pointer to underlying decimal representation.
+    const char *c_str() const { return s.c_str(); }
+
+    //! Returns the length of the underlying decimal representation.
+    size_t size() const { return s.size(); }
+
+    //! Returns the result of adding this number to the given argument.
+    Decimal operator+(const Decimal &d) const;
+
+    //! Returns the result of multiplying this number with the given argument.
+    Decimal operator*(const Decimal &d) const;
+
+private:
+    /*! Returns the digit at the `i`-th position, counted from the left.
+        This is equivalent to `str()[i]` which means that `i` must be between
+        `0` and `size()`, exclusive! */
+    char operator[](size_t i) const { return s[i]; }
+
+    std::string s;  //! internal representation as a decimal number
+};
 
 #endif /* ndef DECIMAL_H_INCLUDED */

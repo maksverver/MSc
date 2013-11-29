@@ -12,12 +12,6 @@
     The main solver tool implementation.
 */
 
-/*! \mainpage
-
-Overview goes here.
-
-*/
-
 #if defined(__unix__) || defined(__linux__)
 #define POSIX
 #endif
@@ -551,9 +545,9 @@ static void parse_args(int argc, char *argv[])
     }
 }
 
-/*! Write summary of winners. For each node, a single character is printed:
+/*! Write summary of winners. For each vertex, a single character is printed:
     'E' or 'O', depending on whether player Even or Odd wins the parity game
-    starting from this node. */
+    starting from this vertex. */
 static void write_winners( std::ostream &os, const ParityGame &game,
                            const ParityGame::Strategy &strategy )
 {

@@ -10,8 +10,9 @@
 #include "Decimal.h"
 #include <vector>
 
-Decimal operator+(const Decimal &s, const Decimal &t)
+Decimal Decimal::operator+(const Decimal &t) const
 {
+    const Decimal &s = *this;
     size_t i = s.size(), j = t.size();
     std::vector<char> sum;
     sum.reserve(std::max(i, j) + 1);
@@ -27,8 +28,9 @@ Decimal operator+(const Decimal &s, const Decimal &t)
     return Decimal(std::string(sum.rbegin(), sum.rend()));
 }
 
-Decimal operator*(const Decimal &s, const Decimal &t)
+Decimal Decimal::operator*(const Decimal &t) const
 {
+    const Decimal &s = *this;
     std::vector<char> product(s.size() + t.size(), '0');
     for (size_t i = 0; i < s.size(); ++i)
     {
