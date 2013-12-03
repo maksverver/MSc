@@ -130,9 +130,7 @@ verti MaxMeasureLiftingStrategy2::pop()
         for (std::vector<verti>::iterator it = bumped_.begin();
              it != bumped_.end(); ++it) move_up(*it);
 
-        // CHECKME: why is this necessary for MAX_STEP too?
-        //          shouldn't this just be for MIN_STEP?
-        if (metric_ != MAX_VALUE)
+        if (metric_ == MIN_VALUE)
         {
             /* Note: minimization is a bit trickier than maximization, since
                we need to move bumped vertices down the heap (rather than up
@@ -194,8 +192,11 @@ static int cmp_step( const verti *v1, const verti *v2, int v_len, bool v_carry,
 {
     for (int i = 0; i < v_len || i < w_len; ++i)
     {
-        int a = i < v_len ? v2[i] - v1[i] : 0;
-        int b = i < w_len ? w2[i] - w1[i] : 0;
+        /* NOTE: this relies on (long long) being a larger, signed type than
+                 verti; otherwise, subtracting high values (as used e.g. in the
+                 encoding of Top values) can cause integer overflow! */
+        long long a = i < v_len ? (long long)v2[i] - v1[i] : 0;
+        long long b = i < w_len ? (long long)w2[i] - w1[i] : 0;
         if (a != b) return (a > b) - (a < b);
     }
     if (v_carry || w_carry)
