@@ -146,9 +146,8 @@ The goal of my final project was to develop a framework for experimentation
  with parity games, in order to better understand the performance of a variety
  of parity game algorithms, and to push the boundaries of the range of parity
  game problems that can be solved in practice.
- Consequently, my project mixes theory  with Along the way I discovered
- several techniques to improve the standard algorithms; these improvements
- are documented in this report.
+ Along the way I discovered several techniques to improve the standard algorithm
+s; these improvements are documented in this report.
 \end_layout
 
 \begin_layout Standard
@@ -716,11 +715,12 @@ Therefore,
 \emph on
 solving a game
 \emph default
- in the most general sense means to identify optimal strategies for both
+ in the most general sense means identifying optimal strategies for both
  players in addition to their winning sets.
- Note that even in finite games, strategies (unlike winning sets) do not
- complement each other, so given an optimal strategy for one player, we
- cannot (easily) deduce an optimal strategy for his opponent.
+ Note that strategies (unlike winning sets) do not complement each other.
+ Finding one player's winning set immediately yields the other set by complement
+ation, but given a pair of winning sets, finding an optimal strategy for
+ one player does not help to calculate the optimal strategy for his opponent.
 \end_layout
 
 \begin_layout Subsection
@@ -766,16 +766,24 @@ optimal strategy
 \begin_layout Standard
 Strategies as described above are called 
 \emph on
-infinite-memory strategies
+unbounded memory strategies
 \emph default
 , because they can take the entire move history into account to determine
  the next move.
- In contrast, 
+ By contrast, 
+\emph on
+bounded
+\emph default
+ or 
+\emph on
+finite memory strategies
+\emph default
+ limit the relevant move history to a fixed depth, while 
 \emph on
 memoryless strategies
 \emph default
- are strategies which depend only on the current position of the token,
- i.e.
+ are bounded memory strategies which depend only on the current position
+ of the token, i.e.
  
 \family roman
 \series medium
@@ -1067,11 +1075,11 @@ Often
 \begin_inset Formula $d$
 \end_inset
 
- is small and therefore the first category of algorithms provides better
- worst-case time complexity bounds.
- However, in practice many instances can be solved much faster than the
- best available bound would suggest, and as a result these bounds cannot
- be used to predict which algorithms work best in practice.
+ is small in practice; in those cases the first category of algorithms promises
+ better performance.
+ However, since many instances can be solved much faster than the best available
+ bound would suggest, upper time bounds alone cannot be used to predict
+ which algorithms work best in practice.
 \end_layout
 
 \begin_layout Section
@@ -1114,7 +1122,7 @@ key "emerson1991tree"
 \begin_inset Formula $\mu$
 \end_inset
 
--calculus
+-calculus 
 \begin_inset CommandInset citation
 LatexCommand cite
 key "emerson1997model"
@@ -1200,7 +1208,8 @@ key "martin1975borel"
 
 .
  For Borel games with a Rabin winning condition, of which the parity condition
- is a special case, Klarlund proved that memoryless strategies exist 
+ is a special case, Klarlund showed that whenever the condition can be satisfied
+, there is a memoryless strategy to do so 
 \begin_inset CommandInset citation
 LatexCommand cite
 key "klarlund1994progress"
@@ -1336,6 +1345,13 @@ key "lange2005sat"
 
 \end_inset
 
+, 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "heljanko2012sat"
+
+\end_inset
+
 ) and Boolean equation systems have been proposed.
 \end_layout
 
@@ -1368,7 +1384,7 @@ key "schewe2008strategy-improvement"
 \end_layout
 
 \begin_layout Standard
-However, Friedmann and Lange have performed an emperical evaluation of various
+However, Friedmann and Lange have performed an empirical evaluation of various
  algorithms, and conclude that 
 \emph on
 
@@ -1508,7 +1524,7 @@ Simulation reductions
 \begin_layout Standard
 Recent work has focused on polynomial-time reductions on the game graph,
  based on the principle that any reduction of the graph that preserves winners
- is at least permissible, and will often simsolving the game.
+ is at least permissible, and will often simplify solving the game.
  In principle every parity game can be reduced to just two vertices, one
  won by each of the players, but computing such a reduction would be equivalent
  to solving the parity game and therefore this is not feasible in polynomial
@@ -1648,7 +1664,7 @@ key "cranen2012cure"
 \end_inset
 
  time to calculate).
- An emperical evaluation suggests that the two reductions offer comparable
+ An empirical evaluation suggests that the two reductions offer comparable
  performance in practice.
 \end_layout
 
@@ -2242,13 +2258,33 @@ An attractor set for a player
 \end_inset
 
  on a vertex set 
-\bar under
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
 
 \begin_inset Formula $U\subseteq V$
 \end_inset
 
 
+\family default
+\series default
+\shape default
+\size default
+\emph default
 \bar default
+\strikeout default
+\uuline default
+\uwave default
+\noun default
+\color inherit
 , denoted 
 \begin_inset Formula $Attr^{x}(\Gamma,U)$
 \end_inset
@@ -2483,7 +2519,7 @@ Degenerate cases
 \begin_layout Standard
 In addition to games which do not comply with the restrictions mentioned
  earlier, there are also a few classes of degenerate games that are special
- cases of the general game describe above.
+ cases of the general game described above.
  They are mentioned separately because specific algorithms exist to solve
  them more quickly.
 \end_layout
@@ -2644,6 +2680,14 @@ ion algorithm is invoked recursively, it is possible to waste a lot of time
  maximum 10 recursive invocations); when the maximum recursion depth is
  reached, subgames are passed directly to the general solver, without attempting
  to decompose the game graph further.
+\end_layout
+
+\begin_layout Standard
+This trade-off occurs because finding even small components in a large graph
+ may take time proportional to the size of the entire graph; an algorithm
+ that could find a (bottom-most) component while requiring only time proportiona
+l to the size of that component would provide a more elegant resolution
+ to the problem, but no standard algorithm with this property exists.
 \end_layout
 
 \begin_layout Standard
@@ -3063,7 +3107,7 @@ Common algorithms and data structures
 \end_layout
 
 \begin_layout Standard
-The results that will be presented later on are based on emperical evaluation
+The results that will be presented later on are based on empirical evaluation
  of various parity game solving algorithms on a variety of test cases.
  The results obtained therefore depend not only on the test cases used and
  the choice of algorithms implemented, but also on various implementation
@@ -3505,7 +3549,7 @@ The computational cost of constructing a subgame is dominated by construction
 
 \bar default
  then vertex lists need to be resorted too, but usually this is not necessary,
- as inmost purposes 
+ as in most cases 
 \begin_inset Formula $U$
 \end_inset
 
@@ -3613,7 +3657,7 @@ This algorithm is reasonably efficient for sufficiently sparse graphs, but
 
 \begin_layout Standard
 Fortunately, there is a way to mitigate this problem.
- Lets call the successors of a vertex which lie outside the attractor set
+ Let's call the successors of a vertex which lie outside the attractor set
  its 
 \emph on
 liberties
@@ -4108,8 +4152,7 @@ key "tarjan1971depth"
 \begin_inset Formula $O(\left|V\right|)$
 \end_inset
 
- space (even if the algorithm is aborted before all components have been
- found).
+ space.
 \end_layout
 
 \begin_layout Standard
@@ -4262,7 +4305,7 @@ reference "sub:Eliminating-failed-lifting"
 
 \end_inset
 
-
+.
 \end_layout
 
 \begin_layout Itemize
@@ -4278,7 +4321,7 @@ reference "sub:Optimization-after-lifting"
 
 \end_inset
 
-
+.
 \end_layout
 
 \begin_layout Itemize
@@ -4577,7 +4620,7 @@ Prog(\rho,v,w)=\begin{cases}
 
 \begin_layout Standard
 This function is used to define the function 
-\begin_inset Formula $Lift(\rho,v):(V\rightarrow M^{\top})\times V\times(V\rightarrow M^{\top})$
+\begin_inset Formula $Lift(\rho,v):(V\rightarrow M^{\top})\times V\rightarrow(V\rightarrow M^{\top})$
 \end_inset
 
 , which updates a progress measure 
@@ -4622,7 +4665,7 @@ Note that this definition reflects that Even will try to minimize the progress
 \noun off
 \color none
 the function 
-\begin_inset Formula $Lift(\rho,v):(V\rightarrow M^{\top})\times(V\rightarrow M^{\top})$
+\begin_inset Formula $Lift(\rho,v):(V\rightarrow M^{\top})\rightarrow(V\rightarrow M^{\top})$
 \end_inset
 
  updates a progress measure at any one vertex, if possible:
@@ -4728,7 +4771,7 @@ Jurdziński's algorithm is straightforward, but it does not explicitly address
 \end_layout
 
 \begin_layout Enumerate
-How can we determine which which vertices are liftable (
+How can we determine which vertices are liftable (
 \family roman
 \series medium
 \shape up
@@ -4753,7 +4796,7 @@ When multiple vertices are liftable, which should we select to improve the
 \end_layout
 
 \begin_layout Standard
-An simple answer to the first question is to try computing 
+A simple answer to the first question is to try computing 
 \begin_inset Formula $Lift(\rho,v)$
 \end_inset
 
@@ -4763,8 +4806,8 @@ An simple answer to the first question is to try computing
 
  until either one is found that changes the current progress measure, or,
  when all options are eliminated, conclude that a fixed point has been found.
- Most implementations follow this approach, which has the benefit that it's
- simple and sound.
+ All previous implementations (see introduction of this chapter) follow
+ this approach, which has the benefit that it's simple and sound.
  However, it's not clear that this leads to best performance in practice.
  In Subsection 
 \begin_inset CommandInset ref
@@ -4976,7 +5019,7 @@ dirty
  if it has not been lifted since one of its successors has been lifted,
  and clean otherwise.
  As a result, unstable vertices are a subset of dirty vertices, and the
- difference is relevant because most implementations track 
+ difference is relevant because all previous implementations track 
 \emph on
 dirty
 \emph default
@@ -5677,7 +5720,7 @@ The idea behind the work list is that it captures unstable parts of the
 
 \begin_layout Standard
 Since Van de Pol and Weber were the only ones to implement this strategy,
- there is not much emperical evidence available about its performance, though
+ there is not much empirical evidence available about its performance, though
  they report in 
 \begin_inset CommandInset citation
 LatexCommand cite
@@ -5696,7 +5739,7 @@ key "vandepol2008multicore"
 The main downside of the strategy is that it depends on various constants
  (work list size, initial credit, credit increment, credit divisor) to work
  well.
- In Weber's implementation these are emperically derived while testing on
+ In Weber's implementation these are empirically derived while testing on
  random games, but it is unclear if and how these values should change for
  other types of games.
 \end_layout
@@ -6477,7 +6520,7 @@ The implemention of
 \begin_inset Formula $\texttt{lift}$
 \end_inset
 
- follows the descripton given in section 
+ follows the description given in section 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sec:SPM-Description"
@@ -6739,18 +6782,18 @@ A more intuitive way to see that decreasing the progress measure bounds
 \end_inset
 
  with associated bounds 
-\begin_inset Formula $M"$
+\begin_inset Formula $M''$
 \end_inset
 
  instead.
  However, since 
-\begin_inset Formula $M"{}_{p}\subseteq M_{p}'(\rho)$
+\begin_inset Formula $M''{}_{p}\subseteq M_{p}'(\rho)$
 \end_inset
 
  and since we compute a minimum fixed point in both cases, the final progress
  measures vectors must be the same for corresponding vertices in both games.
  This guarantees that the final value of all vectors will lie in 
-\begin_inset Formula $M"{}^{\top}$
+\begin_inset Formula $M''{}^{\top}$
 \end_inset
 
 .
@@ -7215,8 +7258,8 @@ Search for cycles of any size (not just small ones).
 
 \begin_layout Enumerate
 Don't limit the search to fixed parity vertices: only the parity of the
- least priority of a cycle matters; if that matches the controlling player,
- the priorities for the other vertices is irrelevant.
+ least priority in a cycle matters; if that matches the controlling player,
+ the priorities for the other vertices are irrelevant.
 \end_layout
 
 \begin_layout Enumerate
@@ -7856,7 +7899,7 @@ forwards propagation
 This can be seen to be correct by considering that in a finite graph, if
  a play passes through a vertex infinitely often, it must also pass through
  at least one of its successors infinitely often.
- When the vertex priority is greater than all of its successors', then it
+ When a vertex's priority is greater than all of its successors', then it
  cannot be the dominant priority of the play, so it can be safely decreased.
  The same argument applies to predecessors, of course.
 \end_layout
@@ -7891,27 +7934,13 @@ key "keiren2009"
 \begin_inset Quotes eld
 \end_inset
 
-emperically, the use of priority propagation turns out to be harmful
+empirically, the use of priority propagation turns out to be harmful
 \begin_inset Quotes erd
 \end_inset
 
 
 \emph default
-, though their emperical data is not presented, so it is unclear whether
- they mean that the time spend preprocessing the graph exceeds the time
- saved during solving, or whether priority propagation actually makes the
- game harder to solve.
- 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-experiment!
-\end_layout
-
-\end_inset
-
-
+.
 \end_layout
 
 \begin_layout Subsubsection
@@ -8087,7 +8116,7 @@ less
 \begin_layout Standard
 To compute a maximal set of marked vertices, a similar approach as in the
  main SPM algorithm is used: all vertices are queued, checked against the
- properties mentioned above, and whenever a mark is add to a vertex, its
+ properties mentioned above, and whenever a mark is added to a vertex, its
  predecessors must be re-examined, so they are queued again.
  The difference with the main SPM algorithm is that a mark can be added
  only once, which bounds the total processing time to the number of edges
@@ -8147,31 +8176,33 @@ Advantages & Disadvantages
 \end_layout
 
 \begin_layout Standard
-In practice, a game and its dual are often not of the same difficulty.
- In that case, it makes sense to try to solve them both, in order to discover
- the solution to the easiest one, and then use the information gained to
- construct a subgame with the remaining unsolved vertices in the dual game,
- which is then usually much easier to solve.
+Jurdziński's solution approach is asymmetric: it solves the game only from
+ the perspective of player Even.
+ To find a strategy for Odd, we can re-run the algorithm on the dual game
+ for the opponent's winning set, which may be somewhat easier because the
+ game graph is smaller.
+ Because of this asymmetry, it may be quicker to start from the dual game
+ in the first place (effectively solving for Odd in the original game) but
+ we don't know in advance whether this is true.
+ An advantage of Friedmann's approach is that we do not need to guess, since
+ we work on both the game and its dual at once.
  The extra amount of work done in this case is at most equal to the amount
- of work done for the easiest game, but with the benefit that we do not
- have to know or guess in advance which of the players is easier to solve
- for.
+ of work done for the easiest game.
 \end_layout
 
 \begin_layout Standard
-The second advantage of Friedmann's two-sided approach compared to solving
- a game and its dual independently, is that it can propagate information
- between games even when neither is completely solved.
- This is useful because even in cases where both games are equally hard,
+The second advantage of Friedmann's two-sided approach is that it can propagate
+ information between games even when neither is completely solved.
+ This is useful because even in cases where both sides are equally difficult,
  they each may contain small regions that can be solved relatively easily
- and then used to simplify the other game.
+ and then be used to simplify the other game.
 \end_layout
 
 \begin_layout Standard
-There may be rare cases where none of the benefits apply.
- In that case, up to twice as much work may be spent on lifting vertices,
- and some additional overhead is incurred searching for stable regions in
- the games.
+There may be rare cases where neither of these benefits apply.
+ In such cases, up to twice as much effort may be spent on lifting vertices,
+ and some additional overhead is incurred by searching for stable regions
+ in the games.
  Since the cost of this search can be amortized against the time spent on
  lifting, the worst-case slowdown can be brought arbitrarily close to a
  factor of 2.
@@ -8187,7 +8218,7 @@ The observation that the two-sided approach should use (at worst) about
  but it actually relies on a suitable implementation of the algorithm.
  Perhaps surprisingly, PGSolver can take orders of magnitude longer to solve
  games with the two-sided approach than without it.
- The cause of this is that PGsolver omits construction of subgames entirely,
+ The cause of this is that PGSolver omits construction of subgames entirely,
  even after one of the sides is completely solved, and consequently does
  not benefit from a reduction in progress measure bounds that occurs when
  constructing a subgame for the harder part of the game.
@@ -8250,7 +8281,7 @@ name "chap:Zielonka's-Recursive-Algorithm"
 
 \begin_layout Standard
 An entirely different approach to solving parity games arises from a constructiv
-e proof of the existince of memoryless strategies by Wiesław Zielonka in
+e proof of the existence of memoryless strategies by Wiesław Zielonka in
  
 \begin_inset CommandInset citation
 LatexCommand cite
@@ -8542,11 +8573,11 @@ At this point, we know that
 
  too.
  The same does not apply to 
-\begin_inset Formula $W_{0}$
+\begin_inset Formula $W'_{0}$
 \end_inset
 
 , because it is possible that Odd can escape from 
-\begin_inset Formula $W_{0}$
+\begin_inset Formula $W'_{0}$
 \end_inset
 
  into 
@@ -9135,7 +9166,7 @@ name "chap:Empirical-Evaluation"
 \end_layout
 
 \begin_layout Standard
-An emperical evaluation of the performance of the algorithms described so
+An empirical evaluation of the performance of the algorithms described so
  far is necessary to determine how well they work in practice.
  However, meaningful benchmark results can only be obtained when these algorithm
 s are applied to reasonably complex test data.
@@ -9176,8 +9207,11 @@ Random games are characterized by the size of the vertex set
 \begin_inset Formula $|V|$
 \end_inset
 
-, the average outdegree (or, equivalently, average indegree), and the number
- of priorities 
+, the average outdegree 
+\begin_inset Formula $o$
+\end_inset
+
+, (or, equivalently, average indegree), and the number of priorities 
 \begin_inset Formula $d$
 \end_inset
 
@@ -9187,7 +9221,7 @@ Random games are characterized by the size of the vertex set
 \end_inset
 
  and 
-\begin_inset Formula $2\times outdegree-1$
+\begin_inset Formula $2o-1$
 \end_inset
 
  (to guarantee each vertex has at least one outgoing edge) and then adjacent
@@ -9357,7 +9391,7 @@ Elevator verification:
 Towers of Hanoi
 \emph default
 : a simple model checking problem which verifies whether a position in the
- solitary Towers of Hanoi game is solveable.
+ solitary Towers of Hanoi game is solvable.
 \end_layout
 
 \begin_layout Enumerate
@@ -10731,7 +10765,7 @@ As a consequence, improvements like the two-sided approach and decrementing
 \end_inset
 
  are expected to provide little benefit on these cases.
- These improvements can be better evaluated on the more demanding (clustured)
+ These improvements can be better evaluated on the more demanding (clustered)
  randomly-generated cases.
 \end_layout
 
@@ -11067,7 +11101,7 @@ reference "sub:Lifting-Strategies"
  implies.
  For random games in practice, this line of reasoning also proves to be
  true: dual games are slightly harder than normal games, though the margin
- gets smaller as the the number of priorities increases.)
+ gets smaller as the number of priorities increases.)
 \end_layout
 
 \begin_layout Standard
@@ -14723,9 +14757,9 @@ reference "sec:Related-work"
 
 \end_inset
 
-: Related Work) typically suggest that algoritms based on Strategy Improvement
- should perform best in practice, but these games have not been investigated
- here at all.
+: Related Work) typically suggest that algorithms based on Strategy Improvement
+ should perform best in practice, but these algorithms have not been investigate
+d here at all.
 \end_layout
 
 \begin_layout Standard

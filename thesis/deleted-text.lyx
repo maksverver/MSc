@@ -379,6 +379,21 @@ One difference is that the minimum measure lifting strategy performs much
  up to expectations and ought to be dismissed as a viable strategy.
 \end_layout
 
+\begin_layout Section
+Testing
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $Lift$
+\end_inset
+
+ blaat 
+\begin_inset Formula $\mathit{Lift}$
+\end_inset
+
+ test.
+\end_layout
+
 \begin_layout Chapter
 \start_of_appendix
 Raw benchmark results
