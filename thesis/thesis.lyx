@@ -2286,7 +2286,7 @@ An attractor set for a player
 \noun default
 \color inherit
 , denoted 
-\begin_inset Formula $Attr^{x}(\Gamma,U)$
+\begin_inset Formula $\mathit{Attr}^{x}(\Gamma,U)$
 \end_inset
 
 , is the set of vertices from which the player 
@@ -2327,7 +2327,7 @@ U_{i+1}=U_{i}\cup\{v\in V_{x}:\; vE\cap U_{i}\neq\emptyset\}\cup\{v\in V_{1-x}:\
 \begin_layout Standard
 \begin_inset Formula 
 \[
-Attr^{x}(\Gamma,U)=U_{0}\cup U_{1}\cup\cdots
+\mathit{Attr}^{x}(\Gamma,U)=U_{0}\cup U_{1}\cup\cdots
 \]
 
 \end_inset
@@ -2337,7 +2337,7 @@ Attr^{x}(\Gamma,U)=U_{0}\cup U_{1}\cup\cdots
 
 \begin_layout Standard
 Since the graph is finite eventually 
-\begin_inset Formula $Attr^{x}(\Gamma,U)$
+\begin_inset Formula $\mathit{Attr}^{x}(\Gamma,U)$
 \end_inset
 
  
@@ -2388,7 +2388,7 @@ An important property of attractor sets is that if
 \end_inset
 
 , then 
-\begin_inset Formula $Attr^{x}(\Gamma,U)\subseteq W_{x}$
+\begin_inset Formula $\mathit{Attr}^{x}(\Gamma,U)\subseteq W_{x}$
 \end_inset
 
  too.
@@ -2397,7 +2397,7 @@ An important property of attractor sets is that if
 \end_inset
 
 , then we also want to extend this strategy to 
-\begin_inset Formula $Attr^{x}(\Gamma,U)$
+\begin_inset Formula $\mathit{Attr}^{x}(\Gamma,U)$
 \end_inset
 
 .
@@ -2451,7 +2451,7 @@ The second important property of attractor sets is that the complement
 \noun off
 \color none
 
-\begin_inset Formula $V'=V\setminus Attr^{x}(\Gamma,U)$
+\begin_inset Formula $V'=V\setminus \mathit{Attr}^{x}(\Gamma,U)$
 \end_inset
 
 
@@ -2493,7 +2493,7 @@ of
 \end_inset
 
  then all its successors must be in 
-\begin_inset Formula $Attr^{x}(\Gamma,U)$
+\begin_inset Formula $\mathit{Attr}^{x}(\Gamma,U)$
 \end_inset
 
  and 
@@ -2791,7 +2791,7 @@ To solve the game, we iteratively identify an even cycle
 \noun off
 \color none
 and then solve the smaller subgame 
-\begin_inset Formula $\Gamma|V\setminus Attr^{0}(\Gamma,\{c_{1},c_{2}\ldots,c_{n}\})$
+\begin_inset Formula $\Gamma|V\setminus \mathit{Attr}^{0}(\Gamma,\{c_{1},c_{2}\ldots,c_{n}\})$
 \end_inset
 
  in the same manner.
@@ -4585,7 +4585,7 @@ For a small progress measure
 \end_inset
 
 , the function 
-\begin_inset Formula $Prog(\rho,v,w):(V\rightarrow M^{\top})\times E\rightarrow M^{\top}$
+\begin_inset Formula $\mathit{Prog}(\rho,v,w):(V\rightarrow M^{\top})\times E\rightarrow M^{\top}$
 \end_inset
 
  determines a minimum value than can be assigned to 
@@ -4606,7 +4606,7 @@ For a small progress measure
 \begin_layout Standard
 \begin_inset Formula 
 \[
-Prog(\rho,v,w)=\begin{cases}
+\mathit{Prog}(\rho,v,w)=\begin{cases}
 \top & \mbox{if \ensuremath{\rho(w)=\top}, otherwise:}\\
 \min_{m\in M^{\top}}m\geq_{\phi(v)}\rho(w) & \mbox{if \ensuremath{\phi(v)\equiv0\mod{2}},}\\
 \min_{m\in M^{\top}}m>_{\phi(v)}\rho(w) & \mbox{if }\ensuremath{\phi(v)\equiv1\mod{2}}.
@@ -4620,7 +4620,7 @@ Prog(\rho,v,w)=\begin{cases}
 
 \begin_layout Standard
 This function is used to define the function 
-\begin_inset Formula $Lift(\rho,v):(V\rightarrow M^{\top})\times V\rightarrow(V\rightarrow M^{\top})$
+\begin_inset Formula $\mathit{Lift}(\rho,v):(V\rightarrow M^{\top})\times V\rightarrow(V\rightarrow M^{\top})$
 \end_inset
 
 , which updates a progress measure 
@@ -4637,10 +4637,10 @@ This function is used to define the function
 \begin_layout Standard
 \begin_inset Formula 
 \[
-Lift(\rho,v)(u)=\begin{cases}
+\mathit{Lift}(\rho,v)(u)=\begin{cases}
 \rho(u) & \mbox{if \ensuremath{u\neq v}}\\
-\max\{\rho(v),\min_{vw\in E}Prog(\rho,v,w)\} & \mbox{if \ensuremath{u=v\ \wedge\ v\in V_{0}}}\\
-\max\{\rho(v),\max_{vw\in E}Prog(\rho,v,w)\} & \mbox{if }\ensuremath{u=v\ \wedge\ v\in V_{1}}
+\max\{\rho(v),\min_{vw\in E}\mathit{Prog}(\rho,v,w)\} & \mbox{if \ensuremath{u=v\ \wedge\ v\in V_{0}}}\\
+\max\{\rho(v),\max_{vw\in E}\mathit{Prog}(\rho,v,w)\} & \mbox{if }\ensuremath{u=v\ \wedge\ v\in V_{1}}
 \end{cases}
 \]
 
@@ -4665,7 +4665,7 @@ Note that this definition reflects that Even will try to minimize the progress
 \noun off
 \color none
 the function 
-\begin_inset Formula $Lift(\rho,v):(V\rightarrow M^{\top})\rightarrow(V\rightarrow M^{\top})$
+\begin_inset Formula $\mathit{Lift}(\rho,v):(V\rightarrow M^{\top})\rightarrow(V\rightarrow M^{\top})$
 \end_inset
 
  updates a progress measure at any one vertex, if possible:
@@ -4674,8 +4674,8 @@ the function
 \begin_layout Standard
 \begin_inset Formula 
 \[
-Lift(\rho)=\begin{cases}
-Lift(\rho,v) & \mbox{if \ensuremath{\exists v\in V:\; Lift(\rho,v)\neq\rho},}\\
+\mathit{Lift}(\rho)=\begin{cases}
+\mathit{Lift}(\rho,v) & \mbox{if \ensuremath{\exists v\in V:\; \mathit{Lift}(\rho,v)\neq\rho},}\\
 \rho & \mbox{otherwise}
 \end{cases}
 \]
@@ -4693,7 +4693,7 @@ There may be different vertices
  that satisfy the precondition on the first clause; in that case, any of
  the possible vertices may be chosen.
  Since 
-\begin_inset Formula $Lift(\rho)$
+\begin_inset Formula $\mathit{Lift}(\rho)$
 \end_inset
 
  is a monotone function on a complete lattice, it has a unique minimum fixed
@@ -4784,7 +4784,7 @@ How can we determine which vertices are liftable (
 \noun off
 \color none
 
-\begin_inset Formula $Lift(\rho,v)\neq\rho$
+\begin_inset Formula $\mathit{Lift}(\rho,v)\neq\rho$
 \end_inset
 
 )?
@@ -4797,7 +4797,7 @@ When multiple vertices are liftable, which should we select to improve the
 
 \begin_layout Standard
 A simple answer to the first question is to try computing 
-\begin_inset Formula $Lift(\rho,v)$
+\begin_inset Formula $\mathit{Lift}(\rho,v)$
 \end_inset
 
  for different values of 
@@ -4975,7 +4975,7 @@ To talk about lifting strategies and their efficiency, it is useful to establish
 \noun off
 \color none
 
-\begin_inset Formula $Lift(\rho,v)=\rho$
+\begin_inset Formula $\mathit{Lift}(\rho,v)=\rho$
 \end_inset
 
  is called stable (with respect to progress measure 
@@ -4983,7 +4983,7 @@ To talk about lifting strategies and their efficiency, it is useful to establish
 \end_inset
 
 ), and unstable if 
-\begin_inset Formula $Lift(\rho,v)\neq\rho$
+\begin_inset Formula $\mathit{Lift}(\rho,v)\neq\rho$
 \end_inset
 
 .
@@ -4992,11 +4992,11 @@ To talk about lifting strategies and their efficiency, it is useful to establish
 \end_inset
 
  consists of calculating 
-\begin_inset Formula $Lift(\rho,v)$
+\begin_inset Formula $\mathit{Lift}(\rho,v)$
 \end_inset
 
  and is called succesful if 
-\begin_inset Formula $Lift(\rho,v)\neq\rho$
+\begin_inset Formula $\mathit{Lift}(\rho,v)\neq\rho$
 \end_inset
 
  (and we can update our progress measure) and unsuccesful (or failed) otherwise.
@@ -6716,11 +6716,11 @@ Clearly,
 \noun off
 \color none
 
-\begin_inset Formula $Prog'(\rho,v,w)$
+\begin_inset Formula $\mathit{Prog'}(\rho,v,w)$
 \end_inset
 
  can be defined like 
-\begin_inset Formula $Prog(\rho,v,w)$
+\begin_inset Formula $\mathit{Prog}(\rho,v,w)$
 \end_inset
 
  but drawing from 
@@ -6732,27 +6732,27 @@ Clearly,
 \end_inset
 
 , and similarly 
-\begin_inset Formula $Lift'(\rho,v)$
+\begin_inset Formula $\mathit{Lift'}(\rho,v)$
 \end_inset
 
  can be defined in terms of 
-\begin_inset Formula $Prog'(\rho,v,w)$
+\begin_inset Formula $\mathit{Prog'}(\rho,v,w)$
 \end_inset
 
  instead of 
-\begin_inset Formula $Prog(\rho,v,w)$
+\begin_inset Formula $\mathit{Prog}(\rho,v,w)$
 \end_inset
 
 .
  At this point, Jurdzińksi's theorems apply equally to 
-\begin_inset Formula $Prog'(\rho,v,w)$
+\begin_inset Formula $\mathit{Prog'}(\rho,v,w)$
 \end_inset
 
 .
  In particular, the monotonicity of the lifting function is preserved and
  thus fixed point iteration can still be used to find a minimal fixed point
  of 
-\begin_inset Formula $Lift'(\rho,v)$
+\begin_inset Formula $\mathit{Lift'}(\rho,v)$
 \end_inset
 
  that yields an optimal solution for Even.
@@ -6774,11 +6774,11 @@ A more intuitive way to see that decreasing the progress measure bounds
 \end_inset
 
  and 
-\begin_inset Formula $Attr^{1}(\left\{ v\right\} )\subseteq W_{1}$
+\begin_inset Formula $\mathit{Attr}^{1}(\left\{ v\right\} )\subseteq W_{1}$
 \end_inset
 
  and we could solve the subgame induced by 
-\begin_inset Formula $V\setminus Attr^{1}(\left\{ v\right\} )$
+\begin_inset Formula $V\setminus \mathit{Attr}^{1}(\left\{ v\right\} )$
 \end_inset
 
  with associated bounds 
@@ -8413,7 +8413,7 @@ Without loss of generality (using priority compression if necessary) suppose
  with some vertices having priority 0.
  Then, we can compute the attractor set of these vertices for player Even
  (
-\begin_inset Formula $U=Attr^{0}(\Gamma,\phi^{-1}(0)$
+\begin_inset Formula $U=\mathit{Attr}^{0}(\Gamma,\phi^{-1}(0)$
 \end_inset
 
 
@@ -8590,7 +8590,7 @@ At this point, we know that
 
  is not a trap for Odd.
  Let 
-\begin_inset Formula $U'=Attr^{1}(\Gamma,W'_{1})$
+\begin_inset Formula $U'=\mathit{Attr}^{1}(\Gamma,W'_{1})$
 \end_inset
 
 ; then 
@@ -8678,11 +8678,11 @@ key "friedmann-recursive-lower-bound"
 
 , Friedmann presents a class of games requiring exponential time to solve,
  with 
-\begin_inset Formula $\Omega(fib(V))$
+\begin_inset Formula $\Omega(\mathit{fib}(V))$
 \end_inset
 
  as a lower bound (where 
-\begin_inset Formula $fib(i)$
+\begin_inset Formula $\mathit{fib}(i)$
 \end_inset
 
  returns the 
