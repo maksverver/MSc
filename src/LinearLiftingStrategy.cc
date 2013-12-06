@@ -51,7 +51,7 @@ verti LinearLiftingStrategy::next()
             else
             {
                 dir_ = 1;
-                vertex_ = vertex_ - failed_lifts_ - 1;
+                vertex_ -= std::min(failed_lifts_, vertex_);
             }
         }
         else  // backward
@@ -68,7 +68,7 @@ verti LinearLiftingStrategy::next()
             else
             {
                 dir_ = 0;
-                vertex_ = failed_lifts_;
+                vertex_ = std::min(failed_lifts_, last_vertex_);
             }
         }
     }
