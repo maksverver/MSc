@@ -242,7 +242,7 @@ reference "fig:introduction-example"
 
 \end_inset
 
-: the shape of the vertices corresponds with the players that control them.
+: the shape of the vertices corresponds to the players that control them.
  For the description of algorithms and data structures, especially when
  computations are involved, it is more convenient to use integers 
 \begin_inset Formula $0$
@@ -687,8 +687,8 @@ determined
 In many practical applications, determination of winning sets is enough
  to constitute a solution.
  For example, when using parity games as a vehicle for model checking, the
- question whether a formal property holds corresponds with the question
- whether a particular vertex in a game graph is won by player Even.
+ question whether a formal property holds corresponds to the question whether
+ a particular vertex in a game graph is won by player Even.
  In this case it suffices to determine the winner for this particular vertex
  only, without computing associated strategies, and even without fully determini
 ng winning sets.
@@ -717,10 +717,6 @@ solving a game
 \emph default
  in the most general sense means identifying optimal strategies for both
  players in addition to their winning sets.
- Note that strategies (unlike winning sets) do not complement each other.
- Finding one player's winning set immediately yields the other set by complement
-ation, but given a pair of winning sets, finding an optimal strategy for
- one player does not help to calculate the optimal strategy for his opponent.
 \end_layout
 
 \begin_layout Subsection
@@ -845,11 +841,11 @@ We will define memoryless strategies as functions
 
 .
  We can restrict the domain of 
-\begin_inset Formula $\sigma_{\text{x}}$
+\begin_inset Formula $\sigma_{x}$
 \end_inset
 
  to 
-\begin_inset Formula $V_{\text{x}}\cap W_{x}$
+\begin_inset Formula $V_{x}\cap W_{x}$
 \end_inset
 
  since for vertices in 
@@ -857,7 +853,7 @@ We will define memoryless strategies as functions
 \end_inset
 
  but not in 
-\begin_inset Formula $W_{\text{x}}$
+\begin_inset Formula $W_{x}$
 \end_inset
 
 , player 
@@ -1129,8 +1125,9 @@ key "emerson1997model"
 
 \end_inset
 
-, efficient algorithms for solving parity games could provide the basis
- of a comprehensive approach to model checking.
+ (though a linear translation is possible only for CTL), efficient algorithms
+ for solving parity games could provide the basis of a comprehensive approach
+ to model checking.
 \end_layout
 
 \begin_layout Standard
@@ -1143,7 +1140,7 @@ y compact games.
 \end_inset
 
 -calculus formula.
- The number of priorities corresponds with the alternation depth of fixed-point
+ The number of priorities corresponds to the alternation depth of fixed-point
  operators in the formula (for example, see 
 \begin_inset CommandInset citation
 LatexCommand cite
@@ -1972,14 +1969,26 @@ First, a number of restrictions on the game structure will be made to simplify
  none of these are new, but they will be defined in a manner consistent
  with the preceding definitions.
  Third, a number of notable special cases of parity games will be discussed;
- these deserve to be mentioned but are otherwise outside the scope of this
- report, which focuses on general cases.
+ these deserve to be mentioned, although solving special games is not the
+ main focus of this report.
+\end_layout
+
+\begin_layout Standard
+The concepts described in this chapter help to reason about the efficiency
+ and correctness of preprocessing operations and general solvers, which
+ will be presented in later chapters.
+ For example, Zielonka's recursive algorithm relies on the property that
+ a game induced by the complement of an attractor set is a proper subgame,
+ but so does the loop removal preprocessor, which is otherwise quite different.
+ In that sense, these concepts form the common building blocks from which
+ many useful algorithms can be constructed.
 \end_layout
 
 \begin_layout Standard
 Finally, a polynomial-time algorithm for the verification of parity game
  algorithms will be presented, which is used to guarantee the correctness
  of the reported results.
+ This is of practical utility.
 \end_layout
 
 \begin_layout Section
@@ -2767,8 +2776,11 @@ Note that solutions produced by different algorithms cannot generally be
 
 \begin_layout Standard
 The verification algorithm described below depends on the efficient solution
- of single-player games, for which a polynomial time algorithm will be presented
- first.
+ of single-player games, for which a 
+\begin_inset Formula $O(\left|E\right|d)$
+\end_inset
+
+ time algorithm will be presented first.
  Algorithms with the same goal and time complexity are also described in
  
 \begin_inset CommandInset citation
@@ -2777,8 +2789,22 @@ key "pgsolver"
 
 \end_inset
 
-; the main contribution of this section is to describe alternatives which
- are simpler to implement.
+.
+ An even better complexity bound of 
+\begin_inset Formula $O(\left|E\right|\log d)$
+\end_inset
+
+ can be achieved with an approach as described in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "groote2005subquadratic"
+
+\end_inset
+
+ (which is more easily adapted to a direct verification algorithm than a
+ solver for single-player games, although both are possible).
+ Compared to these alternatives, the algorithms presented here are considerably
+ simpler.
 \end_layout
 
 \begin_layout Subsection
@@ -2967,7 +2993,7 @@ key "tarjan1971depth"
 
 \series default
  iterations and in the worst case 
-\begin_inset Formula $O(d\left|E\right|)$
+\begin_inset Formula $O(\left|E\right|d)$
 \end_inset
 
  total time.
@@ -3110,7 +3136,7 @@ To verify that the original strategy was sound, we can solve this single
 \begin_layout Standard
 In conclusion, complete verification of winning sets and strategies requires
  solving two single-player games, each of which takes 
-\begin_inset Formula $O(d\left|E\right|)$
+\begin_inset Formula $O(\left|E\right|d)$
 \end_inset
 
  time (as described above).
@@ -3121,24 +3147,6 @@ In conclusion, complete verification of winning sets and strategies requires
  the verification algorithm runs in polynomial time and is fast in practice
  when the game graph is sparse and the number of distinct priorities is
  low, as is often the case.
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-PGSolver does the same thing, but without explicit complexity bounds on
- 
-\family typewriter
-solve_single_player_scc
-\family default
-.
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Chapter
@@ -4409,7 +4417,7 @@ key "jurdzinski2000spm"
 Let's assume, without loss of generality, that we want to solve a parity
  game for player Even.
  First, a progress measure is defined as a function 
-\begin_inset Formula $\rho:V\rightarrow(\mathbb{N}_{0}^{\omega}\cup\top)$
+\begin_inset Formula $\rho:V\rightarrow(\mathbb{N}_{0}^{*}\cup\top)$
 \end_inset
 
 ; a function which assigns to each vertex either a vector of nonnegative
@@ -4431,7 +4439,7 @@ Let's assume, without loss of generality, that we want to solve a parity
 \noun off
 \color none
 
-\begin_inset Formula $\mathbb{N}_{0}^{\omega}\cup\top$
+\begin_inset Formula $\mathbb{N}_{0}^{*}\cup\top$
 \end_inset
 
 
@@ -4495,7 +4503,11 @@ The operator
 \begin_inset Formula $<_{i}$
 \end_inset
 
- establishes a strict weak ordering.
+ establishes a strict weak ordering on vectors of length 
+\begin_inset Formula $i$
+\end_inset
+
+ or greater.
  The other operators can then be defined accordingly:
 \end_layout
 
@@ -5039,8 +5051,8 @@ To talk about lifting strategies and their efficiency, it is useful to establish
 \end_inset
 
  (and we can update our progress measure) and unsuccesful (or failed) otherwise.
- In other words: the set of stable vertices corresponds with the set of
- vertices at which lifting attempts would succeed.
+ In other words: the set of stable vertices corresponds to the set of vertices
+ at which lifting attempts would succeed.
  Finally, a vertex is called 
 \family default
 \series default
@@ -5695,7 +5707,7 @@ reference "alg:Predecessor-Lifting-Strategy"
  which prevents attempted lifting of vertices which are not dirty, and additiona
 lly allows the queue to be implemented as a fixed-length array.
  An invariant maintained by this algorithm is that the set of vertices queued
- corresponds exactly with the set of dirty vertices; 
+ corresponds exactly to the set of dirty vertices; 
 \begin_inset Formula $\texttt{next()}$
 \end_inset
 
@@ -11130,8 +11142,8 @@ can
 
 \begin_layout Standard
 (It should be noted that the generated random games are not completely symmetric
- because the highest priority, 0, always corresponds with Even, while the
- lowest corresponds with Odd.
+ because the highest priority, 0, always corresponds to Even, while the
+ lowest corresponds to Odd.
  However, this means the 
 \emph on
 dual
