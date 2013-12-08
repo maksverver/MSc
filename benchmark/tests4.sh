@@ -11,8 +11,15 @@ run_on() {
 		do
 			for alternate in '' -a
 			do
-				name=random-seed=$seed-size=$1-clustersize=${2:-0}$lift$alternate run \
-				../run-test.sh -i random --priorities=10 --seed=$seed $lift $alternate --size=$1 ${2:+--clustersize=$2} --maxlifts=1e9 --stats --verify
+				name=random-seed=$seed-size=$1-clustersize=${2:-0}$lift$alternate
+				if test -f "$name".o*
+				then
+					true  # echo "$name exists!"
+				else
+					echo "starting $name"
+					name=$name run  ../run-test.sh -i random --priorities=10 --seed=$seed $lift $alternate --size=$1 ${2:+--clustersize=$2} --maxlifts=1e9 --stats --verify
+					sleep 1  # temp hack to work around buggy job server
+				fi
 			done
 		done
 	done
