@@ -1681,11 +1681,6 @@ key "keiren2011bisimulation"
  games (i.e.
  parity games can be considered a restricted form of Boolean equation systems)
  and are used as an intermediate representation in the mCRL2 toolkit.
- Despite the fact that Boolean equation systems and parity games can be
- converted to each other in linear time, in practice generating parity games
- from Boolean equation systems takes a significant amount of time, which
- makes reductions on Boolean equation systems attractive because they could
- remove this bottleneck from the solution process.
 \end_layout
 
 \begin_layout Standard
@@ -1708,6 +1703,13 @@ idempotence preserving bisimulation
  The choice of algorithms used to solve the final parity games (Jurdziński's
  Small Progress Measures and Schewe's “big step” variant) could have exaggerated
  the results somewhat.
+\end_layout
+
+\begin_layout Standard
+It is worth noting that these optimizations are also worthwhile because
+ converting parametrized Boolean equation systems to parity games can take
+ a significant amount of time in the total solution process, especially
+ if the resulting game turns out to be easy to solve.
 \end_layout
 
 \begin_layout Subsection
@@ -1788,8 +1790,11 @@ key "vandepol2008multicore"
 \end_inset
 
  (the first parallel implementation of a parity game algorithm).
- However, their tool is unmaintained and because of the limited scope of
- their experiments, not very suitable for general use.
+ Their project provided a starting point for my research (in particular,
+ it inspired the focus on heuristical improvements to Small Progress Measures).
+ The tool itself, however, is unmaintained and somewhat limited in terms
+ of supported algorithms; consequently its practical utility beyond research
+ purposes is also limited.
 \end_layout
 
 \begin_layout Standard
@@ -1826,7 +1831,8 @@ For mCRL2, my tool provides an alternative to
 \family typewriter
 pbes2bool
 \family default
- (the default solver for PBES) 
+ (the default solver for PBES).
+ 
 \begin_inset Note Note
 status open
 
@@ -1836,7 +1842,6 @@ any examples of where my tool is faster / uses less memory?
 
 \end_inset
 
-.
  My solver has already been integrated into mCRL2 as an experimental tool
  called 
 \family typewriter
@@ -1904,8 +1909,8 @@ reference "sub:Maximum-Measure-Propagation"
 \end_layout
 
 \begin_layout Itemize
-Two optimizations of the small progress measures algorithm (described in
- subsections 
+Two improvements on the design of the small progress measures algorithm
+ (described in subsections 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sub:Eliminating-failed-lifting"
@@ -1924,29 +1929,15 @@ reference "sub:Optimization-after-lifting"
 
 \begin_layout Standard
 Finally, my report includes an empirical evaluation of these algorithms
- and techniques in order to give more insight in which techniques are most
- useful when solving parity games in practice (in chapter 
+ and techniques (presented in chapter 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "chap:Empirical-Evaluation"
 
 \end_inset
 
-).
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-The rest of the report should be structured around describing/proving these
- contributions.
-\end_layout
-
-\end_inset
-
-
+) in order to give more insight in which techniques are most useful to solve
+ parity games in practice.
 \end_layout
 
 \begin_layout Chapter
@@ -3217,10 +3208,14 @@ When executing a solving algorithm, the parity game data is read, but usually
 \begin_layout Standard
 Finally, since practical instances of parity games tend to be fairly large,
  it is desirable that the parity game representation is as compact as possible,
- to the extend this is possible without compromising access speed.
+ to the extent this is possible without compromising access speed.
  This not only reduces the amount of memory needed to solve particularly
- large instances, but also helps solving algorithms take advantage from
+ large instances, but may also help solving algorithms take advantage from
  available cache memory.
+ These benefits may come from spatial locality of reference (when parts
+ of the game that are stored in contiguous memory are accessed in a linear
+ fashion) as well as from temporal locality of reference (when algorithms
+ tend to revisit recently-accessed parts of the game).
 \end_layout
 
 \begin_layout Subsection
@@ -3383,7 +3378,7 @@ Of course, the first operation is the one that is most common.
 \bar no
 \noun off
 \color none
-This it the final representation that is used, and requires 
+This is the final representation that is used, and requires 
 \family default
 \series default
 \shape default
@@ -4336,7 +4331,15 @@ key "vanderberg2010ps3"
 
 \end_inset
 
+ A parallel implementation for NVIDIA-based GPUs using CUDA is evaluated
+ in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "bootsma2013speeding"
 
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Standard
@@ -4873,7 +4876,7 @@ reference "sub:Eliminating-failed-lifting"
 \begin_layout Standard
 Jurdziński leaves the second question unanswered because any lifting order
  will lead to the same, unique fixed point.
- For the correctness of the algorithm, the any selection policy will do.
+ For the correctness of the algorithm, any selection policy will do.
  However, the order in which vertices are lifted does affect the runtime
  of the algorithm in practice.
  Since it is difficult (if not entirely impossible) to predict an optimal
@@ -5826,7 +5829,7 @@ Some of the parameters in this algorithm are fixed: the initial credit (here:
 ).
  With these parameters, which were taken from van de Pol and Weber's implementat
 ion, a vertex is selected for lifting at least three times, but will stay
- on the focus list longer if lifting succeeds occassionally (more precesily,
+ on the focus list longer if lifting succeeds occassionally (more precisily,
  it needs to be succesfully lifted at least once every three attempts to
  stay on the list).
  The remaining two parameters are 
@@ -8226,7 +8229,7 @@ The two-sided approach solves games entirely with Small Progress Measures
  in the worst case.
  (It should be noted however, that in PGSolver the two approaches are combined:
  the “big steps” solver uses the SPM implementation with the two-sided optimizat
-ion.)
+ion.) 
 \end_layout
 
 \begin_layout Subsubsection
@@ -8687,8 +8690,8 @@ We thus repeat the process to solve increasingly smaller subgames, until
 \end_inset
 
  (i.e.
- no vertices with priority 0 remain and we we can invoke the induction hypothesi
-s to solve it) or 
+ no vertices with priority 0 remain and we can invoke the induction hypothesis
+ to solve it) or 
 \begin_inset Formula $U'=\emptyset$
 \end_inset
 
@@ -14563,7 +14566,7 @@ reference "tab:Decycle-effectiveness-random-games"
 
  vertices, average outdegree 3 and 10 different priorities.
  The clustered games are generated with cluster size 100.
- Runing times are averaged over 10 trials per configuration with different
+ Running times are averaged over 10 trials per configuration with different
  random graphs (though resulting timings varied little).
  Since these games are much too large to solve with Small Progress Measures,
  which already gets stuck on graphs with a few hundred thousand vertices,
@@ -14744,10 +14747,51 @@ Throughout this project, I worked with an explicit representation of the
 Suitable symbolic representations would also allow infinite game graphs
  to be encoded, allowing entirely new classes of games to be solved.
  Zielonka's algorithm is already known to work on infinite graphs and can
- probably be adapted to a symbolic representation, although how well it
- performs in that case remains to be seen.
- It seems likely that other algorithms can be adapted to work on symbolic
- representations too.
+ be adapted to a symbolic representation.
+\end_layout
+
+\begin_layout Standard
+Some work in this direction has already been done.
+ A symbolic approach to solving parity games derived from 
+\begin_inset Formula $\mu$
+\end_inset
+
+-calculus model checking problems is presented in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "bakera2009solving"
+
+\end_inset
+
+, which has also been implemented and evaluated, but not directly compared
+ with explicit approaches.
+ A symbolic representation of Boolean equation systems based on Linked Decision
+ Diagrams (LDDs) is introduced in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "boshoven2013symbolic"
+
+\end_inset
+
+, as well as a method to solve these structures by adapting Zielonka's recursive
+ algorithm.
+ Similarly, work is underway to add symbolic solving of parity games to
+ the LTSmin model checker
+\begin_inset CommandInset citation
+LatexCommand cite
+key "spgsolver"
+
+\end_inset
+
+, using Zielonka's algorithm and a game representation based on Binary Decision
+ Diagrams (BDDs).
+\end_layout
+
+\begin_layout Standard
+These developments look promising.
+ For future work, it seems useful to evaluate their practical performance
+ in greater detail, comparing both the performance between different symbolic
+ approaches and with earlier explicit methods.
 \end_layout
 
 \begin_layout Subsection
@@ -14768,21 +14812,50 @@ Although computer hardware is still getting exponentially faster over time,
 Currently, the best available parity game solvers run only sequentially.
  Although I have tried to develop concurrent (shared memory) and distributed
  (message passing) versions of my solvers, these did not exhibit comparable
- performance to their sequential counterparts, and (arguably worse) they
- did not even scale very well.
+ performance to their sequential counterparts, and they did not even scale
+ very well.
  Localizing the work performed and minimizing the required communication
- (either through message passing or shared data structures) between processes
- is difficult.
- Although some previous work has been done parallellizing Small Progress
+ (either through message passing or shared data structures) between threads
+ or processes is difficult.
+\end_layout
+
+\begin_layout Standard
+Although some previous work has been done parallellizing Small Progress
  Measures, and not entirely without success, the resulting solvers still
  could not outperform more sophisticated algorithms (or even more sophisticated
  variants of Small Progress Measures, such as those discussed in this report).
+ Van de Pol and Weber report that their solver times out on uniform random
+ graphs of about 
+\begin_inset Formula $100\,000$
+\end_inset
+
+ vertices (which tend to be easy to solve using cycle removal or the two-sided
+ approach).
+ Discussing his parallel solver, Van der Berg concludes that: “benchmarks
+ show in its current implementation the algorithm is not up to par with
+ other implementations, like MaxMeasures” (referring to the sequential version
+ discussed in this report).
+ Bootsma's solver for the GPU does implement the two-sided approach, but
+ even he concludes that “the CPU implementation is still faster for the
+ majority of the parity games tested” (though it should be noted that the
+ majority of his benchmark cases are fairly easy games).
+\end_layout
+
+\begin_layout Standard
+The above algorithms are all based on Small Progress Measures, which is
+ probably the easiest algorithm to parallellize, but does not always offer
+ the best performance in practice.
+ Even a fast, parallel implementation of Small Progress Measures may be
+ outperformed by Zielonka's recursive algorithm or e.g.
+ Schewe's Optimal Strategy Improvement algorithm.
+ Parallellizing those algorithms may be more difficult but ultimately more
+ useful.
 \end_layout
 
 \begin_layout Standard
 The question of how to design efficient, non-sequential solvers that are
- at least competitive with sequential solvers, but also scale better when
- more processor cores are allocated to them, remains open.
+ competitive with sequential solvers, but that also scale well when more
+ processor cores are allocated to them, remains open.
  Finding a satisfactory answer would be a likely topic of future work.
 \end_layout
 
