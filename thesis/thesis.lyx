@@ -11330,7 +11330,7 @@ Linear       & F     & 27 & $5.290$ & 25 & $7.997$ & 25 & $28.621$ & 0 & $0.000$
 
 \begin_layout Plain Layout
 
-Linear       & A     & 27 & $7.701$ & 25 & $11.710$ & 25 & $37.967$ & 0 & $0.000$
+Linear       & A     & 27 & $7.702$ & 25 & $11.710$ & 25 & $37.968$ & 0 & $0.000$
  & 0 & $0.000$ 
 \backslash
 
@@ -11414,8 +11414,8 @@ Max.
 \begin_layout Plain Layout
 
 Max.
- Step    & S I   & 30 & $0.261$ & 28 & $0.207$ & 28 & $0.326$ & 0 & $0.000$
- & 1 & $697.793$ 
+ Step    & S I   & 30 & $0.195$ & 30 & $0.230$ & 28 & $0.343$ & 0 & $0.000$
+ & 1 & $449.607$ 
 \backslash
 
 \backslash
@@ -11425,8 +11425,8 @@ Max.
 \begin_layout Plain Layout
 
 Max.
- Step    & Q I   & 30 & $0.259$ & 29 & $0.193$ & 28 & $0.333$ & 0 & $0.000$
- & 1 & $672.232$ 
+ Step    & Q I   & 30 & $0.189$ & 30 & $0.220$ & 28 & $0.303$ & 0 & $0.000$
+ & 1 & $407.224$ 
 \backslash
 
 \backslash
@@ -11436,8 +11436,8 @@ Max.
 \begin_layout Plain Layout
 
 Max.
- Step    & H I   & 30 & $0.257$ & 29 & $0.194$ & 28 & $0.324$ & 0 & $0.000$
- & 1 & $712.803$ 
+ Step    & H I   & 30 & $0.187$ & 30 & $0.226$ & 28 & $0.294$ & 0 & $0.000$
+ & 1 & $464.070$ 
 \backslash
 
 \backslash
@@ -11496,8 +11496,8 @@ Linear       & F   T & 29 & $0.679$ & 27 & $0.352$ & 26 & $1.242$ & 1 & $802.259
 
 \begin_layout Plain Layout
 
-Linear       & A   T & 29 & $0.961$ & 28 & $0.482$ & 26 & $1.260$ & 1 & $854.010$
- & 5 & $326.392$ 
+Linear       & A   T & 29 & $0.961$ & 28 & $0.482$ & 26 & $1.260$ & 1 & $854.012$
+ & 5 & $326.424$ 
 \backslash
 
 \backslash
@@ -11580,8 +11580,8 @@ Max.
 \begin_layout Plain Layout
 
 Max.
- Step    & S I T & 30 & $0.089$ & 29 & $0.149$ & 30 & $0.400$ & 0 & $0.000$
- & 5 & $556.909$ 
+ Step    & S I T & 30 & $0.047$ & 30 & $0.063$ & 30 & $0.135$ & 0 & $0.000$
+ & 9 & $296.409$ 
 \backslash
 
 \backslash
@@ -11591,8 +11591,8 @@ Max.
 \begin_layout Plain Layout
 
 Max.
- Step    & Q I T & 30 & $0.086$ & 30 & $0.207$ & 30 & $0.370$ & 0 & $0.000$
- & 5 & $576.287$ 
+ Step    & Q I T & 30 & $0.048$ & 30 & $0.065$ & 30 & $0.138$ & 0 & $0.000$
+ & 6 & $274.866$ 
 \backslash
 
 \backslash
@@ -11602,8 +11602,8 @@ Max.
 \begin_layout Plain Layout
 
 Max.
- Step    & H I T & 30 & $0.112$ & 29 & $0.145$ & 30 & $0.343$ & 0 & $0.000$
- & 3 & $407.758$ 
+ Step    & H I T & 30 & $0.046$ & 30 & $0.063$ & 30 & $0.135$ & 0 & $0.000$
+ & 8 & $268.926$ 
 \backslash
 
 \backslash
@@ -11833,7 +11833,7 @@ hline
 
 \begin_layout Plain Layout
 
-Linear       & F     & 27 & $2.984$ & 25 & $2.897$ & 25 & $2.955$ & 0 & $0.000$
+Linear       & F     & 27 & $2.967$ & 25 & $2.832$ & 25 & $3.019$ & 0 & $0.000$
  & 0 & $0.000$ 
 \backslash
 
@@ -11843,7 +11843,7 @@ Linear       & F     & 27 & $2.984$ & 25 & $2.897$ & 25 & $2.955$ & 0 & $0.000$
 
 \begin_layout Plain Layout
 
-Linear       & A     & 27 & $3.866$ & 25 & $2.461$ & 25 & $3.760$ & 0 & $0.000$
+Linear       & A     & 27 & $3.758$ & 25 & $2.522$ & 25 & $3.832$ & 0 & $0.000$
  & 0 & $0.000$ 
 \backslash
 
@@ -11853,8 +11853,8 @@ Linear       & A     & 27 & $3.866$ & 25 & $2.461$ & 25 & $3.760$ & 0 & $0.000$
 
 \begin_layout Plain Layout
 
-Predecessor  & Q     & 30 & $0.851$ & 29 & $2.081$ & 28 & $3.477$ & 0 & $0.000$
- & 4 & $49.115$ 
+Predecessor  & Q     & 30 & $0.832$ & 29 & $2.133$ & 28 & $3.521$ & 0 & $0.000$
+ & 4 & $48.956$ 
 \backslash
 
 \backslash
@@ -11863,7 +11863,7 @@ Predecessor  & Q     & 30 & $0.851$ & 29 & $2.081$ & 28 & $3.477$ & 0 & $0.000$
 
 \begin_layout Plain Layout
 
-Predecessor  & S     & 29 & $4.057$ & 28 & $3.308$ & 22 & $5.325$ & 0 & $0.000$
+Predecessor  & S     & 29 & $3.744$ & 28 & $3.123$ & 22 & $5.183$ & 0 & $0.000$
  & 0 & $0.000$ 
 \backslash
 
@@ -11873,8 +11873,8 @@ Predecessor  & S     & 29 & $4.057$ & 28 & $3.308$ & 22 & $5.325$ & 0 & $0.000$
 
 \begin_layout Plain Layout
 
-Predecessor  & Q I   & 30 & $0.416$ & 30 & $2.167$ & 29 & $3.561$ & 0 & $0.000$
- & 4 & $23.124$ 
+Predecessor  & Q I   & 30 & $0.424$ & 30 & $2.163$ & 29 & $3.638$ & 0 & $0.000$
+ & 4 & $22.101$ 
 \backslash
 
 \backslash
@@ -11883,29 +11883,7 @@ Predecessor  & Q I   & 30 & $0.416$ & 30 & $2.167$ & 29 & $3.561$ & 0 & $0.000$
 
 \begin_layout Plain Layout
 
-Predecessor  & S I   & 29 & $1.485$ & 29 & $2.335$ & 25 & $2.106$ & 0 & $0.000$
- & 0 & $0.000$ 
-\backslash
-
-\backslash
-
-\end_layout
-
-\begin_layout Plain Layout
-
-Max.
- Measure & Q I   & 29 & $9.551$ & 29 & $6.416$ & 27 & $23.197$ & 0 & $0.000$
- & 1 & $451.474$ 
-\backslash
-
-\backslash
-
-\end_layout
-
-\begin_layout Plain Layout
-
-Max.
- Measure & S I   & 30 & $2.032$ & 30 & $14.288$ & 29 & $54.391$ & 0 & $0.000$
+Predecessor  & S I   & 29 & $1.439$ & 29 & $2.376$ & 25 & $2.126$ & 0 & $0.000$
  & 0 & $0.000$ 
 \backslash
 
@@ -11916,8 +11894,8 @@ Max.
 \begin_layout Plain Layout
 
 Max.
- Measure & H I   & 30 & $28.878$ & 30 & $5.502$ & 26 & $11.688$ & 0 & $0.000$
- & 1 & $472.165$ 
+ Measure & Q I   & 29 & $9.308$ & 29 & $6.507$ & 27 & $21.550$ & 0 & $0.000$
+ & 1 & $452.351$ 
 \backslash
 
 \backslash
@@ -11927,8 +11905,8 @@ Max.
 \begin_layout Plain Layout
 
 Max.
- Step    & S I   & 30 & $26.484$ & 28 & $24.946$ & 28 & $31.141$ & 0 & $0.000$
- & 1 & $907.034$ 
+ Measure & S I   & 30 & $1.996$ & 30 & $14.583$ & 29 & $53.557$ & 0 & $0.000$
+ & 0 & $0.000$ 
 \backslash
 
 \backslash
@@ -11938,8 +11916,8 @@ Max.
 \begin_layout Plain Layout
 
 Max.
- Step    & Q I   & 30 & $26.866$ & 29 & $47.951$ & 28 & $30.215$ & 0 & $0.000$
- & 1 & $884.866$ 
+ Measure & H I   & 30 & $28.658$ & 30 & $5.341$ & 26 & $11.586$ & 0 & $0.000$
+ & 1 & $460.012$ 
 \backslash
 
 \backslash
@@ -11949,8 +11927,30 @@ Max.
 \begin_layout Plain Layout
 
 Max.
- Step    & H I   & 30 & $17.893$ & 29 & $27.546$ & 28 & $24.296$ & 0 & $0.000$
- & 1 & $449.360$ 
+ Step    & S I   & 30 & $8.550$ & 30 & $36.330$ & 28 & $29.250$ & 0 & $0.000$
+ & 1 & $542.782$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Max.
+ Step    & Q I   & 30 & $8.088$ & 30 & $40.261$ & 28 & $29.791$ & 0 & $0.000$
+ & 1 & $515.101$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Max.
+ Step    & H I   & 30 & $4.096$ & 30 & $16.013$ & 28 & $22.719$ & 0 & $0.000$
+ & 1 & $257.965$ 
 \backslash
 
 \backslash
@@ -11960,18 +11960,7 @@ Max.
 \begin_layout Plain Layout
 
 Min.
- Measure & Q I   & 25 & $71.726$ & 24 & $131.634$ & 9 & $197.808$ & 0 & $0.000$
- & 0 & $0.000$ 
-\backslash
-
-\backslash
-
-\end_layout
-
-\begin_layout Plain Layout
-
-Min.
- Measure & S I   & 26 & $89.974$ & 24 & $112.067$ & 8 & $289.688$ & 0 & $0.000$
+ Measure & Q I   & 25 & $69.551$ & 24 & $129.567$ & 9 & $195.020$ & 0 & $0.000$
  & 0 & $0.000$ 
 \backslash
 
@@ -11982,7 +11971,18 @@ Min.
 \begin_layout Plain Layout
 
 Min.
- Measure & H I   & 26 & $62.227$ & 23 & $76.719$ & 9 & $197.744$ & 0 & $0.000$
+ Measure & S I   & 26 & $89.297$ & 24 & $111.767$ & 8 & $286.991$ & 0 & $0.000$
+ & 0 & $0.000$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Min.
+ Measure & H I   & 26 & $60.572$ & 23 & $74.569$ & 9 & $191.763$ & 0 & $0.000$
  & 0 & $0.000$ 
 \backslash
 
@@ -11999,8 +11999,8 @@ hline
 
 \begin_layout Plain Layout
 
-Linear       & F   T & 29 & $2.801$ & 27 & $0.108$ & 26 & $0.659$ & 1 & $68.996$
- & 5 & $25.613$ 
+Linear       & F   T & 29 & $2.740$ & 27 & $0.107$ & 26 & $0.673$ & 1 & $68.537$
+ & 5 & $25.532$ 
 \backslash
 
 \backslash
@@ -12009,8 +12009,8 @@ Linear       & F   T & 29 & $2.801$ & 27 & $0.108$ & 26 & $0.659$ & 1 & $68.996$
 
 \begin_layout Plain Layout
 
-Linear       & A   T & 29 & $3.991$ & 28 & $2.425$ & 26 & $0.631$ & 1 & $74.086$
- & 5 & $29.083$ 
+Linear       & A   T & 29 & $3.791$ & 28 & $2.431$ & 26 & $0.644$ & 1 & $74.418$
+ & 5 & $28.675$ 
 \backslash
 
 \backslash
@@ -12019,8 +12019,8 @@ Linear       & A   T & 29 & $3.991$ & 28 & $2.425$ & 26 & $0.631$ & 1 & $74.086$
 
 \begin_layout Plain Layout
 
-Predecessor  & Q   T & 30 & $0.421$ & 29 & $0.041$ & 30 & $3.823$ & 17 & $19.376$
- & 21 & $10.955$ 
+Predecessor  & Q   T & 30 & $0.438$ & 29 & $0.041$ & 30 & $4.027$ & 17 & $19.126$
+ & 21 & $10.727$ 
 \backslash
 
 \backslash
@@ -12029,8 +12029,8 @@ Predecessor  & Q   T & 30 & $0.421$ & 29 & $0.041$ & 30 & $3.823$ & 17 & $19.376
 
 \begin_layout Plain Layout
 
-Predecessor  & S   T & 30 & $2.262$ & 30 & $4.198$ & 28 & $4.183$ & 0 & $0.000$
- & 5 & $82.203$ 
+Predecessor  & S   T & 30 & $2.173$ & 30 & $3.901$ & 28 & $4.343$ & 0 & $0.000$
+ & 5 & $79.944$ 
 \backslash
 
 \backslash
@@ -12039,8 +12039,8 @@ Predecessor  & S   T & 30 & $2.262$ & 30 & $4.198$ & 28 & $4.183$ & 0 & $0.000$
 
 \begin_layout Plain Layout
 
-Predecessor  & Q I T & 30 & $0.265$ & 30 & $2.161$ & 30 & $3.075$ & 18 & $19.645$
- & 21 & $5.685$ 
+Predecessor  & Q I T & 30 & $0.238$ & 30 & $2.083$ & 30 & $2.850$ & 18 & $18.751$
+ & 21 & $5.544$ 
 \backslash
 
 \backslash
@@ -12049,19 +12049,8 @@ Predecessor  & Q I T & 30 & $0.265$ & 30 & $2.161$ & 30 & $3.075$ & 18 & $19.645
 
 \begin_layout Plain Layout
 
-Predecessor  & S I T & 30 & $0.182$ & 30 & $2.101$ & 28 & $3.314$ & 0 & $0.000$
- & 10 & $74.109$ 
-\backslash
-
-\backslash
-
-\end_layout
-
-\begin_layout Plain Layout
-
-Max.
- Measure & Q I T & 30 & $0.962$ & 30 & $3.433$ & 30 & $15.707$ & 0 & $0.000$
- & 3 & $444.737$ 
+Predecessor  & S I T & 30 & $0.163$ & 30 & $2.118$ & 28 & $3.124$ & 0 & $0.000$
+ & 10 & $71.695$ 
 \backslash
 
 \backslash
@@ -12071,8 +12060,8 @@ Max.
 \begin_layout Plain Layout
 
 Max.
- Measure & S I T & 30 & $0.893$ & 30 & $11.229$ & 30 & $22.976$ & 0 & $0.000$
- & 1 & $114.589$ 
+ Measure & Q I T & 30 & $0.957$ & 30 & $3.428$ & 30 & $16.774$ & 0 & $0.000$
+ & 3 & $421.754$ 
 \backslash
 
 \backslash
@@ -12082,8 +12071,8 @@ Max.
 \begin_layout Plain Layout
 
 Max.
- Measure & H I T & 30 & $0.686$ & 30 & $5.115$ & 30 & $7.341$ & 0 & $0.000$
- & 6 & $217.857$ 
+ Measure & S I T & 30 & $0.852$ & 30 & $11.283$ & 30 & $22.506$ & 0 & $0.000$
+ & 1 & $110.142$ 
 \backslash
 
 \backslash
@@ -12093,8 +12082,8 @@ Max.
 \begin_layout Plain Layout
 
 Max.
- Step    & S I T & 30 & $1.778$ & 29 & $14.138$ & 30 & $37.116$ & 0 & $0.000$
- & 5 & $893.398$ 
+ Measure & H I T & 30 & $0.658$ & 30 & $5.367$ & 30 & $7.714$ & 0 & $0.000$
+ & 6 & $212.710$ 
 \backslash
 
 \backslash
@@ -12104,8 +12093,8 @@ Max.
 \begin_layout Plain Layout
 
 Max.
- Step    & Q I T & 30 & $1.666$ & 30 & $66.055$ & 30 & $31.070$ & 0 & $0.000$
- & 5 & $792.409$ 
+ Step    & S I T & 30 & $1.539$ & 30 & $13.520$ & 30 & $28.391$ & 0 & $0.000$
+ & 9 & $450.345$ 
 \backslash
 
 \backslash
@@ -12115,8 +12104,19 @@ Max.
 \begin_layout Plain Layout
 
 Max.
- Step    & H I T & 30 & $4.967$ & 29 & $4.491$ & 30 & $17.161$ & 0 & $0.000$
- & 3 & $319.749$ 
+ Step    & Q I T & 30 & $1.494$ & 30 & $16.603$ & 30 & $28.855$ & 0 & $0.000$
+ & 6 & $388.682$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Max.
+ Step    & H I T & 30 & $0.995$ & 30 & $6.164$ & 30 & $11.036$ & 0 & $0.000$
+ & 8 & $227.082$ 
 \backslash
 
 \backslash
@@ -12126,8 +12126,8 @@ Max.
 \begin_layout Plain Layout
 
 Min.
- Measure & Q I T & 30 & $1.253$ & 30 & $22.925$ & 30 & $17.763$ & 16 & $108.038$
- & 20 & $60.037$ 
+ Measure & Q I T & 30 & $1.212$ & 30 & $21.913$ & 30 & $16.805$ & 16 & $108.642$
+ & 20 & $58.785$ 
 \backslash
 
 \backslash
@@ -12137,8 +12137,8 @@ Min.
 \begin_layout Plain Layout
 
 Min.
- Measure & S I T & 30 & $1.216$ & 30 & $6.116$ & 30 & $16.386$ & 14 & $108.449$
- & 18 & $60.642$ 
+ Measure & S I T & 30 & $1.145$ & 30 & $6.181$ & 30 & $16.363$ & 14 & $108.993$
+ & 18 & $58.838$ 
 \backslash
 
 \backslash
@@ -12148,11 +12148,15 @@ Min.
 \begin_layout Plain Layout
 
 Min.
- Measure & H I T & 30 & $0.657$ & 30 & $7.585$ & 30 & $9.471$ & 16 & $90.121$
- & 19 & $56.500$ 
+ Measure & H I T & 30 & $0.668$ & 30 & $7.541$ & 30 & $8.985$ & 16 & $89.407$
+ & 19 & $54.771$ 
 \backslash
 
 \backslash
+
+\end_layout
+
+\begin_layout Plain Layout
 
 \end_layout
 

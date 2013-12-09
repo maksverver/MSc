@@ -4,11 +4,11 @@
 \begin{minipage}{10cm}   % phi
 \begin{tikzpicture}
 \begin{semilogyaxis}[xlabel=$\phi_n$,ylabel={Time in seconds},legend pos=south east]
-\addplot coordinates { (2,0.001) (3,0.007) (4,0.053) (5,0.419) (6,1.986) (7,15.549) (8,73.276) };% -llinear:0
-\addplot coordinates { (2,0.000) (3,0.002) (4,0.013) (5,0.074) (6,0.434) (7,2.503) (8,11.671) };% -Lpredecessor:0
-\addplot coordinates { (2,0.002) (3,0.034) (4,1.322) (5,1947.732) };% -Lminmeasure:0
-\addplot coordinates { (2,0.001) (3,0.007) (4,0.042) (5,0.267) (6,1.148) (7,5.861) (8,31.301) };% -Lmaxmeasure:0
-\addplot coordinates { (2,0.001) (3,0.013) (4,0.092) (5,0.550) (6,2.705) (7,14.441) (8,74.012) };% -Lmaxstep:0
+\addplot coordinates { (2,0.001) (3,0.007) (4,0.053) (5,0.432) (6,1.914) (7,13.478) (8,64.344) };% -llinear:0
+\addplot coordinates { (2,0.000) (3,0.002) (4,0.014) (5,0.075) (6,0.447) (7,2.068) (8,9.327) };% -Lpredecessor:0
+\addplot coordinates { (2,0.002) (3,0.023) (4,1.270) (5,1873.557) };% -Lminmeasure:0
+\addplot coordinates { (2,0.001) (3,0.007) (4,0.042) (5,0.265) (6,1.038) (7,5.108) (8,25.556) };% -Lmaxmeasure:0
+\addplot coordinates { (2,0.001) (3,0.010) (4,0.062) (5,0.354) (6,1.363) (7,6.978) (8,34.490) };% -Lmaxstep:0
 \legend{{-llinear:0},{-Lpredecessor:0},{-Lminmeasure:0},{-Lmaxmeasure:0},{-Lmaxstep:0}}
 \legend{{lin},{pred},{min},{max},{step}}
 \end{semilogyaxis}
@@ -19,11 +19,11 @@
 \begin{tikzpicture}
 \begin{loglogaxis}[xlabel=$\phi'_n$,ylabel={Time in seconds},legend pos=south east]
 
-\addplot coordinates { (10,0.056) (50,1.271) (100,3.876) (500,99.564) (1000,540.000) (2000,2785.896) };% -llinear:0
-\addplot coordinates { (10,0.009) (50,0.270) (100,0.947) (500,31.946) (1000,197.789) (2000,942.874) };% -Lpredecessor:0
-\addplot coordinates { (10,0.325) (50,23.166) (100,204.086) };% -Lminmeasure:0
-\addplot coordinates { (10,0.061) (50,1.402) (100,4.539) (500,151.471) (1000,660.410) (2000,2769.747) };% -Lmaxmeasure:0
-\addplot coordinates { (10,0.060) (50,0.645) (100,1.095) (500,6.987) (1000,18.185) (2000,32.552) (5000,102.727) };% -Lmaxstep:0
+\addplot coordinates { (10,0.056) (50,1.196) (100,3.847) (500,87.826) (1000,476.191) (2000,2395.334) };% -llinear:0
+\addplot coordinates { (10,0.009) (50,0.257) (100,1.035) (500,25.936) (1000,158.346) (2000,752.372) };% -Lpredecessor:0
+\addplot coordinates { (10,0.310) (50,22.767) (100,196.736) };% -Lminmeasure:0
+\addplot coordinates { (10,0.058) (50,1.293) (100,4.685) (500,134.107) (1000,582.801) (2000,2526.641) };% -Lmaxmeasure:0
+\addplot coordinates { (10,0.056) (50,0.608) (100,1.244) (500,6.579) (1000,16.738) (2000,29.668) (5000,90.633) };% -Lmaxstep:0
 \legend{{-llinear:0},{-Lpredecessor:0},{-Lminmeasure:0},{-Lmaxmeasure:0},{-Lmaxstep:0}}
 \legend{{lin},{pred},{min},{max},{step}} 
 \end{loglogaxis}
@@ -41,11 +41,11 @@
 \begin{minipage}{10cm}   % elevator-fair
 \begin{tikzpicture}
 \begin{loglogaxis}[xlabel=$G_n$,ylabel={Time in seconds},legend pos=south east]
-\addplot coordinates { (3,0.002) (4,0.009) (5,0.090) (6,0.824) (7,7.117) (8,154.054) };% -llinear:0
-\addplot coordinates { (3,0.000) (4,0.002) (5,0.016) (6,0.132) (7,3.575) (8,55.424) };% -Lpredecessor:0
-\addplot coordinates { (3,0.001) (4,0.006) (5,0.082) (6,0.738) (7,15.424) (8,302.658) };% -Lminmeasure:0
-\addplot coordinates { (3,0.000) (4,0.003) (5,0.026) (6,0.117) (7,2.505) (8,30.725) };% -Lmaxmeasure:0
-\addplot coordinates { (3,0.000) (4,0.004) (5,0.032) (6,0.220) (7,3.104) (8,36.723) };% -Lmaxstep:0
+\addplot coordinates { (3,0.001) (4,0.008) (5,0.086) (6,0.709) (7,6.351) (8,128.101) };% -llinear:0
+\addplot coordinates { (3,0.000) (4,0.001) (5,0.016) (6,0.183) (7,3.031) (8,41.352) };% -Lpredecessor:0
+\addplot coordinates { (3,0.001) (4,0.006) (5,0.078) (6,0.973) (7,11.814) (8,211.451) };% -Lminmeasure:0
+\addplot coordinates { (3,0.000) (4,0.002) (5,0.026) (6,0.169) (7,2.161) (8,25.841) };% -Lmaxmeasure:0
+\addplot coordinates { (3,0.001) (4,0.003) (5,0.030) (6,0.239) (7,2.776) (8,30.631) };% -Lmaxstep:0
 \legend{{-llinear:0},{-Lpredecessor:0},{-Lminmeasure:0},{-Lmaxmeasure:0},{-Lmaxstep:0}}
 \legend{{lin},{pred},{min},{max},{step}} 
 \end{loglogaxis}
@@ -55,11 +55,11 @@
 \begin{minipage}{10cm}   % elevator-unfair
 \begin{tikzpicture}
 \begin{loglogaxis}[xlabel=$G'_n$,ylabel={Time in seconds},legend pos=south east]
-\addplot coordinates { (3,0.007) (4,0.108) (5,2.697) (6,100.754) };% -llinear:0
-\addplot coordinates { (3,0.003) (4,0.052) (5,1.845) (6,112.889) };% -Lpredecessor:0
-\addplot coordinates { (3,0.012) (4,0.300) (5,9.612) (6,690.120) };% -Lminmeasure:0
-\addplot coordinates { (3,0.003) (4,0.014) (5,0.105) (6,0.661) (7,9.389) (8,134.268) };% -Lmaxmeasure:0
-\addplot coordinates { (3,0.005) (4,0.025) (5,0.216) (6,1.401) (7,20.193) (8,298.090) };% -Lmaxstep:0
+\addplot coordinates { (3,0.005) (4,0.103) (5,2.757) (6,98.463) };% -llinear:0
+\addplot coordinates { (3,0.002) (4,0.049) (5,2.026) (6,87.605) };% -Lpredecessor:0
+\addplot coordinates { (3,0.009) (4,0.288) (5,9.592) (6,574.462) };% -Lminmeasure:0
+\addplot coordinates { (3,0.002) (4,0.012) (5,0.099) (6,0.833) (7,8.097) (8,100.878) };% -Lmaxmeasure:0
+\addplot coordinates { (3,0.004) (4,0.022) (5,0.186) (6,1.329) (7,15.532) (8,208.075) };% -Lmaxstep:0
 \legend{{-llinear:0},{-Lpredecessor:0},{-Lminmeasure:0},{-Lmaxmeasure:0},{-Lmaxstep:0}}
 \legend{{lin},{pred},{min},{max},{step}} 
 \end{loglogaxis}
