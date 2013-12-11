@@ -93,6 +93,9 @@ void SmallProgressMeasures::initialize_lifting_strategy(LiftingStrategy2 &ls)
     if (!dirty_) dirty_ = new bool[V];
     for (verti v = 0; v < V; ++v)
     {
+        // FIXME: the is_top(v) clause is technically unneccessary!
+        //        Even if v is assigned top, the other half of the if statement
+        //        works correctly.
         if (is_top(v))
         {
             // strategy may not be valid for top vertices!

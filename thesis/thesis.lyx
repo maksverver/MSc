@@ -79,13 +79,411 @@
 
 \begin_body
 
-\begin_layout Title
-Practical Improvements to Parity Game Solving
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{titlepage}
 \end_layout
 
-\begin_layout Standard
-\begin_inset CommandInset toc
-LatexCommand tableofcontents
+\begin_layout Plain Layout
+
+
+\backslash
+begin{center}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+textifsymbol[ifgeo]{54}
+\backslash
+
+\backslash
+[2cm]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{huge}
+\backslash
+textsf{Practical Improvements to Parity Game Solving}
+\backslash
+end{huge}
+\backslash
+
+\backslash
+[1cm]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{large}
+\backslash
+textsf{by Maks Verver, BSc}
+\backslash
+end{large} 
+\backslash
+
+\backslash
+[1cm]
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+% TODO: 'leuk' plaatje hier
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+vfill
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{minipage}{0.49
+\backslash
+textwidth}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{flushleft}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+large
+\backslash
+emph{Master's thesis}
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Computer Science Programme
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+University of Twente 
+\backslash
+
+\backslash
+[.5cm]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+textsf{
+\backslash
+today}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{flushleft}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{minipage}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{minipage}{0.49
+\backslash
+textwidth}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{flushright} 
+\backslash
+large 
+\backslash
+emph{Graduation committee:} 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+prof.dr.
+ J.C.
+ van de Pol 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+dr.ir.
+ R.
+ Langerak 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+prof.dr.
+ M.
+ Lange$^*$ 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+G.
+ Kant, MSc 
+\backslash
+
+\backslash
+[1cm]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{flushright}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{minipage}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{flushright}
+\backslash
+small *University of Kassel
+\backslash
+end{flushright}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{center} 
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{titlepage}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frontmatter
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+chapter*{
+\backslash
+centering 
+\backslash
+begin{normalsize}Abstract
+\backslash
+end{normalsize}}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{quotation}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+noindent The aim of this thesis is to investigate how parity game problems
+ may be solved efficiently in practice.
+ Parity games are a worthwhile research topic because their simultaneous
+ simplicity and expressiveness makes them a useful formalism to represent
+ the problems that occur when formal methods are applied to software and
+ hardware engineering.
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+In this thesis, first an overview of the state of the art, both theoretical
+ and practical, will be presented.
+ Second, algorithms and data structures will be described which were used
+ to develop a new parity game solving tool.
+ These include a mix of well-known, relative obscure, previously undocumented,
+ and completely novel techniques.
+ The most valuable contributions are the introduction of novel preprocessing
+ operations, and improved heuristics for the Small Progress Measures solution
+ algorithm.
+ Third, the results of an empirical evaluation will be presented to demonstrate
+ which of these techniques work best in practice.
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+The empirical results will support the conclusion that considerable improvements
+ over the state of the art are possible using a combination of careful tool
+ design and implementation, application of powerful preprocessing operations,
+ and the use of advanced heuristics in the implementation of the Small Progress
+ Measures algorithm.
+\backslash
+
+\backslash
+[4cm]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{quotation}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+section*{
+\backslash
+centering 
+\backslash
+begin{normalsize}Acknowledgements
+\backslash
+end{normalsize}}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{quotation}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+noindent I would like to thank my parents for their trust and support throughout
+ my studies.
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{quotation}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+tableofcontents
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+mainmatter
+\end_layout
 
 \end_inset
 
@@ -126,8 +524,8 @@ One reason to study parity games is the observation that, despite considerable
 
 \begin_layout Standard
 This is a pity, since parity games have practical applications too, most
- notably as a vehicle for formal verification (by reduction from model checking
- and bisimulation problems).
+ notably as a vehicle for formal verification (by reduction from model checking,
+ bisimulation, satisfiability checking and software synthesis).
  Formal verification tools are important since engineers use them to create
  reliable hardware and software components.
  Parity game algorithms have the potential to improve these tools considerably
@@ -169,7 +567,7 @@ Finally, it is my hope that my contributions not only prove beneficial to
 \end_layout
 
 \begin_layout Section
-Parity Games
+Parity games
 \end_layout
 
 \begin_layout Standard
@@ -203,7 +601,7 @@ status open
 \begin_layout Plain Layout
 \align center
 \begin_inset Graphics
-	filename illustrations/introduction-example.svg
+	filename illustrations/introduction-example.eps
 	scale 50
 
 \end_inset
@@ -339,7 +737,7 @@ Parity games can be played on finite as well as infinite graphs, although
 \end_layout
 
 \begin_layout Subsection
-Game Play and Winning Conditions
+Game play and winning conditions
 \end_layout
 
 \begin_layout Standard
@@ -469,7 +867,7 @@ highest
 \end_layout
 
 \begin_layout Subsection
-Strategies and Solutions
+Strategies and solutions
 \end_layout
 
 \begin_layout Standard
@@ -720,7 +1118,7 @@ solving a game
 \end_layout
 
 \begin_layout Subsection
-Optimal Strategies and Finite Memory
+Optimal strategies and finite memory
 \end_layout
 
 \begin_layout Standard
@@ -924,7 +1322,7 @@ status open
 \begin_layout Plain Layout
 \align center
 \begin_inset Graphics
-	filename illustrations/introduction-example-solved.svg
+	filename illustrations/introduction-example-solved.eps
 	scale 50
 
 \end_inset
@@ -969,7 +1367,7 @@ reference "fig:introduction-example-solved"
 \end_layout
 
 \begin_layout Section
-Computational Complexity
+Computational complexity
 \end_layout
 
 \begin_layout Standard
@@ -1079,7 +1477,7 @@ Often
 \end_layout
 
 \begin_layout Section
-Application To Model Checking
+Application to model checking
 \end_layout
 
 \begin_layout Standard
@@ -1803,7 +2201,7 @@ In summary, it appears that PGSolver is the only comprehensive tool easily
 \end_layout
 
 \begin_layout Section
-My Contributions
+My contributions
 \end_layout
 
 \begin_layout Standard
@@ -1897,7 +2295,7 @@ reference "sec:Verification"
 \end_layout
 
 \begin_layout Itemize
-Improved heuristics for the small progress measures algorithm (described
+Improved heuristics for the Small Progress Measures algorithm (described
  in subsection 
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -1909,7 +2307,7 @@ reference "sub:Maximum-Measure-Propagation"
 \end_layout
 
 \begin_layout Itemize
-Two improvements on the design of the small progress measures algorithm
+Two improvements on the design of the Small Progress Measures algorithm
  (described in subsections 
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -2021,7 +2419,7 @@ Additionally, I will assume the game graph is finite.
 \end_layout
 
 \begin_layout Section
-Common Terminology 
+Common terminology 
 \begin_inset CommandInset label
 LatexCommand label
 name "sec:Common-Terminology"
@@ -3179,7 +3577,7 @@ Finally, the descriptions provided here may aid in the understanding of
 \end_layout
 
 \begin_layout Section
-Parity Games
+Parity games
 \end_layout
 
 \begin_layout Subsection
@@ -3756,7 +4154,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset listings
-lstparams "language={C++},numbers=left,tabsize=4"
+lstparams "basicstyle={\small\ttfamily},language={C++},numbers=left,numberstyle={\small},tabsize=4"
 inline false
 status open
 
@@ -3792,7 +4190,7 @@ Set<Vertex> make_attractor_set(
 
 \begin_layout Plain Layout
 
-	for v in initial {
+	for v : initial {
 \end_layout
 
 \begin_layout Plain Layout
@@ -3822,22 +4220,12 @@ Set<Vertex> make_attractor_set(
 
 \begin_layout Plain Layout
 
-		for u in game.graph.predecessors(v) {
+		for u : game.graph.predecessors(v) {
 \end_layout
 
 \begin_layout Plain Layout
 
-			if u in attr {
-\end_layout
-
-\begin_layout Plain Layout
-
-				continue
-\end_layout
-
-\begin_layout Plain Layout
-
-			}
+			if u in attr { continue }
 \end_layout
 
 \begin_layout Plain Layout
@@ -3939,7 +4327,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset listings
-lstparams "language={C++},numbers=left,tabsize=4"
+lstparams "basicstyle={\small\ttfamily},language={C++},numbers=left,numberstyle={\small},tabsize=4"
 inline false
 status open
 
@@ -3971,7 +4359,7 @@ Set<Vertex> make_attractor_set(
 
 \begin_layout Plain Layout
 
-	for v in game.graph.V {
+	for v : game.graph.V {
 \end_layout
 
 \begin_layout Plain Layout
@@ -4006,7 +4394,7 @@ Set<Vertex> make_attractor_set(
 
 \begin_layout Plain Layout
 
-	for v in initial {
+	for v : initial {
 \end_layout
 
 \begin_layout Plain Layout
@@ -4041,22 +4429,12 @@ Set<Vertex> make_attractor_set(
 
 \begin_layout Plain Layout
 
-		for u in game.graph.predecessors(v) {
+		for u : game.graph.predecessors(v) {
 \end_layout
 
 \begin_layout Plain Layout
 
-			if liberties[u] == 0 {
-\end_layout
-
-\begin_layout Plain Layout
-
-				continue
-\end_layout
-
-\begin_layout Plain Layout
-
-			}
+			if liberties[u] == 0 { continue }
 \end_layout
 
 \begin_layout Plain Layout
@@ -4096,17 +4474,7 @@ Set<Vertex> make_attractor_set(
 
 \begin_layout Plain Layout
 
-				} else {
-\end_layout
-
-\begin_layout Plain Layout
-
-					continue
-\end_layout
-
-\begin_layout Plain Layout
-
-				}
+				} else { continue }
 \end_layout
 
 \begin_layout Plain Layout
@@ -4244,19 +4612,6 @@ reference "sec:Verification"
 \end_inset
 
 ).
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-TODO: browse code for stuff I didn't cover yet
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Chapter
@@ -4809,7 +5164,7 @@ In the last definition, the choice of
 \end_layout
 
 \begin_layout Section
-Lifting Strategies 
+Lifting strategies 
 \begin_inset CommandInset label
 LatexCommand label
 name "sub:Lifting-Strategies"
@@ -5126,6 +5481,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset listings
+lstparams "basicstyle={\small\ttfamily},language={C++},numbers=left,numberstyle={\small},tabsize=4"
 inline false
 status open
 
@@ -5146,17 +5502,17 @@ SmallProgressMeasures(spm, lifting_strategy)
 
 \begin_layout Plain Layout
 
-	while (v != NO_VERTEX) {
+	while v != NO_VERTEX {
 \end_layout
 
 \begin_layout Plain Layout
 
-        new_spm = Lift(spm, v)
+        new_spm = lift(spm, v)
 \end_layout
 
 \begin_layout Plain Layout
 
-        if (spm[v] > new_spm[v]) {
+        if spm[v] > new_spm[v] {
 \end_layout
 
 \begin_layout Plain Layout
@@ -5219,7 +5575,7 @@ name "alg:SPM v1 Core"
 \end_layout
 
 \begin_layout Subsection
-Linear Lifting Strategy
+Linear lifting strategy
 \end_layout
 
 \begin_layout Standard
@@ -5248,27 +5604,18 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset listings
-lstparams "language={C++},numbers=left,tabsize=4"
+lstparams "basicstyle={\small\ttfamily},language={C++},numbers=left,numberstyle={\small},tabsize=4"
 inline false
 status open
 
 \begin_layout Plain Layout
 
-num_failed = 0
+LinearLiftingStrategy
 \end_layout
 
 \begin_layout Plain Layout
 
-next_vertex = 0
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-lifted(Vertex v) {
+{
 \end_layout
 
 \begin_layout Plain Layout
@@ -5278,46 +5625,72 @@ lifted(Vertex v) {
 
 \begin_layout Plain Layout
 
-}
+	next_vertex = 0
 \end_layout
 
 \begin_layout Plain Layout
 
+	
 \end_layout
 
 \begin_layout Plain Layout
 
-Vertex next() {
+	lifted(Vertex v) {
 \end_layout
 
 \begin_layout Plain Layout
 
-	if num_failed >= V {
+		num_failed = 0
 \end_layout
 
 \begin_layout Plain Layout
 
-		return NO_VERTEX
+	}
 \end_layout
 
 \begin_layout Plain Layout
 
-	} else {
+	
 \end_layout
 
 \begin_layout Plain Layout
 
-		num_failed = num_failed + 1
+	Vertex next() {
 \end_layout
 
 \begin_layout Plain Layout
 
-		next_vertex = (next_vertex + 1) mod V
+		if num_failed >= V {
 \end_layout
 
 \begin_layout Plain Layout
 
-		return next_vertex
+			return NO_VERTEX
+\end_layout
+
+\begin_layout Plain Layout
+
+		} else {
+\end_layout
+
+\begin_layout Plain Layout
+
+			num_failed = num_failed + 1
+\end_layout
+
+\begin_layout Plain Layout
+
+			next_vertex = (next_vertex + 1) mod V
+\end_layout
+
+\begin_layout Plain Layout
+
+			return next_vertex
+\end_layout
+
+\begin_layout Plain Layout
+
+		}
 \end_layout
 
 \begin_layout Plain Layout
@@ -5400,7 +5773,7 @@ reprocessing of the game graph.
 \end_layout
 
 \begin_layout Subsubsection
-Efficiency of the Linear Lifting Strategy 
+Efficiency of the linear lifting strategy 
 \begin_inset CommandInset label
 LatexCommand label
 name "sub:linear-lifting-efficiency"
@@ -5445,7 +5818,7 @@ Consequently, an optimal lifting strategy could improve upon the linear
 \end_layout
 
 \begin_layout Subsection
-Predecessor Lifting Strategy 
+Predecessor lifting strategy 
 \begin_inset CommandInset label
 LatexCommand label
 name "sub:Predecessor-Lifting-Strategy"
@@ -5530,77 +5903,93 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset listings
-lstparams "basicstyle={\ttfamily},language={C++},numbers=left,tabsize=4"
+lstparams "basicstyle={\small\ttfamily},language={C++},numbers=left,numberstyle={\small},tabsize=4"
 inline false
 status open
 
 \begin_layout Plain Layout
 
-queued = Vector<bool>(V)
+PredecessorLiftingStrategy
 \end_layout
 
 \begin_layout Plain Layout
 
-queue = Queue<Vertex>()
+{
 \end_layout
 
 \begin_layout Plain Layout
 
-for v in [0..V) {
+	queued = Vector<bool>(V)
 \end_layout
 
 \begin_layout Plain Layout
 
-    if not top(w) {
+	queue = Queue<Vertex>()
 \end_layout
 
 \begin_layout Plain Layout
 
-   	queued[v] = true
+	for v in [0..V) {
 \end_layout
 
 \begin_layout Plain Layout
 
-	   queue.push(v)
+	    if not top(w) {
 \end_layout
 
 \begin_layout Plain Layout
 
-   }
+	   	queued[v] = true
 \end_layout
 
 \begin_layout Plain Layout
 
-}
+		   queue.push(v)
 \end_layout
 
 \begin_layout Plain Layout
 
+	   }
 \end_layout
 
 \begin_layout Plain Layout
 
-lifted(Vertex v) {
+	}
 \end_layout
 
 \begin_layout Plain Layout
 
-	for w in predecessors(v) {
+	
 \end_layout
 
 \begin_layout Plain Layout
 
-		if not queued[w] and not top(w) {
+	lifted(Vertex v) {
 \end_layout
 
 \begin_layout Plain Layout
 
-			queued[w] = true
+		for w in predecessors(v) {
 \end_layout
 
 \begin_layout Plain Layout
 
-			queue.push(w)
+			if not queued[w] and not top(w) {
+\end_layout
+
+\begin_layout Plain Layout
+
+				queued[w] = true
+\end_layout
+
+\begin_layout Plain Layout
+
+				queue.push(w)
+\end_layout
+
+\begin_layout Plain Layout
+
+			}
 \end_layout
 
 \begin_layout Plain Layout
@@ -5615,46 +6004,47 @@ lifted(Vertex v) {
 
 \begin_layout Plain Layout
 
-}
+	
 \end_layout
 
 \begin_layout Plain Layout
 
+	Vertex next() {
 \end_layout
 
 \begin_layout Plain Layout
 
-Vertex next() {
+		if queue.empty() {
 \end_layout
 
 \begin_layout Plain Layout
 
-	if queue.empty() {
+			return NO_VERTEX
 \end_layout
 
 \begin_layout Plain Layout
 
-		return NO_VERTEX
+		} else {
 \end_layout
 
 \begin_layout Plain Layout
 
-	} else {
+			v = queue.pop()
 \end_layout
 
 \begin_layout Plain Layout
 
-		v = queue.pop()
+			queued[v] = false
 \end_layout
 
 \begin_layout Plain Layout
 
-		queued[v] = false
+			return v
 \end_layout
 
 \begin_layout Plain Layout
 
-		return v
+		}
 \end_layout
 
 \begin_layout Plain Layout
@@ -5731,7 +6121,7 @@ There is some freedom of implementation when deciding which vertex from
 \end_layout
 
 \begin_layout Subsection
-Focus List Approach
+Focus list approach
 \end_layout
 
 \begin_layout Standard
@@ -5876,188 +6266,204 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset listings
-lstparams "basicstyle={\ttfamily},language={C++},numbers=left,tabsize=4"
+lstparams "basicstyle={\small\ttfamily},language={C++},numbers=left,numberstyle={\small},tabsize=4"
 inline false
 status open
 
 \begin_layout Plain Layout
 
-phase = 1
+FocusListLiftingStrategy
 \end_layout
 
 \begin_layout Plain Layout
 
-num_attempts = 0
+{
 \end_layout
 
 \begin_layout Plain Layout
 
-num_failed = 0
+	phase = 1
 \end_layout
 
 \begin_layout Plain Layout
 
-next_vertex = 0
+	num_attempts = 0
 \end_layout
 
 \begin_layout Plain Layout
 
-focus_list = Queue<Pair<Vertex, Int>>
+	num_failed = 0
 \end_layout
 
 \begin_layout Plain Layout
 
+	next_vertex = 0
 \end_layout
 
 \begin_layout Plain Layout
 
-while true {
+	focus_list = Queue<Pair<Vertex, Int>>
 \end_layout
 
 \begin_layout Plain Layout
 
-	num_attempts = num_attempts + 1
+	
 \end_layout
 
 \begin_layout Plain Layout
 
-	if (phase == 1) {
+	while true {
 \end_layout
 
 \begin_layout Plain Layout
 
-		if lift(next_vertex) {
+		num_attempts = num_attempts + 1
 \end_layout
 
 \begin_layout Plain Layout
 
-			num_failed = 0
+		if (phase == 1) {
 \end_layout
 
 \begin_layout Plain Layout
 
-			focus_list.push(<next_vertex, 2>)
+			if lift(next_vertex) {
 \end_layout
 
 \begin_layout Plain Layout
 
-		} else {
+				num_failed = 0
 \end_layout
 
 \begin_layout Plain Layout
 
-			num_failed = num_failed + 1
+				focus_list.push(<next_vertex, 2>)
 \end_layout
 
 \begin_layout Plain Layout
 
-		}
+			} else {
 \end_layout
 
 \begin_layout Plain Layout
 
-		next_vertex = (next_vertex + 1) mod V
+				num_failed = num_failed + 1
 \end_layout
 
 \begin_layout Plain Layout
 
-		if num_failed == V {
+			}
 \end_layout
 
 \begin_layout Plain Layout
 
-			break
+			next_vertex = (next_vertex + 1) mod V
 \end_layout
 
 \begin_layout Plain Layout
 
-		}
+			if num_failed == V {
 \end_layout
 
 \begin_layout Plain Layout
 
-		if num_attempts == V || focus_list.size() == max_size {
+				break
 \end_layout
 
 \begin_layout Plain Layout
 
-			/* N.B.
+			}
+\end_layout
+
+\begin_layout Plain Layout
+
+			if num_attempts == V or focus_list.size() == max_size {
+\end_layout
+
+\begin_layout Plain Layout
+
+				/* N.B.
  focus_list is non-empty because
 \end_layout
 
 \begin_layout Plain Layout
 
-			        num_failed < num_attempts */
+				        num_failed < num_attempts */
 \end_layout
 
 \begin_layout Plain Layout
 
-			phase = 2
+				phase = 2
 \end_layout
 
 \begin_layout Plain Layout
 
-			num_attempts = 0
+				num_attempts = 0
 \end_layout
 
 \begin_layout Plain Layout
 
-		}
+			}
 \end_layout
 
 \begin_layout Plain Layout
 
-	} else {  /* phase == 2 */
+		} else {  /* phase == 2 */
 \end_layout
 
 \begin_layout Plain Layout
 
-		v, credit = focus_list.pop()
+			v, credit = focus_list.pop()
 \end_layout
 
 \begin_layout Plain Layout
 
-		if lift(v) {
+			if lift(v) {
 \end_layout
 
 \begin_layout Plain Layout
 
-			focus_list.push(<v, credit + 2>)
+				focus_list.push(<v, credit + 2>)
 \end_layout
 
 \begin_layout Plain Layout
 
-		} else if (credit > 0) {
+			} else if (credit > 0) {
 \end_layout
 
 \begin_layout Plain Layout
 
-			focus_list.push(<v, credit / 2>)
+				focus_list.push(<v, credit / 2>)
 \end_layout
 
 \begin_layout Plain Layout
 
-		}
+			}
 \end_layout
 
 \begin_layout Plain Layout
 
-		if focus_list.empty() || num_attempts == max_attempts {
+			if focus_list.empty() or num_attempts == max_attempts {
 \end_layout
 
 \begin_layout Plain Layout
 
-			focus_list.clear()
+				focus_list.clear()
 \end_layout
 
 \begin_layout Plain Layout
 
-			phase = 1
+				phase = 1
 \end_layout
 
 \begin_layout Plain Layout
 
-			num_attempts = 0
+				num_attempts = 0
+\end_layout
+
+\begin_layout Plain Layout
+
+			}
 \end_layout
 
 \begin_layout Plain Layout
@@ -6072,7 +6478,7 @@ while true {
 
 \begin_layout Plain Layout
 
-} 
+}
 \end_layout
 
 \end_inset
@@ -6105,7 +6511,7 @@ name "alg:Focus-List-Lifting"
 \end_layout
 
 \begin_layout Subsection
-Maximum Measure Propagation 
+Maximum measure propagation 
 \begin_inset CommandInset label
 LatexCommand label
 name "sub:Maximum-Measure-Propagation"
@@ -6223,7 +6629,7 @@ The in-place heap itself causes no memory overhead compared to a circular
 
 \begin_layout Standard
 From the above description, it should be clear that maximum measure propagation
- (and its variants) is quite a bit more complicated than simple predecessor
+ (like its variants) is quite a bit more complicated than simple predecessor
  lifting, both in terms of implementation difficulty and the amount of computati
 onal overhead added to each lifting attempt.
  However; this might be worth it if the final progress measure can be computed
@@ -6333,6 +6739,71 @@ This observation effectively turns the core algorithm inside out: instead
 \end_layout
 
 \begin_layout Standard
+This idea is described somewhat more formally as Algorithm 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "alg:SPMv2"
+
+\end_inset
+
+.
+ Note that 
+\family typewriter
+spm.less_than(v, w)
+\family default
+ compares a the progress measure value assigned to 
+\begin_inset Formula $v$
+\end_inset
+
+ using 
+\begin_inset Formula $\leq_{\phi(v)}$
+\end_inset
+
+ (if 
+\begin_inset Formula $\phi(v)\equiv0\mod2$
+\end_inset
+
+) or 
+\begin_inset Formula $<_{\phi(v)}$
+\end_inset
+
+ otherwise, as is usual to determine if a vertex 
+\begin_inset Formula $v$
+\end_inset
+
+ is liftable by its successor value 
+\begin_inset Formula $w$
+\end_inset
+
+.
+ Like Algorithm 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "alg:SPM v1 Core"
+
+\end_inset
+
+, this procedure uses an object tracking progress measures and a lifting
+ strategy as arguments.
+ However, unlike the former algorithm, it keeps explicit track of stable
+ and unstable vertices, notifying the lifting strategy (with 
+\family typewriter
+push
+\family default
+) whenever a vertex becomes unstable.
+ The lifting strategy still has control over the order in which unstable
+ vertices are lifted, but can easily avoid trying to lifting stable vertices.
+ To allow advanced lifting strategies (in particular, those based on maximum
+ measure propagation) to keep their internal data structures consistent,
+ the core algorithm also notifies the lifting strategy (with 
+\family typewriter
+bump
+\family default
+) when the minimum/maximum successor of an unstable vertex, or the associated
+ progress measure value, changes.
+\end_layout
+
+\begin_layout Standard
 It should be clear that the amount of work done per lifting attempt is roughly
  equal on average for both formulations of the core algorithm: while the
  original formulation requires examining all successors of the vertex being
@@ -6345,8 +6816,8 @@ It should be clear that the amount of work done per lifting attempt is roughly
 \begin_layout Standard
 I will call the earlier formulation of the core algorithm the “standard
  framework” since it matches Jurdziński's description and is implemented
- in earlier solving tools, and call this variation the “improved framework”
- since it turns out (as will be shown in Chapter 
+ in earlier solving tools, and call the variation presented here the “improved
+ framework” since it turns out (as will be shown in Chapter 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "chap:Empirical-Evaluation"
@@ -6360,16 +6831,15 @@ reference "chap:Empirical-Evaluation"
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-pseudo-code of SmallProgressMeasures2?
-\end_layout
-
-\end_inset
-
-
+Clearly this improved core algorithm is more complicated than the algorithm
+ presented earlier.
+ This disadvantage is ameliorated by the observation that lifting strategies
+ can be made simpler, since the improved framework absolves them of the
+ responsibility to track dirty/stable vertices.
+ Of course, this applies only to lifting strategies that were sophisticated
+ to begin with, which is why the improved framework is mainly useful in
+ conjunction with the predecessor and maximum measure propagation lifting
+ strategies.
 \end_layout
 
 \begin_layout Standard
@@ -6380,81 +6850,13 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset listings
-lstparams "basicstyle={\small\ttfamily},language={C++},numbers=left,tabsize=4"
+lstparams "basicstyle={\small\ttfamily},language={C++},numbers=left,numberstyle={\small},tabsize=4"
 inline false
 status open
 
 \begin_layout Plain Layout
 
-\end_layout
-
-\begin_layout Plain Layout
-
-for (verti v = 0; v < V; ++v) {
-\end_layout
-
-\begin_layout Plain Layout
-
-	if (is_top(v)) {
-\end_layout
-
-\begin_layout Plain Layout
-
-		stable[v] = true;
-\end_layout
-
-\begin_layout Plain Layout
-
-	} else {
-\end_layout
-
-\begin_layout Plain Layout
-
-		if v is controlled by Even:
-\end_layout
-
-\begin_layout Plain Layout
-
-			strategy[v] = minimum successor
-\end_layout
-
-\begin_layout Plain Layout
-
-		else:
-\end_layout
-
-\begin_layout Plain Layout
-
-			strategy[v] = maximum successor
-\end_layout
-
-\begin_layout Plain Layout
-
-		stable[v]  = !(spm[v] <? spm[strategy[v]])
-\end_layout
-
-\begin_layout Plain Layout
-
-		if (!stable[v]) q.push(v);
-\end_layout
-
-\begin_layout Plain Layout
-
-	}
-\end_layout
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-while (!queue.empy())
+SmallProgressMeasures2(spm, lifting_strategy)
 \end_layout
 
 \begin_layout Plain Layout
@@ -6464,67 +6866,222 @@ while (!queue.empy())
 
 \begin_layout Plain Layout
 
-	verti w = queue.pop()
+	stable   = { 0, 0, 0 ..
+ }
 \end_layout
 
 \begin_layout Plain Layout
 
-	for each predecessor v:
+	strategy = { 0, 0, 0 ..
+ }
 \end_layout
 
 \begin_layout Plain Layout
 
-		if v is not top:
 \end_layout
 
 \begin_layout Plain Layout
 
-			if v controlled by Even:
+	for v : game.graph.V {
 \end_layout
 
 \begin_layout Plain Layout
 
-				if strategy[v] = w:
+		if game.player(v) == 0 {
 \end_layout
 
 \begin_layout Plain Layout
 
-					strategy[v] = get_min_succ(v)
+			strategy[v] = spm.get_min_vertex(game.graph.successors(v))
 \end_layout
 
 \begin_layout Plain Layout
 
-					stable[v] = !(spm[v] <? spm[strategy[v]])
+		} else {
 \end_layout
 
 \begin_layout Plain Layout
 
-			if v is controlled by Odd:
+			strategy[v] = spm.get_max_vertex(game.graph.successors(v))
 \end_layout
 
 \begin_layout Plain Layout
 
-				if strategy[v] = w or spm[w] > spm[strategy[v]]:
+		}
 \end_layout
 
 \begin_layout Plain Layout
 
-					strategy[v] = w
+		if spm.less_than(v, strategy[v]) {
 \end_layout
 
 \begin_layout Plain Layout
 
-					stable[v] = !(spm[v] <? spm[strategy[v]])
+			lifting_strategy.push(v)
 \end_layout
 
 \begin_layout Plain Layout
 
-			if !stable[v]:
+		} else {
 \end_layout
 
 \begin_layout Plain Layout
 
-				queue.push(v)
+			stable[v] = 1
+\end_layout
+
+\begin_layout Plain Layout
+
+		}
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	while v = lifting_strategy.next_vertex() {
+\end_layout
+
+\begin_layout Plain Layout
+
+		spm.lift_to(v, spm[strategy[v]])
+\end_layout
+
+\begin_layout Plain Layout
+
+		stable[v] = 1
+\end_layout
+
+\begin_layout Plain Layout
+
+		for u : game.graph.predecessors(v) {
+\end_layout
+
+\begin_layout Plain Layout
+
+			if game.player(u) == 0 {
+\end_layout
+
+\begin_layout Plain Layout
+
+				if strategy[u] == v {
+\end_layout
+
+\begin_layout Plain Layout
+
+					strategy[u] = spm.get_min_vertex(game.graph.successors(u))
+\end_layout
+
+\begin_layout Plain Layout
+
+				} else {
+\end_layout
+
+\begin_layout Plain Layout
+
+					continue	// minimum successor unchanged
+\end_layout
+
+\begin_layout Plain Layout
+
+				}
+\end_layout
+
+\begin_layout Plain Layout
+
+	        } else {
+\end_layout
+
+\begin_layout Plain Layout
+
+				if (strategy[u] == v) or (spm[strategy[u]] < spm[v]) {
+\end_layout
+
+\begin_layout Plain Layout
+
+					strategy[u] = v
+\end_layout
+
+\begin_layout Plain Layout
+
+				}  else {
+\end_layout
+
+\begin_layout Plain Layout
+
+					continue	// maximum successor unchanged
+\end_layout
+
+\begin_layout Plain Layout
+
+				}
+\end_layout
+
+\begin_layout Plain Layout
+
+	        }
+\end_layout
+
+\begin_layout Plain Layout
+
+			if stable[u] {
+\end_layout
+
+\begin_layout Plain Layout
+
+				if spm.less_than(u, strategy[u]) {
+\end_layout
+
+\begin_layout Plain Layout
+
+					stable[u] = 0
+\end_layout
+
+\begin_layout Plain Layout
+
+					lifting_strategy.push(u)
+\end_layout
+
+\begin_layout Plain Layout
+
+				}
+\end_layout
+
+\begin_layout Plain Layout
+
+			} else {
+\end_layout
+
+\begin_layout Plain Layout
+
+				lifting_strategy.bump(u)
+\end_layout
+
+\begin_layout Plain Layout
+
+	        }
+\end_layout
+
+\begin_layout Plain Layout
+
+	    }
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+	return strategy
 \end_layout
 
 \begin_layout Plain Layout
@@ -6541,7 +7098,14 @@ while (!queue.empy())
 \begin_inset Caption
 
 \begin_layout Plain Layout
-SPMv2 (TODO)
+Improved Small Progress Measures Algorithm 
+\begin_inset CommandInset label
+LatexCommand label
+name "alg:SPMv2"
+
+\end_inset
+
+
 \end_layout
 
 \end_inset
@@ -6860,7 +7424,7 @@ A more intuitive way to see that decreasing the progress measure bounds
 \end_layout
 
 \begin_layout Subsection
-Game/Graph Preprocessing
+Game and graph preprocessing
 \end_layout
 
 \begin_layout Standard
@@ -7352,8 +7916,11 @@ To detect all
 \begin_inset Formula $p\equiv i\mod{2})$
 \end_inset
 
- in the graph, construct the subgraph induced by the vertices controlled
- by 
+ in the graph, construct the subgraph 
+\begin_inset Formula $(V^{i},E^{i})$
+\end_inset
+
+ induced by the vertices controlled by 
 \begin_inset Formula $p$
 \end_inset
 
@@ -7361,23 +7928,49 @@ To detect all
 \begin_inset Formula $i$
 \end_inset
 
+, i.e.
+ 
+\begin_inset Formula $V^{i}=\left\{ v\in V\::\ \phi(v)\geq i\ \wedge\ \left(v\in V_{p}\vee\left|vE\right|=1\right)\right\} $
+\end_inset
+
+ and 
+\begin_inset Formula $E^{i}=E\cap\left(V^{i}\times V^{i}\right)$
+\end_inset
+
 .
- (Vertices controlled by 
+ Note that vertices controlled by 
 \begin_inset Formula $1-p$
 \end_inset
 
- with outdegree 1 may be considered controlled by 
+ with outdegree 
+\begin_inset Formula $1$
+\end_inset
+
+ are considered controlled by 
 \begin_inset Formula $p$
 \end_inset
 
- for this purpose.) Decompose the graph into strongly connected components.
+ for this purpose and that the resulting graph may contain vertices without
+ any edges; it need not be a proper parity game graph.
+\end_layout
+
+\begin_layout Standard
+To find 
+\begin_inset Formula $i$
+\end_inset
+
+-cycles, decompose the graph 
+\begin_inset Formula $(V^{i},E^{i})$
+\end_inset
+
+ into strongly connected components.
  Vertices with priority 
 \begin_inset Formula $i$
 \end_inset
 
  that occur in a connected component with at least one edge (i.e.
- either the component contains at least two vertices or the vertex has a
- loop) are part of a cycle with dominant priority 
+ either the component contains at least two vertices or a single vertex
+ with a loop) are part of a cycle with dominant priority 
 \begin_inset Formula $i$
 \end_inset
 
@@ -7457,6 +8050,19 @@ This is considerably more than the
 \end_layout
 
 \begin_layout Standard
+Due to the similarity to solving single player games, it seems likely that
+ the approach described in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "groote2005subquadratic"
+
+\end_inset
+
+ can also be adapted to perform winner-controlled cycle removal more efficiently
+, but due to time constraints, this was not further explored.
+\end_layout
+
+\begin_layout Standard
 \begin_inset Float algorithm
 wide false
 sideways false
@@ -7464,7 +8070,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset listings
-lstparams "basicstyle={\footnotesize\ttfamily},language={C++},numbers=left,tabsize=4"
+lstparams "basicstyle={\small\ttfamily},language={C++},numbers=left,numberstyle={\small},tabsize=4"
 inline false
 status open
 
@@ -7485,11 +8091,6 @@ winner_controlled_cycles(ParityGame game, Strategy strategy)
 
 \begin_layout Plain Layout
 
-	Strategy strategy
-\end_layout
-
-\begin_layout Plain Layout
-
 	Priority p = 0
 \end_layout
 
@@ -7505,32 +8106,32 @@ winner_controlled_cycles(ParityGame game, Strategy strategy)
 
 \begin_layout Plain Layout
 
-			where (v not in solved) and game.priority(v) >= p) and
+			where (v not in solved) and (game.priority(v) >= p) and
 \end_layout
 
 \begin_layout Plain Layout
 
-			        ( game.player(v) == p mod 2 or
+			      ( game.player(v) == p mod 2 or
 \end_layout
 
 \begin_layout Plain Layout
 
-				      game.graph.outdegree(v) == 1 ) })
+					game.graph.outdegree(v) == 1 ) })
 \end_layout
 
 \begin_layout Plain Layout
 
-		Set<Vertex> won = { }
+		Set<Vertex> won = {}
 \end_layout
 
 \begin_layout Plain Layout
 
-		for each SCC of subgraph {
+		for scc : decompose(subgame.graph) {
 \end_layout
 
 \begin_layout Plain Layout
 
-			for edge (v,w) in SCC {
+			for (v,w) : scc.edges() {
 \end_layout
 
 \begin_layout Plain Layout
@@ -7546,6 +8147,16 @@ winner_controlled_cycles(ParityGame game, Strategy strategy)
 \begin_layout Plain Layout
 
 						strategy[v] = w
+\end_layout
+
+\begin_layout Plain Layout
+
+					} else {
+\end_layout
+
+\begin_layout Plain Layout
+
+						strategy[v] = NO_VERTEX
 \end_layout
 
 \begin_layout Plain Layout
@@ -8233,7 +8844,7 @@ ion.)
 \end_layout
 
 \begin_layout Subsubsection
-Advantages & Disadvantages
+Advantages and disadvantages
 \end_layout
 
 \begin_layout Standard
@@ -8330,7 +8941,7 @@ ion.
 \end_layout
 
 \begin_layout Chapter
-Zielonka's Recursive Algorithm 
+Zielonka's recursive algorithm 
 \begin_inset CommandInset label
 LatexCommand label
 name "chap:Zielonka's-Recursive-Algorithm"
@@ -8388,18 +8999,13 @@ key "mcnaughton1993infinite"
 \end_layout
 
 \begin_layout Standard
-The algorithm is based on a proof by induction on the number of different
- priorities: when there is a single priority, the game is trivially solved
- (this is the basis for the induction).
- Then, assuming that we can solve any game with 
-\begin_inset Formula $d$
-\end_inset
-
- priorities, we can solve any game with 
-\begin_inset Formula $d+1$
-\end_inset
-
- priorities as follows.
+For finite graphs, there is a constructive proof by induction on the number
+ of different priorities and the size of the game graph.
+ When there is only one priority in use, the game is trivially solved, and
+ in particular this occurs when the graph consists of a single vertex (this
+ is the basis for the induction).
+ We can then solve any game by reducing either the size of the graph or
+ decreasing the number of different priorities, as follows.
 \end_layout
 
 \begin_layout Standard
@@ -8424,7 +9030,7 @@ centerline{
 
 
 \begin_inset Graphics
-	filename illustrations/zielonka-steps.svg
+	filename illustrations/zielonka-steps.eps
 	lyxscale 50
 	width 17cm
 
@@ -8466,14 +9072,25 @@ name "fig:zielonka-steps"
 \end_layout
 
 \begin_layout Standard
-Without loss of generality (using priority compression if necessary) suppose
- we start with a game 
+Suppose without loss of generality (after applying priority compression
+ if necessary) we start with a game 
 \begin_inset Formula $\Gamma$
 \end_inset
 
- with some vertices having priority 0.
- Then, we can compute the attractor set of these vertices for player Even
- (
+ with 
+\begin_inset Formula $d>1$
+\end_inset
+
+ and some vertices with priority 
+\begin_inset Formula $0$
+\end_inset
+
+.
+ We can compute the attractor set 
+\begin_inset Formula $U$
+\end_inset
+
+ of these vertices for player Even (
 \begin_inset Formula $U=\mathit{Attr}^{0}(\Gamma,\phi^{-1}(0)$
 \end_inset
 
@@ -8486,7 +9103,7 @@ Without loss of generality (using priority compression if necessary) suppose
 \bar no
 \noun off
 \color none
-)
+),
 \family default
 \series default
 \shape default
@@ -8495,7 +9112,7 @@ Without loss of generality (using priority compression if necessary) suppose
 \bar default
 \noun default
 \color inherit
- and take its complement 
+ take its complement 
 \begin_inset Formula $V'$
 \end_inset
 
@@ -8566,7 +9183,7 @@ Since there are no vertices with priority
 \noun off
 \color none
 , it has at most 
-\begin_inset Formula $d$
+\begin_inset Formula $d-1$
 \end_inset
 
  different priorities and
@@ -8612,7 +9229,35 @@ Since there are no vertices with priority
 \bar no
 \noun off
 \color none
-At this point, we know that 
+When 
+\begin_inset Formula $W'_{1}=\emptyset$
+\end_inset
+
+ the entire game is won by Even, which follows from the fact that the token
+ must go into 
+\begin_inset Formula $U$
+\end_inset
+
+ infinitely often, where Even can keep attracting it to a 0-priority vertex,
+ or it must stay in 
+\begin_inset Formula $W'_{0}$
+\end_inset
+
+ indefinitely, which is by definition winning for Even.
+ However, when 
+\begin_inset Formula $W'_{1}\neq\emptyset$
+\end_inset
+
+ then Odd can possible escape to 
+\begin_inset Formula $W'_{1}$
+\end_inset
+
+ via 
+\begin_inset Formula $U$
+\end_inset
+
+.
+ We know that 
 \begin_inset Formula $W'_{1}\subseteq W_{1}$
 \end_inset
 
@@ -8624,7 +9269,7 @@ At this point, we know that
 \begin_inset Formula $\Gamma$
 \end_inset
 
- and therefore any strategy which works for Odd in 
+ and therefore any winning strategy for Odd in 
 \begin_inset Formula $\Gamma'$
 \end_inset
 
@@ -8633,32 +9278,15 @@ At this point, we know that
 \end_inset
 
  too.
- The same does not apply to 
-\begin_inset Formula $W'_{0}$
-\end_inset
-
-, because it is possible that Odd can escape from 
-\begin_inset Formula $W'_{0}$
-\end_inset
-
- into 
-\begin_inset Formula $U$
-\end_inset
-
- as 
-\begin_inset Formula $V'$
-\end_inset
-
- is not a trap for Odd.
- Let 
+ We can calculate 
 \begin_inset Formula $U'=\mathit{Attr}^{1}(\Gamma,W'_{1})$
 \end_inset
 
-; then 
-\begin_inset Formula $U'\subseteq W'_{1}$
+ giving 
+\begin_inset Formula $W'_{1}\subseteq U'\subseteq W{}_{1}$
 \end_inset
 
- (since it is the attractor of a winning region) and 
+ and 
 \begin_inset Formula $V\setminus U'$
 \end_inset
 
@@ -8667,41 +9295,15 @@ At this point, we know that
 \end_inset
 
  (as the complement of an Odd-attractor).
- Consequently it suffices to solve the subgame 
+ That means Odd has a winning strategy in 
+\begin_inset Formula $U'$
+\end_inset
+
+ and it suffices to solve the strictly smaller subgame 
 \begin_inset Formula $\Gamma|\left(V\setminus U'\right)$
 \end_inset
 
- to determine the remainder of the winning sets.
-\end_layout
-
-\begin_layout Standard
-We thus repeat the process to solve increasingly smaller subgames, until
- 
-\family roman
-\series medium
-\shape up
-\size normal
-\emph off
-\bar no
-\noun off
-\color none
-
-\begin_inset Formula $U=\emptyset$
-\end_inset
-
- (i.e.
- no vertices with priority 0 remain and we can invoke the induction hypothesis
- to solve it) or 
-\begin_inset Formula $U'=\emptyset$
-\end_inset
-
- (i.e.
- all remaining vertices are won by Even).
- Winning strategies can be constructed along the way.
- In the base case (when there is only a single priority left) the winning
- player can pick abritrary successors for his strategy.
- Otherwise, recursive solving and attractor set computation yield strategies
- which can be combined into a global strategy.
+ for which we again invoke the induction hypothesis.
 \end_layout
 
 \begin_layout Standard
@@ -8712,20 +9314,20 @@ reference "fig:zielonka-steps"
 
 \end_inset
 
- shows the steps taken for each iteration of Zielonka's algorithm; the unsolved
- part of the game after the third step is used to start the next iteration.
-\end_layout
-
-\begin_layout Standard
-From the above, it is clear that to solve a game with 
+ shows the steps taken in an iteration of Zielonka's algorithm.
+ From the above, it is clear that to solve a game with 
 \begin_inset Formula $d$
 \end_inset
 
- priorities, we must recursively call the solver 
-\begin_inset Formula $O(V)$
+ priorities, we will need to solve at most 
+\begin_inset Formula $O(\left|V\right|)$
 \end_inset
 
- times, giving a worst-case runtime of 
+ instances with 
+\begin_inset Formula $d-1$
+\end_inset
+
+ until we reach a base case, giving a worst-case runtime of 
 \begin_inset Formula $O(V^{d})$
 \end_inset
 
@@ -8758,26 +9360,21 @@ Implementation
 \end_layout
 
 \begin_layout Standard
-The actual algorithm implementation varies a little from the proof structure
- for practical reasons.
- First, the implementation is restricted to finite graphs.
- Second, the inductive proof lends itself to being implemented recursively,
- but a straightforward recursive formulation is undesirable here, because
- deep recursion on a large game may overflow the runtime stack.
- Instead, the implementation is iterative and recurses only when computing
- subgames with fewer priorities, bounding the maximum recursion depth by
- 
+The proof structure above can be translated into a procedure that recursively
+ solves games with decreasing number of priorities, while iteratively constructi
+ng smaller subgames.
+ This approach is preferable to a completely recursive procedure, because
+ it bounds the maximum recursion depth to 
 \begin_inset Formula $d$
 \end_inset
 
-.
+ and thereby avoids the risk of overflowing the runtime stack.
 \end_layout
 
 \begin_layout Standard
-Additionally, instead of solving one priority at a time, we will speed up
- the solving process by always looking for the least inversion of parity
- in the game.
- An inversion of parity is a priority 
+Rather than applying priority compression between recursive invocations,
+ we consider the least inversion of parity in the game, where an inversion
+ of parity is a priority 
 \begin_inset Formula $p$
 \end_inset
 
@@ -8821,10 +9418,13 @@ If there are no inversions of parity, then all priorities assigned to vertices
 \begin_inset Formula $p$
 \end_inset
 
- can be compressed into a single value, as if priority compression had been
- applied.
- In the implementation, this is done implicitly by adding all of these vertices
- to the minimum-priority attractor set (though the game itself is unchanged).
+ can be implicitly compressed into a single value; in the implementation
+ this is done by adding all vertices with priority less than 
+\begin_inset Formula $p$
+\end_inset
+
+ to a minimum-priority attractor set.
+ This has the same effect as applying priority compression on each subgame.
 \end_layout
 
 \begin_layout Standard
@@ -8857,13 +9457,13 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset listings
-lstparams "numbers=left,tabsize=4"
+lstparams "basicstyle={\small\ttfamily},language={C++},numbers=left,numberstyle={\small},tabsize=4"
 inline false
 status open
 
 \begin_layout Plain Layout
 
-solve(ParityGame game, Strategy strategy)
+solve_recursively(ParityGame game, Strategy strategy)
 \end_layout
 
 \begin_layout Plain Layout
@@ -8883,32 +9483,18 @@ solve(ParityGame game, Strategy strategy)
 
 \begin_layout Plain Layout
 
-		Set<Vertex> min_prio = { v in game.graph.V
+		Set<Vertex> min_prio = { v in game.graph.V where game.priority(v) < p }
 \end_layout
 
 \begin_layout Plain Layout
 
-			where game.priority(v) < p }
+		Set<Vertex> min_prio_attr = make_attractor_set(game, (p-1) mod 2, min_prio,
+ strategy)
 \end_layout
 
 \begin_layout Plain Layout
 
-		Set<Vertex> min_prio_attr =
-\end_layout
-
-\begin_layout Plain Layout
-
-			make_attractor_set(game, (p-1) mod 2, min_prio, strategy)
-\end_layout
-
-\begin_layout Plain Layout
-
-		Set<Vertex> unsolved =
-\end_layout
-
-\begin_layout Plain Layout
-
-			game.graph.get_complement(min_prio_attr)
+		Set<Vertex> unsolved = game.graph.get_complement(min_prio_attr)
 \end_layout
 
 \begin_layout Plain Layout
@@ -8923,17 +9509,13 @@ solve(ParityGame game, Strategy strategy)
 
 \begin_layout Plain Layout
 
-		solve(subgame, strategy)
+		solve_recursively(subgame, strategy)
 \end_layout
 
 \begin_layout Plain Layout
 
-		Set<Vertex> lost = { v in subgame.graph.V
-\end_layout
-
-\begin_layout Plain Layout
-
-			where strategy.winner(v) == p mod 2 }
+		Set<Vertex> lost = { v in subgame.graph.V where strategy.winner(v) == p mod
+ 2 }
 \end_layout
 
 \begin_layout Plain Layout
@@ -8943,22 +9525,12 @@ solve(ParityGame game, Strategy strategy)
 
 \begin_layout Plain Layout
 
-		Set<Vertex> lost_attr = 
+		Set<Vertex> lost_attr = make_attractor_set(game, p mod 2, lost, strategy)
 \end_layout
 
 \begin_layout Plain Layout
 
-			make_attractor_set(game, p mod 2, lost, strategy)
-\end_layout
-
-\begin_layout Plain Layout
-
-		Set<Vertex> remaining =
-\end_layout
-
-\begin_layout Plain Layout
-
-			game.graph.get_complement(lost_attr)
+		Set<Vertex> remaining = game.graph.get_complement(lost_attr)
 \end_layout
 
 \begin_layout Plain Layout
@@ -9080,8 +9652,8 @@ The execution of the main algorithm depends on several, simpler helper functions
  takes a vertex set and extends it to its attractor set with respect to
  the given player, as described earlier.
  For all vertices that are added to the set (but not those in initial set)
- the accompanying strategy is also assigned, so that play according to the
- strategy leads to the vertices in the initial set.
+ the corresponding strategy is also assigned, so that play according to
+ the strategy leads to vertices in the initial set.
 \end_layout
 
 \begin_layout Itemize
@@ -9216,7 +9788,7 @@ In this algorithm every recursive invocation removes at least one inversion
 \end_layout
 
 \begin_layout Chapter
-Empirical Evaluation 
+Empirical evaluation 
 \begin_inset CommandInset label
 LatexCommand label
 name "chap:Empirical-Evaluation"
@@ -12353,7 +12925,7 @@ Counting lifting attempts only, the maximum measure and maximum step lifting
 \end_layout
 
 \begin_layout Subsubsection
-Time vs Lifts
+Time versus lifts
 \end_layout
 
 \begin_layout Standard
@@ -13682,7 +14254,7 @@ Decycle
 \begin_inset Text
 
 \begin_layout Plain Layout
-10.539
+9.387
 \end_layout
 
 \end_inset
@@ -13691,7 +14263,7 @@ Decycle
 \begin_inset Text
 
 \begin_layout Plain Layout
-31.530
+26.299
 \end_layout
 
 \end_inset
@@ -13700,7 +14272,7 @@ Decycle
 \begin_inset Text
 
 \begin_layout Plain Layout
-196.639
+157.785
 \end_layout
 
 \end_inset
@@ -13709,7 +14281,7 @@ Decycle
 \begin_inset Text
 
 \begin_layout Plain Layout
-216.342
+176.285
 \end_layout
 
 \end_inset
@@ -13718,7 +14290,7 @@ Decycle
 \begin_inset Text
 
 \begin_layout Plain Layout
-51.175
+41.132
 \end_layout
 
 \end_inset
@@ -13727,7 +14299,7 @@ Decycle
 \begin_inset Text
 
 \begin_layout Plain Layout
-61.961
+46.792
 \end_layout
 
 \end_inset
@@ -13736,7 +14308,7 @@ Decycle
 \begin_inset Text
 
 \begin_layout Plain Layout
-139.439
+87.100
 \end_layout
 
 \end_inset
@@ -13745,7 +14317,7 @@ Decycle
 \begin_inset Text
 
 \begin_layout Plain Layout
-128.528
+83.483
 \end_layout
 
 \end_inset
@@ -13767,7 +14339,7 @@ DeSCC
 \begin_layout Plain Layout
 
 \series bold
-4.096
+3.290
 \end_layout
 
 \end_inset
@@ -13776,7 +14348,7 @@ DeSCC
 \begin_inset Text
 
 \begin_layout Plain Layout
-28.271
+23.392
 \end_layout
 
 \end_inset
@@ -13787,7 +14359,7 @@ DeSCC
 \begin_layout Plain Layout
 
 \series bold
-37.648
+26.705
 \end_layout
 
 \end_inset
@@ -13796,7 +14368,7 @@ DeSCC
 \begin_inset Text
 
 \begin_layout Plain Layout
-38.093
+27.704
 \end_layout
 
 \end_inset
@@ -13805,7 +14377,7 @@ DeSCC
 \begin_inset Text
 
 \begin_layout Plain Layout
-49.206
+38.377
 \end_layout
 
 \end_inset
@@ -13816,7 +14388,7 @@ DeSCC
 \begin_layout Plain Layout
 
 \series bold
-45.863
+36.750
 \end_layout
 
 \end_inset
@@ -13827,7 +14399,7 @@ DeSCC
 \begin_layout Plain Layout
 
 \series bold
-65.821
+46.863
 \end_layout
 
 \end_inset
@@ -13836,7 +14408,7 @@ DeSCC
 \begin_inset Text
 
 \begin_layout Plain Layout
-68.466
+51.489
 \end_layout
 
 \end_inset
@@ -14058,7 +14630,7 @@ Decycle
 \begin_inset Text
 
 \begin_layout Plain Layout
-425.355
+350.226
 \end_layout
 
 \end_inset
@@ -14067,7 +14639,7 @@ Decycle
 \begin_inset Text
 
 \begin_layout Plain Layout
-28.716
+24.059
 \end_layout
 
 \end_inset
@@ -14076,7 +14648,7 @@ Decycle
 \begin_inset Text
 
 \begin_layout Plain Layout
-0.385
+0.317
 \end_layout
 
 \end_inset
@@ -14085,7 +14657,7 @@ Decycle
 \begin_inset Text
 
 \begin_layout Plain Layout
-1.085
+0.897
 \end_layout
 
 \end_inset
@@ -14094,7 +14666,7 @@ Decycle
 \begin_inset Text
 
 \begin_layout Plain Layout
-13.153
+11.475
 \end_layout
 
 \end_inset
@@ -14105,7 +14677,7 @@ Decycle
 \begin_layout Plain Layout
 
 \series bold
-7.196
+6.870
 \end_layout
 
 \end_inset
@@ -14116,7 +14688,7 @@ Decycle
 \begin_layout Plain Layout
 
 \series bold
-8.711
+8.050
 \end_layout
 
 \end_inset
@@ -14125,7 +14697,7 @@ Decycle
 \begin_inset Text
 
 \begin_layout Plain Layout
-12.801
+10.894
 \end_layout
 
 \end_inset
@@ -14147,7 +14719,7 @@ DeSCC
 \begin_layout Plain Layout
 
 \series bold
-3.048
+2.850
 \end_layout
 
 \end_inset
@@ -14156,7 +14728,7 @@ DeSCC
 \begin_inset Text
 
 \begin_layout Plain Layout
-27.370
+22.920
 \end_layout
 
 \end_inset
@@ -14167,7 +14739,7 @@ DeSCC
 \begin_layout Plain Layout
 
 \series bold
-0.283
+0.225
 \end_layout
 
 \end_inset
@@ -14176,7 +14748,7 @@ DeSCC
 \begin_inset Text
 
 \begin_layout Plain Layout
-1.137
+0.939
 \end_layout
 
 \end_inset
@@ -14185,7 +14757,7 @@ DeSCC
 \begin_inset Text
 
 \begin_layout Plain Layout
-13.792
+11.148
 \end_layout
 
 \end_inset
@@ -14194,7 +14766,7 @@ DeSCC
 \begin_inset Text
 
 \begin_layout Plain Layout
-12.577
+10.673
 \end_layout
 
 \end_inset
@@ -14203,7 +14775,7 @@ DeSCC
 \begin_inset Text
 
 \begin_layout Plain Layout
-18.996
+16.382
 \end_layout
 
 \end_inset
@@ -14212,7 +14784,7 @@ DeSCC
 \begin_inset Text
 
 \begin_layout Plain Layout
-16.501
+16.014
 \end_layout
 
 \end_inset
@@ -14443,7 +15015,7 @@ Decycle
 \begin_layout Plain Layout
 
 \series bold
-8.889
+8.493
 \end_layout
 
 \end_inset
@@ -14452,7 +15024,7 @@ Decycle
 \begin_inset Text
 
 \begin_layout Plain Layout
-9.838
+8.700
 \end_layout
 
 \end_inset
@@ -14461,7 +15033,7 @@ Decycle
 \begin_inset Text
 
 \begin_layout Plain Layout
-26.373
+23.834
 \end_layout
 
 \end_inset
@@ -14470,7 +15042,7 @@ Decycle
 \begin_inset Text
 
 \begin_layout Plain Layout
-16.044
+13.928
 \end_layout
 
 \end_inset
@@ -14490,7 +15062,7 @@ DeSCC
 \begin_inset Text
 
 \begin_layout Plain Layout
-22.795
+22.516
 \end_layout
 
 \end_inset
@@ -14499,7 +15071,7 @@ DeSCC
 \begin_inset Text
 
 \begin_layout Plain Layout
-9.817
+8.696
 \end_layout
 
 \end_inset
@@ -14508,7 +15080,7 @@ DeSCC
 \begin_inset Text
 
 \begin_layout Plain Layout
-27.346
+25.708
 \end_layout
 
 \end_inset
@@ -14519,7 +15091,7 @@ DeSCC
 \begin_layout Plain Layout
 
 \series bold
-14.838
+12.715
 \end_layout
 
 \end_inset
@@ -14835,14 +15407,20 @@ Although some previous work has been done parallellizing Small Progress
 
  vertices (which tend to be easy to solve using cycle removal or the two-sided
  approach).
- Discussing his parallel solver, Van der Berg concludes that: “benchmarks
- show in its current implementation the algorithm is not up to par with
- other implementations, like MaxMeasures” (referring to the sequential version
- discussed in this report).
+ Discussing his parallel solver, Van der Berg concludes that: “
+\emph on
+benchmarks show in its current implementation the algorithm is not up to
+ par with other implementations, like MaxMeasures
+\emph default
+” (referring to the sequential version discussed in this report).
  Bootsma's solver for the GPU does implement the two-sided approach, but
- even he concludes that “the CPU implementation is still faster for the
- majority of the parity games tested” (though it should be noted that the
- majority of his benchmark cases are fairly easy games).
+ even he concludes that “
+\emph on
+the CPU implementation is still faster for the majority of the parity games
+ tested
+\emph default
+” (though it should be noted that the majority of his benchmark cases are
+ fairly easy games).
 \end_layout
 
 \begin_layout Standard
@@ -14851,7 +15429,7 @@ The above algorithms are all based on Small Progress Measures, which is
  the best performance in practice.
  Even a fast, parallel implementation of Small Progress Measures may be
  outperformed by Zielonka's recursive algorithm or e.g.
- Schewe's Optimal Strategy Improvement algorithm.
+ Schewe's optimal strategy improvement algorithm.
  Parallellizing those algorithms may be more difficult but ultimately more
  useful.
 \end_layout
@@ -14877,7 +15455,7 @@ A somewhat easier task, to start with, would be to efficiently parallellize
 \end_layout
 
 \begin_layout Subsection
-More efficient Strategy Improvement
+Improving strategy improvement
 \end_layout
 
 \begin_layout Standard
@@ -14892,7 +15470,7 @@ reference "sec:Related-work"
 
 \end_inset
 
-: Related Work) typically suggest that algorithms based on Strategy Improvement
+: Related Work) typically suggest that algorithms based on strategy improvement
  should perform best in practice, but these algorithms have not been investigate
 d here at all.
 \end_layout
@@ -14902,7 +15480,7 @@ The baseline for performance of these algorithms is set by PGSolver.
  Since my work showed that with careful design and implementation, large
  performance gains over this baseline are possible with Small Progress Measures
  and Zielonka's algorithm, it seems reasonable to suspect that future work
- on (Optimal) Strategy Improvement could yield similar results.
+ on (optimal) strategy improvement could yield similar results.
 \end_layout
 
 \begin_layout Subsection
@@ -14969,6 +15547,26 @@ To advance the state of the art, it would be useful to define the problem
 LatexCommand bibtex
 bibfiles "references"
 options "bibtotoc,plainurl"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{center}
+\backslash
+textifsymbol[ifgeo]{48}
+\backslash
+end{center}
+\end_layout
 
 \end_inset
 

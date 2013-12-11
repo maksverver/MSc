@@ -25,7 +25,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.98994949"
-     inkscape:cx="720.04373"
+     inkscape:cx="722.06404"
      inkscape:cy="213.99689"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -61,7 +61,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -285,8 +285,15 @@
          xml:space="preserve"><tspan
            y="837.08307"
            x="1142.2799"
-           id="tspan3981"
-           sodipodi:role="line">Attr<tspan
+           sodipodi:role="line"
+           id="tspan3052"
+           style="font-weight:normal;-inkscape-font-specification:Sans"><tspan
+   style="font-weight:bold;-inkscape-font-specification:Sans Bold"
+   id="tspan3064">U'</tspan> =</tspan><tspan
+           y="857.08307"
+           x="1142.2799"
+           sodipodi:role="line"
+           id="tspan3059">Attr<tspan
    id="tspan4002"
    style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;baseline-shift:super;font-family:Sans;-inkscape-font-specification:Sans">1</tspan>(Γ',<tspan
    id="tspan4099"
@@ -294,12 +301,12 @@
    id="tspan4004"
    style="font-size:16px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;writing-mode:lr-tb;text-anchor:middle;baseline-shift:sub;font-family:Sans;-inkscape-font-specification:Sans">1</tspan>)</tspan><tspan
            id="tspan4037"
-           y="857.08307"
+           y="877.08307"
            x="1142.2799"
            sodipodi:role="line" /><tspan
            style="font-style:italic;-inkscape-font-specification:Sans Italic"
            id="tspan4039"
-           y="877.08307"
+           y="897.08307"
            x="1142.2799"
            sodipodi:role="line">won by Odd</tspan></text>
       <text
@@ -342,7 +349,7 @@
            height="551.54327"
            x="30.304577"
            y="32.108112" /></flowRegion><flowPara
-         id="flowPara4089"></flowPara></flowRoot>    <text
+         id="flowPara4089" /></flowRoot>    <text
        xml:space="preserve"
        style="font-size:12px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
        x="24.243662"
