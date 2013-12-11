@@ -193,7 +193,7 @@ emph{Master's thesis}
 
 \begin_layout Plain Layout
 
-Computer Science Programme
+Computer Science programme
 \backslash
 
 \backslash
@@ -6628,6 +6628,38 @@ The in-place heap itself causes no memory overhead compared to a circular
 \end_layout
 
 \begin_layout Standard
+This process is illustrated in Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:binary-heap-updates"
+
+\end_inset
+
+.
+ The first diagram shows a balanced binary heap.
+ The balance is destroyed in the second diagram after the three labelled
+ nodes have their values increased.
+ To restore the balance it is necessary to move node 
+\emph on
+b
+\emph default
+ up before node 
+\emph on
+c
+\emph default
+, because 
+\emph on
+b
+\emph default
+ lies on the path from 
+\emph on
+c
+\emph default
+ to the root node.
+ The third diagram shows the heap after rebalancing.
+\end_layout
+
+\begin_layout Standard
 From the above description, it should be clear that maximum measure propagation
  (like its variants) is quite a bit more complicated than simple predecessor
  lifting, both in terms of implementation difficulty and the amount of computati
@@ -6635,6 +6667,50 @@ onal overhead added to each lifting attempt.
  However; this might be worth it if the final progress measure can be computed
  more quickly.
  This will be assessed later on.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename illustrations/binary-heap-updates.eps
+	scale 25
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Updating the binary heap 
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:binary-heap-updates"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
