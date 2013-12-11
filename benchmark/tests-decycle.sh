@@ -11,6 +11,7 @@ run_pgsolver() {
 		do
 			name=pgsolver-$(basename "$1" .pgsolver)$2$decycle$scc run \
                         ../run-test.sh -i pgsolver $2 --timeout=3600 --stats --verify --reorder shuffle "$1" $decycle $scc
+			sleep 1 
 		done
 	done
 }
@@ -26,7 +27,8 @@ run_random() {
 			do
 				seed=--seed=$seed
 				name=random$size$clustersize$decycle$scc$seed run \
-                                ../run-test.sh -i random --zielonka --timeout=3600 --verify $size $clustersize $decycle $scc $seed
+                                ../run-test.sh -i random --priorities 10 --zielonka --timeout=3600 --verify $size $clustersize $decycle $scc $seed
+				sleep 1 
 			done
 		done
 	done

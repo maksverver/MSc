@@ -5,17 +5,18 @@
 # These are intended to show the effectiveness of various lifting strategies on structured test cases from Solving Parity Games in Practice.
 
 run_on() {
-	for lift in -llinear:0 -llinear:1 -Lpredecessor:0 -Lpredecessor:1 -Lminmeasure:0 -Lminmeasure:1 -Lminmeasure:2 -Lmaxmeasure:0 -Lmaxmeasure:1 -Lmaxmeasure:2 -Lmaxstep:0 -Lmaxstep:1 -Lmaxstep:2
+	#for lift in -llinear:0 -llinear:1 -Lpredecessor:0 -Lpredecessor:1 -Lminmeasure:0 -Lminmeasure:1 -Lminmeasure:2 -Lmaxmeasure:0 -Lmaxmeasure:1 -Lmaxmeasure:2 -Lmaxstep:0 -Lmaxstep:1 -Lmaxstep:2
+	for lift in -llinear:0 -Lpredecessor:0 -Lmaxmeasure:0 -Lmaxstep:0
 	do
 		for alternate in '' -a
 		do
-			name=pgsolver-$(basename "$1" .pgsolver)$lift$alternate
+			name=pgsolver-$(basename "$1" .pgsolver)$lift$alternate-dual
 			if test -f "$name".o*
 			then
 				true  # echo "$name exists!"
 			else
 				echo "starting $name"
-				name=$name run ../run-test.sh -i pgsolver $lift $alternate --timeout=3600 --stats --verify "$1" --reorder shuffle
+				name=$name run ../run-test.sh -i pgsolver $lift $alternate --timeout=3600 --stats --verify "$1" --reorder shuffle --dual
 				sleep 1
 			fi
 		done
