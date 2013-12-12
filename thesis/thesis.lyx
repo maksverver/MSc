@@ -14,7 +14,7 @@
 \end_preamble
 \use_default_options true
 \maintain_unincluded_children false
-\language english
+\language british
 \language_package default
 \inputencoding auto
 \fontencoding global
@@ -105,7 +105,7 @@ textifsymbol[ifgeo]{54}
 \backslash
 
 \backslash
-[2cm]
+[1cm]
 \end_layout
 
 \begin_layout Plain Layout
@@ -129,7 +129,7 @@ end{huge}
 \backslash
 begin{large}
 \backslash
-textsf{by Maks Verver, BSc}
+textsf{by Maks Verver}
 \backslash
 end{large} 
 \backslash
@@ -138,18 +138,18 @@ end{large}
 [1cm]
 \end_layout
 
-\begin_layout Plain Layout
+\end_inset
 
-\end_layout
 
-\begin_layout Plain Layout
+\begin_inset Graphics
+	filename illustrations/scc-parity-game.eps
+	scale 50
 
-% TODO: 'leuk' plaatje hier
-\end_layout
+\end_inset
 
-\begin_layout Plain Layout
 
-\end_layout
+\begin_inset ERT
+status open
 
 \begin_layout Plain Layout
 
@@ -184,7 +184,7 @@ begin{flushleft}
 \backslash
 large
 \backslash
-emph{Master's thesis}
+emph{Master's thesis} 
 \backslash
 
 \backslash
@@ -193,7 +193,7 @@ emph{Master's thesis}
 
 \begin_layout Plain Layout
 
-Computer Science programme
+Computer Science programme 
 \backslash
 
 \backslash
@@ -206,16 +206,14 @@ University of Twente
 \backslash
 
 \backslash
-[.5cm]
+[0.75cm]
 \end_layout
 
 \begin_layout Plain Layout
 
 
 \backslash
-textsf{
-\backslash
-today}
+today 
 \end_layout
 
 \begin_layout Plain Layout
@@ -398,7 +396,7 @@ In this thesis, first an overview of the state of the art, both theoretical
  These include a mix of well-known, relative obscure, previously undocumented,
  and completely novel techniques.
  The most valuable contributions are the introduction of novel preprocessing
- operations, and improved heuristics for the Small Progress Measures solution
+ operations and improved heuristics for the Small Progress Measures solution
  algorithm.
  Third, the results of an empirical evaluation will be presented to demonstrate
  which of these techniques work best in practice.
@@ -555,7 +553,7 @@ Although I met several hurdles while executing the project, I believe the
  (though few exist) which demonstrates a practical contribution to the state
  of the art.
  Indeed, the observation that such large performance gains are possible
- at all supports the notion that further research on practical perfomance
+ at all supports the notion that further research on practical performance
  is useful.
 \end_layout
 
@@ -1360,7 +1358,7 @@ reference "fig:introduction-example-solved"
 \end_inset
 
  the solution for the example game presented earlier is shown.
- Vertices are partioned into winning sets for both players.
+ Vertices are partitioned into winning sets for both players.
  Edges that cannot be part of winning strategies are dashed.
  In this particular case, any of the solid edges can be chosen to yield
  an optimal strategy.
@@ -1449,7 +1447,7 @@ key "jurdzinski2000spm"
 \begin_inset Formula $O\left(d\left|E\right|\left(\frac{\left|V\right|}{\left\lfloor d/2\right\rfloor }\right)^{\left\lfloor d/2\right\rfloor }\right)$
 \end_inset
 
- ) while others are instead subexponential in the size of the game graph
+ ) while others are instead sub-exponential in the size of the game graph
  (for example, Jurdziński, Paterson and Zwick give an 
 \begin_inset Formula $\left|V\right|^{O(\sqrt{\left|V\right|})}$
 \end_inset
@@ -1685,7 +1683,7 @@ key "voege2000discrete"
 \end_layout
 
 \begin_layout Itemize
-A randomized subexponential algorithm by Björklund, Sandberg and Vorobyov
+A randomized sub-exponential algorithm by Björklund, Sandberg and Vorobyov
  
 \begin_inset CommandInset citation
 LatexCommand cite
@@ -1697,7 +1695,7 @@ key "bjorklund2003discrete"
 \end_layout
 
 \begin_layout Itemize
-A deterministic subexponential algorithm by Jurdziński, Paterson and Zwick
+A deterministic sub-exponential algorithm by Jurdziński, Paterson and Zwick
  
 \begin_inset CommandInset citation
 LatexCommand cite
@@ -1824,13 +1822,13 @@ big steps
 \begin_inset Quotes erd
 \end_inset
 
- variant, and the subexponential algorithms are intendend mainly to establish
+ variant, and the sub-exponential algorithms are intended mainly to establish
  ever tighter upper bounds on the general problem.
  The approaches based on strategy improvement are intended to yield best
  results in practice.
  The relatively simple approach due to McNaughton/Zielonka often works well
  too.
- Its worst-case performance has been analyzed by Gazda and Willemse (
+ Its worst-case performance has been analysed by Gazda and Willemse (
 \begin_inset CommandInset citation
 LatexCommand cite
 key "gazda2013zielonka"
@@ -1871,7 +1869,7 @@ key "groote2005parameterised"
 
 \end_inset
 
-, can linearize these into Boolean equation systems (BES), and either solve
+, can linearise these into Boolean equation systems (BES), and either solve
  those directly (with a tool called 
 \family typewriter
 pbes2bool
@@ -1897,14 +1895,14 @@ key "kant2012pbes2pg"
 \end_inset
 
 .
- This approach was motivated by the observation that linearization of the
+ This approach was motivated by the observation that linearisation of the
  PBES was often the slowest step in the solution process, and that optimization
  of this conversion can drastically reduce both time and memory required.
 \end_layout
 
 \begin_layout Standard
 In both of these toolkits, the parametrized forms tend to be fairly small,
- while the linearized forms (and therefore the final parity game) may be
+ while the linearised forms (and therefore the final parity game) may be
  quite large.
  Model checking using a parity game solver as a backend is viable only if
  the resulting parity games can reasonably fit into memory.
@@ -2075,7 +2073,7 @@ key "keiren2011bisimulation"
 
 \end_inset
 
-) on Boolean equation systems, which are a formalisim very similar to parity
+) on Boolean equation systems, which are a formalism very similar to parity
  games (i.e.
  parity games can be considered a restricted form of Boolean equation systems)
  and are used as an intermediate representation in the mCRL2 toolkit.
@@ -2189,7 +2187,7 @@ key "vandepol2008multicore"
 
  (the first parallel implementation of a parity game algorithm).
  Their project provided a starting point for my research (in particular,
- it inspired the focus on heuristical improvements to Small Progress Measures).
+ it inspired the focus on heuristically improvements to Small Progress Measures).
  The tool itself, however, is unmaintained and somewhat limited in terms
  of supported algorithms; consequently its practical utility beyond research
  purposes is also limited.
@@ -2251,7 +2249,7 @@ pbespgsolve
 \begin_layout Itemize
 Compared to PGSolver, my tool features fewer different solver algorithms,
  but better preprocessing routines and heuristics.
- My tool typically uses less time and space to solve testcases, sometimes
+ My tool typically uses less time and space to solve test cases, sometimes
  dramatically so.
 \end_layout
 
@@ -2352,7 +2350,7 @@ Before discussing algorithms used to solve parity games, it is useful to
 
 \begin_layout Standard
 First, a number of restrictions on the game structure will be made to simplify
- the definition and discussion of the algorithms and datastructures that
+ the definition and discussion of the algorithms and data structures that
  follow.
  Second, a number of useful properties of parity games will be presented;
  none of these are new, but they will be defined in a manner consistent
@@ -2824,7 +2822,7 @@ An important property of attractor sets is that if
 
  steps, at which point the rest of the strategy is known.
  Therefore, attractor set computation of a winning region with known strategy
- yields a stategy for the entire attractor set too.
+ yields a strategy for the entire attractor set too.
 \end_layout
 
 \begin_layout Subsubsection
@@ -3031,7 +3029,7 @@ reference "sub:Solving-single-player-games"
 In extremely rare cases the game is played on a graph consisting of cycles
  only and then neither player has a choice.
  In these games, called cycle games, strategies are trivial and the winner
- of each cycle corresponds to the parity of the least priority occuring
+ of each cycle corresponds to the parity of the least priority occurring
  on the cycle.
  
 \end_layout
@@ -3558,7 +3556,7 @@ Different tools typically exhibit different performance characteristics
 d when new algorithms are published.
  In these publications analysis of the theoretical properties of algorithms
  takes precedence, and as a result, various design decisions that do affect
- performance in practice are left up to the implementor.
+ performance in practice are left up to the implementer.
 \end_layout
 
 \begin_layout Standard
@@ -3841,7 +3839,7 @@ These two attributes are packed into a structure, and stored in an array
 \end_layout
 
 \begin_layout Standard
-Additionaly, we store in the parity game structure two properties of the
+Additionally, we store in the parity game structure two properties of the
  game:
 \end_layout
 
@@ -3869,8 +3867,8 @@ This information can be recomputed from the vertex attributes in time
 \end_inset
 
 , but it is useful in a number of situations, for example, to quickly calculate
- the worst-case execution time of the SPM algorithm or to quickly determine
- whether priority compression is possible.
+ the worst-case execution time of the Small Progress Measures algorithm
+ or to quickly determine whether priority compression is possible.
 \end_layout
 
 \begin_layout Subsection
@@ -4001,7 +3999,7 @@ The computational cost of constructing a subgame is dominated by construction
 \end_layout
 
 \begin_layout Standard
-To filter vertices efficiently, either a hashtable or a boolean array is
+To filter vertices efficiently, either a hash table or a Boolean array is
  used to represent 
 \begin_inset Formula $U$
 \end_inset
@@ -4021,7 +4019,7 @@ To filter vertices efficiently, either a hashtable or a boolean array is
 
 ; as long as the outdegree of the game and its subgame are equal, time required
  is proportional to the number of edges in the subgame.
- To analyze the complexty of algorithms that rely on subgame construction
+ To analyse the complexity of algorithms that rely on subgame construction
  (which includes Zielonka's algorithm, and many preprocessing operations)
  we will generally assume this property holds.
 \end_layout
@@ -4033,7 +4031,7 @@ Finally, it should be noted that when constructing subgames, the original
 \end_inset
 
  may be kept around to be able to map the vertex identifiers in the subgame
- back to the original game, which is necesssary to propagate solution and
+ back to the original game, which is necessary to propagate solution and
  strategy information from a subgame back to the main game (as well as to
  gather global statistics and debugging information).
 \end_layout
@@ -4538,6 +4536,13 @@ name "alg:Attractor-set-computation-2"
 
 \end_layout
 
+\begin_layout Standard
+\begin_inset Newpage clearpage
+\end_inset
+
+
+\end_layout
+
 \begin_layout Subsection
 Graph decomposition
 \end_layout
@@ -4567,7 +4572,7 @@ key "tarjan1971depth"
 
 \begin_layout Standard
 The algorithm as described by Tarjan is based on a depth-first search of
- the graph, labeling vertices as they are visited.
+ the graph, labelling vertices as they are visited.
  Depth-first search is typically implemented as a recursive procedure, but
  this is impractical for very large graphs, where high recursion depth may
  exhaust the available stack space.
@@ -4632,7 +4637,7 @@ Small Progress Measures (or SPM for short) is a relatively simple, iterative
 \begin_layout Standard
 The core algorithm is simple and allows for a straightforward implementation,
  but also provides ample opportunity for performance improvement (for example,
- by parallellizing the core algorithm).
+ by parallelizing the core algorithm).
  Additionally, the algorithm has one of the lowest worst-case complexity
  bounds known for solving parity games (excluding Schewe's big step approach,
  which invokes SPM recursively) requiring at most 
@@ -4653,8 +4658,8 @@ Oliver Friedmann implemented a variation of the algorithm in PGSolver that
  dual at the same time.
  This does not improve on the worst-case time bounds (and, in fact, may
  require around twice as much time and memory compared to the standard algorithm
-), but can avoid some of the pitfalls that cause excessive runtimes with
- the standard algorithm, which makes it a useful alternative in practice.
+), but can avoid some of the pitfalls that cause excessive running times
+ with the standard algorithm, which makes it a useful alternative in practice.
  Since this variation has not been published before, it will be described
  in subsection 
 \begin_inset CommandInset ref
@@ -4669,7 +4674,7 @@ reference "sub:Two-sided-SPM"
 \begin_layout Standard
 A lock-free concurrent version was implemented by Van de Pol and Weber which
  works on shared-memory systems that do not reorder memory operations.
- A concurrent implementation for the Playstation 3 (taking advantage of
+ A concurrent implementation for the PlayStation 3 (taking advantage of
  the capabilities of the multi-core Cell processor) was written by Jorne
  Kandziora 
 \begin_inset CommandInset citation
@@ -5327,7 +5332,7 @@ reference "sub:linear-lifting-efficiency"
 \end_inset
 
  in lifting attempts.
- Athough this limits the gains we can expect from more sophisticated approach,
+ Although this limits the gains we can expect from more sophisticated approach,
  the vertex set 
 \begin_inset Formula $V$
 \end_inset
@@ -5357,7 +5362,7 @@ A
 \emph on
 lifting strategy
 \emph default
- is a heuristical algorithm that, depending on information available about
+ is a heuristically algorithm that, depending on information available about
  a partial solution (such as the structure of the graph, the values of the
  progress measure vectors, or the history of vertices being lifted) determines
  which vertex will be selected for the next lifting attempt.
@@ -5404,11 +5409,11 @@ To talk about lifting strategies and their efficiency, it is useful to establish
 \begin_inset Formula $\mathit{Lift}(\rho,v)$
 \end_inset
 
- and is called succesful if 
+ and is called successful if 
 \begin_inset Formula $\mathit{Lift}(\rho,v)\neq\rho$
 \end_inset
 
- (and we can update our progress measure) and unsuccesful (or failed) otherwise.
+ (and we can update our progress measure) and unsuccessful (or failed) otherwise.
  In other words: the set of stable vertices corresponds to the set of vertices
  at which lifting attempts would succeed.
  Finally, a vertex is called 
@@ -5452,7 +5457,7 @@ reference "alg:SPM v1 Core"
 
 .
  In this arrangement, the core algorithm notifies the lifting strategy of
- succesful lifts, and the lifting strategy decides both the order in which
+ successful lifts, and the lifting strategy decides both the order in which
  vertices are lifted, and signals termination when the minimum fixed point
  has been reached.
 \end_layout
@@ -5756,8 +5761,8 @@ Calculate the ratio of “forward” and “backward” edges and choose the opt
 
 \begin_layout Enumerate
 Permute vertex indices based on the order they are visited by depth-first
- or breadth-first search through the graph, which should create a more favorable
- edge ratio.
+ or breadth-first search through the graph, which should create a more favourabl
+e edge ratio.
 \end_layout
 
 \begin_layout Enumerate
@@ -5800,7 +5805,7 @@ For a minimal-length sequence of vertices which can be lifted to reach the
 \end_inset
 
  other vertices will be lifted, the total number of vertices that must be
- lifted is at least equal to the total number of lifting attempts (succesful
+ lifted is at least equal to the total number of lifting attempts (successful
  or not) performed by the linear lifting strategy divided by 
 \begin_inset Formula $\left|V\right|$
 \end_inset
@@ -5837,9 +5842,9 @@ A more sophisticated lifting strategy takes into account that a known-stable
 \end_layout
 
 \begin_layout Standard
-The predecessor lifting strategy uses a set datastructure to store potentially
+The predecessor lifting strategy uses a set data structure to store potentially
  unstable (“dirty”) vertices, which is initialized to all vertices in the
- graph with progress mesaures less than 
+ graph with progress measures less than 
 \begin_inset Formula $\top$
 \end_inset
 
@@ -5853,7 +5858,7 @@ The predecessor lifting strategy uses a set datastructure to store potentially
 \begin_layout Standard
 The advantage of this strategy is that it prevents a lot of unnecessary
  lifting that may occur with the linear lifting strategy.
- In fact, the ratio of unsuccesful to succesful lifts is strictly limited
+ In fact, the ratio of unsuccessful to successful lifts is strictly limited
  by the maximum indegree of a vertex in the graph.
  Again, pathological cases can be constructed where this strategy performs
  poorly.
@@ -5892,7 +5897,7 @@ work list approach
  concurrent setting.
  (This seems a bit premature: the predecessor lifting strategy seems simpler
  than the focus list approach described below, and the necessary data structures
- can easily be implemented in a lockfree manner.)
+ can easily be implemented in a lock-free manner.)
 \end_layout
 
 \begin_layout Standard
@@ -6095,7 +6100,7 @@ reference "alg:Predecessor-Lifting-Strategy"
 
 \end_inset
 
- which shows that the main datastructure used is a queue.
+ which shows that the main data structure used is a queue.
  Crucial to the implementation is that every vertex is queued at most once,
  which prevents attempted lifting of vertices which are not dirty, and additiona
 lly allows the queue to be implemented as a fixed-length array.
@@ -6131,13 +6136,13 @@ focus list approach
 \emph default
  is a strategy designed by Van de Pol and Weber to mitigate some of the
  problems of the linear lifting strategy without introducing complicated
- data structures that may be hard to parallellize efficiently.
+ data structures that may be hard to parallelize efficiently.
  Solving occurs by alternation of two phases of operation.
 \end_layout
 
 \begin_layout Standard
 First, the algorithm iterates linearly over the vertices of the graph, putting
- vertices which are succesfully lifted on a fixed-size work list.
+ vertices which are successfully lifted on a fixed-size work list.
  When the work list is full, the second phase begins: vertices on the work
  list are assigned an initial credit value and are selected for lifting
  again.
@@ -6175,7 +6180,7 @@ key "vandepol2008multicore"
  that it performs much better than linear lifting in some cases, and not
  much worse in most other cases, which suggests it meets its design goals.
  Compared to the predecessor lifting strategy, it has the advantage of being
- able to postpone difficult parts of the game (by recycling the worklist
+ able to postpone difficult parts of the game (by recycling the work list
  when it is not cleared quickly enough) which may help in some hard cases.
 \end_layout
 
@@ -6186,76 +6191,6 @@ The main downside of the strategy is that it depends on various constants
  In Weber's implementation these are empirically derived while testing on
  random games, but it is unclear if and how these values should change for
  other types of games.
-\end_layout
-
-\begin_layout Standard
-The implementation of the focus list lifting strategy is described in Algorithm
- 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "alg:Focus-List-Lifting"
-
-\end_inset
-
-.
- For clarity, the algorithm is presented as if the strategy calls the 
-\begin_inset Formula $\texttt{lift()}$
-\end_inset
-
- method directly, instead of being called from the core algorithm; this
- is the inverse of how the strategy is implemented in reality.
- (The interaction between the core algorithm and the lifting strategy would
- best be implemented as a pair of coroutines, but unfortunately few programming
- languages support coroutines properly.)
-\end_layout
-
-\begin_layout Standard
-Some of the parameters in this algorithm are fixed: the initial credit (here:
- 2) assigned to vertices on the focus list; the linear increment when lifting
- succeeds (again, 2); and the exponential decay when it doesn't (here: 
-\begin_inset Formula $\frac{1}{2}$
-\end_inset
-
-).
- With these parameters, which were taken from van de Pol and Weber's implementat
-ion, a vertex is selected for lifting at least three times, but will stay
- on the focus list longer if lifting succeeds occassionally (more precisily,
- it needs to be succesfully lifted at least once every three attempts to
- stay on the list).
- The remaining two parameters are 
-\begin_inset Formula $\texttt{max\_size}$
-\end_inset
-
- and 
-\begin_inset Formula $\texttt{max\_attempts}$
-\end_inset
-
-; the maximum size of the focus list and the maximum number of lifting attempts
- performed in phase 2 before switching back to phase 1.
- These parameters can vary, but are chosen as 
-\begin_inset Formula $\frac{\left|V\right|}{10}$
-\end_inset
-
- and 
-\begin_inset Formula $\left|V\right|$
-\end_inset
-
- (respectively) by default.
-\end_layout
-
-\begin_layout Standard
-In terms of overhead, the focus list implements a circular buffer with an
- array of vertex/cost pairs.
- The size of this array is equal to 
-\begin_inset Formula $\texttt{max\_size}$
-\end_inset
-
- and this is the main factor in the memory used by the strategy.
- Otherwise, the focus list lifting strategy has little overhead.
- In particular, the runtime overhead is smaller than with the predecessor
- lifting strategy.
- When the focus list is small, the algorithm additionally benefits from
- being able to keep the active parts of the game in cache memory.
 \end_layout
 
 \begin_layout Standard
@@ -6510,6 +6445,76 @@ name "alg:Focus-List-Lifting"
 
 \end_layout
 
+\begin_layout Standard
+The implementation of the focus list lifting strategy is described in Algorithm
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "alg:Focus-List-Lifting"
+
+\end_inset
+
+.
+ For clarity, the algorithm is presented as if the strategy calls the 
+\begin_inset Formula $\texttt{lift()}$
+\end_inset
+
+ method directly, instead of being called from the core algorithm; this
+ is the inverse of how the strategy is implemented in reality.
+ (The interaction between the core algorithm and the lifting strategy would
+ best be implemented as a pair of coroutines, but unfortunately few programming
+ languages support coroutines properly.)
+\end_layout
+
+\begin_layout Standard
+Some of the parameters in this algorithm are fixed: the initial credit (here:
+ 2) assigned to vertices on the focus list; the linear increment when lifting
+ succeeds (again, 2); and the exponential decay when it doesn't (here: 
+\begin_inset Formula $\frac{1}{2}$
+\end_inset
+
+).
+ With these parameters, which were taken from van de Pol and Weber's implementat
+ion, a vertex is selected for lifting at least three times, but will stay
+ on the focus list longer if lifting succeeds occasionally (more precisely,
+ it needs to be successfully lifted at least once every three attempts to
+ stay on the list).
+ The remaining two parameters are 
+\begin_inset Formula $\texttt{max\_size}$
+\end_inset
+
+ and 
+\begin_inset Formula $\texttt{max\_attempts}$
+\end_inset
+
+; the maximum size of the focus list and the maximum number of lifting attempts
+ performed in phase 2 before switching back to phase 1.
+ These parameters can vary, but are chosen as 
+\begin_inset Formula $\frac{\left|V\right|}{10}$
+\end_inset
+
+ and 
+\begin_inset Formula $\left|V\right|$
+\end_inset
+
+ (respectively) by default.
+\end_layout
+
+\begin_layout Standard
+In terms of overhead, the focus list implements a circular buffer with an
+ array of vertex/cost pairs.
+ The size of this array is equal to 
+\begin_inset Formula $\texttt{max\_size}$
+\end_inset
+
+ and this is the main factor in the memory used by the strategy.
+ Otherwise, the focus list lifting strategy has little overhead.
+ In particular, the runtime overhead is smaller than with the predecessor
+ lifting strategy.
+ When the focus list is small, the algorithm additionally benefits from
+ being able to keep the active parts of the game in cache memory.
+\end_layout
+
 \begin_layout Subsection
 Maximum measure propagation 
 \begin_inset CommandInset label
@@ -6527,7 +6532,7 @@ The maximum measure propagation strategy is a context-aware variant of the
  It returns a vertex from the queue for which the minimum successor (for
  Even-controlled vertices) or the maximum successor (for Odd-controlled
  vertices) is maximal over all queued vertices.
- In other words: it picks a vertex such that the value assigned by a succesful
+ In other words: it picks a vertex such that the value assigned by a successful
  lifting attempt is as large as possible.
  The rationale behind this strategy is that since the final progress measure
  for a vertex does not depend on the order of lifting, it makes sense to
@@ -6628,6 +6633,46 @@ The in-place heap itself causes no memory overhead compared to a circular
 \end_layout
 
 \begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename illustrations/binary-heap-updates.eps
+	scale 25
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Updating the binary heap 
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:binary-heap-updates"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 This process is illustrated in Figure 
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -6669,50 +6714,6 @@ onal overhead added to each lifting attempt.
  This will be assessed later on.
 \end_layout
 
-\begin_layout Standard
-\begin_inset Float figure
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset Graphics
-	filename illustrations/binary-heap-updates.eps
-	scale 25
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-Updating the binary heap 
-\begin_inset CommandInset label
-LatexCommand label
-name "fig:binary-heap-updates"
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
 \begin_layout Section
 Improvements
 \end_layout
@@ -6737,7 +6738,7 @@ name "sub:Eliminating-failed-lifting"
 
 \begin_layout Standard
 When implementing some of the more sophisticated lifting strategies (such
- as the predecessor- and maximum-measure strategies) it became apparant
+ as the predecessor- and maximum-measure strategies) it became apparent
  that the core algorithm as described in Algorithm 
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -6812,110 +6813,6 @@ This observation effectively turns the core algorithm inside out: instead
  true it doesn't change the worst-case performance of the algorithm, the
  fundamental difference is that it eliminates many redundant progress measure
  vector comparisons.
-\end_layout
-
-\begin_layout Standard
-This idea is described somewhat more formally as Algorithm 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "alg:SPMv2"
-
-\end_inset
-
-.
- Note that 
-\family typewriter
-spm.less_than(v, w)
-\family default
- compares a the progress measure value assigned to 
-\begin_inset Formula $v$
-\end_inset
-
- using 
-\begin_inset Formula $\leq_{\phi(v)}$
-\end_inset
-
- (if 
-\begin_inset Formula $\phi(v)\equiv0\mod2$
-\end_inset
-
-) or 
-\begin_inset Formula $<_{\phi(v)}$
-\end_inset
-
- otherwise, as is usual to determine if a vertex 
-\begin_inset Formula $v$
-\end_inset
-
- is liftable by its successor value 
-\begin_inset Formula $w$
-\end_inset
-
-.
- Like Algorithm 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "alg:SPM v1 Core"
-
-\end_inset
-
-, this procedure uses an object tracking progress measures and a lifting
- strategy as arguments.
- However, unlike the former algorithm, it keeps explicit track of stable
- and unstable vertices, notifying the lifting strategy (with 
-\family typewriter
-push
-\family default
-) whenever a vertex becomes unstable.
- The lifting strategy still has control over the order in which unstable
- vertices are lifted, but can easily avoid trying to lifting stable vertices.
- To allow advanced lifting strategies (in particular, those based on maximum
- measure propagation) to keep their internal data structures consistent,
- the core algorithm also notifies the lifting strategy (with 
-\family typewriter
-bump
-\family default
-) when the minimum/maximum successor of an unstable vertex, or the associated
- progress measure value, changes.
-\end_layout
-
-\begin_layout Standard
-It should be clear that the amount of work done per lifting attempt is roughly
- equal on average for both formulations of the core algorithm: while the
- original formulation requires examining all successors of the vertex being
- lifted, this variant examines its predecessors instead.
- However, since this variant algorithm eliminates all failed lifting attempts
- (which make up a considerable part of lifting attempts in most test cases)
- it is faster in practice.
-\end_layout
-
-\begin_layout Standard
-I will call the earlier formulation of the core algorithm the “standard
- framework” since it matches Jurdziński's description and is implemented
- in earlier solving tools, and call the variation presented here the “improved
- framework” since it turns out (as will be shown in Chapter 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "chap:Empirical-Evaluation"
-
-\end_inset
-
-) that moving the responsibility of tracking stable vertices from the lifting
- strategy to the core algorithm is a strict improvement, at least for lifting
- strategies that are at least as sophisticated as the predecessor lifting
- strategy.
-\end_layout
-
-\begin_layout Standard
-Clearly this improved core algorithm is more complicated than the algorithm
- presented earlier.
- This disadvantage is ameliorated by the observation that lifting strategies
- can be made simpler, since the improved framework absolves them of the
- responsibility to track dirty/stable vertices.
- Of course, this applies only to lifting strategies that were sophisticated
- to begin with, which is why the improved framework is mainly useful in
- conjunction with the predecessor and maximum measure propagation lifting
- strategies.
 \end_layout
 
 \begin_layout Standard
@@ -7198,6 +7095,110 @@ name "alg:SPMv2"
 
 \end_layout
 
+\begin_layout Standard
+This idea is described somewhat more formally as Algorithm 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "alg:SPMv2"
+
+\end_inset
+
+.
+ Note that 
+\family typewriter
+spm.less_than(v, w)
+\family default
+ compares a the progress measure value assigned to 
+\begin_inset Formula $v$
+\end_inset
+
+ using 
+\begin_inset Formula $\leq_{\phi(v)}$
+\end_inset
+
+ (if 
+\begin_inset Formula $\phi(v)\equiv0\mod2$
+\end_inset
+
+) or 
+\begin_inset Formula $<_{\phi(v)}$
+\end_inset
+
+ otherwise, as is usual to determine if a vertex 
+\begin_inset Formula $v$
+\end_inset
+
+ is liftable by its successor value 
+\begin_inset Formula $w$
+\end_inset
+
+.
+ Like Algorithm 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "alg:SPM v1 Core"
+
+\end_inset
+
+, this procedure uses an object tracking progress measures and a lifting
+ strategy as arguments.
+ However, unlike the former algorithm, it keeps explicit track of stable
+ and unstable vertices, notifying the lifting strategy (with 
+\family typewriter
+push
+\family default
+) whenever a vertex becomes unstable.
+ The lifting strategy still has control over the order in which unstable
+ vertices are lifted, but can easily avoid trying to lifting stable vertices.
+ To allow advanced lifting strategies (in particular, those based on maximum
+ measure propagation) to keep their internal data structures consistent,
+ the core algorithm also notifies the lifting strategy (with 
+\family typewriter
+bump
+\family default
+) when the minimum/maximum successor of an unstable vertex, or the associated
+ progress measure value, changes.
+\end_layout
+
+\begin_layout Standard
+It should be clear that the amount of work done per lifting attempt is roughly
+ equal on average for both formulations of the core algorithm: while the
+ original formulation requires examining all successors of the vertex being
+ lifted, this variant examines its predecessors instead.
+ However, since this variant algorithm eliminates all failed lifting attempts
+ (which make up a considerable part of lifting attempts in most test cases)
+ it is faster in practice.
+\end_layout
+
+\begin_layout Standard
+I will call the earlier formulation of the core algorithm the “standard
+ framework” since it matches Jurdziński's description and is implemented
+ in earlier solving tools, and call the variation presented here the “improved
+ framework” since it turns out (as will be shown in Chapter 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "chap:Empirical-Evaluation"
+
+\end_inset
+
+) that moving the responsibility of tracking stable vertices from the lifting
+ strategy to the core algorithm is a strict improvement, at least for lifting
+ strategies that are at least as sophisticated as the predecessor lifting
+ strategy.
+\end_layout
+
+\begin_layout Standard
+Clearly this improved core algorithm is more complicated than the algorithm
+ presented earlier.
+ This disadvantage is ameliorated by the observation that lifting strategies
+ can be made simpler, since the improved framework absolves them of the
+ responsibility to track dirty/stable vertices.
+ Of course, this applies only to lifting strategies that were sophisticated
+ to begin with, which is why the improved framework is mainly useful in
+ conjunction with the predecessor and maximum measure propagation lifting
+ strategies.
+\end_layout
+
 \begin_layout Subsection
 Optimization after lifting to top 
 \begin_inset CommandInset label
@@ -7210,7 +7211,7 @@ name "sub:Optimization-after-lifting"
 \end_layout
 
 \begin_layout Standard
-The implemention of 
+The implementation of 
 \begin_inset Formula $\texttt{lift}$
 \end_inset
 
@@ -7546,7 +7547,7 @@ Something similar occurs for vertices of odd priority which are controlled
 
  (they may still be won by Even) we can discard the loop edge to speed up
  propagation of values from successor vertices through this vertex.
- Four cases in total can be distinguised, as summarized in Table 
+ Four cases in total can be distinguished, as summarized in Table 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "tab:SPM-preprocessing"
@@ -8523,7 +8524,7 @@ Since
 \end_inset
 
 .
- Finaly, if 
+ Finally, if 
 \begin_inset Formula $p>0$
 \end_inset
 
@@ -9069,7 +9070,7 @@ key "mcnaughton1993infinite"
 .
  The main difference is that McNaughton limits himself to finite graphs,
  while Zielonka concerns himself with infinite graphs as well.
- Beauces of their fundamental similarity, Zielonka's algorithm is sometimes
+ Because of their fundamental similarity, Zielonka's algorithm is sometimes
  referred to as McNaughton's algorithm in literature on parity games.
  These algorithms are functionally identical.
 \end_layout
@@ -9310,7 +9311,7 @@ When
 \end_inset
 
  the entire game is won by Even, which follows from the fact that the token
- must go into 
+ must either be in 
 \begin_inset Formula $U$
 \end_inset
 
@@ -9324,7 +9325,11 @@ When
 \begin_inset Formula $W'_{1}\neq\emptyset$
 \end_inset
 
- then Odd can possible escape to 
+ then Odd can possible escape from 
+\begin_inset Formula $W'_{0}$
+\end_inset
+
+ to 
 \begin_inset Formula $W'_{1}$
 \end_inset
 
@@ -9391,19 +9396,27 @@ reference "fig:zielonka-steps"
 \end_inset
 
  shows the steps taken in an iteration of Zielonka's algorithm.
- From the above, it is clear that to solve a game with 
+ In a game with 
 \begin_inset Formula $d$
 \end_inset
 
- priorities, we will need to solve at most 
-\begin_inset Formula $O(\left|V\right|)$
+ priorities and 
+\begin_inset Formula $\left|V\right|$
 \end_inset
 
- instances with 
-\begin_inset Formula $d-1$
+ vertices, we can reduce the game by one vertex less than 
+\begin_inset Formula $\left|V\right|$
 \end_inset
 
- until we reach a base case, giving a worst-case runtime of 
+ times, each time solving a subgame 
+\begin_inset Formula $\Gamma'$
+\end_inset
+
+ with a strictly smaller 
+\begin_inset Formula $d$
+\end_inset
+
+, giving a worst-case runtime of 
 \begin_inset Formula $O(V^{d})$
 \end_inset
 
@@ -9712,7 +9725,7 @@ The execution of the main algorithm depends on several, simpler helper functions
 \begin_inset Formula $\texttt{least\_inversion}$
 \end_inset
 
- returns the least inversion in the game, as described above, by analyzing
+ returns the least inversion in the game, as described above, by analysing
  the cardinality of priorities in use.
  If there is no inversion, the game index 
 \begin_inset Formula $\texttt{d}$
@@ -9935,7 +9948,7 @@ Random games are characterized by the size of the vertex set
 
  (to guarantee each vertex has at least one outgoing edge) and then adjacent
  vertices are chosen uniformly at random from the vertex set without duplicates
- and exluding the vertex itself (to exclude the possibility of loops).
+ and excluding the vertex itself (to exclude the possibility of loops).
  Finally, a priority for the vertex is chosen uniformly at random between
  
 \begin_inset Formula $0$
@@ -11404,7 +11417,7 @@ Largest component
 \begin_inset Caption
 
 \begin_layout Plain Layout
-Properties of testcases from 
+Properties of test cases from 
 \emph on
 Solving Parity Games in Practice 
 \begin_inset CommandInset label
@@ -11483,9 +11496,9 @@ Benchmark platform
 \end_layout
 
 \begin_layout Standard
-All benchmarks were performed on a Linux system with two Intel Xeon E5520
- processors (8 MB cache, 2.26 GHz clock speed) and 24 GB of memory (far more
- than needed for any testcase).
+All benchmarks were performed on a Linux system with Intel Xeon E5520 processors
+ (8 MB cache, 2.26 GHz clock speed) and 24 GB of memory (far more than needed
+ for any test case).
  
 \begin_inset Note Note
 status open
@@ -11593,7 +11606,7 @@ the linear lifting strategy can either iterate in forward direction (F)
  The predecessor lifting strategy can either use queue-order (Q) or stack-order
  (S), while the maximum/minimum measure and maximum step strategies can
  also use the internal heap order (H).
- These varations are described in Subsection 
+ These variations are described in Subsection 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sub:Lifting-Strategies"
@@ -11706,126 +11719,6 @@ ref{random_graphs_time}
  configurations, so it is generally not meaningful to compare values from
  these columns except in those cases where all instances in a class were
  completely solved.
-\end_layout
-
-\begin_layout Subsection
-Discussion
-\end_layout
-
-\begin_layout Standard
-First, it is interesting to see that
-\emph on
- 
-\emph default
-clustered
-\emph on
- 
-\emph default
-random games are a lot more difficult to solve than larger unclustered
-\emph on
- 
-\emph default
-games (at least, using Small Progress Measures) and that the more levels
- of clustering there are (i.e.
- the smaller the initial cluster size is) the more difficult these games
- become.
-\end_layout
-
-\begin_layout Standard
-On the direction axis, it turns out that forward swiping works best for
- linear lifting.
- Perhaps surprisingly, the alternating variant requires significantly more
- lifting attempts (though well below the theoretical maximum of twice the
- number required for the forward swiping alternative).
- Manual inspection of the benchmark results reveals that the alternating
- variant, on average, requires fewer succesful lifting attempts but fails
- more lifting attempts, which results in a net loss in efficiency.
-\end_layout
-
-\begin_layout Standard
-For the predecessor lifting strategy, queue-like (rather than stack-like)
- extraction order tends to solve the most cases.
- Since this order has the additional advantage that it is guaranteed to
- perform no worse than linear lifting (in the worst case) it seems reasonable
- to prefer queue-like behaviour.
- For the maximum measure lifting strategy and its variants, the results
- are less clear: in the one-sided framework using stack order results in
- at most one extra case being solved, but in the two-sided framework queue
- order performs better, but only by a small margin.
- Heap order never appears to be the best policy.
-\end_layout
-
-\begin_layout Standard
-The results from the predecessor lifting strategy allow us to compare the
- traditional framework with the improved framework.
- That fewer lifting attempts are performed in the improved framework should
- come as no suprise, as it eliminates failed lifting attempts entirely,
- but what is more important, is the observation that in all cases the improved
- framework takes less time (roughly half as much) while solving the same
- number or more cases.
- This demonstrates that the “improved” framework is indeed an improvement
- in practice.
-\end_layout
-
-\begin_layout Standard
-The two-sided approach turns out to be very effective on random games.
- Using any lifting strategy, the total number of solved games is increased,
- or the number of lifts required decreases by nearly an order of magnitude,
- or both.
- For some cases, these successes can be attributed to the fact that the
- two-way approach can solve the dual game before the normal game (in which
- case solving the dual game first would have benefited the one-sided approach
- too) but that cannot be the only reason why the two-sided approach works
- so well.
- For example, looking at the 
-\family typewriter
-4000/16
-\family default
- class of games, it seems statistically unlikely that 0 out of 30 games
- could be solved normally, while the dual of 17 of these games 
-\emph on
-can
-\emph default
- be solved in time.
- Consequently, it seems more likely that identification of stable regions
- contributes significantly to the ability to solve these problems.
-\end_layout
-
-\begin_layout Standard
-(It should be noted that the generated random games are not completely symmetric
- because the highest priority, 0, always corresponds to Even, while the
- lowest corresponds to Odd.
- However, this means the 
-\emph on
-dual
-\emph default
- game should be harder to solve, at least in the worst case, as the upper
- bound on the number of lifts mentioned in Subsection 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "sub:Lifting-Strategies"
-
-\end_inset
-
- implies.
- For random games in practice, this line of reasoning also proves to be
- true: dual games are slightly harder than normal games, though the margin
- gets smaller as the number of priorities increases.)
-\end_layout
-
-\begin_layout Standard
-Finally, the minimum measure propagation strategy works well only with the
- two-sided approach, and in that case it outperforms the maximum measure
- and maximum step approaches, but not the predecessor lifting strategy.
- Indeed, the predecessor lifting strategy appears to be the overall most
- effective strategy for these kinds of games.
- In the improved framework and using queue order, it solves the most cases
- in every set of random games, while using relatively little time.
- All in all, these results do not bode well for the more sophisticated lifting
- strategies.
- However, random cases are rather synthetic and (even with clustering) not
- very similar in structure to parity game instances that might arise in
- practice.
 \end_layout
 
 \begin_layout Standard
@@ -12343,6 +12236,7 @@ name "random_graphs_lifts"
 
 \begin_layout Standard
 \begin_inset Float table
+placement t
 wide false
 sideways false
 status open
@@ -12858,6 +12752,126 @@ name "random_graphs_time"
 
 \end_layout
 
+\begin_layout Subsection
+Discussion
+\end_layout
+
+\begin_layout Standard
+First, it is interesting to see that
+\emph on
+ 
+\emph default
+clustered
+\emph on
+ 
+\emph default
+random games are a lot more difficult to solve than larger unclustered
+\emph on
+ 
+\emph default
+games (at least, using Small Progress Measures) and that the more levels
+ of clustering there are (i.e.
+ the smaller the initial cluster size is) the more difficult these games
+ become.
+\end_layout
+
+\begin_layout Standard
+On the direction axis, it turns out that forward swiping works best for
+ linear lifting.
+ Perhaps surprisingly, the alternating variant requires significantly more
+ lifting attempts (though well below the theoretical maximum of twice the
+ number required for the forward swiping alternative).
+ Manual inspection of the benchmark results reveals that the alternating
+ variant, on average, requires fewer successful lifting attempts but fails
+ more lifting attempts, which results in a net loss in efficiency.
+\end_layout
+
+\begin_layout Standard
+For the predecessor lifting strategy, queue-like (rather than stack-like)
+ extraction order tends to solve the most cases.
+ Since this order has the additional advantage that it is guaranteed to
+ perform no worse than linear lifting (in the worst case) it seems reasonable
+ to prefer queue-like behaviour.
+ For the maximum measure lifting strategy and its variants, the results
+ are less clear: in the one-sided framework using stack order results in
+ at most one extra case being solved, but in the two-sided framework queue
+ order performs better, but only by a small margin.
+ Heap order never appears to be the best policy.
+\end_layout
+
+\begin_layout Standard
+The results from the predecessor lifting strategy allow us to compare the
+ traditional framework with the improved framework.
+ That fewer lifting attempts are performed in the improved framework should
+ come as no surprise, as it eliminates failed lifting attempts entirely,
+ but what is more important, is the observation that in all cases the improved
+ framework takes less time (roughly half as much) while solving the same
+ number or more cases.
+ This demonstrates that the “improved” framework is indeed an improvement
+ in practice.
+\end_layout
+
+\begin_layout Standard
+The two-sided approach turns out to be very effective on random games.
+ Using any lifting strategy, the total number of solved games is increased,
+ or the number of lifts required decreases by nearly an order of magnitude,
+ or both.
+ For some cases, these successes can be attributed to the fact that the
+ two-way approach can solve the dual game before the normal game (in which
+ case solving the dual game first would have benefited the one-sided approach
+ too) but that cannot be the only reason why the two-sided approach works
+ so well.
+ For example, looking at the 
+\family typewriter
+4000/16
+\family default
+ class of games, it seems statistically unlikely that 0 out of 30 games
+ could be solved normally, while the dual of 17 of these games 
+\emph on
+can
+\emph default
+ be solved in time.
+ Consequently, it seems more likely that identification of stable regions
+ contributes significantly to the ability to solve these problems.
+\end_layout
+
+\begin_layout Standard
+(It should be noted that the generated random games are not completely symmetric
+ because the highest priority, 0, always corresponds to Even, while the
+ lowest corresponds to Odd.
+ However, this means the 
+\emph on
+dual
+\emph default
+ game should be harder to solve, at least in the worst case, as the upper
+ bound on the number of lifts mentioned in Subsection 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Lifting-Strategies"
+
+\end_inset
+
+ implies.
+ For random games in practice, this line of reasoning also proves to be
+ true: dual games are slightly harder than normal games, though the margin
+ gets smaller as the number of priorities increases.)
+\end_layout
+
+\begin_layout Standard
+Finally, the minimum measure propagation strategy works well only with the
+ two-sided approach, and in that case it outperforms the maximum measure
+ and maximum step approaches, but not the predecessor lifting strategy.
+ Indeed, the predecessor lifting strategy appears to be the overall most
+ effective strategy for these kinds of games.
+ In the improved framework and using queue order, it solves the most cases
+ in every set of random games, while using relatively little time.
+ All in all, these results do not bode well for the more sophisticated lifting
+ strategies.
+ However, random cases are rather synthetic and (even with clustering) not
+ very similar in structure to parity game instances that might arise in
+ practice.
+\end_layout
+
 \begin_layout Section
 Results on non-random games
 \end_layout
@@ -12878,7 +12892,7 @@ reference "sec:Cases-from-SPGIP"
  the predecessor lifting strategy, since the previous experiments have shown
  these to be the most efficient.
  As a result, these benchmarks focus on two aspects: the differences between
- lifting strategies, and the benefits of the two-sided solution apprach.
+ lifting strategies, and the benefits of the two-sided solution approach.
 \end_layout
 
 \begin_layout Standard
@@ -12936,22 +12950,6 @@ reference "sub:Eliminating-failed-lifting"
 \end_layout
 
 \begin_layout Standard
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-ExpandableInput{results-spm-spgip-lifts.tex}
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
 Figures 
 \begin_inset ERT
 status open
@@ -12971,7 +12969,59 @@ ref{spm_spgip_graphs_deciproc_lifting_attempts}
 
  show the results in number of lifting attempts required to solve the test
  cases for the decision procedures and elevator verification cases respectively.
- 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage clearpage
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ExpandableInput{results-spm-spgip-lifts.tex}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage clearpage
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ExpandableInput{results-spm-spgip-time.tex}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage clearpage
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection
@@ -13002,22 +13052,6 @@ Counting lifting attempts only, the maximum measure and maximum step lifting
 
 \begin_layout Subsubsection
 Time versus lifts
-\end_layout
-
-\begin_layout Standard
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-ExpandableInput{results-spm-spgip-time.tex}
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Standard
@@ -13052,7 +13086,7 @@ reference "spm_spgip_graphs_elevator_time_in_seconds"
 \end_inset
 
 ) the maximum step strategy is still the winner since it scales much better
- to larger testcases.
+ to larger test cases.
  On the fair elevator case (
 \begin_inset Formula $G_{n}$
 \end_inset
@@ -13159,13 +13193,20 @@ It is worth noting that in this last case, the SPM vector bounds give no
 \end_inset
 
  times respectively.
- An approximation of the maximum number of lifts for the normal game is
+ Using the formula presented in Subsection 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Lifting-Strategies"
+
+\end_inset
+
+, an approximation of the maximum number of lifts for the normal game is
  therefore 
-\begin_inset Formula $1793672\times\left(1793672+5369176\right)$
+\begin_inset Formula $1\,793\,672\times\left(1\,793\,672+5\,369\,176\right)$
 \end_inset
 
  versus 
-\begin_inset Formula $651168\text{×}(651168+1793672+5369176×5369176)$
+\begin_inset Formula $651\,168\text{×}(651\,168+1\,793\,672+5\,369\,176×5\,369\,176)$
 \end_inset
 
  for the dual game: the second value is orders of magnitude larger, yet
@@ -13175,7 +13216,7 @@ It is worth noting that in this last case, the SPM vector bounds give no
 \end_layout
 
 \begin_layout Standard
-From these charts it becomes clear that for the testcases under consideration
+From these charts it becomes clear that for the test cases under consideration
  (and unlike the random cases) the two-sided solving approach doesn't offer
  a significant improvement over the one-sided approach.
  Although it can be argued the two-sided approach is still useful when it
@@ -13253,7 +13294,7 @@ reference "sub:Optimization-after-lifting"
 \begin_inset Formula $\top$
 \end_inset
 
-) can be evaluated on the same testcases.
+) can be evaluated on the same test cases.
  For the non-random cases, it turns out that vector updates never overflow,
  which should come as no surprise considering vertices are never lifted
  to 
@@ -14900,7 +14941,7 @@ reference "tab:Decycle-effectiveness-spgip"
 
  shows how preprocessing the game using cycle removal (Decycle) and/or decomposi
 tion into strongly connected components (DeSCC) affects the total running
- time for nonrandom testcases.
+ time for nonrandom test cases.
  For Small Progress Measures, the predecessor lifting strategy in the improved
  framework was used.
  The bold figures mark the lowest solution time among the four possible
@@ -14967,6 +15008,7 @@ Finally, it should be noted that in all cases where the preprocessing increased
 
 \begin_layout Standard
 \begin_inset Float table
+placement b
 wide false
 sideways false
 status open
@@ -15237,11 +15279,18 @@ In fact, Zielonka's algorithm is so effective that solving the unclustered
 
 \begin_layout Standard
 The clustered random games are somewhat more difficult to solve, and here
- the preprocessing algorithms are benefical.
+ the preprocessing algorithms are beneficial.
  Roughly 90% of the game can be solved using cycle removal, and running
  SCC decomposition afterwards further simplifies the problem.
  In these cases, preprocessing operations actually speed up the solution
  process.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage clearpage
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -15256,7 +15305,7 @@ To summarize, cycle removal is highly effective on random games, on which
 
 \begin_layout Standard
 On nonrandom cases, the results are mixed: in only one of the four cases
- described here cycle removal caused a significant speedup.
+ described here cycle removal caused a significant speed-up.
  However, the fact that such cases exist suggests that it is a useful optional
  feature.
 \end_layout
@@ -15266,8 +15315,8 @@ Conclusion
 \end_layout
 
 \begin_layout Standard
-Most of my research has been focussed on improving the performance of Jurdziński
-'s Small Progress Measures algorithm as part of a practical solver tool.
+Most of my research has focussed on improving the performance of Jurdziński's
+ Small Progress Measures algorithm as part of a practical solver tool.
  After designing and implementing various improvements to the most basic
  algorithm, and executing a number of benchmark experiments to assess their
  effects, I can draw several conclusions:
@@ -15327,7 +15376,7 @@ reference "sub:Two-sided-SPM"
 
 \end_inset
 
-), originally implemented by Oliver Friedemann in PGSolver but not described
+), originally implemented by Oliver Friedmann in PGSolver but not described
  in literature, was also evaluated and shown to work well on particularly
  difficult cases such as clustered random games.
  It has been shown to benefit greatly from the optimization described in
@@ -15344,7 +15393,7 @@ reference "sub:Optimization-after-lifting"
 \begin_layout Standard
 The main conclusion regarding Zielonka's recursive algorithm is that my
  benchmarks confirm earlier reports that this algorithm is very versatile,
- and quite good at solving even difficult testcases.
+ and quite good at solving even difficult test cases.
  It can additionally benefit from preprocessing techniques like SCC decompositio
 n.
  Based on these benchmark results, and the fact that the algorithm is not
@@ -15427,8 +15476,8 @@ key "boshoven2013symbolic"
 
 , as well as a method to solve these structures by adapting Zielonka's recursive
  algorithm.
- Similarly, work is underway to add symbolic solving of parity games to
- the LTSmin model checker
+ Similarly, work is under way to add symbolic solving of parity games to
+ the LTSmin model checker 
 \begin_inset CommandInset citation
 LatexCommand cite
 key "spgsolver"
@@ -15442,7 +15491,7 @@ key "spgsolver"
 \begin_layout Standard
 These developments look promising.
  For future work, it seems useful to evaluate their practical performance
- in greater detail, comparing both the performance between different symbolic
+ in greater detail, comparing the performance between different symbolic
  approaches and with earlier explicit methods.
 \end_layout
 
@@ -15472,10 +15521,10 @@ Currently, the best available parity game solvers run only sequentially.
 \end_layout
 
 \begin_layout Standard
-Although some previous work has been done parallellizing Small Progress
- Measures, and not entirely without success, the resulting solvers still
- could not outperform more sophisticated algorithms (or even more sophisticated
- variants of Small Progress Measures, such as those discussed in this report).
+Although some previous work has been done parallelizing Small Progress Measures,
+ and not entirely without success, the resulting solvers still could not
+ outperform more sophisticated algorithms (or even more sophisticated variants
+ of Small Progress Measures, such as those discussed in this report).
  Van de Pol and Weber report that their solver times out on uniform random
  graphs of about 
 \begin_inset Formula $100\,000$
@@ -15501,12 +15550,12 @@ the CPU implementation is still faster for the majority of the parity games
 
 \begin_layout Standard
 The above algorithms are all based on Small Progress Measures, which is
- probably the easiest algorithm to parallellize, but does not always offer
+ probably the easiest algorithm to parallelize, but does not always offer
  the best performance in practice.
  Even a fast, parallel implementation of Small Progress Measures may be
  outperformed by Zielonka's recursive algorithm or e.g.
  Schewe's optimal strategy improvement algorithm.
- Parallellizing those algorithms may be more difficult but ultimately more
+ Parallelizing those algorithms may be more difficult but ultimately more
  useful.
 \end_layout
 
@@ -15518,7 +15567,7 @@ The question of how to design efficient, non-sequential solvers that are
 \end_layout
 
 \begin_layout Standard
-A somewhat easier task, to start with, would be to efficiently parallellize
+A somewhat easier task, to start with, would be to efficiently parallelize
  the various preprocessing steps that greatly help solving parity games
  in practice: decomposition into strongly-connected components, removal
  of winner-controlled loops, solving single-player games, construction of
@@ -15589,7 +15638,7 @@ Although different kinds of problems may call for different approaches (and
 \end_layout
 
 \begin_layout Standard
-It is not obvious what kind of games parity game solver should be tested
+It is not obvious what kind of games parity game solvers should be tested
  on.
  Many practitioners choose to benchmark on randomly generated games, which
  are easy to generate, but do not look like anything that arises in practice.
@@ -15632,6 +15681,13 @@ options "bibtotoc,plainurl"
 \begin_layout Standard
 \begin_inset ERT
 status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+vfill
+\end_layout
 
 \begin_layout Plain Layout
 
