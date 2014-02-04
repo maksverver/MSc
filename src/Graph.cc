@@ -97,7 +97,7 @@ void StaticGraph::make_random_scc(edge_list &edges)
     std::vector<verti> index(V_, NO_VERTEX);
     for (verti i = 0; i < sccs.size(); ++i)
     {
-        const std::vector<verti> scc;
+        const std::vector<verti> &scc = sccs[i];
         for (verti j = 0; j < scc.size(); ++j)
         {
             index[scc[j]] = i;
@@ -132,10 +132,10 @@ void StaticGraph::make_random_scc(edge_list &edges)
     Logger::debug("Connecting %ld of %ld vertices to create an SCC.",
                   (long)vertis.size(), (long)V_);
     shuffle_vector(vertis);
-    for (verti i = 0; i < sccs.size(); ++i)
+    for (verti i = 0; i < vertis.size(); ++i)
     {
         const verti v = vertis[i],
-                    w = vertis[(i + 1)%sccs.size()];
+                    w = vertis[(i + 1)%vertis.size()];
         edges.push_back(std::make_pair(v, w));
     }
 }
@@ -155,8 +155,7 @@ void StaticGraph::make_random(verti V, unsigned outdeg, EdgeDirection edge_dir,
     assert(RAND_MAX >= V);
 
     /* Create a random edge set, with at least one outgoing edge per node,
-       and an average outdegree `outdeg`, without any duplicate edges (but
-       possibly with self-edges). */
+       and an average outdegree `outdeg`. */
     edge_list edges;
     std::vector<verti> neighbours(V);
     for (verti i = 0; i < V; ++i) neighbours[i] = i;
