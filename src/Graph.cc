@@ -307,17 +307,19 @@ void StaticGraph::assign(const StaticGraph &graph)
     }
 }
 
-void StaticGraph::assign(edge_list edges, EdgeDirection edge_dir)
+void StaticGraph::assign(edge_list edges, EdgeDirection edge_dir, verti V)
 {
     // Find number of vertices
-    verti V = 0;
-    for (edge_list::iterator it = edges.begin(); it != edges.end(); ++it)
+    if (V == NO_VERTEX)
     {
-        if (it->first  >= V) V = it->first  + 1;
-        if (it->second >= V) V = it->second + 1;
+        V = 0;
+        for (edge_list::iterator it = edges.begin(); it != edges.end(); ++it)
+        {
+            if (it->first  >= V) V = it->first  + 1;
+            if (it->second >= V) V = it->second + 1;
+        }
     }
 
-    // Count number of vertices
     edgei E = (edgei)edges.size();
     assert(E == edges.size());  /* detect integer overflow */
 

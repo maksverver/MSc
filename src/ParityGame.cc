@@ -44,7 +44,7 @@ void ParityGame::assign(const ParityGame &game)
     verti V = graph_.V();
     reset(V, game.d_);
     std::copy(game.vertex_, game.vertex_ + V, vertex_);
-    recalculate_cardinalities(V);
+    std::copy(game.cardinality_, game.cardinality_ + game.d_, cardinality_);
 }
 
 void ParityGame::reset(verti V, int d)
@@ -274,6 +274,17 @@ void ParityGame::swap(ParityGame &pg)
     std::swap(graph_, pg.graph_);
     std::swap(vertex_, pg.vertex_);
     std::swap(cardinality_, pg.cardinality_);
+}
+
+void ParityGame::make_subgame_with_edges( const ParityGame &game,
+                                          const StaticGraph::edge_list &edges,
+                                          StaticGraph::EdgeDirection edge_dir )
+{
+    verti V = game.graph_.V();
+    reset(V, game.d_);
+    std::copy(game.vertex_, game.vertex_ + V, vertex_);
+    std::copy(game.cardinality_, game.cardinality_ + game.d_, cardinality_);
+    graph_.assign(edges, edge_dir ? edge_dir : game.graph_.edge_dir(), V);
 }
 
 #ifdef WITH_THREADS

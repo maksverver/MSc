@@ -133,6 +133,13 @@ public:
                        StaticGraph::EdgeDirection edge_dir
                             = StaticGraph::EDGE_NONE );
 
+    /*! Create a subgame with the same vertex set as the original game, but with
+        a different set of edges. */
+    void make_subgame_with_edges( const ParityGame &game,
+                                  const StaticGraph::edge_list &edges,
+                                  StaticGraph::EdgeDirection edge_dir
+                                      = StaticGraph::EDGE_NONE );
+
 #ifdef WITH_THREADS
     void make_subgame_threads( const ParityGame &game,
                                const verti *verts,

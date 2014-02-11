@@ -99,8 +99,10 @@ public:
     /*! Reset the graph to a copy of `graph`. */
     void assign(const StaticGraph &graph);
 
-    /*! Reset the graph based on the given edge structure. */
-    void assign(edge_list edges, EdgeDirection edge_dir);
+    /*! Reset the graph based on the given edge structure.
+        @param V the number of vertices in the graph.
+                 By default, the value is calculated from the edge set. */
+    void assign(edge_list edges, EdgeDirection edge_dir, verti V = NO_VERTEX);
 
     /*! Convert the graph into a list of edges. */
     edge_list get_edges() const;
